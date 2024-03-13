@@ -24,7 +24,7 @@
     "start": "node dist/index.js",
     "start:dev": "npx nodemon",
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint --fix .",
+    "lint:fix": "eslint --fix --ext .ts",
     "build": "tsc",
     "prepare": "husky install",
     "test": "jest",
