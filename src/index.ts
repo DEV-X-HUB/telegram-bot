@@ -1,12 +1,27 @@
-import express, { Request, Response } from 'express';
+// File used to start the server or bootstap  the server
+import http from "http";
+import app from "./loaders/app";
+import dbConnecion from "./loaders/db-connecion";
 
-const app = express();
-const port = 3000;
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
-});
+// Igniter function
+export default  () => {
+  // Server
+  const server = http.createServer(app);
 
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
-});
+  // Port
+  console.log(process.env.PORT);
+  const port = process.env.PORT || 3001;
+
+  // Listen
+  server.listen(port, () => {
+    console.log(`Listening on ${port}...`);
+  });
+  // Majestic Close
+  process.on("SIGINT", () => {
+    server.close(() => {
+      console.log(`App is closing`);
+    });
+    dbConnecion.close();
+  });
+};
