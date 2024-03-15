@@ -1,5 +1,5 @@
 import { Telegraf, Context, Scenes, session, Markup } from 'telegraf';
-import dbConnecion from './loaders/db-connecion';
+// import dbConnecion from './loaders/db-connecion';
 import Bot from './loaders/bot';
 import registerScene from './registration/registration.scene';
 
@@ -14,12 +14,11 @@ const ignite = () => {
       ctx.reply('heybody');
     });
     bot.command('register', (ctx: any) => {
-      ctx.reply("Welcome! Let's start the registration process.");
       ctx.scene.enter('register');
     });
   }
   process.on('SIGINT', () => {
-    dbConnecion.close();
+    // dbConnecion.close();
     bot?.stop();
   });
 };
