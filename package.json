@@ -15,6 +15,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "dependencies": {
+    "@telegraf/session": "^2.0.0-beta.7",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/mongoose": "^5.11.97",
@@ -29,12 +30,13 @@
     "mongoose": "^8.2.1",
     "morgan": "^1.10.0",
     "prettier": "^3.2.5",
+    "redis": "^4.6.13",
     "undici-types": "^5.26.5",
     "winston": "^3.12.0"
   },
   "scripts": {
     "start": "node dist/index.js",
-    "start:dev": "npx nodemon",
+    "dev": "npx nodemon",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix --ext .ts",
     "build": "tsc",

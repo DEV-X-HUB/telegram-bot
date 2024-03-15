@@ -1,27 +1,29 @@
-// File used to start the server or bootstap  the server
-import http from "http";
-import app from "./loaders/app";
-import dbConnecion from "./loaders/db-connecion";
-
+import { Telegraf, Context, Scenes, session, Markup } from 'telegraf';
+import dbConnecion from './loaders/db-connecion';
+import Bot from './loaders/bot';
+import MainMenuController from './mainmenu/mainmenu.controller';
+import registerScene from './registration/registration-controller';
 
 // Igniter function
-export default  () => {
-  // Server
-  const server = http.createServer(app);
-
-  // Port
-  console.log(process.env.PORT);
-  const port = process.env.PORT || 3001;
-
-  // Listen
-  server.listen(port, () => {
-    console.log(`Listening on ${port}...`);
-  });
-  // Majestic Close
-  process.on("SIGINT", () => {
-    server.close(() => {
-      console.log(`App is closing`);
+const ignite = () => {
+  const bot = Bot();
+  if (bot) {
+    const stage = new Scenes.Stage([registerScene]);
+    bot.use(session());
+    bot.use(stage.middleware());
+    bot.start((ctx) => {
+      console.log(ctx);
+      ctx.reply('heybody');
     });
+    bot.command('reg', (ctx: any) => {
+      ctx.reply("Welcome! Let's start the registration process.");
+      ctx.scene.enter('register');
+    });
+  }
+  process.on('SIGINT', () => {
     dbConnecion.close();
+    bot?.stop();
   });
 };
+
+ignite();
