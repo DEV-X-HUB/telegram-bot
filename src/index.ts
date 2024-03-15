@@ -20,7 +20,7 @@ const ignite = () => {
     bot.command('reg', (ctx: any) => {});
   }
   process.on('SIGINT', () => {
-    dbConnecion.close();
+    // dbConnecion.close();
     bot?.stop();
   });
 };
