@@ -1,18 +1,18 @@
-// import { Telegraf, Context, Scenes, Markup } from 'telegraf';
-// import RegistrationController from './registration.controller';
+import { Telegraf, Context, Scenes, Markup } from 'telegraf';
+import RegistrationController from './registration.controller';
 
-// const registrationController = new RegistrationController();
+const registrationController = new RegistrationController();
 
-// const registerScene = new Scenes.WizardScene(
-//   'register',
-//   registrationController.start,
-//   registrationController.shareContact,
-//   registrationController.addFirstName,
-//   registrationController.addLastName,
-//   registrationController.addAge,
-//   registrationController.addProfileImage,
-// );
+const registerScene = new Scenes.WizardScene(
+  'register',
+  registrationController.start,
+  registrationController.shareContact,
+  registrationController.addFirstName,
+  registrationController.addLastName,
+  registrationController.addAge,
+  registrationController.addProfileImage,
+);
 
-// export default registerScene;
+export default registerScene;
 
-// // Handle errors gracefully (optional)
+// Handle errors gracefully (optional)
