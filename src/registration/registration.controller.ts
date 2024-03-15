@@ -33,6 +33,7 @@ class RegistrationController {
     }
     ctx.wizard.state.data.age = age;
     ctx.reply('Finally, send a photo for your profile image:');
+    console.log(ctx.wizard.state);
     return ctx.wizard.next();
   }
 
