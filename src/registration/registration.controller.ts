@@ -69,7 +69,6 @@ class RegistrationController {
       return ctx.reply('Invalid age. Please enter a valid age (13 or older):');
     }
     ctx.wizard.state.data.age = age;
-
     return ctx.wizard.next();
   }
 
