@@ -6,8 +6,9 @@ const registrationController = new RegistrationController();
 const registerScene = new Scenes.WizardScene(
   'register',
   registrationController.start,
-  registrationController.addUsername,
-  registrationController.addFathername,
+  registrationController.shareContact,
+  registrationController.addFirstName,
+  registrationController.addLastName,
   registrationController.addAge,
   registrationController.addProfileImage,
 );
