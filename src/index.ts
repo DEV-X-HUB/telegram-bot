@@ -1,7 +1,7 @@
 import { Telegraf, Markup, Scenes, session } from 'telegraf';
 import dbConnecion from './loaders/db-connecion';
 import Bot from './loaders/bot';
-import registerScene from './registration/registration.scene';
+import registerScene from './registration/registration.controller';
 import MainMenuController from './mainmenu/mainmenu.controller';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
@@ -17,7 +17,12 @@ const ignite = () => {
 
     // bot.start(new MainMenuController().onStart);
     bot.command('start', new MainMenuController().onStart);
-    bot.command('reg', (ctx: any) => {});
+    bot.command('register', (ctx: any) => {
+      ctx.scene.enter('register');
+    });
+    bot.hears('Option 1', (ctx) => {
+      ctx.reply('You selected Option 1');
+    });
   }
   process.on('SIGINT', () => {
     dbConnecion.close();
