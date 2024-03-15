@@ -4,77 +4,37 @@ class RegistrationController {
   constructor() {}
 
   start(ctx: any) {
-    // ctx.reply('What is your gender?', {
-    //   reply_markup: {
-    //     inline_keyboard: [
-    //       /* Inline buttons. 2 side-by-side */
-    //       [{ text: 'Male' }, { text: 'Female' }],
-
-    //       [{ text: 'Cancel' }],
-    //     ],
-    //   },
-    // });
-
-    ctx.reply('Welcome to the registration process!');
-
-    ctx.reply('https://telegra.ph/  TERMS-AND-CONDITIONS-09-16-2');
-
-    ctx.reply(
-      'Do you agree with these Terms and Conditions? Please select Yes or No from the Buttons below!?',
-      inlineKeyboard(['Yes', 'yes'], ['No', 'onNo']),
-    );
-    // ctx.reply('A', inlineKeyboard(['Cancel', 'onNo']));
-
-    // ctx.reply('Do you agree with these Terms and Conditions? Please select Yes or No from the Buttons below!', {
+    // ctx.reply(
+    //   'Welcome to the registration process. Please view this link to read our terms and conditions: [Terms and Conditions](https://example.com/terms)',
+    // );
+    // ctx.reply('Do you agree to the terms and conditions?', {
     //   reply_markup: {
     //     inline_keyboard: [
     //       /* Inline buttons. 2 side-by-side */
     //       [
-    //         { text: 'Yes', callback_data: 'btn-1' },
-    //         { text: 'No', callback_data: 'btn-2' },
+    //         { text: 'Yes', callback_data: 'agree_yes' },
+    //         { text: 'No', callback_data: 'agree_no' },
     //       ],
 
-    //       /* One button */
     //       [{ text: 'Cancel', callback_data: 'cancel' }],
     //     ],
     //   },
     // });
 
-    // ctx.reply('Please share your contact.', {
-    //   reply_markup: {
-    //     keyboard: [
-    //       [
-    //         {
-    //           text: '📲 Send phone number',
-    //           request_contact: true,
-    //         },
-    //         {
-    //           text: '❌ Cancel',
-    //         },
-    //       ],
-    //     ],
-    //     one_time_keyboard: true,
-    //   },
-    // });
-    // ctx.wizard.state.data = {}; // Initialize data storage
-    // return ctx.wizard.next();
+    // ctx.wizard.state.data = {};
+    return ctx.wizard.next();
   }
 
   async agreeWithTerms(ctx: any) {
-    // ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
-    // ctx.reply('Hi there!', {
-    //   reply_markup: {
-    //     inline_keyboard: [
-    //       /* Inline buttons. 2 side-by-side */
-    //       [
-    //         { text: 'Yes', callback_data: 'btn-1' },
-    //         { text: 'No', callback_data: 'btn-2' },
-    //       ],
-    //       /* One button */
-    //       [{ text: 'Cancel', callback_data: 'cancel' }],
-    //     ],
-    //   },
-    // });
+    // const agreed = ctx.callbackQuery.data === 'agree_yes';
+    // console.log(agreed);
+    // if (!agreed) {
+    //   return ctx.reply('You must agree to the terms and conditions to proceed');
+    // }
+    // ctx.wizard.state.data.agreed = agreed;
+
+    // ctx.reply('Great! Please share your phone number with us:');
+    return ctx.wizard.next();
   }
 
   async shareContact(ctx: any) {
