@@ -3,6 +3,17 @@ class RegistrationController {
   constructor() {}
 
   start(ctx: any) {
+    // ctx.reply('What is your gender?', {
+    //   reply_markup: {
+    //     inline_keyboard: [
+    //       /* Inline buttons. 2 side-by-side */
+    //       [{ text: 'Male' }, { text: 'Female' }],
+
+    //       [{ text: 'Cancel' }],
+    //     ],
+    //   },
+    // });
+
     ctx.reply('Welcome to the registration process!');
     ctx.reply('Please share your contact.', {
       reply_markup: {
