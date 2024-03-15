@@ -1,5 +1,5 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
-import RegistrationService from './restgration-service';
+import RegistrationService from './restgration.service';
 
 const registrationService = new RegistrationService();
 
