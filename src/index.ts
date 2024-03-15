@@ -1,7 +1,7 @@
 import { Telegraf, Markup, Scenes, session } from 'telegraf';
 import dbConnecion from './loaders/db-connecion';
 import Bot from './loaders/bot';
-import registerScene from './registration/registration.controller';
+import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
@@ -11,7 +11,7 @@ import MainMenuController from './mainmenu/mainmenu.controller';
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([registerScene]);
+    const stage = new Scenes.Stage([RegistrationScene]);
     bot.use(session());
     bot.use(stage.middleware());
 
