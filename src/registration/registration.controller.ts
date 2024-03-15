@@ -1,22 +1,48 @@
+const { Telegraf, Markup } = require('telegraf');
 class RegistrationController {
   constructor() {}
 
   start(ctx: any) {
-    ctx.reply('Welcome to the registration process! Please enter your username:');
+    ctx.reply('Welcome to the registration process!');
+    ctx.reply('Please share your contact.', {
+      reply_markup: {
+        keyboard: [
+          [
+            {
+              text: '📲 Send phone number',
+              request_contact: true,
+            },
+            {
+              text: '❌ Cancel',
+            },
+          ],
+        ],
+        one_time_keyboard: true,
+      },
+    });
     ctx.wizard.state.data = {}; // Initialize data storage
     return ctx.wizard.next();
   }
-  async addUsername(ctx: any) {
-    const username = ctx.message.text.trim();
-    if (username.length < 4) {
-      return ctx.reply('Username must be at least 4 characters long. Please try again:');
+
+  async shareContact(ctx: any) {
+    const contact = ctx.message;
+    ctx.wizard.state.data.phone_number = contact.phone_number;
+
+    ctx.reply('Next, enter your first name');
+    return ctx.wizard.next();
+  }
+
+  async addFirstName(ctx: any) {
+    const firstName = ctx.message.text.trim();
+    if (firstName.length < 3) {
+      return ctx.reply('first name must be at least 3 characters long. Please try again:');
     }
-    ctx.wizard.state.data.username = username;
+    ctx.wizard.state.data.firstName = firstName;
     ctx.reply("Next, enter your father's name:");
     return ctx.wizard.next();
   }
 
-  async addFathername(ctx: any) {
+  async addLastName(ctx: any) {
     const fatherName = ctx.message.text.trim();
     if (fatherName.length === 0) {
       return ctx.reply("Father's name cannot be empty. Please enter a name:");
@@ -32,7 +58,7 @@ class RegistrationController {
       return ctx.reply('Invalid age. Please enter a valid age (13 or older):');
     }
     ctx.wizard.state.data.age = age;
-    ctx.reply('Finally, send a photo for your profile image:');
+
     return ctx.wizard.next();
   }
 
@@ -48,7 +74,7 @@ class RegistrationController {
     console.log('Registration data:', registrationData);
 
     await ctx.reply('Registration successful! You can now use the bot.');
-    ctx.scene.enter('/menu'); // Exit the scene after successful registration
+    // ctx.scene.enter('/menu'); // Exit the scene after successful registration
   }
 }
 
