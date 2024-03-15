@@ -15,7 +15,7 @@ const ignite = () => {
     bot.use(session());
     bot.use(stage.middleware());
 
-    bot.start(new MainMenuController().onStart);
+    // bot.start(new MainMenuController().onStart);
     bot.command('start', new MainMenuController().onStart);
     bot.command('reg', (ctx: any) => {});
   }
