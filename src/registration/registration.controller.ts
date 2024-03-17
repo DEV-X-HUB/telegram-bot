@@ -72,24 +72,27 @@ class RegistrationController {
   }
 
   async enterFirstName(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
+
     ctx.wizard.state.first_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.lastNameformatter());
+    ctx.reply(...registrationFormatter.lastNameformatter(), Markup.keyboard(['Back']).oneTime().resize());
+
     return ctx.wizard.next();
   }
   async enterLastName(ctx: any) {
     ctx.wizard.state.last_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.ageFormatter());
+    ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
   }
   async enterAge(ctx: any) {
     ctx.wizard.state.age = ctx.message.text;
-    ctx.reply(...registrationFormatter.chooseGenderFormatter());
+    ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
-      await ctx.reply(...registrationFormatter.chooseGenderFormatter());
+      await ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
@@ -105,7 +108,10 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         default: {
-          await ctx.reply(...registrationFormatter.chooseGenderFormatter());
+          await ctx.reply(
+            ...registrationFormatter.chooseGenderFormatter(),
+            Markup.keyboard(['Back']).oneTime().resize(),
+          );
         }
       }
     }
