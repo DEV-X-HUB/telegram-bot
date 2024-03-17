@@ -3,6 +3,19 @@ import { InlineKeyboardButtons } from '../components/button';
 
 class RegistrationFormatter {
   constructor() {}
+  termsAndConditionsDisplay() {
+    return [
+      `Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below`,
+
+      InlineKeyboardButtons([
+        [
+          { text: 'Yes', cbString: 'agree_terms' },
+          { text: 'No', cbString: 'dont_agree_terms' },
+        ],
+        [{ text: 'Back', cbString: 'back_from_terms' }],
+      ]),
+    ];
+  }
   chooseGenderFormatter() {
     return [
       `Please choose your gender`,
