@@ -7,7 +7,7 @@ const registrationController = new RegistrationController();
 const registrationScene = new Scenes.WizardScene(
   'register',
   registrationController.agreeTermsDisplay,
-  registrationController.agreeTermsHanlder,
+  registrationController.agreeTermsHandler,
   registrationController.enterFirstName,
   registrationController.enterLastName,
   registrationController.enterAge,
