@@ -1,5 +1,5 @@
 import { Telegraf, Markup, Scenes, session } from 'telegraf';
-import dbConnecion from './loaders/db-connecion';
+// import dbConnecion from './loaders/db-connecion';
 import Bot from './loaders/bot';
 import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
@@ -30,7 +30,7 @@ const ignite = () => {
     });
   }
   process.on('SIGINT', () => {
-    dbConnecion.close();
+    // dbConnecion.close();
     bot?.stop();
   });
 };

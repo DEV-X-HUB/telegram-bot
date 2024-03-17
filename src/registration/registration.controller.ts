@@ -1,7 +1,7 @@
 import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFormatter from './registration-formatter';
-import { checkCommandInWizardScene } from '../middleware/check-command';
+import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middleware/check-command';
 
 const registrationFormatter = new RegistrationFormatter();
 
@@ -24,13 +24,31 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
-    if (await checkCommandInWizardScene(ctx)) return;
+    // if (await checkCommandInWizardScene(ctx)) return;
+
+    checkAndRedirectToScene();
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery.data) {
         case 'agree_terms': {
           ctx.reply('lets start your first registration ');
-          ctx.reply(...registrationFormatter.firstNameformatter());
+          ctx.reply('Please share your contact.', {
+            reply_markup: {
+              keyboard: [
+                [
+                  {
+                    text: '📲 Send phone number',
+                    request_contact: true,
+                  },
+                  {
+                    text: '❌ Cancel',
+                  },
+                ],
+              ],
+              one_time_keyboard: true,
+            },
+          });
+          // ctx.reply(...registrationFormatter.firstNameformatter());
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
@@ -52,6 +70,29 @@ class RegistrationController {
     else {
       ctx.reply('Please use the buttons to select your choice');
     }
+  }
+
+  async shareContact(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
+
+    // reply markup to request contact
+    ctx.reply('Please share your contact.', {
+      reply_markup: {
+        keyboard: [
+          [
+            {
+              text: '📲 Send phone number',
+              request_contact: true,
+            },
+            {
+              text: '❌ Cancel',
+            },
+          ],
+        ],
+        one_time_keyboard: true,
+      },
+    });
+    return ctx.wizard.next();
   }
 
   async enterFirstName(ctx: any) {
