@@ -22,7 +22,7 @@ class RegistrationController {
 
     return ctx.wizard.next();
   }
-  async agreeTermsHanlder(ctx: any) {
+  async agreeTermsHandler(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery.data) {
