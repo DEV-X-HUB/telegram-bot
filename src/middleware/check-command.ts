@@ -2,7 +2,8 @@
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
   if (ctx?.message?.text && ctx?.message?.text?.startsWith('/')) {
-    ctx.reply(errorMsg || 'Invalid input.');
+    ctx.reply('Invalid input.');
+    errorMsg && ctx.reply(errorMsg);
     return true;
   }
   return false;
