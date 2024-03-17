@@ -13,6 +13,7 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 // Middleware to check if user entered command and redirect to its scene
 export function checkAndRedirectToScene() {
   return (ctx: any, next: any) => {
+    console.log(ctx, 'check commad ');
     const text = ctx.message.text;
 
     if (text && text.startsWith('/')) {

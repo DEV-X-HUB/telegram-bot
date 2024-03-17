@@ -14,6 +14,8 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.enterAge,
   registrationController.chooseGender,
   registrationController.editRegister,
+  registrationController.editData,
+  registrationController.upateFiled,
   async (ctx: any) => {
     // Step 5: Save the age and finish registration
     ctx.session.age = ctx.message.text;
