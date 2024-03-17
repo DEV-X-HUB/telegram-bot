@@ -1,3 +1,4 @@
+import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 
 class RegistrationFormatter {
@@ -20,23 +21,10 @@ class RegistrationFormatter {
 
   shareContact() {
     return [
-      'Please share your contact.',
-      {
-        reply_markup: {
-          keyboard: [
-            [
-              {
-                text: '📲 Send phone number',
-                request_contact: true,
-              },
-              {
-                text: '❌ Cancel',
-              },
-            ],
-          ],
-          one_time_keyboard: true,
-        },
-      },
+      'lets start your first registration. Please share your contact.',
+      Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
+        .oneTime()
+        .resize(),
     ];
   }
   shareContactWarning() {

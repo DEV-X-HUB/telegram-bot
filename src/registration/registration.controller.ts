@@ -5,6 +5,13 @@ import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middlewar
 
 const registrationFormatter = new RegistrationFormatter();
 
+const goBack = () => {
+  return (ctx: any) => {
+    ctx.wizard.back();
+    return ctx.wizard.step();
+  };
+};
+
 class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
@@ -27,7 +34,7 @@ class RegistrationController {
     console.log(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
-      switch (callbackQuery.data) {
+      switch (callbackQuery?.data) {
         case 'agree_terms': {
           // console.log()
           ctx.reply('lets start your first registration ');
@@ -45,6 +52,7 @@ class RegistrationController {
           // return one step back
           return ctx.wizard.leave();
         }
+
         default: {
           ctx.reply('Unknown Command');
           return ctx.wizard.back();
@@ -61,21 +69,44 @@ class RegistrationController {
     const text = ctx.message.text;
     console.log(ctx.message.contact);
     console.log(ctx.message.text);
-    if (text && text == '❌ Cancel') {
+    if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.reply(...registrationFormatter.firstNameformatter());
       ctx.wizard.state.phone_number = contact.phone_number;
-      return ctx.wizard.next();
+
+      const message = ctx?.message;
+      // console.log('message', message);
+      if (message?.contact) {
+        ctx.wizard.state.contact = message.contact;
+        ctx.reply(
+          ...registrationFormatter.firstNameformatter(),
+
+          //back button with callback string
+          Markup.keyboard([Markup.button.callback('Back', 'back')])
+            .oneTime()
+            .resize(),
+        );
+
+        return ctx.wizard.next();
+      }
+      ctx.reply(...registrationFormatter.shareContactWarning());
     }
-    ctx.reply(...registrationFormatter.shareContactWarning());
   }
 
   async enterFirstName(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
 
+    // console.log(ctx);
+
     ctx.wizard.state.first_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.lastNameformatter(), Markup.keyboard(['Back']).oneTime().resize());
+    ctx.reply(
+      ...registrationFormatter.lastNameformatter(),
+      //back button with callback string
+      Markup.keyboard([Markup.button.callback('Back', 'back')])
+        .oneTime()
+        .resize(),
+    );
 
     return ctx.wizard.next();
   }
@@ -84,7 +115,19 @@ class RegistrationController {
     ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
   }
+
   async enterAge(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
+
+    const callbackQuery = ctx?.callbackQuery;
+    // console.log(callbackQuery);
+    if (callbackQuery) {
+      if (callbackQuery?.data == 'Back') {
+        console.log('back clicked');
+        ctx.wizard.back();
+        return ctx.wizard.step();
+      }
+    }
     ctx.wizard.state.age = ctx.message.text;
     ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
