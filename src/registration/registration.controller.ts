@@ -53,14 +53,12 @@ class RegistrationController {
       ctx.reply('Please use the buttons to select your choice');
     }
   }
-
   async enterFirstName(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.first_name = ctx.message.text;
     ctx.reply(...registrationFormatter.lastNameformatter());
     return ctx.wizard.next();
   }
-
   async enterLastName(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.last_name = ctx.message.text;
@@ -73,7 +71,6 @@ class RegistrationController {
     ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
-
   async chooseGender(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
     const callbackQuery = ctx.callbackQuery;
@@ -98,7 +95,6 @@ class RegistrationController {
       }
     }
   }
-
   async editRegister() {}
 }
 
