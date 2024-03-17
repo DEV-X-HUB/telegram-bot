@@ -3,7 +3,7 @@ import dbConnecion from './loaders/db-connecion';
 import Bot from './loaders/bot';
 import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
-import checkCommand from './middleware/check-command';
+import { checkAndRedirectToScene } from './middleware/check-command';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
 
@@ -19,8 +19,10 @@ const ignite = () => {
     //middleware to handle commands separately
 
     bot.command('start', new MainMenuController().onStart);
-
-    bot.use(checkCommand());
+    bot.command('register', (ctx: any) => {
+      ctx.scene.enter('register');
+    });
+    bot.use(checkAndRedirectToScene());
 
     bot.hears('Option 1', (ctx) => {
       ctx.reply('You selected Option 1');
