@@ -1,8 +1,8 @@
 import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
-import RegistrationFrommater from './registration-formmate';
+import RegistrationFormatter from './registration-formatter';
 
-const registrationFormmater = new RegistrationFrommater();
+const registrationFormatter = new RegistrationFormatter();
 
 class RegistrationController {
   constructor() {}
@@ -14,7 +14,7 @@ class RegistrationController {
       InlineKeyboardButtons([
         [
           { text: 'Yes', cbString: 'agree_terms' },
-          { text: 'NO', cbString: 'dont_agree_terms' },
+          { text: 'No', cbString: 'dont_agree_terms' },
         ],
         [{ text: 'Back', cbString: 'back_from_terms' }],
       ]),
@@ -22,70 +22,72 @@ class RegistrationController {
 
     return ctx.wizard.next();
   }
-  async ageeTermsHanlder(ctx: any) {
+  async agreeTermsHanlder(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery.data) {
         case 'agree_terms': {
           ctx.reply('lets start your first registration ');
-          ctx.reply(...registrationFormmater.firstNamefommater());
+          ctx.reply(...registrationFormatter.firstNameformatter());
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
           ctx.reply(
             'You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed. ',
           );
+          // call the function to display the terms and conditions again
           return ctx.wizard.leave();
         }
         case 'back_from_terms': {
-          return ctx.scene.enter('main');
+          // return one step back
+          return ctx.wizard.leave();
         }
         default: {
-          return ctx.reply('unknowns');
+          ctx.reply('Unknown Command');
+          return ctx.wizard.back();
         }
       }
     else {
-      console.log('noo');
+      ctx.reply('Please use the buttons to select your choice');
     }
-    // else ctx.wizard.preve
   }
 
   async enterFirstName(ctx: any) {
     ctx.wizard.state.first_name = ctx.message.text;
-    ctx.reply(...registrationFormmater.lastNamefommater());
+    ctx.reply(...registrationFormatter.lastNameformatter());
     return ctx.wizard.next();
   }
 
   async enterLastName(ctx: any) {
     ctx.wizard.state.last_name = ctx.message.text;
-    ctx.reply(...registrationFormmater.ageFommater());
+    ctx.reply(...registrationFormatter.ageFormatter());
     return ctx.wizard.next();
   }
   async enterAge(ctx: any) {
     ctx.wizard.state.age = ctx.message.text;
-    ctx.reply(...registrationFormmater.chooseGenderFommater());
+    ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
 
   async chooseGender(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
-      await ctx.reply(...registrationFormmater.chooseGenderFommater());
+      await ctx.reply(...registrationFormatter.chooseGenderFormatter());
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'gender_male': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormmater.preview(state.first_name, state.last_name, state.age, 'male'));
+          ctx.reply(...registrationFormatter.preview(state.first_name, state.last_name, state.age, 'male'));
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormmater.preview(state.first_name, state.last_name, state.age, 'female'));
+          ctx.reply(...registrationFormatter.preview(state.first_name, state.last_name, state.age, 'female'));
           return ctx.wizard.next();
         }
         default: {
-          await ctx.reply(...registrationFormmater.chooseGenderFommater());
+          await ctx.reply(...registrationFormatter.chooseGenderFormatter());
         }
       }
     }
