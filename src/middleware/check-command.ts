@@ -1,14 +1,12 @@
 // Middleware (Validator) to check if the user entered a command in the wizard scene
-export async function checkCommandInWizardScene(ctx: any) {
-  // if the user enters a command(starting with "/") then return to the previous step
+export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
+  // if the user enters a command(starting with "/") t
   if (ctx?.message?.text && ctx?.message?.text?.startsWith('/')) {
-    await ctx.reply('Invalid input.');
-    return ctx.wizard.back();
-    // await ctx.wizard.back(); // Set the listener to the previous function
-    // return ctx.wizard.back();
-
-    // return ctx.wizard.steps[ctx.wizard.cursor](ctx); // Manually trigger the listener with the current ctx
+    ctx.reply('Invalid input.');
+    errorMsg && ctx.reply(errorMsg);
+    return true;
   }
+  return false;
 }
 
 // Middleware to check if user entered command and redirect to its scene

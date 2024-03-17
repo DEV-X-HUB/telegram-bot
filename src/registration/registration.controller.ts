@@ -24,8 +24,7 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
-    await checkCommandInWizardScene(ctx);
-
+    if (await checkCommandInWizardScene(ctx)) return;
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery.data) {
@@ -56,7 +55,7 @@ class RegistrationController {
   }
 
   async enterFirstName(ctx: any) {
-    await checkCommandInWizardScene(ctx);
+    if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.first_name = ctx.message.text;
     ctx.reply(...registrationFormatter.lastNameformatter());
     return ctx.wizard.next();
@@ -64,19 +63,20 @@ class RegistrationController {
 
   async enterLastName(ctx: any) {
     await checkCommandInWizardScene(ctx);
+    if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.last_name = ctx.message.text;
     ctx.reply(...registrationFormatter.ageFormatter());
     return ctx.wizard.next();
   }
   async enterAge(ctx: any) {
-    await checkCommandInWizardScene(ctx);
+    if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.age = ctx.message.text;
     ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
 
   async chooseGender(ctx: any) {
-    await checkCommandInWizardScene(ctx);
+    if (await checkCommandInWizardScene(ctx)) return;
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       await ctx.reply(...registrationFormatter.chooseGenderFormatter());

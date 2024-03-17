@@ -22,6 +22,7 @@ const ignite = () => {
     bot.command('register', (ctx: any) => {
       ctx.scene.enter('register');
     });
+
     bot.use(checkAndRedirectToScene());
 
     bot.hears('Option 1', (ctx) => {
