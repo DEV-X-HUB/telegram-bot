@@ -1,26 +1,26 @@
 import { InlineKeyboardButtons } from '../components/button';
 
-class RegistrationFrommater {
+class RegistrationFormatter {
   constructor() {}
-  chooseGenderFommater() {
+  chooseGenderFormatter() {
     return [
       `Please choose your gender`,
       InlineKeyboardButtons([
         [
           { text: 'Male', cbString: 'gender_male' },
-          { text: 'Femail', cbString: 'gender_female' },
+          { text: 'Female', cbString: 'gender_female' },
         ],
       ]),
     ];
   }
 
-  firstNamefommater() {
+  firstNameformatter() {
     return [`Please choose your first name `];
   }
-  lastNamefommater() {
+  lastNameformatter() {
     return [`Please choose your last name `];
   }
-  ageFommater() {
+  ageFormatter() {
     return [`Please choose your Age `];
   }
   preview(first_name: string, last_name: string, age: number | string, gender: string) {
@@ -36,4 +36,4 @@ class RegistrationFrommater {
   }
 }
 
-export default RegistrationFrommater;
+export default RegistrationFormatter;
