@@ -1,8 +1,5 @@
-// middleware to check if user entered command or not
-// if the user inserts command starting with "/", the middleware will redirect to its scene,
-// else return next on telegraf bot
-
-function checkCommand() {
+// Middleware to check if user entered command and redirect to its scene
+export function checkAndRedirectToScene() {
   return (ctx: any, next: any) => {
     const text = ctx.message.text;
 
@@ -26,4 +23,3 @@ function checkCommand() {
     }
   };
 }
-export default checkCommand;
