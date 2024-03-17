@@ -1,6 +1,7 @@
 import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFormatter from './registration-formatter';
+import { checkCommandInWizardScene } from '../middleware/check-command';
 
 const registrationFormatter = new RegistrationFormatter();
 
@@ -23,6 +24,7 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery.data) {
@@ -53,23 +55,27 @@ class RegistrationController {
   }
 
   async enterFirstName(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.first_name = ctx.message.text;
     ctx.reply(...registrationFormatter.lastNameformatter());
     return ctx.wizard.next();
   }
 
   async enterLastName(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.last_name = ctx.message.text;
     ctx.reply(...registrationFormatter.ageFormatter());
     return ctx.wizard.next();
   }
   async enterAge(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
     ctx.wizard.state.age = ctx.message.text;
     ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
 
   async chooseGender(ctx: any) {
+    if (await checkCommandInWizardScene(ctx)) return;
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       await ctx.reply(...registrationFormatter.chooseGenderFormatter());
