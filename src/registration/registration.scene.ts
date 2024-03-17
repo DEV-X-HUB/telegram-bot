@@ -8,15 +8,11 @@ const registrationScene = new Scenes.WizardScene(
   'register',
   registrationController.agreeTermsDisplay,
   registrationController.ageeTermsHanlder,
+  registrationController.enterFirstName,
+  registrationController.enterLastName,
+  registrationController.enterAge,
   registrationController.chooseGender,
-  async (ctx: any) => {
-    // Step 4: Save the gender and ask for the age
-    console.log(ctx.callbackQuery);
-    // ctx.session.gender = ctx.callbackQuery.data === 'gender_male' ? 'Male' : 'Female';
-    // await ctx.reply('Please enter your age:');
-    // console.log(ctx.session);
-    // return ctx.wizard.next();
-  },
+  registrationController.editRegister,
   async (ctx: any) => {
     // Step 5: Save the age and finish registration
     ctx.session.age = ctx.message.text;

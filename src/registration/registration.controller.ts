@@ -2,11 +2,10 @@ import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFrommater from './registration-formmate';
 
+const registrationFormmater = new RegistrationFrommater();
+
 class RegistrationController {
-  registrationFormmater;
-  constructor() {
-    this.registrationFormmater = new RegistrationFrommater();
-  }
+  constructor() {}
   async agreeTermsDisplay(ctx: any) {
     await ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
     await ctx.reply(
@@ -29,7 +28,7 @@ class RegistrationController {
       switch (callbackQuery.data) {
         case 'agree_terms': {
           ctx.reply('lets start your first registration ');
-          ctx.reply('first name ');
+          ctx.reply(...registrationFormmater.firstNamefommater());
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
@@ -50,30 +49,49 @@ class RegistrationController {
     }
     // else ctx.wizard.preve
   }
+
+  async enterFirstName(ctx: any) {
+    ctx.wizard.state.first_name = ctx.message.text;
+    ctx.reply(...registrationFormmater.lastNamefommater());
+    return ctx.wizard.next();
+  }
+
+  async enterLastName(ctx: any) {
+    ctx.wizard.state.last_name = ctx.message.text;
+    ctx.reply(...registrationFormmater.ageFommater());
+    return ctx.wizard.next();
+  }
+  async enterAge(ctx: any) {
+    ctx.wizard.state.age = ctx.message.text;
+    ctx.reply(...registrationFormmater.chooseGenderFommater());
+    return ctx.wizard.next();
+  }
+
   async chooseGender(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-
     if (!callbackQuery) {
-      await ctx.reply(...this.registrationFormmater.chooseGenderFommater());
-    } else
+      await ctx.reply(...registrationFormmater.chooseGenderFommater());
+    } else {
+      const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'gender_male': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply('age ');
+          ctx.reply(...registrationFormmater.preview(state.first_name, state.last_name, state.age, 'male'));
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply('age ');
+          ctx.reply(...registrationFormmater.preview(state.first_name, state.last_name, state.age, 'female'));
           return ctx.wizard.next();
         }
         default: {
-          await ctx.reply(...this.registrationFormmater.chooseGenderFommater());
+          await ctx.reply(...registrationFormmater.chooseGenderFommater());
         }
       }
-
-    return ctx.wizard.next();
+    }
   }
+
+  async editRegister() {}
 }
 
 export default RegistrationController;
