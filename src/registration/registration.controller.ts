@@ -31,24 +31,13 @@ class RegistrationController {
     if (callbackQuery)
       switch (callbackQuery.data) {
         case 'agree_terms': {
-          ctx.reply('lets start your first registration ');
-          ctx.reply('Please share your contact.', {
-            reply_markup: {
-              keyboard: [
-                [
-                  {
-                    text: '📲 Send phone number',
-                    request_contact: true,
-                  },
-                  {
-                    text: '❌ Cancel',
-                  },
-                ],
-              ],
-              one_time_keyboard: true,
-            },
-          });
-          // ctx.reply(...registrationFormatter.firstNameformatter());
+          ctx.reply(
+            'lets start your first registration. Please share your contact.',
+            Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
+              .oneTime()
+              .resize(),
+          );
+
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
@@ -75,23 +64,16 @@ class RegistrationController {
   async shareContact(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
 
-    // reply markup to request contact
-    ctx.reply('Please share your contact.', {
-      reply_markup: {
-        keyboard: [
-          [
-            {
-              text: '📲 Send phone number',
-              request_contact: true,
-            },
-            {
-              text: '❌ Cancel',
-            },
-          ],
-        ],
-        one_time_keyboard: true,
-      },
-    });
+    const message = ctx.message;
+    if (message.contact) {
+      ctx.wizard.state.contact = message.contact;
+      ctx.reply(...registrationFormatter.firstNameformatter());
+      return ctx.wizard.next();
+    } else {
+      ctx.reply("You didn't share your contact. Please share your contact.");
+      return;
+    }
+
     return ctx.wizard.next();
   }
 
