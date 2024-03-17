@@ -101,7 +101,6 @@ class RegistrationController {
     ctx.reply(...registrationFormatter.lastNameformatter());
     return ctx.wizard.next();
   }
-
   async enterLastName(ctx: any) {
     await checkCommandInWizardScene(ctx);
     if (await checkCommandInWizardScene(ctx)) return;
@@ -115,7 +114,6 @@ class RegistrationController {
     ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
-
   async chooseGender(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
     const callbackQuery = ctx.callbackQuery;
@@ -140,7 +138,6 @@ class RegistrationController {
       }
     }
   }
-
   async editRegister() {}
 }
 

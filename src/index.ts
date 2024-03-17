@@ -19,10 +19,9 @@ const ignite = () => {
     //middleware to handle commands separately
 
     bot.command('start', new MainMenuController().onStart);
-    bot.command('register', (ctx: any) => {
-      ctx.scene.enter('register');
-    });
-
+    // bot.command('register', (ctx: any) => {
+    //   ctx.scene.enter('register');
+    // });
     bot.use(checkAndRedirectToScene());
 
     bot.hears('Option 1', (ctx) => {
