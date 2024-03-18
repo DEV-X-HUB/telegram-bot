@@ -2,6 +2,7 @@ import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFormatter from './registration-formatter';
 import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middleware/check-command';
+import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
 
 const registrationFormatter = new RegistrationFormatter();
 
@@ -27,6 +28,7 @@ class RegistrationController {
         case 'agree_terms': {
           // console.log()
           ctx.reply('lets start your first registration ');
+          await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.shareContact());
           return ctx.wizard.next();
         }
@@ -125,17 +127,22 @@ class RegistrationController {
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+      await ctx.reply(
+        ...registrationFormatter.chooseGenderEroorFormatter(),
+        Markup.keyboard(['Back']).oneTime().resize(),
+      );
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'gender_male': {
           ctx.wizard.state.gender = 'male';
+          await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
+          await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
         }
@@ -161,10 +168,6 @@ class RegistrationController {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'preview_edit': {
-          ctx.wizard.state.previousMessageData = {
-            message_id: ctx.callbackQuery.message.message_id,
-            chat_id: ctx.callbackQuery.message.chat.id,
-          };
           ctx.wizard.state.editField = null;
           ctx.reply(...registrationFormatter.editPreview(state));
           return ctx.wizard.next();
@@ -199,10 +202,12 @@ class RegistrationController {
           return ctx.reply('registed');
         }
         case 'gender_male': {
+          await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'male';
           return ctx.reply(...registrationFormatter.editPreview(state));
         }
         case 'gender_female': {
+          await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'female';
           return ctx.reply(...registrationFormatter.editPreview(state));
         }
@@ -219,6 +224,11 @@ class RegistrationController {
             await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
           } else {
             if (ctx.wizard.state.editField) {
+              // save the mesage id for later deleitign
+              ctx.wizard.state.previousMessageData = {
+                message_id: ctx.callbackQuery.message.message_id,
+                chat_id: ctx.callbackQuery.message.chat.id,
+              };
               // selecting  editable field
               ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
               await ctx.reply(...registrationFormatter.editPreview(state));
