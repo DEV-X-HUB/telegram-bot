@@ -17,6 +17,20 @@ class RegistrationFormatter {
       ]),
     ];
   }
+
+  termsAndConditionsDisagreeDisplay() {
+    return [
+      `You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed.`,
+    ];
+  }
+
+  goBackButton() {
+    //back button with callback string
+    return Markup.keyboard([Markup.button.callback('Back', 'back')])
+      .oneTime()
+      .resize();
+  }
+
   chooseGenderFormatter() {
     return [
       `Please choose your gender`,
@@ -29,26 +43,29 @@ class RegistrationFormatter {
     ];
   }
   chooseGenderEroorFormatter() {
-    return [`Please use the buttons above to choose   gender`];
-  }
-
-  firstNameformatter() {
-    return [`Please choose your first name `];
+    return [`Please use the buttons above to choose gender`];
   }
 
   shareContact() {
     return [
-      'lets start your first registration. Please share your contact.',
+      "lets start your first registration. \nPlease use the 'Share Contact' Keyboard button below to share you contact. If you can not see the button, use the four dots icon below to make it visible.",
       Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
         .oneTime()
         .resize(),
     ];
   }
   shareContactWarning() {
-    return ['you have to share your contact'];
+    return [
+      'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
+    ];
   }
+
+  firstNameformatter() {
+    return [`Please enter your first name `];
+  }
+
   lastNameformatter() {
-    return [`Please choose your last name `];
+    return [`Please enter your last name`];
   }
   ageFormatter() {
     return [`Please choose your Age `];

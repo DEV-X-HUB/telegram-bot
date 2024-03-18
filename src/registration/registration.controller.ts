@@ -20,23 +20,19 @@ class RegistrationController {
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
-          ctx.reply('lets **start** your *first* registration', {
-            parse_mode: 'Markdown',
-          });
+          ctx.reply("Let's start your first registration");
           await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.shareContact());
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
-          ctx.reply(
-            'You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed. ',
-          );
+          ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
           // call the function to display the terms and conditions again
-          return ctx.wizard.leave();
+          // return ctx.wizard.leave();
         }
         case 'back_from_terms': {
           // return one step back
-          return ctx.wizard.leave();
+          // return ctx.wizard.leave();
         }
 
         default: {
@@ -61,14 +57,7 @@ class RegistrationController {
       const message = ctx?.message;
       if (message?.contact) {
         ctx.wizard.state.contact = message.contact;
-        ctx.reply(
-          ...registrationFormatter.firstNameformatter(),
-
-          //back button with callback string
-          Markup.keyboard([Markup.button.callback('Back', 'back')])
-            .oneTime()
-            .resize(),
-        );
+        ctx.reply(...registrationFormatter.firstNameformatter(), registrationFormatter.goBackButton());
 
         return ctx.wizard.next();
       }
@@ -85,13 +74,7 @@ class RegistrationController {
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.first_name = message;
-    ctx.reply(
-      ...registrationFormatter.lastNameformatter(),
-      //back button with callback string
-      Markup.keyboard([Markup.button.callback('Back', 'back')])
-        .oneTime()
-        .resize(),
-    );
+    ctx.reply(...registrationFormatter.lastNameformatter(), registrationFormatter.goBackButton());
 
     return ctx.wizard.next();
   }
@@ -105,7 +88,7 @@ class RegistrationController {
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.last_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+    ctx.reply(...registrationFormatter.ageFormatter(), registrationFormatter.goBackButton());
     return ctx.wizard.next();
   }
 
@@ -120,7 +103,7 @@ class RegistrationController {
 
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
-    ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+    ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
@@ -132,10 +115,7 @@ class RegistrationController {
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply(
-        ...registrationFormatter.chooseGenderEroorFormatter(),
-        Markup.keyboard(['Back']).oneTime().resize(),
-      );
+      await ctx.reply(...registrationFormatter.chooseGenderEroorFormatter(), registrationFormatter.goBackButton());
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
@@ -152,10 +132,7 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         default: {
-          await ctx.reply(
-            ...registrationFormatter.chooseGenderFormatter(),
-            Markup.keyboard(['Back']).oneTime().resize(),
-          );
+          await ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
         }
       }
     }
@@ -221,7 +198,7 @@ class RegistrationController {
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
-        await ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+        await ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
         return ctx.wizard.back();
       }
       await ctx.reply('some thing');
