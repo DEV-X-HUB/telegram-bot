@@ -50,18 +50,10 @@ class RegistrationController {
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
-      ctx.reply(...registrationFormatter.firstNameformatter());
       ctx.wizard.state.phone_number = contact.phone_number;
-
-      const message = ctx?.message;
-      if (message?.contact) {
-        ctx.wizard.state.contact = message.contact;
-        ctx.reply(...registrationFormatter.firstNameformatter(), registrationFormatter.goBackButton());
-
-        return ctx.wizard.next();
-      }
-      ctx.reply(...registrationFormatter.shareContactWarning());
-    }
+      ctx.reply(...registrationFormatter.firstNameformatter(), registrationFormatter.goBackButton());
+      return ctx.wizard.next();
+    } else return ctx.reply(...registrationFormatter.shareContactWarning());
   }
 
   async enterFirstName(ctx: any) {
