@@ -27,6 +27,9 @@ class RegistrationFormatter {
       ]),
     ];
   }
+  chooseGenderEroorFormatter() {
+    return [`Please use the buttons above to choose   gender`];
+  }
 
   firstNameformatter() {
     return [`Please choose your first name `];

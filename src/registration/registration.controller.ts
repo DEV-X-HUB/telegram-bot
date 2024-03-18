@@ -2,6 +2,7 @@ import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFormatter from './registration-formatter';
 import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middleware/check-command';
+import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
 
 const registrationFormatter = new RegistrationFormatter();
 
@@ -21,13 +22,13 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
-    console.log(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
           // console.log()
           ctx.reply('lets start your first registration ');
+          await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.shareContact());
           return ctx.wizard.next();
         }
@@ -54,11 +55,8 @@ class RegistrationController {
   }
 
   async shareContact(ctx: any) {
-    console.log(ctx.message);
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
-    console.log(ctx.message.contact);
-    console.log(ctx.message.text);
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
@@ -112,8 +110,8 @@ class RegistrationController {
   }
 
   async enterAge(ctx: any) {
-    const message = ctx.message.text;
-    if (message == 'Back') {
+    const message = ctx.message?.text;
+    if (message && message == 'Back') {
       ctx.reply(...registrationFormatter.lastNameformatter());
       return ctx.wizard.back();
     }
@@ -122,27 +120,31 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
-    const message = ctx.message.text;
+    const message = ctx.message?.text;
 
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
-      if (message == 'Back') {
+      if (message && message == 'Back') {
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+      await ctx.reply(
+        ...registrationFormatter.chooseGenderEroorFormatter(),
+        Markup.keyboard(['Back']).oneTime().resize(),
+      );
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'gender_male': {
-          console.log(ctx.wizard.state);
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormatter.emailFormatter());
+          await deleteMessageWithCallback(ctx);
+          ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormatter.emailFormatter());
+          await deleteMessageWithCallback(ctx);
+          ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
         }
         default: {
@@ -194,63 +196,57 @@ class RegistrationController {
     }
   }
   async editData(ctx: any) {
-    console.log(ctx);
     const state = ctx.wizard.state;
     const fileds = ['first_name', 'last_name', 'age', 'gender'];
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
-      if (ctx.wizard.state.editField) {
+      const editField = ctx.wizard.state?.editField;
+      if (editField) {
         ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
         ctx.reply(...registrationFormatter.editPreview(state));
       } else await ctx.reply('invalid input ');
     } else {
+      ctx.wizard.state.previousMessageData = {
+        message_id: ctx.callbackQuery.message.message_id,
+        chat_id: ctx.callbackQuery.message.chat.id,
+      };
       switch (callbackQuery.data) {
         case 'register_data': {
           return ctx.reply('registed');
         }
         case 'gender_male': {
-          console.log(ctx.wizard.state);
+          await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'male';
           return ctx.reply(...registrationFormatter.editPreview(state));
         }
         case 'gender_female': {
+          await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'female';
           return ctx.reply(...registrationFormatter.editPreview(state));
         }
         default: {
           if (fileds.some((filed) => filed == callbackQuery.data)) {
+            // changing filed data
             ctx.wizard.state.editField = callbackQuery.data;
+            console.log(ctx.wizard.state.previousMessageData, 'pppppp');
+
+            await ctx.telegram.deleteMessage(
+              ctx.wizard.state.previousMessageData.chat_id,
+              ctx.wizard.state.previousMessageData.message_id,
+            );
             await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
           } else {
             if (ctx.wizard.state.editField) {
+              // save the mesage id for later deleitign
+              ctx.wizard.state.previousMessageData = {
+                message_id: ctx.callbackQuery.message.message_id,
+                chat_id: ctx.callbackQuery.message.chat.id,
+              };
+              // selecting  editable field
               ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
-              ctx.reply(...registrationFormatter.editPreview(state));
+              await ctx.reply(...registrationFormatter.editPreview(state));
             }
             ctx.reply('invalid option');
-          }
-        }
-      }
-    }
-  }
-  async upateFiled(ctx: any) {
-    const fileds = ['first_name', 'last_name', 'age', 'gender'];
-    const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery);
-    return;
-    if (!callbackQuery) {
-      await ctx.reply('some thing');
-    } else {
-      const state = ctx.wizard.state;
-      switch (callbackQuery.data) {
-        case 'done': {
-          ctx.reply('registed');
-          // return ctx.wizard.next();
-        }
-
-        default: {
-          if (fileds.some((filed) => filed == callbackQuery.data)) {
-            ctx.wizard.state.editField = callbackQuery.data;
-            await ctx.reply('aggain body');
           }
         }
       }
