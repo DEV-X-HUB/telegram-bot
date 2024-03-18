@@ -4,31 +4,15 @@ z.coerce.string().email().min(5);
 
 export const firstNameSchema = z
   .string()
-  .min(2, { message: 'First name must be at least 2 characters long' })
+  .min(3, { message: 'First name must be at least 3 characters long' })
   .max(15, { message: 'First name must be at most 15 characters long' })
   .regex(/^[a-zA-Z]+$/, { message: 'First name must contain only letters' });
 
 export const lastNameSchema = z
   .string()
-  .min(2, { message: 'Last name must be at least 2 characters long' })
+  .min(3, { message: 'Last name must be at least 3 characters long' })
   .max(15, { message: 'Last name must be at most 15 characters long' })
   .regex(/^[a-zA-Z]+$/, { message: 'Last name must contain only letters' });
-
-export const ageSchema = z.union([
-  z
-    .number()
-    .int()
-    .min(14, { message: 'Age must be a number between 14 and 100' })
-    .max(100, { message: 'Age must be a number between 14 and 100' }),
-  z.date().refine(
-    (date) => {
-      const today = new Date();
-      const minDate = new Date(today.getFullYear() - 14, today.getMonth(), today.getDate());
-      return date <= minDate;
-    },
-    { message: 'Date of birth must make you at least 14 years old' },
-  ),
-]);
 
 export const ageOrDateSchema = z.string().refine(
   (value) => {
