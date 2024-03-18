@@ -3,6 +3,8 @@ import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFormatter from './registration-formatter';
 import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middleware/check-command';
 import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
+import { registrationValidator } from '../utils/validator/registration-validator';
+import { calculateAge } from '../utils/date';
 
 const registrationFormatter = new RegistrationFormatter();
 
@@ -26,7 +28,6 @@ class RegistrationController {
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
-          // console.log()
           ctx.reply('lets start your first registration ');
           await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.shareContact());
@@ -64,7 +65,6 @@ class RegistrationController {
       ctx.wizard.state.phone_number = contact.phone_number;
 
       const message = ctx?.message;
-      // console.log('message', message);
       if (message?.contact) {
         ctx.wizard.state.contact = message.contact;
         ctx.reply(
@@ -87,6 +87,9 @@ class RegistrationController {
     if (message == 'Back') {
       return ctx.reply(...registrationFormatter.firstNameformatter());
     }
+    const validationMessage = registrationValidator('first_name', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     ctx.wizard.state.first_name = message;
     ctx.reply(
       ...registrationFormatter.lastNameformatter(),
@@ -104,6 +107,9 @@ class RegistrationController {
       ctx.reply(...registrationFormatter.firstNameformatter());
       return ctx.wizard.back();
     }
+    const validationMessage = registrationValidator('last_name', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     ctx.wizard.state.last_name = ctx.message.text;
     ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
@@ -115,7 +121,11 @@ class RegistrationController {
       ctx.reply(...registrationFormatter.lastNameformatter());
       return ctx.wizard.back();
     }
-    ctx.wizard.state.age = ctx.message.text;
+    const validationMessage = registrationValidator('age', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
+    const age = calculateAge(ctx.message.text);
+    ctx.wizard.state.age = age;
     ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
   }
@@ -189,8 +199,14 @@ class RegistrationController {
     const fileds = ['first_name', 'last_name', 'age', 'gender'];
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
+      // changing field value
       const editField = ctx.wizard.state?.editField;
       if (editField) {
+        const validationMessage = registrationValidator(ctx.wizard.state.editField, ctx.message.text);
+        if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
+        if (ctx.wizard.state.editField == 'age')
+          ctx.wizard.state[ctx.wizard.state.editField] = calculateAge(ctx.message.text);
         ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
         ctx.reply(...registrationFormatter.editPreview(state));
       } else await ctx.reply('invalid input ');
@@ -216,21 +232,14 @@ class RegistrationController {
         }
         default: {
           if (fileds.some((filed) => filed == callbackQuery.data)) {
-            // changing filed data
+            // selecting field to change
             ctx.wizard.state.editField = callbackQuery.data;
-            console.log(ctx.wizard.state.previousMessageData, 'pppppp');
-
             await ctx.telegram.deleteMessage(
               ctx.wizard.state.previousMessageData.chat_id,
               ctx.wizard.state.previousMessageData.message_id,
             );
             await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
           } else {
-            if (ctx.wizard.state.editField) {
-              // selecting  editable field
-              ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
-              await ctx.reply(...registrationFormatter.editPreview(state));
-            }
             ctx.reply('invalid option');
           }
         }
