@@ -15,15 +15,6 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.chooseGender,
   registrationController.editRegister,
   registrationController.editData,
-  registrationController.upateFiled,
-  async (ctx: any) => {
-    // Step 5: Save the age and finish registration
-    ctx.session.age = ctx.message.text;
-    await ctx.reply(
-      `Registration completed!\nFirst Name: ${ctx.session.firstName}\nLast Name: ${ctx.session.lastName}\nGender: ${ctx.session.gender}\nAge: ${ctx.session.age}`,
-    );
-    return ctx.scene.leave();
-  },
 );
 
 export default registrationScene;

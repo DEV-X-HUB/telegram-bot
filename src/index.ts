@@ -4,11 +4,13 @@ import Bot from './loaders/bot';
 import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
 import { checkAndRedirectToScene } from './middleware/check-command';
+import * as all from 'country-region-data';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
 
 // Igniter function
 
+// console.log(all.default);
 const ignite = () => {
   const bot = Bot();
   if (bot) {

@@ -21,7 +21,6 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
-    console.log(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery?.data) {
@@ -54,11 +53,8 @@ class RegistrationController {
   }
 
   async shareContact(ctx: any) {
-    console.log(ctx.message);
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
-    console.log(ctx.message.contact);
-    console.log(ctx.message.text);
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
@@ -111,8 +107,8 @@ class RegistrationController {
   }
 
   async enterAge(ctx: any) {
-    const message = ctx.message.text;
-    if (message == 'Back') {
+    const message = ctx.message?.text;
+    if (message && message == 'Back') {
       ctx.reply(...registrationFormatter.lastNameformatter());
       return ctx.wizard.back();
     }
@@ -121,11 +117,11 @@ class RegistrationController {
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
-    const message = ctx.message.text;
+    const message = ctx.message?.text;
 
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
-      if (message == 'Back') {
+      if (message && message == 'Back') {
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
@@ -134,7 +130,6 @@ class RegistrationController {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'gender_male': {
-          console.log(ctx.wizard.state);
           ctx.wizard.state.gender = 'male';
           ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
@@ -166,6 +161,10 @@ class RegistrationController {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'preview_edit': {
+          ctx.wizard.state.previousMessageData = {
+            message_id: ctx.callbackQuery.message.message_id,
+            chat_id: ctx.callbackQuery.message.chat.id,
+          };
           ctx.wizard.state.editField = null;
           ctx.reply(...registrationFormatter.editPreview(state));
           return ctx.wizard.next();
@@ -181,22 +180,25 @@ class RegistrationController {
     }
   }
   async editData(ctx: any) {
-    console.log(ctx);
     const state = ctx.wizard.state;
     const fileds = ['first_name', 'last_name', 'age', 'gender'];
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
-      if (ctx.wizard.state.editField) {
+      const editField = ctx.wizard.state?.editField;
+      if (editField) {
         ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
         ctx.reply(...registrationFormatter.editPreview(state));
       } else await ctx.reply('invalid input ');
     } else {
+      ctx.wizard.state.previousMessageData = {
+        message_id: ctx.callbackQuery.message.message_id,
+        chat_id: ctx.callbackQuery.message.chat.id,
+      };
       switch (callbackQuery.data) {
         case 'register_data': {
           return ctx.reply('registed');
         }
         case 'gender_male': {
-          console.log(ctx.wizard.state);
           ctx.wizard.state.gender = 'male';
           return ctx.reply(...registrationFormatter.editPreview(state));
         }
@@ -206,38 +208,22 @@ class RegistrationController {
         }
         default: {
           if (fileds.some((filed) => filed == callbackQuery.data)) {
+            // changing filed data
             ctx.wizard.state.editField = callbackQuery.data;
+            console.log(ctx.wizard.state.previousMessageData, 'pppppp');
+
+            await ctx.telegram.deleteMessage(
+              ctx.wizard.state.previousMessageData.chat_id,
+              ctx.wizard.state.previousMessageData.message_id,
+            );
             await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
           } else {
             if (ctx.wizard.state.editField) {
+              // selecting  editable field
               ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
-              ctx.reply(...registrationFormatter.editPreview(state));
+              await ctx.reply(...registrationFormatter.editPreview(state));
             }
             ctx.reply('invalid option');
-          }
-        }
-      }
-    }
-  }
-  async upateFiled(ctx: any) {
-    const fileds = ['first_name', 'last_name', 'age', 'gender'];
-    const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery);
-    return;
-    if (!callbackQuery) {
-      await ctx.reply('some thing');
-    } else {
-      const state = ctx.wizard.state;
-      switch (callbackQuery.data) {
-        case 'done': {
-          ctx.reply('registed');
-          // return ctx.wizard.next();
-        }
-
-        default: {
-          if (fileds.some((filed) => filed == callbackQuery.data)) {
-            ctx.wizard.state.editField = callbackQuery.data;
-            await ctx.reply('aggain body');
           }
         }
       }
