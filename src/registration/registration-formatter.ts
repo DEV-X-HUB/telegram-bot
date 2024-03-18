@@ -67,6 +67,17 @@ class RegistrationFormatter {
     ];
   }
 
+  // choose city based on the selected country
+  chooseCityFormatter(cities: any) {
+    return [
+      'Please choose your city',
+      InlineKeyboardButtons([
+        // map the country list to the buttons
+        ...cities.map((city: any) => [{ text: city.name, cbString: city.name }]),
+      ]),
+    ];
+  }
+
   getPreviewData(state: any) {
     return `Your Data\n first name : ${state.first_name} \n last name : ${state.last_name} \n  age : ${state.age} \n gender : ${state.gender}`;
   }
