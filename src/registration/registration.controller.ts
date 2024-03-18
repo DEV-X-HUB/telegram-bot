@@ -1,6 +1,6 @@
 import { Markup } from 'telegraf';
 import RegistrationFormatter from './registration-formatter';
-import { deleteMessageWithCallback } from '../utils/chat';
+import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
 import { registrationValidator } from '../utils/validator/registration-validator';
 import { calculateAge } from '../utils/date';
 import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
@@ -103,6 +103,10 @@ class RegistrationController {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       if (message && message == 'Back') {
+        await deleteMessage(ctx, {
+          message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+          chat_id: ctx.message.chat.id,
+        });
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
@@ -149,18 +153,20 @@ class RegistrationController {
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
-        await deleteMessageWithCallback(ctx);
+        await deleteMessage(ctx, {
+          message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+          chat_id: ctx.message.chat.id,
+        });
         ctx.reply(...registrationFormatter.emailFormatter());
         return ctx.wizard.back();
       } else return ctx.reply('please use the buttons to choose your county');
     } else {
+      console.log('witg oute vack');
       const [countryCode, country] = callbackQuery.data.split(':');
       ctx.wizard.state.country = country;
       ctx.wizard.state.countryCode = countryCode;
-      await deleteMessageWithCallback(ctx);
-
+      // await deleteMessageWithCallback(ctx);
       ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
-
       return ctx.wizard.next();
     }
   }
@@ -170,9 +176,11 @@ class RegistrationController {
 
     if (!callbackQuery) {
       const message = ctx.message?.text;
-      if (message == 'Back') {
-        const countries = getAllCountries();
-        await deleteMessageWithCallback(ctx);
+      if (message && message == 'Back') {
+        await deleteMessage(ctx, {
+          message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+          chat_id: ctx.message.chat.id,
+        });
         ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
         return ctx.wizard.back();
       } else return ctx.reply('please use the buttons to choose your city');
