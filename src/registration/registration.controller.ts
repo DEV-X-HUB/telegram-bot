@@ -103,7 +103,8 @@ class RegistrationController {
   async enterLastName(ctx: any) {
     const message = ctx.message.text;
     if (message == 'Back') {
-      return ctx.reply(...registrationFormatter.firstNameformatter());
+      ctx.reply(...registrationFormatter.firstNameformatter());
+      return ctx.wizard.back();
     }
     ctx.wizard.state.last_name = ctx.message.text;
     ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
