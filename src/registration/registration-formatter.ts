@@ -154,16 +154,6 @@ class RegistrationFormatter {
         return ['none'];
     }
   }
-  // getDisplayData(dataField: any) {
-  //   const data = {
-  //     phone_number: 'Phone Number',
-  //     first_name: 'First Name',
-  //     last_name: 'Last Name',
-  //     age: 'Age',
-  //     gender: 'Gender',
-  //   };
-  //   return data[dataField];
-  // }
 }
 
 export default RegistrationFormatter;
