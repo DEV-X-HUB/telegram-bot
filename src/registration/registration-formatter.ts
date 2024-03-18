@@ -57,35 +57,12 @@ class RegistrationFormatter {
     return [`Please enter your personal Email `];
   }
 
-  chooseCountryFormatter() {
+  chooseCountryFormatter(countries: any) {
     return [
       'Please choose your country',
       InlineKeyboardButtons([
-        [
-          { text: 'Afghanistan', cbString: 'Afghanistan' },
-          { text: 'Albania', cbString: 'Albania' },
-          { text: 'Algeria', cbString: 'Algeria' },
-          { text: 'Andorra', cbString: 'Andorra' },
-          { text: 'Angola', cbString: 'Angola' },
-        ],
-      ]),
-    ];
-  }
-
-  // choose city based on the selected country
-  chooseCityFormatter() {
-    return [
-      'Please choose your city',
-      InlineKeyboardButtons([
-        [
-          { text: 'Kabul', cbString: 'Kabul' },
-          { text: 'Tirana', cbString: 'Tirana' },
-          { text: 'Algiers', cbString: 'Algiers' },
-          { text: 'Andorra la Vella', cbString: 'Andorra la Vella' },
-          { text: 'Luanda', cbString: 'Luanda' },
-          { text: 'Other', cbString: 'other_city' },
-          { text: 'Back', cbString: 'back_to_country' },
-        ],
+        // map the country list to the buttons
+        ...countries.map((country: any) => [{ text: country.name, cbString: `${country.isoCode}:${country.name}` }]),
       ]),
     ];
   }
