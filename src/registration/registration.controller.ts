@@ -200,6 +200,30 @@ class RegistrationController {
     }
   }
 
+  async chooseCity(ctx: any) {
+    console.log(ctx.wizard.state, 'state');
+    const callbackQuery = ctx.callbackQuery;
+
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        const countries = getAllCountries();
+        await deleteMessageWithCallback(ctx);
+        ctx.reply(...registrationFormatter.chooseCountryFormatter(countries));
+        return ctx.wizard.back();
+      }
+    } else {
+      const state = ctx.wizard.state;
+      state.country = callbackQuery.data;
+      const countryCode = callbackQuery.data;
+      const cityList = await getCitiesOfCountry(countryCode);
+      console.log(cityList, 'cityList');
+
+      ctx.reply(...registrationFormatter.chooseCityFormatter(cityList));
+      return ctx.wizard.next();
+    }
+  }
+
   async editRegister(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
