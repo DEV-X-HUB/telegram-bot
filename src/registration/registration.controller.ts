@@ -1,20 +1,11 @@
-import { Telegraf, Markup, Scenes } from 'telegraf';
-import { InlineKeyboardButtons } from '../components/button';
+import { Markup } from 'telegraf';
 import RegistrationFormatter from './registration-formatter';
-import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middleware/check-command';
-import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
+import { deleteMessageWithCallback } from '../utils/chat';
 import { registrationValidator } from '../utils/validator/registration-validator';
 import { calculateAge } from '../utils/date';
 import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
 
 const registrationFormatter = new RegistrationFormatter();
-
-const goBack = () => {
-  return (ctx: any) => {
-    ctx.wizard.back();
-    return ctx.wizard.step();
-  };
-};
 
 class RegistrationController {
   constructor() {}
