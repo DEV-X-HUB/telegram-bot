@@ -29,7 +29,9 @@ class RegistrationController {
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
-          ctx.reply('lets start your first registration ');
+          ctx.reply('lets **start** your *first* registration', {
+            parse_mode: 'Markdown',
+          });
           await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.shareContact());
           return ctx.wizard.next();
@@ -178,8 +180,7 @@ class RegistrationController {
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.email = ctx.message.text;
 
-    const countries = await getAllCountries();
-    ctx.reply(...registrationFormatter.chooseCountryFormatter(countries));
+    ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
     return ctx.wizard.next();
   }
 
@@ -194,13 +195,12 @@ class RegistrationController {
         return ctx.wizard.back();
       } else return ctx.reply('please use the buttons to choose your county');
     } else {
-      const state = ctx.wizard.state;
-      state.country = callbackQuery.data.split(':')[1];
-      const countryCode = callbackQuery.data.split(':')[0];
-      const cityList = await getCitiesOfCountry(countryCode);
+      const [countryCode, country] = callbackQuery.data.split(':');
+      ctx.wizard.state.country = country;
+      ctx.wizard.state.countryCode = countryCode;
       await deleteMessageWithCallback(ctx);
 
-      ctx.reply(...registrationFormatter.chooseCityFormatter(cityList));
+      ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
 
       return ctx.wizard.next();
     }
@@ -210,18 +210,17 @@ class RegistrationController {
     const callbackQuery = ctx.callbackQuery;
 
     if (!callbackQuery) {
-      const message = ctx.message.text;
+      const message = ctx.message?.text;
       if (message == 'Back') {
         const countries = getAllCountries();
         await deleteMessageWithCallback(ctx);
-        ctx.reply(...registrationFormatter.chooseCountryFormatter(countries));
+        ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
         return ctx.wizard.back();
       } else return ctx.reply('please use the buttons to choose your city');
     } else {
-      const state = ctx.wizard.state;
-      state.city = callbackQuery.data;
+      ctx.wizard.state.city = callbackQuery.data;
       await deleteMessageWithCallback(ctx);
-      ctx.reply(...registrationFormatter.preview(state));
+      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'Markdown' });
       return ctx.wizard.next();
     }
   }
@@ -241,7 +240,7 @@ class RegistrationController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.editPreview(state));
+          ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
           return ctx.wizard.next();
         }
         case 'register_data': {
@@ -256,7 +255,7 @@ class RegistrationController {
   }
   async editData(ctx: any) {
     const state = ctx.wizard.state;
-    const fileds = ['first_name', 'last_name', 'age', 'gender'];
+    const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country'];
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       // changing field value
@@ -268,7 +267,7 @@ class RegistrationController {
         if (ctx.wizard.state.editField == 'age')
           ctx.wizard.state[ctx.wizard.state.editField] = calculateAge(ctx.message.text);
         ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
-        ctx.reply(...registrationFormatter.editPreview(state));
+        ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
       } else await ctx.reply('invalid input ');
     } else {
       // save the mesage id for later deleting
@@ -283,12 +282,12 @@ class RegistrationController {
         case 'gender_male': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'male';
-          return ctx.reply(...registrationFormatter.editPreview(state));
+          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
         }
         case 'gender_female': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'female';
-          return ctx.reply(...registrationFormatter.editPreview(state));
+          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
         }
         default: {
           if (fileds.some((filed) => filed == callbackQuery.data)) {
@@ -298,9 +297,24 @@ class RegistrationController {
               ctx.wizard.state.previousMessageData.chat_id,
               ctx.wizard.state.previousMessageData.message_id,
             );
-            await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
+            if (callbackQuery.data == 'city')
+              return await ctx.reply(
+                ...(await registrationFormatter.editFiledDispay(callbackQuery.data, ctx.wizard.state.countryCode)),
+              );
+            await ctx.reply(...(await registrationFormatter.editFiledDispay(callbackQuery.data)));
           } else {
-            ctx.reply('invalid option');
+            if (callbackQuery.data.includes(':')) {
+              const [countryCode, country] = callbackQuery.data.split(':');
+              ctx.wizard.state.country = country;
+              ctx.wizard.state.countryCode = countryCode;
+
+              await deleteMessageWithCallback(ctx);
+              ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
+            } else {
+              ctx.wizard.state.city = callbackQuery.data;
+              await deleteMessageWithCallback(ctx);
+              return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
+            }
           }
         }
       }

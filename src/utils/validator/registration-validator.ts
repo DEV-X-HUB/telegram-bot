@@ -34,7 +34,6 @@ export const registrationValidator = (fieldName: string, value: RegistrationValu
     schema.parse(value);
     return 'valid';
   } catch (error: any) {
-    console.log(error);
     return error.errors[0].message;
   }
 };

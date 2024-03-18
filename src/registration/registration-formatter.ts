@@ -1,5 +1,6 @@
 import { Telegraf, Markup, Scenes } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
+import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
 
 class RegistrationFormatter {
   constructor() {}
@@ -57,7 +58,8 @@ class RegistrationFormatter {
     return [`Please enter your personal Email `];
   }
 
-  chooseCountryFormatter(countries: any) {
+  async chooseCountryFormatter() {
+    const countries = await getAllCountries();
     return [
       'Please choose your country',
       InlineKeyboardButtons([
@@ -68,18 +70,22 @@ class RegistrationFormatter {
   }
 
   // choose city based on the selected country
-  chooseCityFormatter(cities: any) {
-    return [
-      'Please choose your city',
-      InlineKeyboardButtons([
-        // map the country list to the buttons
-        ...cities.map((city: any) => [{ text: city.name, cbString: city.name }]),
-      ]),
-    ];
+  async chooseCityFormatter(countryCode: string) {
+    const cityList = await getCitiesOfCountry(countryCode);
+    if (cityList)
+      return [
+        'Please choose your city',
+        InlineKeyboardButtons([
+          // map the country list to the buttons
+          ...cityList.map((city: any) => [{ text: city.name, cbString: city.name }]),
+        ]),
+      ];
+
+    return ['Unable to find cities'];
   }
 
   getPreviewData(state: any) {
-    return `Your Data\n first name : ${state.first_name} \n last name : ${state.last_name} \n  age : ${state.age} \n gender : ${state.gender}`;
+    return `**${state.first_name} ${state.last_name}**\n__________\n\n **first name**: ${state.first_name} \n\n **last name**: ${state.last_name} \n\n  **Age**: ${state.age} \n\n **Gender** : ${state.gender}\n\n **Residence** : ${state.country},${state.city}\n\n **Email** : ${state.email}`;
   }
   preview(state: any) {
     return [
@@ -101,6 +107,10 @@ class RegistrationFormatter {
           { text: 'last name', cbString: 'last_name' },
         ],
         [
+          { text: 'country', cbString: 'country' },
+          { text: 'city', cbString: 'city' },
+        ],
+        [
           { text: 'age', cbString: 'age' },
           { text: 'gender', cbString: 'gender' },
         ],
@@ -109,7 +119,7 @@ class RegistrationFormatter {
       ]),
     ];
   }
-  editFiledDispay(editFiled: string) {
+  async editFiledDispay(editFiled: string, extraKey?: string) {
     switch (editFiled) {
       case 'first_name':
         return this.firstNameformatter();
@@ -119,6 +129,10 @@ class RegistrationFormatter {
         return this.ageFormatter();
       case 'gender':
         return this.chooseGenderFormatter();
+      case 'country':
+        return await this.chooseCountryFormatter();
+      case 'city':
+        return await this.chooseCityFormatter(extraKey || '');
       default:
         return ['none'];
     }
