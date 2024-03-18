@@ -3,6 +3,7 @@ import { InlineKeyboardButtons } from '../components/button';
 import RegistrationFormatter from './registration-formatter';
 import { checkAndRedirectToScene, checkCommandInWizardScene } from '../middleware/check-command';
 import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
+import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
 
 const registrationFormatter = new RegistrationFormatter();
 
@@ -138,13 +139,13 @@ class RegistrationController {
         case 'gender_male': {
           ctx.wizard.state.gender = 'male';
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.preview(state));
+          ctx.reply(...registrationFormatter.emailFormatter());
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.preview(state));
+          ctx.reply(...registrationFormatter.emailFormatter());
           return ctx.wizard.next();
         }
         default: {
@@ -164,8 +165,39 @@ class RegistrationController {
       return ctx.wizard.back();
     }
     ctx.wizard.state.email = ctx.message.text;
-    ctx.reply(...registrationFormatter.chooseCountryFormatter());
+
+    const countries = await getAllCountries();
+    console.log('list of countries');
+    console.log(countries.length);
+    console.log(typeof countries);
+    ctx.reply(...registrationFormatter.chooseCountryFormatter(countries));
+
     return ctx.wizard.next();
+  }
+
+  async chooseCountry(ctx: any) {
+    console.log(ctx.wizard.state, 'state');
+    const callbackQuery = ctx.callbackQuery;
+
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        await deleteMessageWithCallback(ctx);
+        ctx.reply(...registrationFormatter.emailFormatter());
+        return ctx.wizard.back();
+      }
+      await ctx.reply('some thing');
+    } else {
+      const state = ctx.wizard.state;
+      state.country = callbackQuery.data.split(':')[1];
+      const countryCode = callbackQuery.data.split(':')[0];
+      const cityList = await getCitiesOfCountry(countryCode);
+      await deleteMessageWithCallback(ctx);
+
+      ctx.reply(...registrationFormatter.chooseCityFormatter(cityList));
+
+      return ctx.wizard.next();
+    }
   }
 
   async editRegister(ctx: any) {
