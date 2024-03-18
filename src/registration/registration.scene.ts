@@ -13,6 +13,9 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.enterLastName,
   registrationController.enterAge,
   registrationController.chooseGender,
+  registrationController.enterEmail,
+  registrationController.chooseCountry,
+  registrationController.chooseCity,
   registrationController.editRegister,
   registrationController.editData,
 );
