@@ -1,10 +1,4 @@
-import {
-  ageOrDateSchema,
-  ageSchema,
-  emailSchema,
-  firstNameSchema,
-  lastNameSchema,
-} from '../../types/schemas/registration-schema';
+import { ageOrDateSchema, emailSchema, firstNameSchema, lastNameSchema } from '../../types/schemas/registration-schema';
 
 type RegistrationValue = string | number | Date;
 
