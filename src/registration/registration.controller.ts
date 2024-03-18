@@ -137,12 +137,12 @@ class RegistrationController {
         case 'gender_male': {
           console.log(ctx.wizard.state);
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormatter.preview(state));
+          ctx.reply(...registrationFormatter.emailFormatter());
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormatter.preview(state));
+          ctx.reply(...registrationFormatter.emailFormatter());
           return ctx.wizard.next();
         }
         default: {
@@ -154,6 +154,18 @@ class RegistrationController {
       }
     }
   }
+
+  async enterEmail(ctx: any) {
+    const message = ctx.message.text;
+    if (message == 'Back') {
+      ctx.reply(...registrationFormatter.chooseGenderFormatter());
+      return ctx.wizard.back();
+    }
+    ctx.wizard.state.email = ctx.message.text;
+    ctx.reply(...registrationFormatter.chooseCountryFormatter());
+    return ctx.wizard.next();
+  }
+
   async editRegister(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
