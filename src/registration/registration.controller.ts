@@ -11,7 +11,7 @@ class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
     await ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
-    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay());
+    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'HTML' });
 
     return ctx.wizard.next();
   }
@@ -179,7 +179,7 @@ class RegistrationController {
     } else {
       ctx.wizard.state.city = callbackQuery.data;
       await deleteMessageWithCallback(ctx);
-      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'Markdown' });
+      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.next();
     }
   }
@@ -199,7 +199,7 @@ class RegistrationController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
+          ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
         case 'register_data': {
@@ -226,7 +226,7 @@ class RegistrationController {
         if (ctx.wizard.state.editField == 'age')
           ctx.wizard.state[ctx.wizard.state.editField] = calculateAge(ctx.message.text);
         ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
-        ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
+        ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
       } else await ctx.reply('invalid input ');
     } else {
       // save the mesage id for later deleting
@@ -241,12 +241,12 @@ class RegistrationController {
         case 'gender_male': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'male';
-          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
+          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
         }
         case 'gender_female': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.gender = 'female';
-          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
+          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
         }
         default: {
           if (fileds.some((filed) => filed == callbackQuery.data)) {
@@ -272,7 +272,7 @@ class RegistrationController {
             } else {
               ctx.wizard.state.city = callbackQuery.data;
               await deleteMessageWithCallback(ctx);
-              return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'Markdown' });
+              return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
             }
           }
         }
