@@ -48,7 +48,7 @@ class RegistrationFormatter {
 
   shareContact() {
     return [
-      "lets start your first registration. \nPlease use the 'Share Contact' Keyboard button below to share you contact. If you can not see the button, use the four dots icon below to make it visible.",
+      'lets start your first registration. Please share your contact.',
       Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
         .oneTime()
         .resize(),
@@ -102,7 +102,7 @@ class RegistrationFormatter {
   }
 
   getPreviewData(state: any) {
-    return `**${state.first_name} ${state.last_name}**\n__________\n\n **first name**: ${state.first_name} \n\n **last name**: ${state.last_name} \n\n  **Age**: ${state.age} \n\n **Gender** : ${state.gender}\n\n **Residence** : ${state.country},${state.city}\n\n **Email** : ${state.email}`;
+    return `<b>${state.first_name} ${state.last_name}</b>\n________________\n\n<b>First name</b>: ${state.first_name} \n\n<b>Last name</b>: ${state.last_name} \n\n<b>Age</b>: ${state.age} \n\n<b>Gender</b>: ${state.gender}\n\n<b>Residence</b> : ${state.city},${state.country}\n\n<b>Email</b>: ${state.email}`;
   }
   preview(state: any) {
     return [
