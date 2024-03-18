@@ -238,6 +238,7 @@ class RegistrationController {
       switch (callbackQuery.data) {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
+          await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.editPreview(state));
           return ctx.wizard.next();
         }
@@ -262,6 +263,7 @@ class RegistrationController {
         ctx.reply(...registrationFormatter.editPreview(state));
       } else await ctx.reply('invalid input ');
     } else {
+      // save the mesage id for later deleting
       ctx.wizard.state.previousMessageData = {
         message_id: ctx.callbackQuery.message.message_id,
         chat_id: ctx.callbackQuery.message.chat.id,
@@ -293,11 +295,6 @@ class RegistrationController {
             await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
           } else {
             if (ctx.wizard.state.editField) {
-              // save the mesage id for later deleitign
-              ctx.wizard.state.previousMessageData = {
-                message_id: ctx.callbackQuery.message.message_id,
-                chat_id: ctx.callbackQuery.message.chat.id,
-              };
               // selecting  editable field
               ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
               await ctx.reply(...registrationFormatter.editPreview(state));
