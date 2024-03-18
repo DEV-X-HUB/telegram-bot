@@ -50,6 +50,43 @@ class RegistrationFormatter {
     return [`Please choose your Age `];
   }
 
+  emailFormatter() {
+    return [`Please enter your personal Email `];
+  }
+
+  chooseCountryFormatter() {
+    return [
+      'Please choose your country',
+      InlineKeyboardButtons([
+        [
+          { text: 'Afghanistan', cbString: 'Afghanistan' },
+          { text: 'Albania', cbString: 'Albania' },
+          { text: 'Algeria', cbString: 'Algeria' },
+          { text: 'Andorra', cbString: 'Andorra' },
+          { text: 'Angola', cbString: 'Angola' },
+        ],
+      ]),
+    ];
+  }
+
+  // choose city based on the selected country
+  chooseCityFormatter() {
+    return [
+      'Please choose your city',
+      InlineKeyboardButtons([
+        [
+          { text: 'Kabul', cbString: 'Kabul' },
+          { text: 'Tirana', cbString: 'Tirana' },
+          { text: 'Algiers', cbString: 'Algiers' },
+          { text: 'Andorra la Vella', cbString: 'Andorra la Vella' },
+          { text: 'Luanda', cbString: 'Luanda' },
+          { text: 'Other', cbString: 'other_city' },
+          { text: 'Back', cbString: 'back_to_country' },
+        ],
+      ]),
+    ];
+  }
+
   getPreviewData(state: any) {
     return `Your Data\n first name : ${state.first_name} \n last name : ${state.last_name} \n  age : ${state.age} \n gender : ${state.gender}`;
   }
