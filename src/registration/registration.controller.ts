@@ -71,20 +71,14 @@ class RegistrationController {
 
   async shareContact(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
+    const callbackQuery = ctx.callbackQuery;
+    console.log(callbackQuery);
 
-    const message = ctx?.message;
+    const message = ctx.message;
     // console.log('message', message);
-    if (message?.contact) {
+    if (message.contact) {
       ctx.wizard.state.contact = message.contact;
-      ctx.reply(
-        ...registrationFormatter.firstNameformatter(),
-
-        //back button with callback string
-        Markup.keyboard([Markup.button.callback('Back', 'back')])
-          .oneTime()
-          .resize(),
-      );
-
+      ctx.reply(...registrationFormatter.firstNameformatter(), Markup.keyboard(['Back']).oneTime().resize());
       return ctx.wizard.next();
     } else {
       ctx.reply("You didn't share your contact. Please share your contact.");
@@ -97,49 +91,28 @@ class RegistrationController {
   async enterFirstName(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
 
-    // console.log(ctx);
+    // const message = ctx.message;
+    // console.log('message', message);
 
     ctx.wizard.state.first_name = ctx.message.text;
-    ctx.reply(
-      ...registrationFormatter.lastNameformatter(),
-      //back button with callback string
-      Markup.keyboard([Markup.button.callback('Back', 'back')])
-        .oneTime()
-        .resize(),
-    );
+    ctx.reply(...registrationFormatter.lastNameformatter(), Markup.keyboard(['Back']).oneTime().resize());
 
     return ctx.wizard.next();
   }
   async enterLastName(ctx: any) {
+    await checkCommandInWizardScene(ctx);
     if (await checkCommandInWizardScene(ctx)) return;
-    // console.log(ctx);
-
-    // if user clicked 'back' button
-    const callbackQuery = ctx?.callbackQuery;
-    console.log(callbackQuery);
-    if (callbackQuery) {
-      if (callbackQuery?.data == 'back') {
-        console.log('back clicked');
-        ctx.wizard.back();
-        return ctx.wizard.step();
-      }
-    }
-
-    // ctx.wizard.state.last_name = ctx.message.text;
-    // ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
-    // return ctx.wizard.next();
+    ctx.wizard.state.last_name = ctx.message.text;
+    ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+    return ctx.wizard.next();
   }
   async enterAge(ctx: any) {
     if (await checkCommandInWizardScene(ctx)) return;
 
-    const callbackQuery = ctx?.callbackQuery;
-    // console.log(callbackQuery);
-    if (callbackQuery) {
-      if (callbackQuery?.data == 'Back') {
-        console.log('back clicked');
-        ctx.wizard.back();
-        return ctx.wizard.step();
-      }
+    // go back to previous wizard if user clicked 'Back'
+    if (ctx.message.text == 'Back') {
+      await ctx.wizard.back();
+      return ctx.wizard.step();
     }
 
     ctx.wizard.state.age = ctx.message.text;
