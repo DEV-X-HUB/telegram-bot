@@ -1,4 +1,4 @@
-import { Telegraf, Markup, Scenes } from 'telegraf';
+import { Markup } from 'telegraf';
 import { InlineKeyboardButtons } from '../components/button';
 import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
 

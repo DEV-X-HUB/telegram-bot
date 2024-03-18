@@ -1,9 +1,7 @@
-import { Markup } from 'telegraf';
 import RegistrationFormatter from './registration-formatter';
 import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
 import { registrationValidator } from '../utils/validator/registration-validator';
 import { calculateAge } from '../utils/date';
-import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
 
 const registrationFormatter = new RegistrationFormatter();
 
