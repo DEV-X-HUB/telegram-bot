@@ -16,35 +16,19 @@ class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
     await ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
-    await ctx.reply(
-      `Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below`,
-
-      InlineKeyboardButtons([
-        [
-          { text: 'Yes', cbString: 'agree_terms' },
-          { text: 'No', cbString: 'dont_agree_terms' },
-        ],
-        [{ text: 'Back', cbString: 'back_from_terms' }],
-      ]),
-    );
+    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay());
 
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
-    // if (await checkCommandInWizardScene(ctx)) return;
-
-    checkAndRedirectToScene();
+    console.log(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
-          ctx.reply(
-            'lets start your first registration. Please share your contact.',
-            Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
-              .oneTime()
-              .resize(),
-          );
-
+          // console.log()
+          ctx.reply('lets start your first registration ');
+          ctx.reply(...registrationFormatter.shareContact());
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
@@ -70,71 +54,94 @@ class RegistrationController {
   }
 
   async shareContact(ctx: any) {
-    if (await checkCommandInWizardScene(ctx)) return;
-    const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery);
+    console.log(ctx.message);
+    const contact = ctx?.message?.contact;
+    const text = ctx.message.text;
+    console.log(ctx.message.contact);
+    console.log(ctx.message.text);
+    if (text && text == 'Cancel') {
+      return ctx.reply(...registrationFormatter.shareContactWarning());
+    } else if (contact) {
+      ctx.reply(...registrationFormatter.firstNameformatter());
+      ctx.wizard.state.phone_number = contact.phone_number;
 
-    const message = ctx.message;
-    // console.log('message', message);
-    if (message.contact) {
-      ctx.wizard.state.contact = message.contact;
-      ctx.reply(...registrationFormatter.firstNameformatter(), Markup.keyboard(['Back']).oneTime().resize());
-      return ctx.wizard.next();
-    } else {
-      ctx.reply("You didn't share your contact. Please share your contact.");
-      return;
+      const message = ctx?.message;
+      // console.log('message', message);
+      if (message?.contact) {
+        ctx.wizard.state.contact = message.contact;
+        ctx.reply(
+          ...registrationFormatter.firstNameformatter(),
+
+          //back button with callback string
+          Markup.keyboard([Markup.button.callback('Back', 'back')])
+            .oneTime()
+            .resize(),
+        );
+
+        return ctx.wizard.next();
+      }
+      ctx.reply(...registrationFormatter.shareContactWarning());
     }
-
-    return ctx.wizard.next();
   }
 
   async enterFirstName(ctx: any) {
-    if (await checkCommandInWizardScene(ctx)) return;
-
-    // const message = ctx.message;
-    // console.log('message', message);
-
-    ctx.wizard.state.first_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.lastNameformatter(), Markup.keyboard(['Back']).oneTime().resize());
+    const message = ctx.message.text;
+    if (message == 'Back') {
+      return ctx.reply(...registrationFormatter.firstNameformatter());
+    }
+    ctx.wizard.state.first_name = message;
+    ctx.reply(
+      ...registrationFormatter.lastNameformatter(),
+      //back button with callback string
+      Markup.keyboard([Markup.button.callback('Back', 'back')])
+        .oneTime()
+        .resize(),
+    );
 
     return ctx.wizard.next();
   }
   async enterLastName(ctx: any) {
-    await checkCommandInWizardScene(ctx);
-    if (await checkCommandInWizardScene(ctx)) return;
+    const message = ctx.message.text;
+    if (message == 'Back') {
+      return ctx.reply(...registrationFormatter.firstNameformatter());
+    }
     ctx.wizard.state.last_name = ctx.message.text;
     ctx.reply(...registrationFormatter.ageFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
   }
+
   async enterAge(ctx: any) {
-    if (await checkCommandInWizardScene(ctx)) return;
-
-    // go back to previous wizard if user clicked 'Back'
-    if (ctx.message.text == 'Back') {
-      await ctx.wizard.back();
-      return ctx.wizard.step();
+    const message = ctx.message.text;
+    if (message == 'Back') {
+      ctx.reply(...registrationFormatter.lastNameformatter());
+      return ctx.wizard.back();
     }
-
     ctx.wizard.state.age = ctx.message.text;
     ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
-    if (await checkCommandInWizardScene(ctx)) return;
+    const message = ctx.message.text;
+
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
+      if (message == 'Back') {
+        ctx.reply(...registrationFormatter.ageFormatter());
+        return ctx.wizard.back();
+      }
       await ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'gender_male': {
+          console.log(ctx.wizard.state);
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormatter.preview(state.first_name, state.last_name, state.age, 'male'));
+          ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
         }
         case 'gender_female': {
           ctx.wizard.state.gender = 'male';
-          ctx.reply(...registrationFormatter.preview(state.first_name, state.last_name, state.age, 'female'));
+          ctx.reply(...registrationFormatter.preview(state));
           return ctx.wizard.next();
         }
         default: {
@@ -146,7 +153,96 @@ class RegistrationController {
       }
     }
   }
-  async editRegister() {}
+  async editRegister(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        await ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.keyboard(['Back']).oneTime().resize());
+        return ctx.wizard.back();
+      }
+      await ctx.reply('some thing');
+    } else {
+      const state = ctx.wizard.state;
+      switch (callbackQuery.data) {
+        case 'preview_edit': {
+          ctx.wizard.state.editField = null;
+          ctx.reply(...registrationFormatter.editPreview(state));
+          return ctx.wizard.next();
+        }
+        case 'register_data': {
+          ctx.reply('registed');
+          // return ctx.wizard.next();
+        }
+        default: {
+          await ctx.reply('aggain body');
+        }
+      }
+    }
+  }
+  async editData(ctx: any) {
+    console.log(ctx);
+    const state = ctx.wizard.state;
+    const fileds = ['first_name', 'last_name', 'age', 'gender'];
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) {
+      if (ctx.wizard.state.editField) {
+        ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
+        ctx.reply(...registrationFormatter.editPreview(state));
+      } else await ctx.reply('invalid input ');
+    } else {
+      switch (callbackQuery.data) {
+        case 'register_data': {
+          return ctx.reply('registed');
+        }
+        case 'gender_male': {
+          console.log(ctx.wizard.state);
+          ctx.wizard.state.gender = 'male';
+          return ctx.reply(...registrationFormatter.editPreview(state));
+        }
+        case 'gender_female': {
+          ctx.wizard.state.gender = 'female';
+          return ctx.reply(...registrationFormatter.editPreview(state));
+        }
+        default: {
+          if (fileds.some((filed) => filed == callbackQuery.data)) {
+            ctx.wizard.state.editField = callbackQuery.data;
+            await ctx.reply(...registrationFormatter.editFiledDispay(callbackQuery.data));
+          } else {
+            if (ctx.wizard.state.editField) {
+              ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
+              ctx.reply(...registrationFormatter.editPreview(state));
+            }
+            ctx.reply('invalid option');
+          }
+        }
+      }
+    }
+  }
+  async upateFiled(ctx: any) {
+    const fileds = ['first_name', 'last_name', 'age', 'gender'];
+    const callbackQuery = ctx.callbackQuery;
+    console.log(callbackQuery);
+    return;
+    if (!callbackQuery) {
+      await ctx.reply('some thing');
+    } else {
+      const state = ctx.wizard.state;
+      switch (callbackQuery.data) {
+        case 'done': {
+          ctx.reply('registed');
+          // return ctx.wizard.next();
+        }
+
+        default: {
+          if (fileds.some((filed) => filed == callbackQuery.data)) {
+            ctx.wizard.state.editField = callbackQuery.data;
+            await ctx.reply('aggain body');
+          }
+        }
+      }
+    }
+  }
 }
 
 export default RegistrationController;
