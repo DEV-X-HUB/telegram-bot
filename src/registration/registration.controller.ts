@@ -161,11 +161,10 @@ class RegistrationController {
         return ctx.wizard.back();
       } else return ctx.reply('please use the buttons to choose your county');
     } else {
-      console.log('witg oute vack');
       const [countryCode, country] = callbackQuery.data.split(':');
       ctx.wizard.state.country = country;
       ctx.wizard.state.countryCode = countryCode;
-      // await deleteMessageWithCallback(ctx);
+      await deleteMessageWithCallback(ctx);
       ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
       return ctx.wizard.next();
     }
