@@ -20,7 +20,6 @@ class RegistrationController {
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
-          ctx.reply("Let's start your first registration");
           await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.shareContact());
           return ctx.wizard.next();
