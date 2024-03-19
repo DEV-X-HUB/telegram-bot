@@ -15,6 +15,7 @@ class RegistrationController {
   }
   async agreeTermsHandler(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    console.log(callbackQuery.data);
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
@@ -23,7 +24,7 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
-          ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
+          return ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
           // call the function to display the terms and conditions again
           // return ctx.wizard.leave();
         }
@@ -209,7 +210,7 @@ class RegistrationController {
         }
         case 'register_data': {
           ctx.reply('registed');
-          // return ctx.wizard.next();
+          return ctx.scene.enter('mainmenu');
         }
         default: {
           await ctx.reply('aggain body');
@@ -241,7 +242,8 @@ class RegistrationController {
       };
       switch (callbackQuery.data) {
         case 'register_data': {
-          return ctx.reply('registed');
+          ctx.reply('registed');
+          return ctx.scene.enter('mainmenu');
         }
         case 'gender_male': {
           await deleteMessageWithCallback(ctx);
