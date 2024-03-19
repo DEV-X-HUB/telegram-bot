@@ -13,6 +13,14 @@ class Service1Formatter {
       ]).resize(),
     ];
   }
+  chooseNextOptionDisplay() {
+    return [
+      Markup.keyboard([
+        [Markup.button.callback('Option 7', 'Option 7'), Markup.button.callback('Option 8', 'Option 8')],
+        [Markup.button.callback('Option 9', 'Option 9'), Markup.button.callback('Back', 'Back')],
+      ]).resize(),
+    ];
+  }
 }
 
 export default Service1Formatter;
