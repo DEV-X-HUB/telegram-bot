@@ -32,6 +32,23 @@ class Service1Controller {
       return ctx.reply('Unknown option. Please choose a valid option.');
     }
   }
+  async chooseNextOptionHandler(ctx: any) {
+    const option = ctx.message.text;
+    console.log(`the option is ${option}`);
+    if (option == 'Back') {
+      console.log('back clicked');
+      ctx.reply('Choose an option', ...service1Formatter.chooseOptionDisplay());
+      return ctx.wizard.back();
+    }
+
+    // check if scene exists with the option
+    console.log('exists ', ctx.scene.scenes.has(option));
+    if (ctx.scene.scenes.has(option)) {
+      return ctx.scene.enter(option);
+    } else {
+      return ctx.reply('Unknown option. Please choose a valid option.');
+    }
+  }
 }
 
 export default Service1Controller;
