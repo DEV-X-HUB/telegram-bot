@@ -167,7 +167,7 @@ class RegistrationFormatter {
     return [`Unable to register you please try again`];
   }
   registrationSuccess() {
-    return [`Your have registred successfully!`];
+    return [`Your have registered successfully!`];
   }
 }
 
