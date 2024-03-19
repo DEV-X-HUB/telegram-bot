@@ -1,3 +1,4 @@
+import RegistrationService from '../registration/restgration.service';
 import MainmenuFormatter from './mainmenu-formmater';
 
 const mainMenuFormatter = new MainmenuFormatter();
@@ -14,6 +15,12 @@ class MainMenuController {
     console.log('option ', option);
     if (option === 'back') {
       return ctx.wizard.back();
+    }
+
+    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
+    if (!isUserRegistered) {
+      ctx.reply('please register to use the service');
+      return ctx.scene.enter('register');
     }
 
     // check if scene exists with the option
