@@ -4,8 +4,6 @@ import MainmenuFormatter from './mainmenu-formmater';
 const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
   async onStart(ctx: any) {
-    // const isUserJoined = await checkUserInChannel(ctx.message.from.id);
-
     ctx.reply(...mainMenuFormatter.chooseServiceDisplay());
     return ctx.wizard.next();
   }
