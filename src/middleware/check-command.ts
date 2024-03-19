@@ -21,6 +21,7 @@ export function checkAndRedirectToScene() {
     const text = ctx.message.text;
 
     if (text && text.startsWith('/')) {
+      console.log(text, 'commad');
       const command = text.slice(1); // Remove the leading slash
       if (command == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
@@ -29,10 +30,13 @@ export function checkAndRedirectToScene() {
           return ctx.scene.enter('start'); // Enter main menu the scene
         }
       }
-      if (sceneNames.some((sceneName) => sceneName == command))
-        ctx.scene.enter(command); // Enter the scene
-      else return ctx.reply('Unknown Command');
+      if (ctx.scene.scenes.has(command)) {
+        return ctx.scene.enter(command);
+      } else {
+        return ctx.reply('Unknown option. Please choose a valid option.');
+      }
     }
+
     return next();
   };
 }
