@@ -2,20 +2,21 @@ import RegistrationFormatter from './registration-formatter';
 import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
 import { registrationValidator } from '../utils/validator/registration-validator';
 import { calculateAge } from '../utils/date';
+import RegistrationService from './restgration.service';
+import config from '../config/config';
 
 const registrationFormatter = new RegistrationFormatter();
+const registrationService = new RegistrationService();
 
 class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
-    await ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
+    await ctx.reply(config.terms_condtion_link);
     await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'HTML' });
-
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
@@ -25,12 +26,15 @@ class RegistrationController {
         }
         case 'dont_agree_terms': {
           return ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
-          // call the function to display the terms and conditions again
-          // return ctx.wizard.leave();
         }
         case 'back_from_terms': {
-          // return one step back
-          // return ctx.wizard.leave();
+          await deleteMessageWithCallback(ctx);
+          await deleteMessage(ctx, {
+            message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
+            chat_id: callbackQuery.message.chat.id,
+          });
+          ctx.scene.leave();
+          return ctx.scene.enter('start');
         }
 
         default: {
@@ -209,8 +213,11 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'register_data': {
+          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+          console.log(response);
+          // await deleteMessageWithCallback(ctx);
           ctx.reply('registed');
-          return ctx.scene.enter('mainmenu');
+          // return ctx.scene.enter('mainmenu');
         }
         default: {
           await ctx.reply('aggain body');
@@ -242,6 +249,9 @@ class RegistrationController {
       };
       switch (callbackQuery.data) {
         case 'register_data': {
+          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+          console.log(response);
+          // await deleteMessageWithCallback(ctx);
           ctx.reply('registed');
           return ctx.scene.enter('mainmenu');
         }

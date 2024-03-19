@@ -1,11 +1,11 @@
 import { Telegraf, Markup, Scenes, session } from 'telegraf';
-// import dbConnecion from './loaders/db-connecion';
+import dbConnecion from './loaders/db-connecion';
 import Bot from './loaders/bot';
 import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
 import { checkAndRedirectToScene } from './middleware/check-command';
 import MainMenuScene from './mainmenu/mainmenu.scene';
-import { checkUserInChannelandPromtJoin } from './middleware/check-user-in-channel';
+import { checkUserInChannelandPromtJoin } from './middleware/auth';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
 

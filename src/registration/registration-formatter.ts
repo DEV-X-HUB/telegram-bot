@@ -17,6 +17,9 @@ class RegistrationFormatter {
       ]),
     ];
   }
+  userExistMessage() {
+    return [`You have already registed for this bot. feel free to navigate other services`];
+  }
 
   termsAndConditionsDisagreeDisplay() {
     return [
