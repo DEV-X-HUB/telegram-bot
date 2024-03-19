@@ -19,7 +19,9 @@ export function checkAndRedirectToScene() {
 
     if (text && text.startsWith('/')) {
       const command = text.slice(1); // Remove the leading slash
-      if (sceneNames.some((sceneName) => sceneName == command)) ctx.scene.enter(command); // Enter the scene
+      if (sceneNames.some((sceneName) => sceneName == command))
+        ctx.scene.enter(command); // Enter the scene
+      else return ctx.reply('Unknown Command');
     }
     return next();
   };

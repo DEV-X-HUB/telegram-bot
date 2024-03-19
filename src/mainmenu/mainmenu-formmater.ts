@@ -1,7 +1,14 @@
-export const formatJoinMessage = (first_name: string) => {
-  return `Hey ${first_name} 👋
-  
-It seems like you haven't joined our channel yet, 
-the channel is where we post questions asked by you and others,
-Join using the button below!`;
-};
+import { urlButton } from '../components/button';
+import config from '../config/config';
+
+class MainMenuFormmater {
+  constructor() {}
+  formatJoinMessage(first_name: string) {
+    return [
+      `Hey ${first_name} 👋\nIt seems like you haven't joined our channel yet,the channel is where we post questions asked by you and others,\n\nJoin using the button below!`,
+      urlButton('Join', `https://t.me/${config.channel_username}`),
+    ];
+  }
+}
+
+export default MainMenuFormmater;

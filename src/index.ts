@@ -5,6 +5,7 @@ import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
 import { checkAndRedirectToScene } from './middleware/check-command';
 import MainMenuScene from './mainmenu/mainmenu.scene';
+import { checkUserInChannelandPromtJoin } from './middleware/check-user-in-channel';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
 
@@ -17,7 +18,7 @@ const ignite = () => {
     const stage = new Scenes.Stage([RegistrationScene, MainMenuScene]);
     bot.use(session());
     bot.use(stage.middleware());
-
+    bot.use(checkUserInChannelandPromtJoin());
     bot.use(checkAndRedirectToScene());
 
     //middleware to handle commands separately

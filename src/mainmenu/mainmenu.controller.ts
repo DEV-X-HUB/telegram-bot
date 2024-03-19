@@ -1,6 +1,5 @@
 import { Telegraf, Context, Markup } from 'telegraf';
 import { checkUserInChannel } from '../middleware/check-user-in-channel';
-import { formatJoinMessage } from './mainmenu-formmater';
 import config from '../config/config';
 class MainMenuController {
   async onStart(ctx: any) {
