@@ -1,4 +1,5 @@
 import User from '../model/user';
+import CreateUserDto from '../types/dto/create-user.dto';
 
 class RegistrationService {
   constructor() {}
@@ -14,19 +15,19 @@ class RegistrationService {
     }
   }
 
-  async registerUser(phoneNumber: string, userData: any) {
+  async registerUser(createUserDto: CreateUserDto) {
     try {
-      const doesUserExist = await this.isUserRegistered(phoneNumber);
+      const doesUserExist = await this.isUserRegistered(createUserDto.phone_number);
       if (doesUserExist) return { success: false, message: 'user exits', data: null };
-      return await this.createUser(userData);
+      return await this.createUser(createUserDto);
     } catch (error) {}
     return { success: false, message: 'unkown error', data: null };
   }
 
-  async createUser(userData: any) {
+  async createUser(createUserDto: CreateUserDto) {
     try {
       const newUser = new User({
-        ...userData,
+        ...createUserDto,
       });
       return { success: true, data: await newUser.save(), message: 'user created' };
     } catch (error: any) {
