@@ -1,18 +1,25 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
 import RegistrationController from './registration.controller';
+import { InlineKeyboardButtons } from '../components/button';
 
 const registrationController = new RegistrationController();
 
-const registerScene = new Scenes.WizardScene(
+const registrationScene = new Scenes.WizardScene(
   'register',
-  registrationController.start,
+  registrationController.agreeTermsDisplay,
+  registrationController.agreeTermsHandler,
   registrationController.shareContact,
-  registrationController.addFirstName,
-  registrationController.addLastName,
-  registrationController.addAge,
-  registrationController.addProfileImage,
+  registrationController.enterFirstName,
+  registrationController.enterLastName,
+  registrationController.enterAge,
+  registrationController.chooseGender,
+  registrationController.enterEmail,
+  registrationController.chooseCountry,
+  registrationController.chooseCity,
+  registrationController.editRegister,
+  registrationController.editData,
 );
 
-export default registerScene;
+export default registrationScene;
 
 // Handle errors gracefully (optional)
