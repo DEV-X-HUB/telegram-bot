@@ -26,7 +26,7 @@ export function checkAndRedirectToScene() {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
           ctx.reply(...new RegistrationFormatter().userExistMessage());
-          ctx.scene.enter('start'); // Enter main menu the scene
+          return ctx.scene.enter('start'); // Enter main menu the scene
         }
       }
       if (sceneNames.some((sceneName) => sceneName == command))

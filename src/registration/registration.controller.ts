@@ -214,10 +214,21 @@ class RegistrationController {
         }
         case 'register_data': {
           const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
-          console.log(response);
-          // await deleteMessageWithCallback(ctx);
-          ctx.reply('registed');
-          // return ctx.scene.enter('mainmenu');
+
+          if (response.success) {
+            await deleteMessageWithCallback(ctx);
+            ctx.reply(...registrationFormatter.registrationSuccess());
+            return ctx.scene.enter('start');
+          } else {
+            ctx.reply(...registrationFormatter.registrationError());
+            if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+            return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
+              ? parseInt(ctx.wizard.state.registrationAttempt) + 1
+              : 1);
+          }
         }
         default: {
           await ctx.reply('aggain body');
@@ -227,7 +238,7 @@ class RegistrationController {
   }
   async editData(ctx: any) {
     const state = ctx.wizard.state;
-    const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country'];
+    const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country', 'email'];
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       // changing field value
@@ -250,10 +261,22 @@ class RegistrationController {
       switch (callbackQuery.data) {
         case 'register_data': {
           const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
-          console.log(response);
-          // await deleteMessageWithCallback(ctx);
-          ctx.reply('registed');
-          return ctx.scene.enter('mainmenu');
+
+          if (response.success) {
+            await deleteMessageWithCallback(ctx);
+            ctx.reply(...registrationFormatter.registrationSuccess());
+            return ctx.scene.enter('start');
+          } else {
+            ctx.reply(...registrationFormatter.registrationError());
+
+            if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+            return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
+              ? parseInt(ctx.wizard.state.registrationAttempt) + 1
+              : 1);
+          }
         }
         case 'gender_male': {
           await deleteMessageWithCallback(ctx);

@@ -157,9 +157,17 @@ class RegistrationFormatter {
         return await this.chooseCountryFormatter();
       case 'city':
         return await this.chooseCityFormatter(extraKey || '');
+      case 'email':
+        return await this.emailFormatter();
       default:
         return ['none'];
     }
+  }
+  registrationError() {
+    return [`Unable to register you please try again`];
+  }
+  registrationSuccess() {
+    return [`Your have registred successfully!`];
   }
 }
 
