@@ -6,7 +6,7 @@ class RegistrationFormatter {
   constructor() {}
   termsAndConditionsDisplay() {
     return [
-      `Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below`,
+      '**Do** you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
 
       InlineKeyboardButtons([
         [
@@ -105,7 +105,7 @@ class RegistrationFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>${state.first_name} ${state.last_name}</b>\n________________\n\n<b>First name</b>: ${state.first_name} \n\n<b>Last name</b>: ${state.last_name} \n\n<b>Age</b>: ${state.age} \n\n<b>Gender</b>: ${state.gender}\n\n<b>Residence</b> : ${state.city},${state.country}\n\n<b>Email</b>: ${state.email}`;
+    return `${state.first_name} ${state.last_name}**\n________________\n\nFirst name: ${state.first_name} \n\nLast name: ${state.last_name} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email}`;
   }
   preview(state: any) {
     return [

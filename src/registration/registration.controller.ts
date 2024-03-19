@@ -12,7 +12,7 @@ class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
     await ctx.reply(config.terms_condtion_link);
-    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'HTML' });
+    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
