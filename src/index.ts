@@ -4,6 +4,9 @@ import Bot from './loaders/bot';
 import RegistrationScene from './registration/registration.scene';
 import MainMenuController from './mainmenu/mainmenu.controller';
 import { checkAndRedirectToScene } from './middleware/check-command';
+import { ZodError, z } from 'zod';
+import MainmenuScene from './mainmenu/mainmenu.scene';
+import Service1Scene from './service1/service1.scene';
 
 // Replace 'YOUR_BOT_TOKEN' with your bot token
 
@@ -13,21 +16,17 @@ import { checkAndRedirectToScene } from './middleware/check-command';
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([RegistrationScene]);
+    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene]);
     bot.use(session());
     bot.use(stage.middleware());
 
     //middleware to handle commands separately
 
-    bot.command('start', new MainMenuController().onStart);
+    // bot.command('start', new MainMenuController().onStart);
     // bot.command('register', (ctx: any) => {
     //   ctx.scene.enter('register');
     // });
     bot.use(checkAndRedirectToScene());
-
-    bot.hears('Option 1', (ctx) => {
-      ctx.reply('You selected Option 1');
-    });
   }
   process.on('SIGINT', () => {
     // dbConnecion.close();
@@ -35,7 +34,6 @@ const ignite = () => {
   });
 };
 
-import { ZodError, z } from 'zod';
 const checkAge = () => {
   // Define the Zod schema for age validation
   const ageSchema = z
