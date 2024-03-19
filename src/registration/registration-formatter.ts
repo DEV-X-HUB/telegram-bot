@@ -126,16 +126,20 @@ class RegistrationFormatter {
           { text: 'first name', cbString: 'first_name' },
           { text: 'last name', cbString: 'last_name' },
         ],
-        [
-          { text: 'country', cbString: 'country' },
-          { text: 'city', cbString: 'city' },
-        ],
+
         [
           { text: 'age', cbString: 'age' },
           { text: 'gender', cbString: 'gender' },
         ],
+        [
+          { text: 'country', cbString: 'country' },
+          { text: 'city', cbString: 'city' },
+        ],
 
-        [{ text: 'Done', cbString: 'register_data' }],
+        [
+          { text: 'email', cbString: 'email' },
+          { text: 'Done', cbString: 'register_data' },
+        ],
       ]),
     ];
   }
