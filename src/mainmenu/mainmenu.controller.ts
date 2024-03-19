@@ -1,18 +1,15 @@
 import { Telegraf, Context, Markup } from 'telegraf';
 import { checkUserInChannel } from '../middleware/check-user-in-channel';
-import { formatJoinMessage } from './mainmenu-formmater';
-import config from '../config/config';
+
+import MainmenuFormatter from './mainmenu-formmater';
+
+const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
   async onStart(ctx: any) {
-    console.log(ctx.message.from);
-    const isUserJoined = await checkUserInChannel(ctx.message.from.id);
-    const inlineKeyboard = Markup.inlineKeyboard([
-      [Markup.button.callback('Button 1', 'btn1'), Markup.button.callback('Button 2', 'btn2')],
-      [Markup.button.callback('Button 3', 'btn3'), Markup.button.callback('Button 4', 'btn4')],
-    ]);
-    const menuOptions = Markup.keyboard([['Option 1', 'Option 2'], ['Option 3', 'Option 4'], ['Option 5']]).resize();
+    // const isUserJoined = await checkUserInChannel(ctx.message.from.id);
 
-    ctx.reply('Choose an action:', menuOptions);
+    ctx.reply('Choose a service:', ...mainMenuFormatter.chooseServiceDisplay());
+    return ctx.wizard.next();
 
     // if (isUserJoined) {
     //   ctx.reply("Welcome! Let's start the registration process.");
@@ -23,6 +20,23 @@ class MainMenuController {
     //     urlButton('Join', `https://t.me/${config.channel_username}`),
     //   );
     // }
+  }
+
+  async chooseOption(ctx: any) {
+    const option = ctx.message.text;
+    console.log('option ', option);
+    if (option === 'back') {
+      return ctx.wizard.back();
+    }
+
+    // check if scene exists with the option
+    console.log('exists ', ctx.scene.scenes.has(option));
+
+    if (ctx.scene.scenes.has(option)) {
+      return ctx.scene.enter(option);
+    } else {
+      return ctx.reply('Unknown option. Please choose a valid option.');
+    }
   }
 }
 
