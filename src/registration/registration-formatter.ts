@@ -71,7 +71,7 @@ class RegistrationFormatter {
     return [`Please enter your last name`];
   }
   ageFormatter() {
-    return [`Please choose your Age `];
+    return [`Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format  `];
   }
 
   emailFormatter() {
