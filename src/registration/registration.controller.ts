@@ -11,7 +11,8 @@ class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
     await ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
-    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'HTML' });
+    ctx.reply('Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below');
+    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
 
     return ctx.wizard.next();
   }
