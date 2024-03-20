@@ -1,28 +1,34 @@
-import { Telegraf, Context, Markup } from 'telegraf';
-import { checkUserInChannel } from '../middleware/check-user-in-channel';
-import { formatJoinMessage } from './mainmenu-formmater';
-import config from '../config/config';
+import RegistrationService from '../registration/restgration.service';
+import MainmenuFormatter from './mainmenu-formmater';
+
+const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
   async onStart(ctx: any) {
-    console.log(ctx.message.from);
-    const isUserJoined = await checkUserInChannel(ctx.message.from.id);
-    const inlineKeyboard = Markup.inlineKeyboard([
-      [Markup.button.callback('Button 1', 'btn1'), Markup.button.callback('Button 2', 'btn2')],
-      [Markup.button.callback('Button 3', 'btn3'), Markup.button.callback('Button 4', 'btn4')],
-    ]);
-    const menuOptions = Markup.keyboard([['Option 1', 'Option 2'], ['Option 3', 'Option 4'], ['Option 5']]).resize();
+    ctx.reply(...mainMenuFormatter.chooseServiceDisplay());
+    return ctx.wizard.next();
+  }
 
-    ctx.reply('Choose an action:', menuOptions);
+  async chooseOption(ctx: any) {
+    const option = ctx.message.text;
+    console.log('option ', option);
+    if (option === 'back') {
+      return ctx.wizard.back();
+    }
 
-    // if (isUserJoined) {
-    //   ctx.reply("Welcome! Let's start the registration process.");
-    //   ctx.scene.enter('register');
-    // } else {
-    //   ctx.reply(
-    //     formatJoinMessage(ctx.message.from.first_name),
-    //     urlButton('Join', `https://t.me/${config.channel_username}`),
-    //   );
-    // }
+    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
+    if (!isUserRegistered) {
+      ctx.reply('please register to use the service');
+      return ctx.scene.enter('register');
+    }
+
+    // check if scene exists with the option
+    console.log('exists ', ctx.scene.scenes.has(option));
+
+    if (ctx.scene.scenes.has(option)) {
+      return ctx.scene.enter(option);
+    } else {
+      return ctx.reply('Unknown option. Please choose a valid option.');
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import { Telegraf, Context, session, MiddlewareFn } from 'telegraf';
 import config from '../config/config';
+import dbConnecion from './db-connecion';
 
 let bot: Telegraf<Context> | null = null;
 
@@ -7,6 +8,7 @@ export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
   console.log(config.domain);
+  dbConnecion;
   try {
     bot
       .launch({
