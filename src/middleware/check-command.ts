@@ -1,5 +1,5 @@
-import RegistrationFormatter from '../registration/registration-formatter';
-import RegistrationService from '../registration/restgration.service';
+import RegistrationFormatter from '../modules/registration/registration-formatter';
+import RegistrationService from '../modules/registration/restgration.service';
 
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {

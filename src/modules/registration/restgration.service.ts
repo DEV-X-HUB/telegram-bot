@@ -1,5 +1,5 @@
-import User from '../model/user';
-import CreateUserDto from '../types/dto/create-user.dto';
+import User from '../../models/user';
+import CreateUserDto from '../../types/dto/create-user.dto';
 
 class RegistrationService {
   constructor() {}

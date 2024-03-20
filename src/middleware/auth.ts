@@ -1,6 +1,6 @@
 import axios from 'axios';
 import config from '../config/config';
-import MainMenuFormmater from '../mainmenu/mainmenu-formmater';
+import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
 const mainMenuFormmater = new MainMenuFormmater();
 
 // Define the base URL
