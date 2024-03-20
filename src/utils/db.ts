@@ -1,6 +1,5 @@
-
-import mongoose  from "mongoose";
-import config from "../config/config";
+import mongoose from 'mongoose';
+import config from '../config/config';
 
 // Connect with DB
 mongoose
@@ -9,7 +8,7 @@ mongoose
     console.log('Successfully Connected');
   })
   .catch((err) => {
-    console.log("Error while connecting to DB");
+    console.log('Error while connecting to DB');
     console.log(err);
   });
 
@@ -17,13 +16,13 @@ mongoose
 const db_conn = mongoose.connection;
 
 // Handle error after connecting
-db_conn.on("error", (err) => {
-  console.log("Error while connecting to DB");
+db_conn.on('error', (err) => {
+  console.log('Error while connecting to DB');
   console.log(err);
 });
 
-db_conn.on("disconnected", () => {
-  console.log("DB is disconnected");
+db_conn.on('disconnected', () => {
+  console.log('DB is disconnected');
 });
 
 // Export DB Connection

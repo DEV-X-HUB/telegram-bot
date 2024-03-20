@@ -1,25 +1,11 @@
-import { Telegraf, Context, Markup } from 'telegraf';
-import { checkUserInChannel } from '../middleware/check-user-in-channel';
-
+import RegistrationService from '../registration/restgration.service';
 import MainmenuFormatter from './mainmenu-formmater';
 
 const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
   async onStart(ctx: any) {
-    // const isUserJoined = await checkUserInChannel(ctx.message.from.id);
-
-    ctx.reply('Choose a service:', ...mainMenuFormatter.chooseServiceDisplay());
+    ctx.reply(...mainMenuFormatter.chooseServiceDisplay());
     return ctx.wizard.next();
-
-    // if (isUserJoined) {
-    //   ctx.reply("Welcome! Let's start the registration process.");
-    //   ctx.scene.enter('register');
-    // } else {
-    //   ctx.reply(
-    //     formatJoinMessage(ctx.message.from.first_name),
-    //     urlButton('Join', `https://t.me/${config.channel_username}`),
-    //   );
-    // }
   }
 
   async chooseOption(ctx: any) {
@@ -27,6 +13,12 @@ class MainMenuController {
     console.log('option ', option);
     if (option === 'back') {
       return ctx.wizard.back();
+    }
+
+    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
+    if (!isUserRegistered) {
+      ctx.reply('please register to use the service');
+      return ctx.scene.enter('register');
     }
 
     // check if scene exists with the option

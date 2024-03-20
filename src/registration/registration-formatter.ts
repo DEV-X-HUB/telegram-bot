@@ -17,6 +17,9 @@ class RegistrationFormatter {
       ]),
     ];
   }
+  userExistMessage() {
+    return [`You have already registed for this bot. feel free to navigate other services`];
+  }
 
   termsAndConditionsDisagreeDisplay() {
     return [
@@ -68,7 +71,7 @@ class RegistrationFormatter {
     return [`Please enter your last name`];
   }
   ageFormatter() {
-    return [`Please choose your Age `];
+    return [`Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format  `];
   }
 
   emailFormatter() {
@@ -123,16 +126,20 @@ class RegistrationFormatter {
           { text: 'first name', cbString: 'first_name' },
           { text: 'last name', cbString: 'last_name' },
         ],
-        [
-          { text: 'country', cbString: 'country' },
-          { text: 'city', cbString: 'city' },
-        ],
+
         [
           { text: 'age', cbString: 'age' },
           { text: 'gender', cbString: 'gender' },
         ],
+        [
+          { text: 'country', cbString: 'country' },
+          { text: 'city', cbString: 'city' },
+        ],
 
-        [{ text: 'Done', cbString: 'register_data' }],
+        [
+          { text: 'email', cbString: 'email' },
+          { text: 'Done', cbString: 'register_data' },
+        ],
       ]),
     ];
   }
@@ -150,9 +157,17 @@ class RegistrationFormatter {
         return await this.chooseCountryFormatter();
       case 'city':
         return await this.chooseCityFormatter(extraKey || '');
+      case 'email':
+        return await this.emailFormatter();
       default:
         return ['none'];
     }
+  }
+  registrationError() {
+    return [`Unable to register you please try again`];
+  }
+  registrationSuccess() {
+    return [`Your have registered successfully!`];
   }
 }
 

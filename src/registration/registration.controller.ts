@@ -2,16 +2,17 @@ import RegistrationFormatter from './registration-formatter';
 import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
 import { registrationValidator } from '../utils/validator/registration-validator';
 import { calculateAge } from '../utils/date';
+import RegistrationService from './restgration.service';
+import config from '../config/config';
 
 const registrationFormatter = new RegistrationFormatter();
+const registrationService = new RegistrationService();
 
 class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
-    await ctx.reply('https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2');
-    ctx.reply('Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below');
+    await ctx.reply(config.terms_condtion_link);
     await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
-
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
@@ -24,13 +25,16 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
-          ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
-          // call the function to display the terms and conditions again
-          // return ctx.wizard.leave();
+          return ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
         }
         case 'back_from_terms': {
-          // return one step back
-          // return ctx.wizard.leave();
+          await deleteMessageWithCallback(ctx);
+          await deleteMessage(ctx, {
+            message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
+            chat_id: callbackQuery.message.chat.id,
+          });
+          ctx.scene.leave();
+          return ctx.scene.enter('start');
         }
 
         default: {
@@ -209,8 +213,22 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'register_data': {
-          ctx.reply('registed');
-          // return ctx.wizard.next();
+          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+
+          if (response.success) {
+            await deleteMessageWithCallback(ctx);
+            ctx.reply(...registrationFormatter.registrationSuccess());
+            return ctx.scene.enter('start');
+          } else {
+            ctx.reply(...registrationFormatter.registrationError());
+            if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+            return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
+              ? parseInt(ctx.wizard.state.registrationAttempt) + 1
+              : 1);
+          }
         }
         default: {
           await ctx.reply('aggain body');
@@ -220,7 +238,7 @@ class RegistrationController {
   }
   async editData(ctx: any) {
     const state = ctx.wizard.state;
-    const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country'];
+    const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country', 'email'];
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       // changing field value
@@ -242,7 +260,23 @@ class RegistrationController {
       };
       switch (callbackQuery.data) {
         case 'register_data': {
-          return ctx.reply('registed');
+          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+
+          if (response.success) {
+            await deleteMessageWithCallback(ctx);
+            ctx.reply(...registrationFormatter.registrationSuccess());
+            return ctx.scene.enter('start');
+          } else {
+            ctx.reply(...registrationFormatter.registrationError());
+
+            if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+            return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
+              ? parseInt(ctx.wizard.state.registrationAttempt) + 1
+              : 1);
+          }
         }
         case 'gender_male': {
           await deleteMessageWithCallback(ctx);
