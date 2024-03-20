@@ -1,6 +1,6 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons } from '../components/button';
-import { getAllCountries, getCitiesOfCountry } from '../utils/constants/country-list';
+import { InlineKeyboardButtons } from '../../components/button';
+import { getAllCountries, getCitiesOfCountry } from '../../utils/constants/country-list';
 
 class RegistrationFormatter {
   constructor() {}

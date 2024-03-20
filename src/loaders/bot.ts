@@ -7,7 +7,6 @@ let bot: Telegraf<Context> | null = null;
 export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
-  console.log(config.domain);
   dbConnecion;
   try {
     bot

@@ -1,5 +1,5 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons } from '../components/button';
+import { InlineKeyboardButtons } from '../../components/button';
 
 class Service1Formatter {
   constructor() {}

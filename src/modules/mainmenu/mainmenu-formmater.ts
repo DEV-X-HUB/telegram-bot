@@ -1,6 +1,6 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons, urlButton } from '../components/button';
-import config from '../config/config';
+import { InlineKeyboardButtons, urlButton } from '../../components/button';
+import config from '../../config/config';
 
 class MainmenuFormatter {
   constructor() {}

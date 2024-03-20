@@ -1,9 +1,9 @@
 import RegistrationFormatter from './registration-formatter';
-import { deleteMessage, deleteMessageWithCallback } from '../utils/chat';
-import { registrationValidator } from '../utils/validator/registration-validator';
-import { calculateAge } from '../utils/date';
+import { deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
+import { registrationValidator } from '../../utils/validator/registration-validator';
+import { calculateAge } from '../../utils/constants/date';
 import RegistrationService from './restgration.service';
-import config from '../config/config';
+import config from '../../config/config';
 
 const registrationFormatter = new RegistrationFormatter();
 const registrationService = new RegistrationService();
