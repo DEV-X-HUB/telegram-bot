@@ -6,7 +6,7 @@ class RegistrationFormatter {
   constructor() {}
   termsAndConditionsDisplay() {
     return [
-      `Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below`,
+      '**Do** you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
 
       InlineKeyboardButtons([
         [
@@ -16,6 +16,9 @@ class RegistrationFormatter {
         [{ text: 'Back', cbString: 'back_from_terms' }],
       ]),
     ];
+  }
+  userExistMessage() {
+    return [`You have already registed for this bot. feel free to navigate other services`];
   }
 
   termsAndConditionsDisagreeDisplay() {
@@ -68,7 +71,7 @@ class RegistrationFormatter {
     return [`Please enter your last name`];
   }
   ageFormatter() {
-    return [`Please choose your Age `];
+    return [`Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format  `];
   }
 
   emailFormatter() {
@@ -102,7 +105,7 @@ class RegistrationFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>${state.first_name} ${state.last_name}</b>\n________________\n\n<b>First name</b>: ${state.first_name} \n\n<b>Last name</b>: ${state.last_name} \n\n<b>Age</b>: ${state.age} \n\n<b>Gender</b>: ${state.gender}\n\n<b>Residence</b> : ${state.city},${state.country}\n\n<b>Email</b>: ${state.email}`;
+    return `${state.first_name} ${state.last_name}**\n________________\n\nFirst name: ${state.first_name} \n\nLast name: ${state.last_name} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email}`;
   }
   preview(state: any) {
     return [
@@ -123,16 +126,20 @@ class RegistrationFormatter {
           { text: 'first name', cbString: 'first_name' },
           { text: 'last name', cbString: 'last_name' },
         ],
-        [
-          { text: 'country', cbString: 'country' },
-          { text: 'city', cbString: 'city' },
-        ],
+
         [
           { text: 'age', cbString: 'age' },
           { text: 'gender', cbString: 'gender' },
         ],
+        [
+          { text: 'country', cbString: 'country' },
+          { text: 'city', cbString: 'city' },
+        ],
 
-        [{ text: 'Done', cbString: 'register_data' }],
+        [
+          { text: 'email', cbString: 'email' },
+          { text: 'Done', cbString: 'register_data' },
+        ],
       ]),
     ];
   }
@@ -150,9 +157,17 @@ class RegistrationFormatter {
         return await this.chooseCountryFormatter();
       case 'city':
         return await this.chooseCityFormatter(extraKey || '');
+      case 'email':
+        return await this.emailFormatter();
       default:
         return ['none'];
     }
+  }
+  registrationError() {
+    return [`Unable to register you please try again`];
+  }
+  registrationSuccess() {
+    return [`Your have registered successfully!`];
   }
 }
 
