@@ -1,4 +1,3 @@
-import { Markup } from 'telegraf';
 import { MarkupButtons } from '../../components/button';
 
 class Service1Formatter {
@@ -35,7 +34,7 @@ class Service1Formatter {
         { text: 'Back', cbString: 'Back' },
       ],
     ];
-    return [MarkupButton(markupOptions)];
+    return [MarkupButtons(markupOptions)];
   }
 }
 
