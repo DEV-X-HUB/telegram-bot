@@ -22,9 +22,11 @@ class MainMenuController {
     }
 
     // check if scene exists with the option
-    console.log('exists ', ctx.scene.scenes.has(option));
+    console.log('exists ', ctx.scene.scenes.has(option), option);
+    // console.log(option);
 
     if (ctx.scene.scenes.has(option)) {
+      ctx.scene.leave();
       return ctx.scene.enter(option);
     } else {
       return ctx.reply('Unknown option. Please choose a valid option.');

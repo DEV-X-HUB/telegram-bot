@@ -1,6 +1,5 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
 import RegistrationController from './registration.controller';
-import { InlineKeyboardButtons } from '../components/button';
 
 const registrationController = new RegistrationController();
 
