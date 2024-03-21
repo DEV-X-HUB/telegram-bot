@@ -3,7 +3,7 @@ import QuestionPostController from './question-post.controller';
 
 const questionPostController = new QuestionPostController();
 const QuestionPostScene = new Scenes.WizardScene(
-  'posting',
+  'Post Questions',
   questionPostController.start,
   questionPostController.chooseOption,
   questionPostController.arBrOption,
