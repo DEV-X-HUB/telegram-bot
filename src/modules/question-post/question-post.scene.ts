@@ -1,5 +1,5 @@
 import { Scenes } from 'telegraf';
-import QuestionPostController from './posting.controller';
+import QuestionPostController from './question-post.controller';
 
 const questionPostController = new QuestionPostController();
 const QuestionPostScene = new Scenes.WizardScene(

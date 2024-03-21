@@ -1,6 +1,6 @@
 import { deleteMessageWithCallback } from '../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../utils/constants/string';
-import PostingFormatter from './posting.formatter';
+import PostingFormatter from './question-post.formatter';
 const postingFormatter = new PostingFormatter();
 
 class QuestionPostController {

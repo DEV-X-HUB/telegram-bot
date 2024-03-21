@@ -1,12 +1,7 @@
 import { Markup } from 'telegraf';
-import {
-  RowInlineKeyboardButtons,
-  RowMarkupKeyboardButtons,
-  TableInlineKeyboardButtons,
-  UrlButtonOptions,
-} from '../types/components';
+import { RowInlineKeyboardButtons, RowMarkupKeyboardButtons, TableInlineKeyboardButtons } from '../types/components';
 
-export const urlButton = ({ buttonText, url, hidable }: UrlButtonOptions) => {
+export const urlButton = (buttonText: string, url: string, hidable?: boolean) => {
   return Markup.inlineKeyboard([Markup.button.url(buttonText, url, hidable)]);
 };
 
