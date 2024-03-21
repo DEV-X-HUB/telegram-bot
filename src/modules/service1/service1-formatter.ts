@@ -25,12 +25,17 @@ class Service1Formatter {
     return [MarkupButton(markupOptions)];
   }
   chooseNextOptionDisplay() {
-    return [
-      Markup.keyboard([
-        [Markup.button.callback('Option 7', 'Option 7'), Markup.button.callback('Option 8', 'Option 8')],
-        [Markup.button.callback('Option 9', 'Option 9'), Markup.button.callback('Back', 'Back')],
-      ]).resize(),
+    const markupOptions = [
+      [
+        { text: 'Option 7', cbString: 'Option 7' },
+        { text: 'Option 8', cbString: 'Option 8' },
+      ],
+      [
+        { text: 'Option 9', cbString: 'Option 9' },
+        { text: 'Back', cbString: 'Back' },
+      ],
     ];
+    return [MarkupButton(markupOptions)];
   }
 }
 
