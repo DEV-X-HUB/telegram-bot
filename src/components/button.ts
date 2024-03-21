@@ -8,7 +8,8 @@ export const urlButton = (buttonText: string, url: string, hidable?: boolean) =>
 export const InlineKeyboardButtons = (tableButtons: TableInlineKeyboardButtons) => {
   return Markup.inlineKeyboard(getButtonRows(tableButtons));
 };
-export const MarkupButtons = (tableButtons: TableInlineKeyboardButtons) => {
+export const MarkupButtons = (tableButtons: TableInlineKeyboardButtons, onetime?: boolean) => {
+  if (onetime) return Markup.keyboard(getButtonRows(tableButtons)).oneTime().resize();
   return Markup.keyboard(getButtonRows(tableButtons)).resize();
 };
 

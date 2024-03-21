@@ -22,6 +22,7 @@ class QuestionPostController {
 
     if (isInMarkUPOption(option, postingFormatter.categories)) {
       ctx.wizard.state.category = option;
+      ctx.reply('Keep Going... ', postingFormatter.goBackButton());
       ctx.reply(...postingFormatter.arBrOptionDisplay());
       return ctx.wizard.next();
     } else {

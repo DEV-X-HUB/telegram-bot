@@ -53,13 +53,13 @@ class QustionPostFormatter {
     ];
   }
   goBackButton() {
-    return MarkupButtons(this.backOption);
+    return MarkupButtons(this.backOption, true);
   }
   chooseOptionDisplay() {
-    return ['Please Choose on category from the options', MarkupButtons(this.categories)];
+    return ['Please Choose on category from the options', MarkupButtons(this.categories), true];
   }
   arBrOptionDisplay() {
-    return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption), this.goBackButton()];
+    return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption)];
   }
   woredaListDisplay() {
     return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList), this.goBackButton()];
