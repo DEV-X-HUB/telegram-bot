@@ -1,20 +1,28 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons } from '../../components/button';
+import { InlineKeyboardButtons, MarkupButton } from '../../components/button';
 
 class Service1Formatter {
   constructor() {}
   chooseOptionDisplay() {
-    return [
-      Markup.keyboard([
-        [Markup.button.callback('Option_1', 'Option 1'), Markup.button.callback('Option_2', 'Option 2')],
-        [
-          Markup.button.callback('🔍 Search questions', 'Option 3'),
-          Markup.button.callback('🔍 Search questions', 'Option 4'),
-        ],
-        [Markup.button.callback('Option_5', 'Option 5'), Markup.button.callback('Option_6', 'Option 6')],
-        [Markup.button.callback('Back', 'Back'), Markup.button.callback('Next', 'Next')],
-      ]).resize(),
+    const markupOptions = [
+      [
+        { text: 'Option 1', cbString: 'option 1' },
+        { text: 'Option 2', cbString: 'option 2' },
+      ],
+      [
+        { text: '🔍 Search questions', cbString: 'Option 3' },
+        { text: '🔍 Search questions', cbString: 'option 3' },
+      ],
+      [
+        { text: 'Option 5', cbString: 'Option 5' },
+        { text: 'Option 6', cbString: 'Option 6' },
+      ],
+      [
+        { text: 'Back', cbString: 'Back' },
+        { text: 'Next ', cbString: 'Next' },
+      ],
     ];
+    return [MarkupButton(markupOptions)];
   }
   chooseNextOptionDisplay() {
     return [
