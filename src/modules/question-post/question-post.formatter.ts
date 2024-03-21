@@ -4,6 +4,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../ty
 class QustionPostFormatter {
   categories: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
+  bIDiOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
   woredaList: TableInlineKeyboardButtons;
   constructor() {
@@ -23,6 +24,14 @@ class QustionPostFormatter {
         { text: 'AR', cbString: 'ar' },
         { text: 'BR', cbString: 'br' },
       ],
+      [{ text: 'Back', cbString: 'back' }],
+    ];
+    this.bIDiOption = [
+      [
+        { text: 'BI', cbString: 'bi' },
+        { text: 'Di', cbString: 'di' },
+      ],
+      [{ text: 'Back', cbString: 'back' }],
     ];
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
     this.woredaList = [
@@ -47,22 +56,40 @@ class QustionPostFormatter {
         { text: 'woreda', cbString: 'woreda' },
       ],
       [
-        { text: 'woreda', cbString: 'woreda' },
         { text: 'other', cbString: 'other' },
+        { text: 'back', cbString: 'back' },
       ],
     ];
   }
-  goBackButton() {
-    return MarkupButtons(this.backOption, true);
+  goBackButton(oneTime: boolean = true) {
+    return MarkupButtons(this.backOption, oneTime);
+  }
+  chooseOptionString() {
+    return ['Please Choose on category from the options'];
   }
   chooseOptionDisplay() {
-    return ['Please Choose on category from the options', MarkupButtons(this.categories), true];
+    return ['Please Choose on category from the options', MarkupButtons(this.categories, true)];
   }
   arBrOptionDisplay() {
     return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption)];
   }
   woredaListDisplay() {
-    return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList), this.goBackButton()];
+    return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList)];
+  }
+  bIDIOptionDisplay() {
+    return ['Please Choose ID first Icon', InlineKeyboardButtons(this.bIDiOption), this.goBackButton(false)];
+  }
+  lastDidtitPrompt() {
+    return ['Enter Last Digit ', this.goBackButton(false)];
+  }
+  locationPrompt() {
+    return ['Enter sub city and location ', this.goBackButton(false)];
+  }
+  descriptionPrompt() {
+    return ['Enter Description maximum 200 words ', this.goBackButton(false)];
+  }
+  photoPrompt() {
+    return ['Attach four photos ', this.goBackButton(false)];
   }
 }
 
