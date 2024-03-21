@@ -1,5 +1,5 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons, MarkupButton } from '../../components/button';
+import { MarkupButtons } from '../../components/button';
 
 class Service1Formatter {
   constructor() {}
@@ -22,7 +22,7 @@ class Service1Formatter {
         { text: 'Next ', cbString: 'Next' },
       ],
     ];
-    return [MarkupButton(markupOptions)];
+    return [MarkupButtons(markupOptions)];
   }
   chooseNextOptionDisplay() {
     return [
@@ -35,11 +35,3 @@ class Service1Formatter {
 }
 
 export default Service1Formatter;
-
-// export const formatJoinMessage = (first_name: string) => {
-//   return `Hey ${first_name} 👋
-
-// It seems like you haven't joined our channel yet,
-// the channel is where we post questions asked by you and others,
-// Join using the button below!`;
-// };
