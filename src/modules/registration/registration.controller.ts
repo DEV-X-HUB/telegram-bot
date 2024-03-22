@@ -264,6 +264,7 @@ class RegistrationController {
     const callbackMessage = callbackQuery.data;
 
     if (callbackMessage == 'register_data') {
+      // registration
       const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
 
       if (response.success) {
@@ -282,8 +283,9 @@ class RegistrationController {
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     }
     if (editField) {
+      //  if edit filed is selected
       if (callbackMessage.includes(':')) {
-        const [countryCode, country] = callbackQuery.data.split(':');
+        const [countryCode, country] = callbackMessage.split(':');
         ctx.wizard.state.country = country;
         ctx.wizard.state.countryCode = countryCode;
         await deleteMessageWithCallback(ctx);
