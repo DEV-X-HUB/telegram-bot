@@ -67,8 +67,11 @@ class QustionPostFormatter {
   chooseOptionString() {
     return ['Please Choose on category from the options'];
   }
+  chooseOptionDisplayString() {
+    return ['Please Choose on category from the options'];
+  }
   chooseOptionDisplay() {
-    return ['Please Choose on category from the options', MarkupButtons(this.categories, true)];
+    return [MarkupButtons(this.categories, true)];
   }
   arBrOptionDisplay() {
     return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption)];
@@ -90,6 +93,26 @@ class QustionPostFormatter {
   }
   photoPrompt() {
     return ['Attach four photos ', this.goBackButton(false)];
+  }
+  getPreviewData(state: any) {
+    return `#${state.category}**\n________________\n\n${state.arBrVAlue.toUpperCase()} \n\nWoreda: ${state.woreda} \n\Spp Location: ${state.location} \n\nDescriptoin: ${state.description}\n\nPhoto : ${'photos'},${state.country}n\nContact: ${'contact_me'}\n\nBy: ${'anonymouse'}\n\nStatus: ${'previewing'}`;
+  }
+  preview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'edit', cbString: 'preview_edit' },
+          { text: 'Notify Setting', cbString: 'notify_setting' },
+          { text: 'Post', cbString: 'post' },
+        ],
+        [
+          { text: 'Mention Previous Post', cbString: 'mention_previouse' },
+          { text: 'Notify Setting', cbString: 'notify_setting' },
+          { text: 'Cancel', cbString: 'Cancel' },
+        ],
+      ]),
+    ];
   }
 }
 

@@ -36,6 +36,12 @@ const userSchema = new Schema({
   gender: {
     type: String,
   },
+  questions: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Question', // Reference to the user Model
+    },
+  ],
   followers: [
     {
       type: Schema.Types.ObjectId,

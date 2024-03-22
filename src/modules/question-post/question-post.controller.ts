@@ -8,7 +8,8 @@ class QuestionPostController {
   constructor() {}
 
   async start(ctx: any) {
-    ctx.reply(...postingFormatter.chooseOptionDisplay());
+    // ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
+    ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
 
@@ -114,6 +115,17 @@ class QuestionPostController {
     const validationMessage = questionPostValidator('last_digit', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
+    ctx.reply(...postingFormatter.locationPrompt());
+    return ctx.wizard.next();
+  }
+  async enterLocation(ctx: any) {
+    const message = ctx.message?.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...postingFormatter.descriptionPrompt());
+      return ctx.wizard.back();
+    }
+
+    ctx.wizard.state.location = message;
     ctx.reply(...postingFormatter.descriptionPrompt());
     return ctx.wizard.next();
   }
@@ -126,23 +138,31 @@ class QuestionPostController {
 
     const validationMessage = questionPostValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.last_digit = message;
+    ctx.wizard.state.description = message;
     ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    return console.log(ctx.message);
-    const message = ctx.message?.text;
-    if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...postingFormatter.bIDIOptionDisplay());
-      return ctx.wizard.back();
-    }
+    const photo = ctx.message.photo[0];
+    const fileId = photo.file_id;
 
-    const validationMessage = questionPostValidator('description', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.last_digit = message;
-    ctx.reply(...postingFormatter.photoPrompt());
-    return ctx.wizard.next();
+    const photoUrl = 'https://example.com/your-photo.jpg';
+
+    // Reply to the user with the photo
+    await ctx.replyWithPhoto({ source: photoUrl });
+
+    console.log(photo);
+    // Get file information
+    const file = await ctx.telegram.getFile(fileId);
+    console.log(file);
+    // Download the file
+    const imageLink = file.file_path;
+
+    // Send the photo
+    // await ctx.telegram.sendPhoto(ctx.message.chat.id, { source: imageLink });
+
+    // Here you can process the image link as needed
+    console.log('Image received:', imageLink);
   }
 }
 
