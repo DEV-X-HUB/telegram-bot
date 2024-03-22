@@ -23,9 +23,6 @@ export function checkAndRedirectToScene() {
     if (text && text.startsWith('/')) {
       console.log(text, 'commad');
       const command = text.slice(1); // Remove the leading slash
-      if (command == 'start') {
-        return ctx.scene.enter('Post Questions'); // Enter main menu the scene
-      }
       if (command == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
