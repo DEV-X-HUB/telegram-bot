@@ -36,24 +36,24 @@ class QustionPostFormatter {
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
     this.woredaList = [
       [
-        { text: 'woreda', cbString: 'woreda' },
-        { text: 'woreda', cbString: 'woreda' },
+        { text: 'woreda 1', cbString: 'woreda_1' },
+        { text: 'woreda 2', cbString: 'woreda_2' },
       ],
       [
-        { text: 'woreda', cbString: 'woreda' },
-        { text: 'woreda', cbString: 'woreda' },
+        { text: 'woreda 3', cbString: 'woreda_3' },
+        { text: 'woreda 4', cbString: 'woreda_4' },
       ],
       [
-        { text: 'woreda', cbString: 'woreda' },
-        { text: 'woreda', cbString: 'woreda' },
+        { text: 'woreda 5', cbString: 'woreda_5' },
+        { text: 'woreda 6', cbString: 'woreda_6' },
       ],
       [
-        { text: 'woreda', cbString: 'woreda' },
-        { text: 'woreda', cbString: 'woreda' },
+        { text: 'woreda 7', cbString: 'woreda_7' },
+        { text: 'woreda 8', cbString: 'woreda_8' },
       ],
       [
-        { text: 'woreda', cbString: 'woreda' },
-        { text: 'woreda', cbString: 'woreda' },
+        { text: 'woreda 9', cbString: 'woreda_9' },
+        { text: 'woreda 10', cbString: 'woreda_10' },
       ],
       [
         { text: 'other', cbString: 'other' },
@@ -90,6 +90,87 @@ class QustionPostFormatter {
   }
   photoPrompt() {
     return ['Attach four photos ', this.goBackButton(false)];
+  }
+
+  getPreviewData(state: any) {
+    return `#Section1A\n________________\n\n${state.ar_br}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nPhotos: ${'photos'} \n\nContact: ${'Contact'} \n\nBy: ${'BT...'}\n\nStatus : ${state.status}`;
+  }
+
+  preview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Edit', cbString: 'preview_edit' },
+          { text: 'Notify settings', cbString: 'notify_settings' },
+          { text: 'Post', cbString: 'post_data' },
+        ],
+        [
+          { text: 'Mention previous post', cbString: 'mention_previous_post' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+      ]),
+    ];
+  }
+
+  editPreview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'AR/BR', cbString: 'ar_br' },
+          { text: 'BI/DI', cbString: 'bi_di' },
+        ],
+
+        [
+          { text: 'Location', cbString: 'location' },
+          { text: 'Woreda', cbString: 'woreda' },
+        ],
+        [
+          { text: 'Last Digit', cbString: 'last_digit' },
+          { text: 'Description', cbString: 'description' },
+        ],
+        [
+          { text: 'photo', cbString: 'photo' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+      ]),
+    ];
+  }
+
+  async editFieldDispay(editFiled: string) {
+    switch (editFiled) {
+      case 'ar_br':
+        return this.arBrOptionDisplay();
+      case 'bi_di':
+        return this.bIDIOptionDisplay();
+      case 'woreda':
+        return this.woredaListDisplay();
+      case 'last_digit':
+        return this.lastDidtitPrompt();
+      case 'location':
+        return this.locationPrompt();
+      case 'description':
+        return this.descriptionPrompt();
+
+      case 'photo':
+        return this.photoPrompt();
+      case 'cancel':
+        return await this.goBackButton();
+      default:
+        return ['none'];
+    }
+  }
+
+  previewCallToAction() {
+    return ['Preview your post and press once you are done'];
+  }
+
+  postingSuccessful() {
+    return ['Posted Successfully'];
+  }
+  postingError() {
+    return ['Post Error'];
   }
 }
 
