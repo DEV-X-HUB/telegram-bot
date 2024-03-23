@@ -2,7 +2,10 @@ import { deleteMessage, deleteMessageWithCallback } from '../../utils/constants/
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../utils/constants/string';
 import { questionPostValidator } from '../../utils/validator/question-post-validaor';
 import PostingFormatter from './question-post.formatter';
+import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
+
+const imagesUploaded: any = [];
 
 class QuestionPostController {
   constructor() {}
@@ -51,7 +54,7 @@ class QuestionPostController {
     }
 
     if (isInInlineOption(callbackQuery.data, postingFormatter.arBrOption)) {
-      ctx.wizard.state.arBrVAlue = callbackQuery.data;
+      ctx.wizard.state.ar_br = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       await deleteMessage(ctx, {
         message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
@@ -97,7 +100,7 @@ class QuestionPostController {
       }
     }
     if (isInInlineOption(callbackQuery.data, postingFormatter.bIDiOption)) {
-      ctx.wizard.state.arBrVAlue = callbackQuery.data;
+      ctx.wizard.state.bi_di = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...postingFormatter.lastDidtitPrompt());
       return ctx.wizard.next();
@@ -114,7 +117,19 @@ class QuestionPostController {
     const validationMessage = questionPostValidator('last_digit', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
-    ctx.reply(...postingFormatter.descriptionPrompt());
+    ctx.reply(...postingFormatter.locationPrompt());
+    return ctx.wizard.next();
+  }
+  async enterLocation(ctx: any) {
+    const message = ctx.message?.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...postingFormatter.descriptionPrompt());
+      return ctx.wizard.back();
+    }
+
+    // assign the location to the state
+    ctx.wizard.state.location = message;
+    await ctx.reply(...postingFormatter.descriptionPrompt());
     return ctx.wizard.next();
   }
   async enterDescription(ctx: any) {
@@ -124,23 +139,9 @@ class QuestionPostController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('description', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.last_digit = message;
-    ctx.reply(...postingFormatter.photoPrompt());
-    return ctx.wizard.next();
-  }
-  async attachPhoto(ctx: any) {
-    return console.log(ctx.message);
-    const message = ctx.message?.text;
-    if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...postingFormatter.bIDIOptionDisplay());
-      return ctx.wizard.back();
-    }
-
-    const validationMessage = questionPostValidator('description', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.last_digit = message;
+    // const validationMessage = questionPostValidator('description', message);
+    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    ctx.wizard.state.description = message;
     ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
