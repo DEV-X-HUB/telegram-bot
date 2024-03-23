@@ -184,6 +184,131 @@ class QuestionPostController {
       return ctx.wizard.next();
     }
   }
+  async editPost(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        await ctx.reply(...postingFormatter.photoPrompt(), postingFormatter.goBackButton());
+        return ctx.wizard.back();
+      }
+      await ctx.reply('....');
+    } else {
+      const state = ctx.wizard.state;
+      switch (callbackQuery.data) {
+        case 'preview_edit': {
+          console.log('preview edit');
+          ctx.wizard.state.editField = null;
+          await deleteMessageWithCallback(ctx);
+          ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+          return ctx.wizard.next();
+        }
+        case 'post_data': {
+          // api request to post the data
+          const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+          console.log(response);
+
+          if (response?.success) {
+            await deleteMessageWithCallback(ctx);
+            ctx.reply(...postingFormatter.postingSuccessful());
+            return ctx.scene.enter('start');
+          } else {
+            ctx.reply(...postingFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+
+            // increment the registration attempt
+            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+              ? parseInt(ctx.wizard.state.postingAttempt) + 1
+              : 1);
+          }
+        }
+        default: {
+          await ctx.reply('DEFAULT');
+        }
+      }
+    }
+  }
+
+  async editData(ctx: any) {
+    const state = ctx.wizard.state;
+    const fileds = ['ar_br', 'bi_di', 'woreda', 'last_digit', 'location', 'description', 'photo', 'cancel'];
+    const callbackQuery = ctx?.callbackQuery;
+    const editField = ctx.wizard.state?.editField;
+    if (!callbackQuery) {
+      // changing field value
+      const messageText = ctx.message.text;
+      if (!editField) return await ctx.reply('invalid input ');
+
+      const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
+      // ctx.wizard.state[editField] =
+      //   editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
+      // ctx.wizard.state.editField = null;
+      // return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+
+      ctx.wizard.state[editField] = messageText;
+      await deleteMessage(ctx, {
+        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+        chat_id: ctx.message.chat.id,
+      });
+      return ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
+
+    // if callback exists
+    // save the mesage id for later deleting
+    ctx.wizard.state.previousMessageData = {
+      message_id: ctx.callbackQuery.message.message_id,
+      chat_id: ctx.callbackQuery.message.chat.id,
+    };
+    const callbackMessage = callbackQuery.data;
+
+    if (callbackMessage == 'post_data') {
+      console.log(ctx.wizard.state);
+      // registration
+      // api call for registration
+      const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+      console.log(response);
+
+      if (response.success) {
+        ctx.wizard.state.status = 'pending';
+        await deleteMessageWithCallback(ctx);
+        await ctx.reply(...postingFormatter.postingSuccessful());
+        return ctx.scene.enter('start');
+      }
+
+      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
+
+      // ctx.reply(...postingFormatter.postingError());
+      if (registrationAttempt >= 2) {
+        await deleteMessageWithCallback(ctx);
+        return ctx.scene.enter('start');
+      }
+      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    }
+
+    if (fileds.some((filed) => filed == callbackQuery.data)) {
+      // selecting field to change
+      ctx.wizard.state.editField = callbackMessage;
+      await ctx.telegram.deleteMessage(
+        ctx.wizard.state.previousMessageData.chat_id,
+        ctx.wizard.state.previousMessageData.message_id,
+      );
+      return await ctx.reply(...((await postingFormatter.editFieldDispay(callbackMessage)) as any));
+    }
+
+    if (editField) {
+      //  if edit filed is selected
+
+      ctx.wizard.state[editField] = callbackMessage;
+      await deleteMessageWithCallback(ctx);
+      ctx.wizard.state.editField = null;
+      return ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
+  }
 }
 
 export default QuestionPostController;
