@@ -10,8 +10,11 @@ const QuestionPostScene = new Scenes.WizardScene(
   questionPostController.choooseWoreda,
   questionPostController.IDFirstOption,
   questionPostController.enterLastDigit,
+  questionPostController.enterLocation,
   questionPostController.enterDescription,
   questionPostController.attachPhoto,
+  questionPostController.editPost,
+  questionPostController.editData,
 );
 
 export default QuestionPostScene;
