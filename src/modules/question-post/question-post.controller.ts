@@ -145,6 +145,45 @@ class QuestionPostController {
     ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
+  async attachPhoto(ctx: any) {
+    // return ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+
+    const message = ctx.message?.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...postingFormatter.bIDIOptionDisplay());
+      return ctx.wizard.back();
+    }
+
+    // check if image is attached
+    if (!ctx.message.photo) return ctx.reply(...postingFormatter.photoPrompt());
+
+    // Add the image to the array
+    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    // Check if all images received
+    if (imagesUploaded.length === 4) {
+      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+      console.log(file);
+
+      console.log('All images received');
+
+      // send the images to the user
+      // imagesUploaded.forEach(async (image: any) => {
+      //   await ctx.replyWithPhoto(image);
+      // });
+
+      // Save the images to the state
+      ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.status = 'previewing';
+      ctx.reply('You have uploaded all the images successfully');
+
+      // empty the images array
+      imagesUploaded.length = 0;
+      ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.reply(...postingFormatter.previewCallToAction());
+      return ctx.wizard.next();
+    }
+  }
 }
 
 export default QuestionPostController;
