@@ -1,50 +1,48 @@
 import mongoose from 'mongoose';
-import { string } from 'zod';
-
-type Status = 'review' | 'pending' | 'posted' | 'cancelled';
 
 const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
-  section: {
+  // _id: mongoose.Schema.Types.ObjectId,
+  ar_br: {
     type: String,
+    enum: ['ar', 'br'],
     required: true,
   },
-  category: {
+  bi_di: {
     type: String,
+    enum: ['bi', 'di'],
     required: true,
-  },
-
-  ar_br_type: {
-    type: String,
-    unique: true, // Assuming phone number is unique for each user
-  },
-  bi_di_type: {
-    type: String, // Assuming phone number is unique for each user
   },
   location: {
     type: String,
+    required: true,
   },
-  description: {
-    type: Number,
+  woreda: {
+    type: String,
     required: true,
   },
   last_digit: {
     type: String,
+    required: true,
   },
-  photoLinks: [{ link: string }],
+  description: String,
+  photo: {
+    type: Array,
+    required: true,
+  },
   status: {
     type: String,
+    enum: ['approved', 'pending', 'rejected'],
+    default: 'pending',
   },
-  notify_setting: {
-    type: String,
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
-  followers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User model itself
-    },
-  ],
 });
 
-export default mongoose.model('Question', questionSchema);
+const Question = mongoose.model('Question', questionSchema);
+
+export default Question;

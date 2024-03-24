@@ -13,11 +13,17 @@ export const questionPostValidator = (fieldName: string, value: RegistrationValu
       schema = DescriptionSchema;
       break;
     }
+    case 'location':
+      schema = DescriptionSchema;
+      break;
+    case 'photo':
+      schema = Array;
+      break;
   }
 
   try {
-    if (!schema) return 'unknow field';
-    schema.parse(value);
+    if (!schema) return 'No schema found';
+    // schema.parse(value);
     return 'valid';
   } catch (error: any) {
     return error.errors[0].message;

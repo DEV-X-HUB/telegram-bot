@@ -2,7 +2,10 @@ import { deleteMessage, deleteMessageWithCallback } from '../../utils/constants/
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../utils/constants/string';
 import { questionPostValidator } from '../../utils/validator/question-post-validaor';
 import PostingFormatter from './question-post.formatter';
+import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
+
+const imagesUploaded: any = [];
 
 class QuestionPostController {
   constructor() {}
@@ -52,7 +55,7 @@ class QuestionPostController {
     }
 
     if (isInInlineOption(callbackQuery.data, postingFormatter.arBrOption)) {
-      ctx.wizard.state.arBrVAlue = callbackQuery.data;
+      ctx.wizard.state.ar_br = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       await deleteMessage(ctx, {
         message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
@@ -98,7 +101,7 @@ class QuestionPostController {
       }
     }
     if (isInInlineOption(callbackQuery.data, postingFormatter.bIDiOption)) {
-      ctx.wizard.state.arBrVAlue = callbackQuery.data;
+      ctx.wizard.state.bi_di = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...postingFormatter.lastDidtitPrompt());
       return ctx.wizard.next();
@@ -125,8 +128,9 @@ class QuestionPostController {
       return ctx.wizard.back();
     }
 
+    // assign the location to the state
     ctx.wizard.state.location = message;
-    ctx.reply(...postingFormatter.descriptionPrompt());
+    await ctx.reply(...postingFormatter.descriptionPrompt());
     return ctx.wizard.next();
   }
   async enterDescription(ctx: any) {
@@ -143,26 +147,168 @@ class QuestionPostController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    const photo = ctx.message.photo[0];
-    const fileId = photo.file_id;
+    // return ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
 
-    const photoUrl = 'https://example.com/your-photo.jpg';
+    const message = ctx.message?.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...postingFormatter.bIDIOptionDisplay());
+      return ctx.wizard.back();
+    }
 
-    // Reply to the user with the photo
-    await ctx.replyWithPhoto({ source: photoUrl });
+    // check if image is attached
+    if (!ctx.message.photo) return ctx.reply(...postingFormatter.photoPrompt());
 
-    console.log(photo);
-    // Get file information
-    const file = await ctx.telegram.getFile(fileId);
-    console.log(file);
-    // Download the file
-    const imageLink = file.file_path;
+    // Add the image to the array
+    imagesUploaded.push(ctx.message.photo[0].file_id);
 
-    // Send the photo
-    // await ctx.telegram.sendPhoto(ctx.message.chat.id, { source: imageLink });
+    // Check if all images received
+    if (imagesUploaded.length === 4) {
+      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+      console.log(file);
 
-    // Here you can process the image link as needed
-    console.log('Image received:', imageLink);
+      console.log('All images received');
+
+      // send the images to the user
+      // imagesUploaded.forEach(async (image: any) => {
+      //   await ctx.replyWithPhoto(image);
+      // });
+
+      // Save the images to the state
+      ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.status = 'previewing';
+      ctx.reply('You have uploaded all the images successfully');
+
+      // empty the images array
+      imagesUploaded.length = 0;
+      ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.reply(...postingFormatter.previewCallToAction());
+      return ctx.wizard.next();
+    }
+  }
+  async editPost(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        await ctx.reply(...postingFormatter.photoPrompt(), postingFormatter.goBackButton());
+        return ctx.wizard.back();
+      }
+      await ctx.reply('....');
+    } else {
+      const state = ctx.wizard.state;
+      switch (callbackQuery.data) {
+        case 'preview_edit': {
+          console.log('preview edit');
+          ctx.wizard.state.editField = null;
+          await deleteMessageWithCallback(ctx);
+          ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+          return ctx.wizard.next();
+        }
+        case 'post_data': {
+          // api request to post the data
+          const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+          console.log(response);
+
+          if (response?.success) {
+            await deleteMessageWithCallback(ctx);
+            ctx.reply(...postingFormatter.postingSuccessful());
+            return ctx.scene.enter('start');
+          } else {
+            ctx.reply(...postingFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+
+            // increment the registration attempt
+            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+              ? parseInt(ctx.wizard.state.postingAttempt) + 1
+              : 1);
+          }
+        }
+        default: {
+          await ctx.reply('DEFAULT');
+        }
+      }
+    }
+  }
+
+  async editData(ctx: any) {
+    const state = ctx.wizard.state;
+    const fileds = ['ar_br', 'bi_di', 'woreda', 'last_digit', 'location', 'description', 'photo', 'cancel'];
+    const callbackQuery = ctx?.callbackQuery;
+    const editField = ctx.wizard.state?.editField;
+    if (!callbackQuery) {
+      // changing field value
+      const messageText = ctx.message.text;
+      if (!editField) return await ctx.reply('invalid input ');
+
+      const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
+      // ctx.wizard.state[editField] =
+      //   editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
+      // ctx.wizard.state.editField = null;
+      // return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+
+      ctx.wizard.state[editField] = messageText;
+      await deleteMessage(ctx, {
+        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+        chat_id: ctx.message.chat.id,
+      });
+      return ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
+
+    // if callback exists
+    // save the mesage id for later deleting
+    ctx.wizard.state.previousMessageData = {
+      message_id: ctx.callbackQuery.message.message_id,
+      chat_id: ctx.callbackQuery.message.chat.id,
+    };
+    const callbackMessage = callbackQuery.data;
+
+    if (callbackMessage == 'post_data') {
+      console.log(ctx.wizard.state);
+      // registration
+      // api call for registration
+      const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+      console.log(response);
+
+      if (response.success) {
+        ctx.wizard.state.status = 'pending';
+        await deleteMessageWithCallback(ctx);
+        await ctx.reply(...postingFormatter.postingSuccessful());
+        return ctx.scene.enter('start');
+      }
+
+      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
+
+      // ctx.reply(...postingFormatter.postingError());
+      if (registrationAttempt >= 2) {
+        await deleteMessageWithCallback(ctx);
+        return ctx.scene.enter('start');
+      }
+      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    }
+
+    if (fileds.some((filed) => filed == callbackQuery.data)) {
+      // selecting field to change
+      ctx.wizard.state.editField = callbackMessage;
+      await ctx.telegram.deleteMessage(
+        ctx.wizard.state.previousMessageData.chat_id,
+        ctx.wizard.state.previousMessageData.message_id,
+      );
+      return await ctx.reply(...((await postingFormatter.editFieldDispay(callbackMessage)) as any));
+    }
+
+    if (editField) {
+      //  if edit filed is selected
+
+      ctx.wizard.state[editField] = callbackMessage;
+      await deleteMessageWithCallback(ctx);
+      ctx.wizard.state.editField = null;
+      return ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
   }
 }
 
