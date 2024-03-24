@@ -6,7 +6,7 @@ class MainmenuFormatter {
   constructor() {}
   chooseServiceDisplay() {
     return [
-      'Choose a service:',
+      'Select an option ',
       Markup.keyboard([
         [Markup.button.callback('Post Questions', 'posting'), Markup.button.callback('Service_2', 'Service 2')],
         [Markup.button.callback('Service_3', 'Service 3'), Markup.button.callback('Service_4', 'Service 4')],
