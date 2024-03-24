@@ -6,7 +6,7 @@ class RegistrationFormatter {
   constructor() {}
   termsAndConditionsDisplay() {
     return [
-      '**Do** you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
+      'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
 
       InlineKeyboardButtons([
         [
@@ -27,14 +27,19 @@ class RegistrationFormatter {
     ];
   }
 
-  goBackButton() {
+  goBackButton(withSkip?: boolean) {
     //back button with callback string
+    if (withSkip)
+      return Markup.keyboard([Markup.button.callback('Back', 'back'), Markup.button.callback('Skip', 'skip')])
+        .oneTime()
+        .resize();
+
     return Markup.keyboard([Markup.button.callback('Back', 'back')])
       .oneTime()
       .resize();
   }
 
-  chooseGenderFormatter() {
+  chooseGenderFormatter(withBackButton?: boolean) {
     return [
       `Please choose your gender`,
       InlineKeyboardButtons([
@@ -42,6 +47,7 @@ class RegistrationFormatter {
           { text: 'Male', cbString: 'gender_male' },
           { text: 'Female', cbString: 'gender_female' },
         ],
+        withBackButton ? [{ text: 'Back', cbString: 'Back' }] : [],
       ]),
     ];
   }
