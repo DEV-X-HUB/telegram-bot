@@ -7,6 +7,7 @@ import config from '../../config/config';
 
 const registrationFormatter = new RegistrationFormatter();
 const registrationService = new RegistrationService();
+import { Markup } from 'telegraf';
 
 class RegistrationController {
   constructor() {}
@@ -60,6 +61,7 @@ class RegistrationController {
   }
 
   async enterFirstName(ctx: any) {
+    await ctx.editMessageReplyMarkup();
     const message = ctx.message.text;
     if (message == 'Back') {
       return ctx.reply(...registrationFormatter.firstNameformatter());
@@ -97,7 +99,7 @@ class RegistrationController {
 
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
-    ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
+    ctx.reply(...registrationFormatter.chooseGenderFormatter(true), registrationFormatter.goBackButton());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
@@ -120,7 +122,7 @@ class RegistrationController {
         case 'gender_male': {
           ctx.wizard.state.gender = 'male';
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.emailFormatter());
+          ctx.reply(...registrationFormatter.emailFormatter(), registrationFormatter.goBackButton(true));
           return ctx.wizard.next();
         }
         case 'gender_female': {
@@ -128,6 +130,11 @@ class RegistrationController {
           await deleteMessageWithCallback(ctx);
           ctx.reply(...registrationFormatter.emailFormatter());
           return ctx.wizard.next();
+        }
+        case 'Back': {
+          await deleteMessageWithCallback(ctx);
+          ctx.reply(...registrationFormatter.ageFormatter());
+          return ctx.wizard.back();
         }
         default: {
           await ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
@@ -138,10 +145,17 @@ class RegistrationController {
 
   async enterEmail(ctx: any) {
     const message = ctx.message.text;
+
     if (message == 'Back') {
       ctx.reply(...registrationFormatter.chooseGenderFormatter());
       return ctx.wizard.back();
     }
+    if (message == 'Skip') {
+      ctx.wizard.state.email = null;
+      ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
+      return ctx.wizard.next();
+    }
+
     const validationMessage = registrationValidator('email', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.email = ctx.message.text;
@@ -160,7 +174,7 @@ class RegistrationController {
           message_id: (parseInt(ctx.message.message_id) - 1).toString(),
           chat_id: ctx.message.chat.id,
         });
-        ctx.reply(...registrationFormatter.emailFormatter());
+        ctx.reply(...registrationFormatter.emailFormatter(), registrationFormatter.goBackButton(true));
         return ctx.wizard.back();
       } else return ctx.reply('please use the buttons to choose your county');
     } else {
