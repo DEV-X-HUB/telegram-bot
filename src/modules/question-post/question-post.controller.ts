@@ -167,6 +167,38 @@ class QuestionPostController {
 
       console.log('All images received');
 
+      // send all images at once to the user with caption("here are the images you uploaded ")
+      // return await ctx.replyWithMediaGroup(
+      //   imagesUploaded.map((image: any) => ({
+      //     type: 'photo',
+      //     media: image,
+      //   })),
+      // );
+
+      // const mediaGroup = imagesUploaded.map((image: any) => ({
+      //   media: image,
+      //   type: 'photo',
+      //   caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+      // }));
+
+      const mediaGroup = imagesUploaded.map((image: any) => ({
+        media: image,
+        type: 'photo',
+        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+      }));
+
+      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+
+      // send the first image with caption
+      // return await ctx.replyWithPhoto(imagesUploaded[0], { caption: 'Here is the image you uploaded' });
+
+      // return await ctx.replyWithMediaGroup(
+      //   imagesUploaded.map((image: any) => ({
+      //     type: 'photo',
+      //     media: image,
+      //   })),
+      // );
+
       // send the images to the user
       // imagesUploaded.forEach(async (image: any) => {
       //   await ctx.replyWithPhoto(image);
