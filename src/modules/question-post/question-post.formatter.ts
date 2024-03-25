@@ -74,7 +74,7 @@ class QustionPostFormatter {
     return [MarkupButtons(this.categories, true)];
   }
   arBrOptionDisplay() {
-    return ['Please Choose from two'];
+    return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption)];
   }
   woredaListDisplay() {
     return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList)];
