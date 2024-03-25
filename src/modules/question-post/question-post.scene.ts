@@ -15,6 +15,7 @@ const QuestionPostScene = new Scenes.WizardScene(
   questionPostController.attachPhoto,
   questionPostController.editPost,
   questionPostController.editData,
+  questionPostController.editPhoto,
 );
 
 export default QuestionPostScene;

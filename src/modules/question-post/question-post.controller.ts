@@ -1,3 +1,4 @@
+import config from '../../config/config';
 import { deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../utils/constants/string';
 import { questionPostValidator } from '../../utils/validator/question-post-validaor';
@@ -5,14 +6,17 @@ import PostingFormatter from './question-post.formatter';
 import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
 
-const imagesUploaded: any = [];
-
 class QuestionPostController {
-  constructor() {}
+  imagesUploaded: string[];
+  imageNumber: number;
+  constructor() {
+    this.imagesUploaded = [];
+    this.imageNumber = parseInt(config.upload_image_number || '4');
+  }
 
   async start(ctx: any) {
-    // ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
-    ctx.reply(...postingFormatter.photoPrompt());
+    ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
+    // ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
 
@@ -31,7 +35,7 @@ class QuestionPostController {
         message_id: (parseInt(ctx.message.message_id) - 1).toString(),
         chat_id: ctx.message.chat.id,
       });
-      ctx.reply(...postingFormatter.chooseOptionString());
+      // ctx.reply(...postingFormatter.chooseOptionString());
       ctx.reply(...postingFormatter.arBrOptionDisplay());
       return ctx.wizard.next();
     } else {
@@ -44,13 +48,13 @@ class QuestionPostController {
 
     if (!callbackQuery) {
       if (message && areEqaul(message, 'back', true)) {
-        ctx.reply(...postingFormatter.chooseOptionDisplay());
+        ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
         return ctx.wizard.back();
       }
     }
     if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      ctx.reply(...postingFormatter.chooseOptionDisplay());
+      ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
       return ctx.wizard.back();
     }
 
@@ -96,17 +100,23 @@ class QuestionPostController {
 
     if (!callbackQuery) {
       if (message && areEqaul(message, 'back', true)) {
-        ctx.reply(...postingFormatter.arBrOptionDisplay());
+        ctx.reply(...postingFormatter.woredaListDisplay());
         return ctx.wizard.back();
       }
+      return ctx.reply('Unknown option. Please use buttons to choose .');
     }
+    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
+      deleteMessageWithCallback(ctx);
+      ctx.reply(...postingFormatter.woredaListDisplay());
+      return ctx.wizard.back();
+    }
+
     if (isInInlineOption(callbackQuery.data, postingFormatter.bIDiOption)) {
       ctx.wizard.state.bi_di = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...postingFormatter.lastDidtitPrompt());
       return ctx.wizard.next();
     }
-    return ctx.reply('Unknown option. Please choose a valid option.');
   }
   async enterLastDigit(ctx: any) {
     const message = ctx.message?.text;
@@ -147,8 +157,6 @@ class QuestionPostController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    // return ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...postingFormatter.bIDIOptionDisplay());
@@ -159,59 +167,27 @@ class QuestionPostController {
     if (!ctx.message.photo) return ctx.reply(...postingFormatter.photoPrompt());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    this.imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length === 4) {
+    if (this.imagesUploaded.length == this.imageNumber) {
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       console.log(file);
 
-      console.log('All images received');
-
-      // send all images at once to the user with caption("here are the images you uploaded ")
-      // return await ctx.replyWithMediaGroup(
-      //   imagesUploaded.map((image: any) => ({
-      //     type: 'photo',
-      //     media: image,
-      //   })),
-      // );
-
-      // const mediaGroup = imagesUploaded.map((image: any) => ({
-      //   media: image,
-      //   type: 'photo',
-      //   caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
-      // }));
-
-      const mediaGroup = imagesUploaded.map((image: any) => ({
+      const mediaGroup = this.imagesUploaded.map((image: any) => ({
         media: image,
         type: 'photo',
-        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+        caption: image == this.imagesUploaded[0] ? 'Here are the images you uploaded' : '',
       }));
 
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
-      // send the first image with caption
-      // return await ctx.replyWithPhoto(imagesUploaded[0], { caption: 'Here is the image you uploaded' });
-
-      // return await ctx.replyWithMediaGroup(
-      //   imagesUploaded.map((image: any) => ({
-      //     type: 'photo',
-      //     media: image,
-      //   })),
-      // );
-
-      // send the images to the user
-      // imagesUploaded.forEach(async (image: any) => {
-      //   await ctx.replyWithPhoto(image);
-      // });
-
       // Save the images to the state
-      ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo = this.imagesUploaded;
       ctx.wizard.state.status = 'previewing';
-      ctx.reply('You have uploaded all the images successfully');
 
       // empty the images array
-      imagesUploaded.length = 0;
+      this.imagesUploaded = [];
       ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...postingFormatter.previewCallToAction());
       return ctx.wizard.next();
@@ -278,11 +254,6 @@ class QuestionPostController {
       const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
       if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
-      // ctx.wizard.state[editField] =
-      //   editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
-      // ctx.wizard.state.editField = null;
-      // return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
-
       ctx.wizard.state[editField] = messageText;
       await deleteMessage(ctx, {
         message_id: (parseInt(ctx.message.message_id) - 1).toString(),
@@ -300,11 +271,9 @@ class QuestionPostController {
     const callbackMessage = callbackQuery.data;
 
     if (callbackMessage == 'post_data') {
-      console.log(ctx.wizard.state);
       // registration
       // api call for registration
       const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
-      console.log(response);
 
       if (response.success) {
         ctx.wizard.state.status = 'pending';
@@ -330,7 +299,9 @@ class QuestionPostController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      return await ctx.reply(...((await postingFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.reply(...((await postingFormatter.editFieldDispay(callbackMessage)) as any));
+      if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
+      return;
     }
 
     if (editField) {
@@ -340,6 +311,44 @@ class QuestionPostController {
       await deleteMessageWithCallback(ctx);
       ctx.wizard.state.editField = null;
       return ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
+  }
+  async editPhoto(ctx: any) {
+    const messageText = ctx.message?.text;
+    if (messageText && areEqaul(messageText, 'back', true)) {
+      await deleteMessage(ctx, {
+        message_id: (parseInt(messageText.message_id) - 1).toString(),
+        chat_id: messageText.chat.id,
+      });
+      ctx.reply(...postingFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return ctx.wizard.back();
+    }
+
+    // check if image is attached
+    if (!ctx.message.photo) return ctx.reply(...postingFormatter.photoPrompt());
+
+    // Add the image to the array
+    this.imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    // Check if all images received
+    if (this.imagesUploaded.length === this.imageNumber) {
+      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+
+      const mediaGroup = this.imagesUploaded.map((image: any) => ({
+        media: image,
+        type: 'photo',
+        caption: image == this.imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+      }));
+
+      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+
+      // Save the images to the state
+      ctx.wizard.state.photo = this.imagesUploaded;
+
+      // empty the images array
+      this.imagesUploaded.length = 0;
+      ctx.reply(...postingFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return ctx.wizard.back();
     }
   }
 }

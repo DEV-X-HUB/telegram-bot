@@ -13,11 +13,6 @@ class RegistrationFormatter {
 
   constructor() {
     this.countries = getSelectedCoutryList();
-    (async () => {
-      const cityList = await getCitiesOfCountry('ET');
-      const citiesInCoujmsof3 = breakeArrayTowNColumn(cityList, 3);
-      console.log(citiesInCoujmsof3[0]);
-    })();
   }
   termsAndConditionsDisplay() {
     return [

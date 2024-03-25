@@ -96,7 +96,7 @@ class QustionPostFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#Section1A\n________________\n\n${state.ar_br}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nPhotos: ${'photos'} \n\nContact: ${'Contact'} \n\nBy: ${'BT...'}\n\nStatus : ${state.status}`;
+    return `#${state.category}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nPhotos: ${'photos'} \n\nContact: ${'Contact'} \n\nBy: ${'BT...'}\n\nStatus : ${state.status}`;
   }
 
   preview(state: any) {
