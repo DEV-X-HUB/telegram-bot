@@ -17,6 +17,14 @@ export default () => {
         },
       })
       .then(() => {
+        // 6668727233
+        // if (bot) console.log(bot);
+        // bot?.context
+        // return bot.sendMessage('6668727233', 'data', {
+        //   parse_mode: 'HTML',
+        //   reply_markup: { remove_keyboard: true },
+        // });
+
         console.log('bot is running');
       });
     return bot;

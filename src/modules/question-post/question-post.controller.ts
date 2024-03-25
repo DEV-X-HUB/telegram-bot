@@ -6,6 +6,8 @@ import PostingFormatter from './question-post.formatter';
 import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
 
+import { Context } from 'telegraf';
+
 class QuestionPostController {
   imagesUploaded: string[];
   imageNumber: number;
@@ -15,12 +17,49 @@ class QuestionPostController {
   }
 
   async start(ctx: any) {
-    ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
-    // ctx.reply(...postingFormatter.photoPrompt());
+    const inlineKeyboard = [[{ text: 'Click me', callback_data: 'button_click' }]];
+
+    // Create a message with both inline keyboard and remove_keyboard parameter
+    const messageOptions = {
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    };
+    const messageOptions2 = {
+      reply_markup: {
+        remove_keyboard: true,
+        inline_keyboard: [[{ text: 'nice', callback_data: 'nice' }]],
+        resize: true,
+      },
+    };
+    ctx.reply('Attach four photos', messageOptions);
+    await deleteMessage(ctx, {
+      message_id: (parseInt(ctx.message.message_id) + 1).toString(),
+      chat_id: ctx.message.chat.id,
+    });
+    return ctx.reply('Attach four photos', messageOptions2);
+
+    const message = await ctx.reply(
+      ...postingFormatter.chooseOptionDisplayString(),
+      ...postingFormatter.chooseOptionDisplay(),
+    );
+
+    console.log(message);
     return ctx.wizard.next();
   }
 
   async chooseOption(ctx: any) {
+    return ctx.reply(...postingFormatter.arBrOptionDisplay(), {
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    });
+    return;
+    return ctx.reply('Unknown option. Please choose a valid option.', {
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    });
     const option = ctx.message.text;
 
     if (areEqaul(option, 'back', true)) {
@@ -30,11 +69,12 @@ class QuestionPostController {
 
     if (isInMarkUPOption(option, postingFormatter.categories)) {
       ctx.wizard.state.category = option;
+
       console.log(option);
-      await deleteMessage(ctx, {
-        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-        chat_id: ctx.message.chat.id,
-      });
+      // await deleteMessage(ctx, {
+      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+      //   chat_id: ctx.message.chat.id,
+      // });
       // ctx.reply(...postingFormatter.chooseOptionString());
       ctx.reply(...postingFormatter.arBrOptionDisplay());
       return ctx.wizard.next();
