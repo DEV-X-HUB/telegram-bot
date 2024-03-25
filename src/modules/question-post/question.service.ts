@@ -31,6 +31,7 @@ class QuestionService {
         woreda,
         last_digit,
         description,
+        photo,
         user: user._id,
       });
       console.log(newQuestionPost);

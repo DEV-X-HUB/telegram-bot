@@ -6,7 +6,7 @@ import PostingFormatter from './question-post.formatter';
 import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
 
-let imagesUploaded: string[] = [];
+let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
 class QuestionPostController {
@@ -35,6 +35,7 @@ class QuestionPostController {
       //   chat_id: ctx.message.chat.id,
       // });
       // ctx.reply(...postingFormatter.chooseOptionString());
+      deleteKeyboardMarkup(ctx, 'Please Choose from two');
       ctx.reply(...postingFormatter.arBrOptionDisplay());
 
       return ctx.wizard.next();
@@ -158,7 +159,7 @@ class QuestionPostController {
   }
   async attachPhoto(ctx: any) {
     console.log(' being received');
-    const message = ctx.message?.text;
+    const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...postingFormatter.bIDIOptionDisplay());
       return ctx.wizard.back();
@@ -172,7 +173,7 @@ class QuestionPostController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
-      // const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
@@ -181,7 +182,7 @@ class QuestionPostController {
         caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
       }));
 
-      // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
@@ -191,11 +192,15 @@ class QuestionPostController {
       imagesUploaded = [];
       ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...postingFormatter.previewCallToAction());
-      // return ctx.wizard.next();
+      return ctx.wizard.next();
     }
   }
   async editPost(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    console.log('here is the callback');
+
+    console.log(callbackQuery);
+
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
@@ -213,7 +218,15 @@ class QuestionPostController {
           ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
+
+        // case 'editing_done': {
+        //   // await deleteMessageWithCallback(ctx);
+        //   await ctx.reply(postingFormatter.preview(state));
+        //   return ctx.wizard.back();
+        // }
+
         case 'post_data': {
+          console.log('here you are');
           // api request to post the data
           const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
           console.log(response);
@@ -292,6 +305,11 @@ class QuestionPostController {
         return ctx.scene.enter('start');
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    } else if (callbackMessage == 'editing_done') {
+      // await deleteMessageWithCallback(ctx);
+
+      await ctx.reply(...postingFormatter.preview(state));
+      return ctx.wizard.back();
     }
 
     if (fileds.some((filed) => filed == callbackQuery.data)) {
@@ -348,7 +366,7 @@ class QuestionPostController {
       ctx.wizard.state.photo = imagesUploaded;
 
       // empty the images array
-      imagesUploaded.length = 0;
+      // imagesUploaded.length = 0;
       ctx.reply(...postingFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }

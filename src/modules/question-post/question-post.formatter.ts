@@ -96,7 +96,7 @@ class QustionPostFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nPhotos: ${'photos'} \n\nContact: ${'Contact'} \n\nBy: ${'BT...'}\n\nStatus : ${state.status}`;
+    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
   }
 
   preview(state: any) {
@@ -137,6 +137,7 @@ class QustionPostFormatter {
           { text: 'photo', cbString: 'photo' },
           { text: 'Cancel', cbString: 'cancel' },
         ],
+        [{ text: 'Done', cbString: 'editing_done' }],
       ]),
     ];
   }
