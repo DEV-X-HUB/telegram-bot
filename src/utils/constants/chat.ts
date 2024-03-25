@@ -17,7 +17,7 @@ export const deleteKeyboardMarkup = async (ctx: any, message?: string) => {
     },
   };
   const text = '\u200C' + '.' + '\u200C';
-  ctx.reply(message || text, messageOptions);
+  await ctx.reply(message || text, messageOptions);
   await deleteMessage(ctx, {
     message_id: (parseInt(ctx.message.message_id) + 1).toString(),
     chat_id: ctx.message.chat.id,

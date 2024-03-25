@@ -5,38 +5,42 @@ import {
   getCitiesOfCountry,
   getFilteredCoutryList,
   getSelectedCoutryList,
+  iterateCities,
 } from '../../utils/constants/country-list';
+import { ICity } from 'country-state-city';
+import { capitalizeFirstLetter } from '../../utils/constants/string';
 
 class RegistrationFormatter {
   countries: any[] = [];
   countryCodes: any[] = ['et'];
-  messages = {};
+  messages = {
+    useButtonError: 'Please use the buttons above to choose ',
+    userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
+    termsAndConditionsPromt:
+      'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
+    termsAndConditionsDisagreeWarning:
+      'You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed.',
+    shareContactPrompt: 'lets start your first registration. Please share your contact.',
+    shareContactWarning:
+      'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
+    firstNamePrompt: 'Please enter your First name ',
+    lastNamePrompt: 'Please enter your Last name ',
+    agePrompt: 'Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format ',
+    genderPrompt: ' Please choose your gender ',
+    emailPrompt: ' Please enter your personal Email ',
+    countryPrompt: ' Please choose your country ',
+    cityPrompt: ' Please choose your City ',
+  };
 
   constructor() {
-    this.messages = {
-      useButtonError: 'Please use the buttons above to choose ',
-      userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
-      termsAndConditionsPromt:
-        'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
-      termsAndConditionsDisagreeWarning:
-        'You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed.',
-      shareContactPrompt: 'lets start your first registration. Please share your contact.',
-      shareContactWarning:
-        'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
-      firstNamePrompt: 'Please enter your First name ',
-      lastNamePrompt: 'Please enter your Last name ',
-      agePrompt: 'Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format ',
-      genderPrompt: ' Please choose your gender ',
-      emailPrompt: ' Please enter your personal Email ',
-      countryPrompt: ' Please choose your country ',
-      cityPrompt: ' Please choose your City ',
-    };
     this.countries = getSelectedCoutryList();
+  }
+  useButtonError(optionName: string) {
+    return this.messages.useButtonError + optionName;
   }
   termsAndConditionsDisplay() {
     return [
-      'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
-
+      this.messages.termsAndConditionsPromt,
       InlineKeyboardButtons([
         [
           { text: 'Yes', cbString: 'agree_terms' },
@@ -95,7 +99,7 @@ class RegistrationFormatter {
   }
 
   firstNameformatter() {
-    return [`Please enter your first name `];
+    return [`Please enter your first name `, this.goBackButton()];
   }
 
   lastNameformatter() {
@@ -113,8 +117,8 @@ class RegistrationFormatter {
       '  Please choose your gender',
       InlineKeyboardButtons([
         [
-          { text: 'Male', cbString: 'gender_male' },
-          { text: 'Female', cbString: 'gender_female' },
+          { text: 'Male', cbString: 'Male' },
+          { text: 'Female', cbString: 'Female' },
         ],
         editing ? [] : [{ text: 'Back', cbString: 'Back' }],
       ]),
@@ -136,20 +140,20 @@ class RegistrationFormatter {
       'Please choose your country',
       InlineKeyboardButtons([
         // map the country list to the buttons
-        ...countries.map(
-          (country: any) => [
-            { text: `${country.flag} ${country.name}`, cbString: `${country.isoCode}:${country.name}` },
-          ],
-          editing ? [] : [{ text: 'Back', cbString: 'Back' }],
-        ),
+        ...countries.map((country: any) => [
+          { text: `${country.flag} ${country.name}`, cbString: `${country.isoCode}:${country.name}` },
+        ]),
+        [{ text: 'Back', cbString: 'Back' }],
       ]),
     ];
   }
 
   // choose city based on the selected country
-  async chooseCityFormatter(countryCode: string) {
-    const cityList = await getCitiesOfCountry(countryCode);
-    const citiesInColumnof3 = breakeArrayTowNColumn(cityList, 1);
+  async chooseCityFormatter(countryCode: string, currentRound: any) {
+    let cities: any[] = [];
+    const citiesExtracted = await getCitiesOfCountry(countryCode);
+    if (citiesExtracted) cities = citiesExtracted;
+    const { cityList, lastRound } = iterateCities(cities, 30, parseInt(currentRound));
 
     if (cityList)
       return [
@@ -157,8 +161,11 @@ class RegistrationFormatter {
         InlineKeyboardButtons(
           // map the country list to the buttons
           [
-            ...citiesInColumnof3.map((cities) => cities.map((city) => ({ text: city.name, cbString: city.name }))),
+            ...cityList.map((city) => [{ text: city.name, cbString: city.name }]),
+
             [{ text: 'Other', cbString: 'Other' }],
+            !lastRound ? [{ text: '➡️ Next', cbString: 'next' }] : [],
+            [{ text: '⬅️ Back', cbString: 'back' }],
           ],
         ),
         InlineKeyboardButtons(
@@ -167,11 +174,17 @@ class RegistrationFormatter {
         ),
       ];
 
-    return ['Unable to find cities'];
+    return [
+      'Unable to find cities',
+      InlineKeyboardButtons(
+        // map the country list to the buttons
+        [[{ text: 'Back', cbString: 'back' }], [{ text: 'Other', cbString: 'Other' }]],
+      ),
+    ];
   }
 
   getPreviewData(state: any) {
-    return `${state.first_name} ${state.last_name}\n________________\n\nFirst name: ${state.first_name} \n\nLast name: ${state.last_name} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email || 'None'}\n\nPhone Number: ${state.phone_number}`;
+    return `${capitalizeFirstLetter(state.first_name)} ${capitalizeFirstLetter(state.last_name)}\n________________\n\nFirst name: ${capitalizeFirstLetter(state.first_name)} \n\nLast name: ${capitalizeFirstLetter(state.last_name)} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email || 'None'}\n\nPhone Number: ${state.phone_number}`;
   }
   preview(state: any) {
     return [
@@ -218,11 +231,11 @@ class RegistrationFormatter {
       case 'age':
         return this.ageFormatter();
       case 'gender':
-        return this.chooseGenderFormatter(true);
+        return this.chooseGenderFormatter();
       case 'country':
         return await this.chooseCountryFormatter();
       case 'city':
-        return await this.chooseCityFormatter(extraKey || '');
+        return await this.chooseCityFormatter(extraKey || '', 0);
       case 'email':
         return await this.emailFormatter(true);
       default:

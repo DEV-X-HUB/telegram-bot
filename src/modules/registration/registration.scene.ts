@@ -17,6 +17,7 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.chooseCity,
   registrationController.editRegister,
   registrationController.editData,
+  registrationController.editCity,
 );
 
 export default registrationScene;
