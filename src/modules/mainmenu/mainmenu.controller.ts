@@ -17,7 +17,7 @@ class MainMenuController {
 
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
     if (!isUserRegistered) {
-      ctx.reply('please register to use the service');
+      ctx.reply('Please register to use the service');
       return ctx.scene.enter('register');
     }
 

@@ -1,19 +1,23 @@
-import RegistrationFormatter from './registration-formatter';
-import { deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
 import { calculateAge } from '../../utils/constants/date';
-import RegistrationService from './restgration.service';
 import config from '../../config/config';
 
-const registrationFormatter = new RegistrationFormatter();
-const registrationService = new RegistrationService();
 import { Markup } from 'telegraf';
 import { areEqaul } from '../../utils/constants/string';
-console.log(Markup.removeKeyboard);
+
+import RegistrationFormatter from './registration-formatter';
+import RegistrationService from './restgration.service';
+const registrationService = new RegistrationService();
+const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
-    await ctx.reply(config.terms_condtion_link);
+    await ctx.reply(config.terms_condtion_link, {
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    });
     await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
     return ctx.wizard.next();
   }
@@ -27,7 +31,7 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
-          return ctx.reply(...registrationFormatter.termsAndConditionsDisagreeDisplay());
+          return ctx.reply(...registrationFormatter.messages.termsAndConditionsDisagreeWarning);
         }
         case 'back_from_terms': {
           await deleteMessageWithCallback(ctx);
@@ -45,7 +49,7 @@ class RegistrationController {
         }
       }
     else {
-      ctx.reply('Please use the buttons to select your choice');
+      ctx.reply(registrationFormatter.messages.useButtonError);
     }
   }
 
@@ -57,7 +61,7 @@ class RegistrationController {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.wizard.state.phone_number = contact.phone_number;
-      ctx.reply(...registrationFormatter.firstNameformatter(), Markup.removeKeyboard());
+      ctx.reply(...registrationFormatter.firstNameformatter());
       return ctx.wizard.next();
     } else return ctx.reply(...registrationFormatter.shareContactWarning());
   }
@@ -66,7 +70,8 @@ class RegistrationController {
     await ctx.editMessageReplyMarkup();
     const message = ctx.message.text;
     if (message == 'Back') {
-      return ctx.reply(...registrationFormatter.firstNameformatter());
+      ctx.scene.leave();
+      return ctx.scene.enter('register');
     }
     const validationMessage = registrationValidator('first_name', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
@@ -101,46 +106,26 @@ class RegistrationController {
 
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
+    await deleteKeyboardMarkup(ctx, registrationFormatter.messages.genderPrompt);
     ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.removeKeyboard());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
-    const message = ctx.message?.text;
-
     const callbackQuery = ctx.callbackQuery;
-    if (!callbackQuery) {
-      if (message && message == 'Back') {
-        await deleteMessage(ctx, {
-          message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-          chat_id: ctx.message.chat.id,
-        });
+    if (!callbackQuery) return await ctx.reply(registrationFormatter.messages.useButtonError);
+
+    const callbackMessage = callbackQuery.data;
+    switch (callbackMessage) {
+      case 'Back': {
+        await deleteMessageWithCallback(ctx);
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply(...registrationFormatter.chooseGenderEroorFormatter());
-    } else {
-      const state = ctx.wizard.state;
-      switch (callbackQuery.data) {
-        case 'gender_male': {
-          ctx.wizard.state.gender = 'male';
-          await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.emailFormatter(), registrationFormatter.goBackButton(true));
-          return ctx.wizard.next();
-        }
-        case 'gender_female': {
-          ctx.wizard.state.gender = 'male';
-          await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.emailFormatter());
-          return ctx.wizard.next();
-        }
-        case 'Back': {
-          await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.ageFormatter());
-          return ctx.wizard.back();
-        }
-        default: {
-          await ctx.reply(...registrationFormatter.chooseGenderFormatter());
-        }
+      default: {
+        ctx.wizard.state.gender = callbackMessage;
+        await deleteMessageWithCallback(ctx);
+        ctx.reply(...registrationFormatter.emailFormatter());
+        return ctx.wizard.next();
       }
     }
   }
@@ -154,13 +139,14 @@ class RegistrationController {
     }
     if (message == 'Skip') {
       ctx.wizard.state.email = null;
+      await deleteKeyboardMarkup(ctx, registrationFormatter.messages.countryPrompt);
       ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
       return ctx.wizard.next();
     }
     const validationMessage = registrationValidator('email', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.email = ctx.message.text;
-
+    await deleteKeyboardMarkup(ctx, registrationFormatter.messages.countryPrompt);
     ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
     return ctx.wizard.next();
   }
@@ -168,44 +154,51 @@ class RegistrationController {
   async chooseCountry(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
-    if (!callbackQuery) {
-      const message = ctx.message.text;
-      if (message == 'Back') {
-        await deleteMessage(ctx, {
-          message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-          chat_id: ctx.message.chat.id,
-        });
-        ctx.reply(...registrationFormatter.emailFormatter(), registrationFormatter.goBackButton(true));
-        return ctx.wizard.back();
-      } else return ctx.reply('please use the buttons to choose your county');
-    } else {
-      const [countryCode, country] = callbackQuery.data.split(':');
-      ctx.wizard.state.country = country;
-      ctx.wizard.state.countryCode = countryCode;
+    if (!callbackQuery) return await ctx.reply(registrationFormatter.messages.useButtonError);
+
+    if (areEqaul(callbackQuery.data, 'back', true)) {
       await deleteMessageWithCallback(ctx);
-      ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
-      return ctx.wizard.next();
+      ctx.reply(...registrationFormatter.emailFormatter());
+      return ctx.wizard.back();
     }
+    const [countryCode, country] = callbackQuery.data.split(':');
+    ctx.wizard.state.country = country;
+    ctx.wizard.state.countryCode = countryCode;
+    ctx.wizard.state.currentRound = 0;
+    await deleteMessageWithCallback(ctx);
+    ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode, 0)));
+    return ctx.wizard.next();
   }
 
   async chooseCity(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
-    if (!callbackQuery) {
-      const message = ctx.message?.text;
-      if (message && message == 'Back') {
-        await deleteMessage(ctx, {
-          message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-          chat_id: ctx.message.chat.id,
-        });
-        ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
-        return ctx.wizard.back();
-      } else return ctx.reply('please use the buttons to choose your city');
-    } else {
-      ctx.wizard.state.city = callbackQuery.data;
-      await deleteMessageWithCallback(ctx);
-      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      return ctx.wizard.next();
+    if (!callbackQuery) return ctx.reply(registrationFormatter.messages.useButtonError);
+
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
+          return ctx.wizard.back();
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(...(await registrationFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+      }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await registrationFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+      default:
+        ctx.wizard.state.city = callbackQuery.data;
+        ctx.wizard.state.currentRound = 0;
+        ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.next();
     }
   }
 
@@ -269,6 +262,7 @@ class RegistrationController {
       ctx.wizard.state[editField] =
         editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
       ctx.wizard.state.editField = null;
+      deleteKeyboardMarkup(ctx);
       return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
@@ -298,14 +292,20 @@ class RegistrationController {
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     }
+    if (areEqaul(callbackMessage, 'back', true)) {
+      deleteMessageWithCallback(ctx);
+      return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
     if (editField) {
       //  if edit filed is selected
       if (callbackMessage.includes(':')) {
         const [countryCode, country] = callbackMessage.split(':');
         ctx.wizard.state.country = country;
         ctx.wizard.state.countryCode = countryCode;
+        ctx.wizard.state.currentRound = 0;
         await deleteMessageWithCallback(ctx);
-        return ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
+        ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode, ctx.wizard.state.currentRound)));
+        return ctx.wizard.next();
       }
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
@@ -319,13 +319,46 @@ class RegistrationController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      return await ctx.reply(
+      await ctx.reply(
         ...(await registrationFormatter.editFiledDispay(
           callbackMessage,
           callbackMessage == 'city' ? ctx.wizard.state.countryCode : null,
         )),
         registrationFormatter.goBackButton(),
       );
+      ctx.wizard.state.currentRound = 0;
+      if (areEqaul(callbackMessage, 'city', true)) return ctx.wizard.next();
+      return;
+    }
+  }
+  async editCity(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+
+    if (!callbackQuery) return ctx.reply(registrationFormatter.messages.useButtonError);
+
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          ctx.reply(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+          return ctx.wizard.back();
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(...(await registrationFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+      }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await registrationFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+      default:
+        ctx.wizard.state.city = callbackQuery.data;
+        ctx.reply(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.back();
     }
   }
 }

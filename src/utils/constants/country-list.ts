@@ -46,3 +46,10 @@ export const breakeArrayTowNColumn = (array: any[] | undefined, ChunkSize: numbe
   }
   return result;
 };
+
+export const iterateCities = (cityList: any[], roundSize: number, currentRound: number) => {
+  const lastRound = cityList.length / roundSize;
+  if (Math.floor(lastRound) == currentRound)
+    return { cityList: cityList.slice(currentRound * roundSize), lastRound: true };
+  return { cityList: cityList.slice(currentRound * roundSize, (currentRound + 1) * roundSize), lastRound: false };
+};
