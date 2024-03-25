@@ -36,12 +36,13 @@ const userSchema = new Schema({
   gender: {
     type: String,
   },
-  followers: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User model itself
-    },
-  ],
+
+  // followers: [
+  //   {
+  //     type: Schema.Types.ObjectId,
+  //     ref: 'User', // Reference to the User model itself
+  //   },
+  // ],
 });
 
 export default mongoose.model('User', userSchema);

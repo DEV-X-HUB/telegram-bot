@@ -8,3 +8,18 @@ export const deleteMessageWithCallback = async (ctx: any) => {
     chat_id: ctx.callbackQuery.message.chat.id,
   });
 };
+
+export const deleteKeyboardMarkup = async (ctx: any, message?: string) => {
+  // it should be sent before any message
+  const messageOptions = {
+    reply_markup: {
+      remove_keyboard: true,
+    },
+  };
+  const text = '\u200C' + '.' + '\u200C';
+  await ctx.reply(message || text, messageOptions);
+  await deleteMessage(ctx, {
+    message_id: (parseInt(ctx.message.message_id) + 1).toString(),
+    chat_id: ctx.message.chat.id,
+  });
+};

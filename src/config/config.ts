@@ -14,4 +14,6 @@ export default {
     secret: process.env.JWT_SECRET,
     expires_in: process.env.JWT_EXPIRES_IN,
   },
+  upload_image_number: process.env.IMAGE_UPLOADED_NUMBER,
+  
 };

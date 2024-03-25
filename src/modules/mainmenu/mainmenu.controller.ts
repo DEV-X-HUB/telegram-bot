@@ -17,14 +17,16 @@ class MainMenuController {
 
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
     if (!isUserRegistered) {
-      ctx.reply('please register to use the service');
+      ctx.reply('Please register to use the service');
       return ctx.scene.enter('register');
     }
 
     // check if scene exists with the option
-    console.log('exists ', ctx.scene.scenes.has(option));
+    console.log('exists ', ctx.scene.scenes.has(option), option);
+    // console.log(option);
 
     if (ctx.scene.scenes.has(option)) {
+      ctx.scene.leave();
       return ctx.scene.enter(option);
     } else {
       return ctx.reply('Unknown option. Please choose a valid option.');

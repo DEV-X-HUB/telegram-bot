@@ -1,4 +1,5 @@
 import { Markup } from 'telegraf';
+import { RowInlineKeyboardButtons, RowMarkupKeyboardButtons, TableInlineKeyboardButtons } from '../types/components';
 
 export const urlButton = (buttonText: string, url: string, hidable?: boolean) => {
   return Markup.inlineKeyboard([Markup.button.url(buttonText, url, hidable)]);
@@ -7,17 +8,12 @@ export const urlButton = (buttonText: string, url: string, hidable?: boolean) =>
 export const InlineKeyboardButtons = (tableButtons: TableInlineKeyboardButtons) => {
   return Markup.inlineKeyboard(getButtonRows(tableButtons));
 };
-
-//
-export type InlineKeyboardButton = {
-  text: string;
-  cbString: string; // callback string
-  hidebale?: boolean;
+export const MarkupButtons = (tableButtons: TableInlineKeyboardButtons, onetime?: boolean) => {
+  if (onetime) return Markup.keyboard(getButtonRows(tableButtons)).oneTime().resize();
+  return Markup.keyboard(getButtonRows(tableButtons)).resize();
 };
-export type RowInlineKeyboardButtons = InlineKeyboardButton[];
-export type TableInlineKeyboardButtons = RowInlineKeyboardButtons[];
 
-const getCulumnButtons = (buttons: RowInlineKeyboardButtons) => {
+const getCulumnButtons = (buttons: RowInlineKeyboardButtons | RowMarkupKeyboardButtons) => {
   return [...buttons.map(({ text, cbString, hidebale }) => Markup.button.callback(text, cbString, hidebale))];
 };
 const getButtonRows = (buttonRows: TableInlineKeyboardButtons) => {
