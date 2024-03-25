@@ -1,14 +1,15 @@
 import config from '../../config/config';
-import { deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../utils/constants/string';
-import { questionPostValidator } from '../../utils/validator/question-post-validaor';
+
 import PostingFormatter from './question-post.formatter';
 import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
 
 class QuestionPostController {
-  imagesUploaded: string[];
+  imagesUploaded: any[];
   imageNumber: number;
+
   constructor() {
     this.imagesUploaded = [];
     this.imageNumber = parseInt(config.upload_image_number || '4');
@@ -35,8 +36,10 @@ class QuestionPostController {
         message_id: (parseInt(ctx.message.message_id) - 1).toString(),
         chat_id: ctx.message.chat.id,
       });
-      // ctx.reply(...postingFormatter.chooseOptionString());
+      await deleteKeyboardMarkup(ctx);
+      ctx.reply(...postingFormatter.chooseOptionString());
       ctx.reply(...postingFormatter.arBrOptionDisplay());
+
       return ctx.wizard.next();
     } else {
       return ctx.reply('Unknown option. Please choose a valid option.');
@@ -61,10 +64,10 @@ class QuestionPostController {
     if (isInInlineOption(callbackQuery.data, postingFormatter.arBrOption)) {
       ctx.wizard.state.ar_br = callbackQuery.data;
       deleteMessageWithCallback(ctx);
-      await deleteMessage(ctx, {
-        message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
-        chat_id: callbackQuery.message.chat.id,
-      });
+      // await deleteMessage(ctx, {
+      //   message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
+      //   chat_id: callbackQuery.message.chat.id,
+      // });
       ctx.reply(...postingFormatter.woredaListDisplay());
       return ctx.wizard.next();
     }
@@ -125,8 +128,8 @@ class QuestionPostController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('last_digit', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    // const validationMessage = questionPostValidator('last_digit', message);
+    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
     ctx.reply(...postingFormatter.locationPrompt());
     return ctx.wizard.next();
@@ -150,13 +153,14 @@ class QuestionPostController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('description', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    // const validationMessage = questionPostValidator('description', message);
+    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
     ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    console.log(' being received');
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...postingFormatter.bIDIOptionDisplay());
@@ -183,14 +187,18 @@ class QuestionPostController {
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
       // Save the images to the state
+      // ctx.wizard.state.photo = this.imagesUploaded;
+
+      // copy the images to the state
       ctx.wizard.state.photo = this.imagesUploaded;
+
       ctx.wizard.state.status = 'previewing';
 
-      // empty the images array
-      this.imagesUploaded = [];
+      // // empty the images array
+      // this.imagesUploaded = [];
       ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...postingFormatter.previewCallToAction());
-      return ctx.wizard.next();
+      // return ctx.wizard.next();
     }
   }
   async editPost(ctx: any) {
@@ -251,14 +259,15 @@ class QuestionPostController {
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
 
-      const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
-      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+      // const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
+      // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;
-      await deleteMessage(ctx, {
-        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-        chat_id: ctx.message.chat.id,
-      });
+      await deleteKeyboardMarkup(ctx);
+      // await deleteMessage(ctx, {
+      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+      //   chat_id: ctx.message.chat.id,
+      // });
       return ctx.reply(...postingFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
