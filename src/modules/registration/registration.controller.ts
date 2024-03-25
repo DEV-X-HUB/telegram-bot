@@ -272,23 +272,10 @@ class RegistrationController {
     };
     const callbackMessage = callbackQuery.data;
 
-    if (callbackMessage == 'register_data') {
-      // registration
-      const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
-
-      if (response.success) {
-        await deleteMessageWithCallback(ctx);
-        ctx.reply(...registrationFormatter.registrationSuccess());
-        return ctx.scene.enter('start');
-      }
-
-      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
-      ctx.reply(...registrationFormatter.registrationError());
-      if (registrationAttempt >= 2) {
-        await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
-      }
-      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    if (callbackMessage == 'finish_edit') {
+      deleteMessageWithCallback(ctx);
+      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return ctx.wizard.back();
     }
     if (areEqaul(callbackMessage, 'back', true)) {
       deleteMessageWithCallback(ctx);
