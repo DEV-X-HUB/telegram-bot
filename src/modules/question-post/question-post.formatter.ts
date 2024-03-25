@@ -29,7 +29,7 @@ class QustionPostFormatter {
     this.bIDiOption = [
       [
         { text: 'BI', cbString: 'bi' },
-        { text: 'Di', cbString: 'di' },
+        { text: 'DI', cbString: 'di' },
       ],
       [{ text: 'Back', cbString: 'back' }],
     ];
