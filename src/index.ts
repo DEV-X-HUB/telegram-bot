@@ -1,12 +1,27 @@
-import express, { Request, Response } from 'express';
+import { Scenes, session } from 'telegraf';
+import Bot from './loaders/bot';
 
-const app = express();
-const port = 3000;
+import RegistrationScene from './modules/registration/registration.scene';
+import { checkAndRedirectToScene } from './middleware/check-command';
+import { checkUserInChannelandPromtJoin } from './middleware/auth';
+import MainmenuScene from './modules/mainmenu/mainmenu.scene';
+import Service1Scene from './modules/service1/service1.scene';
+import dbConnection from './loaders/db-connecion';
+import QuestionPostScene from './modules/question-post/question-post.scene';
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
-});
+const ignite = () => {
+  const bot = Bot();
+  if (bot) {
+    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, QuestionPostScene]);
+    bot.use(session());
+    bot.use(stage.middleware());
+    bot.use(checkUserInChannelandPromtJoin());
+    bot.use(checkAndRedirectToScene());
+  }
+  process.on('SIGINT', () => {
+    dbConnection.close();
+    bot?.stop();
+  });
+};
 
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
-});
+ignite();
