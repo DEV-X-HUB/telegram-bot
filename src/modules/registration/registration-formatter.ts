@@ -10,14 +10,28 @@ import {
 class RegistrationFormatter {
   countries: any[] = [];
   countryCodes: any[] = ['et'];
+  messages = {};
 
   constructor() {
+    this.messages = {
+      useButtonError: 'Please use the buttons above to choose ',
+      userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
+      termsAndConditionsPromt:
+        'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
+      termsAndConditionsDisagreeWarning:
+        'You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed.',
+      shareContactPrompt: 'lets start your first registration. Please share your contact.',
+      shareContactWarning:
+        'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
+      firstNamePrompt: 'Please enter your First name ',
+      lastNamePrompt: 'Please enter your Last name ',
+      agePrompt: 'Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format ',
+      genderPrompt: ' Please choose your gender ',
+      emailPrompt: ' Please enter your personal Email ',
+      countryPrompt: ' Please choose your country ',
+      cityPrompt: ' Please choose your City ',
+    };
     this.countries = getSelectedCoutryList();
-    (async () => {
-      const cityList = await getCitiesOfCountry('ET');
-      const citiesInCoujmsof3 = breakeArrayTowNColumn(cityList, 3);
-      console.log(citiesInCoujmsof3[0]);
-    })();
   }
   termsAndConditionsDisplay() {
     return [
