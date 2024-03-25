@@ -8,7 +8,8 @@ import config from '../../config/config';
 const registrationFormatter = new RegistrationFormatter();
 const registrationService = new RegistrationService();
 import { Markup } from 'telegraf';
-
+import { areEqaul } from '../../utils/constants/string';
+console.log(Markup.removeKeyboard);
 class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
@@ -51,11 +52,12 @@ class RegistrationController {
   async shareContact(ctx: any) {
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
+
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.wizard.state.phone_number = contact.phone_number;
-      ctx.reply(...registrationFormatter.firstNameformatter(), registrationFormatter.goBackButton());
+      ctx.reply(...registrationFormatter.firstNameformatter(), Markup.removeKeyboard());
       return ctx.wizard.next();
     } else return ctx.reply(...registrationFormatter.shareContactWarning());
   }
@@ -70,7 +72,7 @@ class RegistrationController {
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.first_name = message;
-    ctx.reply(...registrationFormatter.lastNameformatter(), registrationFormatter.goBackButton());
+    ctx.reply(...registrationFormatter.lastNameformatter());
 
     return ctx.wizard.next();
   }
@@ -84,7 +86,7 @@ class RegistrationController {
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.last_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.ageFormatter(), registrationFormatter.goBackButton());
+    ctx.reply(...registrationFormatter.ageFormatter());
     return ctx.wizard.next();
   }
 
@@ -99,7 +101,7 @@ class RegistrationController {
 
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
-    ctx.reply(...registrationFormatter.chooseGenderFormatter(true), registrationFormatter.goBackButton());
+    ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.removeKeyboard());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
@@ -115,7 +117,7 @@ class RegistrationController {
         ctx.reply(...registrationFormatter.ageFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply(...registrationFormatter.chooseGenderEroorFormatter(), registrationFormatter.goBackButton());
+      await ctx.reply(...registrationFormatter.chooseGenderEroorFormatter());
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
@@ -137,7 +139,7 @@ class RegistrationController {
           return ctx.wizard.back();
         }
         default: {
-          await ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
+          await ctx.reply(...registrationFormatter.chooseGenderFormatter());
         }
       }
     }
@@ -155,7 +157,6 @@ class RegistrationController {
       ctx.reply(...(await registrationFormatter.chooseCountryFormatter()));
       return ctx.wizard.next();
     }
-
     const validationMessage = registrationValidator('email', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.email = ctx.message.text;
@@ -213,7 +214,7 @@ class RegistrationController {
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
-        await ctx.reply(...registrationFormatter.chooseGenderFormatter(), registrationFormatter.goBackButton());
+        await ctx.reply(...registrationFormatter.chooseGenderFormatter());
         return ctx.wizard.back();
       }
       await ctx.reply('some thing');
@@ -253,84 +254,78 @@ class RegistrationController {
   async editData(ctx: any) {
     const state = ctx.wizard.state;
     const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country', 'email'];
-    const callbackQuery = ctx.callbackQuery;
+    const callbackQuery = ctx?.callbackQuery;
+    const editField = ctx.wizard.state?.editField;
     if (!callbackQuery) {
       // changing field value
-      const editField = ctx.wizard.state?.editField;
-      if (editField) {
-        const validationMessage = registrationValidator(ctx.wizard.state.editField, ctx.message.text);
-        if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+      const messageText = ctx.message.text;
+      if (areEqaul(messageText, 'back', true))
+        return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+      if (!editField) return await ctx.reply('invalid input ');
 
-        if (ctx.wizard.state.editField == 'age')
-          ctx.wizard.state[ctx.wizard.state.editField] = calculateAge(ctx.message.text);
-        ctx.wizard.state[ctx.wizard.state.editField] = ctx.message.text;
-        ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
-      } else await ctx.reply('invalid input ');
-    } else {
-      // save the mesage id for later deleting
-      ctx.wizard.state.previousMessageData = {
-        message_id: ctx.callbackQuery.message.message_id,
-        chat_id: ctx.callbackQuery.message.chat.id,
-      };
-      switch (callbackQuery.data) {
-        case 'register_data': {
-          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+      const validationMessage = registrationValidator(ctx.wizard.state.editField, ctx.message.text);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
-          if (response.success) {
-            await deleteMessageWithCallback(ctx);
-            ctx.reply(...registrationFormatter.registrationSuccess());
-            return ctx.scene.enter('start');
-          } else {
-            ctx.reply(...registrationFormatter.registrationError());
+      ctx.wizard.state[editField] =
+        editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
+      ctx.wizard.state.editField = null;
+      return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
 
-            if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
-              await deleteMessageWithCallback(ctx);
-              return ctx.scene.enter('start');
-            }
-            return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
-              ? parseInt(ctx.wizard.state.registrationAttempt) + 1
-              : 1);
-          }
-        }
-        case 'gender_male': {
-          await deleteMessageWithCallback(ctx);
-          ctx.wizard.state.gender = 'male';
-          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
-        }
-        case 'gender_female': {
-          await deleteMessageWithCallback(ctx);
-          ctx.wizard.state.gender = 'female';
-          return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
-        }
-        default: {
-          if (fileds.some((filed) => filed == callbackQuery.data)) {
-            // selecting field to change
-            ctx.wizard.state.editField = callbackQuery.data;
-            await ctx.telegram.deleteMessage(
-              ctx.wizard.state.previousMessageData.chat_id,
-              ctx.wizard.state.previousMessageData.message_id,
-            );
-            if (callbackQuery.data == 'city')
-              return await ctx.reply(
-                ...(await registrationFormatter.editFiledDispay(callbackQuery.data, ctx.wizard.state.countryCode)),
-              );
-            await ctx.reply(...(await registrationFormatter.editFiledDispay(callbackQuery.data)));
-          } else {
-            if (callbackQuery.data.includes(':')) {
-              const [countryCode, country] = callbackQuery.data.split(':');
-              ctx.wizard.state.country = country;
-              ctx.wizard.state.countryCode = countryCode;
+    // if callback exists
+    // save the mesage id for later deleting
+    ctx.wizard.state.previousMessageData = {
+      message_id: ctx.callbackQuery.message.message_id,
+      chat_id: ctx.callbackQuery.message.chat.id,
+    };
+    const callbackMessage = callbackQuery.data;
 
-              await deleteMessageWithCallback(ctx);
-              ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
-            } else {
-              ctx.wizard.state.city = callbackQuery.data;
-              await deleteMessageWithCallback(ctx);
-              return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
-            }
-          }
-        }
+    if (callbackMessage == 'register_data') {
+      // registration
+      const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+
+      if (response.success) {
+        await deleteMessageWithCallback(ctx);
+        ctx.reply(...registrationFormatter.registrationSuccess());
+        return ctx.scene.enter('start');
       }
+
+      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
+      ctx.reply(...registrationFormatter.registrationError());
+      if (registrationAttempt >= 2) {
+        await deleteMessageWithCallback(ctx);
+        return ctx.scene.enter('start');
+      }
+      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    }
+    if (editField) {
+      //  if edit filed is selected
+      if (callbackMessage.includes(':')) {
+        const [countryCode, country] = callbackMessage.split(':');
+        ctx.wizard.state.country = country;
+        ctx.wizard.state.countryCode = countryCode;
+        await deleteMessageWithCallback(ctx);
+        return ctx.reply(...(await registrationFormatter.chooseCityFormatter(countryCode)));
+      }
+      ctx.wizard.state[editField] = callbackMessage;
+      await deleteMessageWithCallback(ctx);
+      ctx.wizard.state.editField = null;
+      return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
+    if (fileds.some((filed) => filed == callbackMessage)) {
+      // selecting field to change
+      ctx.wizard.state.editField = callbackMessage;
+      await ctx.telegram.deleteMessage(
+        ctx.wizard.state.previousMessageData.chat_id,
+        ctx.wizard.state.previousMessageData.message_id,
+      );
+      return await ctx.reply(
+        ...(await registrationFormatter.editFiledDispay(
+          callbackMessage,
+          callbackMessage == 'city' ? ctx.wizard.state.countryCode : null,
+        )),
+        registrationFormatter.goBackButton(),
+      );
     }
   }
 }

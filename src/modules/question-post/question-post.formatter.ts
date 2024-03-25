@@ -67,8 +67,11 @@ class QustionPostFormatter {
   chooseOptionString() {
     return ['Please Choose on category from the options'];
   }
+  chooseOptionDisplayString() {
+    return ['Please Choose on category from the options'];
+  }
   chooseOptionDisplay() {
-    return ['Please Choose on category from the options', MarkupButtons(this.categories, true)];
+    return [MarkupButtons(this.categories, true)];
   }
   arBrOptionDisplay() {
     return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption)];

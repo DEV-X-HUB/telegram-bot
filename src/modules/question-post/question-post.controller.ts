@@ -11,7 +11,8 @@ class QuestionPostController {
   constructor() {}
 
   async start(ctx: any) {
-    ctx.reply(...postingFormatter.chooseOptionDisplay());
+    // ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
+    ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();
   }
 
@@ -139,8 +140,8 @@ class QuestionPostController {
       return ctx.wizard.back();
     }
 
-    // const validationMessage = questionPostValidator('description', message);
-    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    const validationMessage = questionPostValidator('description', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
     ctx.reply(...postingFormatter.photoPrompt());
     return ctx.wizard.next();

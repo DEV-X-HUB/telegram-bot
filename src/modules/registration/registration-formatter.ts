@@ -1,11 +1,27 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons } from '../../components/button';
-import { getAllCountries, getCitiesOfCountry } from '../../utils/constants/country-list';
+import { InlineKeyboardButtons, MarkupButtons } from '../../components/button';
+import {
+  breakeArrayTowNColumn,
+  getCitiesOfCountry,
+  getFilteredCoutryList,
+  getSelectedCoutryList,
+} from '../../utils/constants/country-list';
 
 class RegistrationFormatter {
-  constructor() {}
+  countries: any[] = [];
+  countryCodes: any[] = ['et'];
+
+  constructor() {
+    this.countries = getSelectedCoutryList();
+    (async () => {
+      const cityList = await getCitiesOfCountry('ET');
+      const citiesInCoujmsof3 = breakeArrayTowNColumn(cityList, 3);
+      console.log(citiesInCoujmsof3[0]);
+    })();
+  }
   termsAndConditionsDisplay() {
     return [
+      'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
       'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
 
       InlineKeyboardButtons([
@@ -26,33 +42,27 @@ class RegistrationFormatter {
       `You can not use this platform without accepting the terms and conditions. Please accept the terms and conditions with the above button to proceed.`,
     ];
   }
+  deleteMarkup() {
+    return Markup.removeKeyboard();
+  }
 
   goBackButton(withSkip?: boolean) {
     //back button with callback string
     if (withSkip)
-      return Markup.keyboard([Markup.button.callback('Back', 'back'), Markup.button.callback('Skip', 'skip')])
+      return MarkupButtons([
+        [
+          { text: 'Back', cbString: 'back' },
+          { text: 'Skip', cbString: 'skip' },
+        ],
+      ])
         .oneTime()
-        .resize();
+        .resize()
+        .persistent(false);
 
     return Markup.keyboard([Markup.button.callback('Back', 'back')])
       .oneTime()
-      .resize();
-  }
-
-  chooseGenderFormatter(withBackButton?: boolean) {
-    return [
-      `Please choose your gender`,
-      InlineKeyboardButtons([
-        [
-          { text: 'Male', cbString: 'gender_male' },
-          { text: 'Female', cbString: 'gender_female' },
-        ],
-        withBackButton ? [{ text: 'Back', cbString: 'Back' }] : [],
-      ]),
-    ];
-  }
-  chooseGenderEroorFormatter() {
-    return [`Please use the buttons above to choose gender`];
+      .resize()
+      .persistent(false);
   }
 
   shareContact() {
@@ -61,6 +71,8 @@ class RegistrationFormatter {
       Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
         .oneTime()
         .resize(),
+      ,
+      this.goBackButton(),
     ];
   }
   shareContactWarning() {
@@ -74,23 +86,49 @@ class RegistrationFormatter {
   }
 
   lastNameformatter() {
-    return [`Please enter your last name`];
+    return [`Please enter your last name`, this.goBackButton()];
   }
+
   ageFormatter() {
-    return [`Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format  `];
+    return [
+      `Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format  `,
+      this.goBackButton(),
+    ];
+  }
+  chooseGenderFormatter(editing?: boolean) {
+    return [
+      '  Please choose your gender',
+      InlineKeyboardButtons([
+        [
+          { text: 'Male', cbString: 'gender_male' },
+          { text: 'Female', cbString: 'gender_female' },
+        ],
+        editing ? [] : [{ text: 'Back', cbString: 'Back' }],
+      ]),
+    ];
   }
 
-  emailFormatter() {
-    return [`Please enter your personal Email `];
+  chooseGenderEroorFormatter() {
+    return [`Please use the buttons above to choose gender`];
+  }
+  emailFormatter(editing?: boolean) {
+    // if the email is bieng edidted skip button is not shown
+    return [`Please enter your personal Email `, this.goBackButton(editing ? false : true)];
   }
 
-  async chooseCountryFormatter() {
-    const countries = await getAllCountries();
+  async chooseCountryFormatter(editing?: boolean) {
+    const countries = await getFilteredCoutryList(this.countryCodes);
+    console.log(countries);
     return [
       'Please choose your country',
       InlineKeyboardButtons([
         // map the country list to the buttons
-        ...countries.map((country: any) => [{ text: country.name, cbString: `${country.isoCode}:${country.name}` }]),
+        ...countries.map(
+          (country: any) => [
+            { text: `${country.flag} ${country.name}`, cbString: `${country.isoCode}:${country.name}` },
+          ],
+          editing ? [] : [{ text: 'Back', cbString: 'Back' }],
+        ),
       ]),
     ];
   }
@@ -98,27 +136,36 @@ class RegistrationFormatter {
   // choose city based on the selected country
   async chooseCityFormatter(countryCode: string) {
     const cityList = await getCitiesOfCountry(countryCode);
+    const citiesInColumnof3 = breakeArrayTowNColumn(cityList, 1);
+
     if (cityList)
       return [
         'Please choose your city',
-        InlineKeyboardButtons([
+        InlineKeyboardButtons(
           // map the country list to the buttons
-          ...cityList.map((city: any) => [{ text: city.name, cbString: city.name }]),
-        ]),
+          [
+            ...citiesInColumnof3.map((cities) => cities.map((city) => ({ text: city.name, cbString: city.name }))),
+            [{ text: 'Other', cbString: 'Other' }],
+          ],
+        ),
+        InlineKeyboardButtons(
+          // map the country list to the buttons
+          [[{ text: 'Other', cbString: 'Other' }]],
+        ),
       ];
 
     return ['Unable to find cities'];
   }
 
   getPreviewData(state: any) {
-    return `${state.first_name} ${state.last_name}**\n________________\n\nFirst name: ${state.first_name} \n\nLast name: ${state.last_name} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email}`;
+    return `${state.first_name} ${state.last_name}\n________________\n\nFirst name: ${state.first_name} \n\nLast name: ${state.last_name} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email || 'None'}\n\nPhone Number: ${state.phone_number}`;
   }
   preview(state: any) {
     return [
       this.getPreviewData(state),
       InlineKeyboardButtons([
         [
-          { text: 'edit', cbString: 'preview_edit' },
+          { text: 'Edit', cbString: 'preview_edit' },
           { text: 'Register', cbString: 'register_data' },
         ],
       ]),
@@ -129,21 +176,21 @@ class RegistrationFormatter {
       this.getPreviewData(state),
       InlineKeyboardButtons([
         [
-          { text: 'first name', cbString: 'first_name' },
-          { text: 'last name', cbString: 'last_name' },
+          { text: 'First name', cbString: 'first_name' },
+          { text: 'Last name', cbString: 'last_name' },
         ],
 
         [
-          { text: 'age', cbString: 'age' },
-          { text: 'gender', cbString: 'gender' },
+          { text: 'Age/DOB', cbString: 'age' },
+          { text: 'Gender', cbString: 'gender' },
         ],
         [
-          { text: 'country', cbString: 'country' },
-          { text: 'city', cbString: 'city' },
+          { text: 'Residence Country', cbString: 'country' },
+          { text: 'Residence City', cbString: 'city' },
         ],
 
         [
-          { text: 'email', cbString: 'email' },
+          { text: 'Email', cbString: 'email' },
           { text: 'Done', cbString: 'register_data' },
         ],
       ]),
@@ -158,13 +205,13 @@ class RegistrationFormatter {
       case 'age':
         return this.ageFormatter();
       case 'gender':
-        return this.chooseGenderFormatter();
+        return this.chooseGenderFormatter(true);
       case 'country':
         return await this.chooseCountryFormatter();
       case 'city':
         return await this.chooseCityFormatter(extraKey || '');
       case 'email':
-        return await this.emailFormatter();
+        return await this.emailFormatter(true);
       default:
         return ['none'];
     }
