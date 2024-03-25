@@ -67,7 +67,6 @@ class RegistrationController {
   }
 
   async enterFirstName(ctx: any) {
-    await ctx.editMessageReplyMarkup();
     const message = ctx.message.text;
     if (message == 'Back') {
       ctx.scene.leave();
@@ -132,7 +131,6 @@ class RegistrationController {
 
   async enterEmail(ctx: any) {
     const message = ctx.message.text;
-
     if (message == 'Back') {
       ctx.reply(...registrationFormatter.chooseGenderFormatter());
       return ctx.wizard.back();
