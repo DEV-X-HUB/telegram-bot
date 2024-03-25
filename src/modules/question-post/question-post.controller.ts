@@ -6,18 +6,15 @@ import PostingFormatter from './question-post.formatter';
 import QuestionService from './question.service';
 const postingFormatter = new PostingFormatter();
 
-class QuestionPostController {
-  imagesUploaded: any[];
-  imageNumber: number;
+let imagesUploaded: string[] = [];
+const imagesNumber = 4;
 
-  constructor() {
-    this.imagesUploaded = [];
-    this.imageNumber = parseInt(config.upload_image_number || '4');
-  }
+class QuestionPostController {
+  constructor() {}
 
   async start(ctx: any) {
-    ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
-    // ctx.reply(...postingFormatter.photoPrompt());
+    await ctx.reply(...postingFormatter.chooseOptionDisplayString(), ...postingFormatter.chooseOptionDisplay());
+
     return ctx.wizard.next();
   }
 
@@ -31,13 +28,13 @@ class QuestionPostController {
 
     if (isInMarkUPOption(option, postingFormatter.categories)) {
       ctx.wizard.state.category = option;
+
       console.log(option);
-      await deleteMessage(ctx, {
-        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-        chat_id: ctx.message.chat.id,
-      });
-      await deleteKeyboardMarkup(ctx);
-      ctx.reply(...postingFormatter.chooseOptionString());
+      // await deleteMessage(ctx, {
+      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+      //   chat_id: ctx.message.chat.id,
+      // });
+      // ctx.reply(...postingFormatter.chooseOptionString());
       ctx.reply(...postingFormatter.arBrOptionDisplay());
 
       return ctx.wizard.next();
@@ -171,31 +168,27 @@ class QuestionPostController {
     if (!ctx.message.photo) return ctx.reply(...postingFormatter.photoPrompt());
 
     // Add the image to the array
-    this.imagesUploaded.push(ctx.message.photo[0].file_id);
+    imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (this.imagesUploaded.length == this.imageNumber) {
-      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      console.log(file);
+    if (imagesUploaded.length == imagesNumber) {
+      // const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+      // console.log(file);
 
-      const mediaGroup = this.imagesUploaded.map((image: any) => ({
+      const mediaGroup = imagesUploaded.map((image: any) => ({
         media: image,
         type: 'photo',
-        caption: image == this.imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
       }));
 
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+      // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
       // Save the images to the state
-      // ctx.wizard.state.photo = this.imagesUploaded;
-
-      // copy the images to the state
-      ctx.wizard.state.photo = this.imagesUploaded;
-
+      ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.status = 'previewing';
 
-      // // empty the images array
-      // this.imagesUploaded = [];
+      // empty the images array
+      imagesUploaded = [];
       ctx.reply(...postingFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...postingFormatter.previewCallToAction());
       // return ctx.wizard.next();
@@ -337,25 +330,25 @@ class QuestionPostController {
     if (!ctx.message.photo) return ctx.reply(...postingFormatter.photoPrompt());
 
     // Add the image to the array
-    this.imagesUploaded.push(ctx.message.photo[0].file_id);
+    imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (this.imagesUploaded.length === this.imageNumber) {
+    if (imagesUploaded.length === imagesNumber) {
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
-      const mediaGroup = this.imagesUploaded.map((image: any) => ({
+      const mediaGroup = imagesUploaded.map((image: any) => ({
         media: image,
         type: 'photo',
-        caption: image == this.imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
       }));
 
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
       // Save the images to the state
-      ctx.wizard.state.photo = this.imagesUploaded;
+      ctx.wizard.state.photo = imagesUploaded;
 
       // empty the images array
-      this.imagesUploaded.length = 0;
+      imagesUploaded.length = 0;
       ctx.reply(...postingFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
