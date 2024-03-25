@@ -133,7 +133,7 @@ class QuestionPostController {
   async enterLocation(ctx: any) {
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...postingFormatter.descriptionPrompt());
+      ctx.reply(...postingFormatter.lastDidtitPrompt());
       return ctx.wizard.back();
     }
 
@@ -145,7 +145,7 @@ class QuestionPostController {
   async enterDescription(ctx: any) {
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...postingFormatter.bIDIOptionDisplay());
+      ctx.reply(...postingFormatter.locationPrompt());
       return ctx.wizard.back();
     }
 
