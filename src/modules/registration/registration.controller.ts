@@ -56,11 +56,13 @@ class RegistrationController {
   async shareContact(ctx: any) {
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
+    const username = ctx.message.from.username;
 
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.wizard.state.phone_number = contact.phone_number;
+      if (username) ctx.wizard.state.username = `https://t.me/${username}`;
       ctx.reply(...registrationFormatter.firstNameformatter());
       return ctx.wizard.next();
     } else return ctx.reply(...registrationFormatter.shareContactWarning());
