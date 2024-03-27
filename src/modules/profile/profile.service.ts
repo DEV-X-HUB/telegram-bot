@@ -39,7 +39,6 @@ class RegistrationService {
   }
 
   async updateProfile(userId: string, newData: any) {
-    console.log(newData);
     try {
       const updatedUser = await prisma.user.update({
         where: {
@@ -65,6 +64,39 @@ class RegistrationService {
     } catch (error: any) {
       return null;
       throw new Error(`Error updating profile: ${error.message}`);
+    }
+  }
+
+  async getFollowersByUserId(userId: string) {
+    try {
+      const followers = await prisma.follows.findMany({
+        where: {
+          following_id: userId,
+        },
+        include: {
+          follower: true,
+        },
+      });
+
+      return followers.map((entry) => entry.follower);
+    } catch (error: any) {
+      throw new Error(`Error fetching followers: ${error.message}`);
+    }
+  }
+  async getFollowingsByUserId(userId: string) {
+    try {
+      const followings = await prisma.follows.findMany({
+        where: {
+          follower_id: userId,
+        },
+        include: {
+          follower: true,
+        },
+      });
+
+      return followings.map((entry) => entry.follower);
+    } catch (error: any) {
+      throw new Error(`Error fetching followers: ${error.message}`);
     }
   }
 

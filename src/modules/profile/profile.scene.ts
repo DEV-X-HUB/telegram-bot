@@ -19,8 +19,10 @@ const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
       return profileController.editProfileOption(ctx);
     case 'profile_edit_editing':
       return profileController.editProfileEditField(ctx);
-    case 'profile_edit_option_view':
-      return profileController.previewHandler(ctx);
+    case 'followers_list_view':
+      return profileController.followersList(ctx);
+    case 'followings_list_view':
+      return profileController.followersList(ctx);
   }
 });
 
