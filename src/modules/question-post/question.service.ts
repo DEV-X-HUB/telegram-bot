@@ -10,7 +10,7 @@ class QuestionService {
       // Find user with tg_id
       const user = await prisma.user.findUnique({
         where: {
-          tg_id,
+          tg_id: tg_id.toString(),
         },
       });
 
@@ -28,6 +28,7 @@ class QuestionService {
           id: UUID(),
           ...questionPost,
           user_id: user.id,
+          status: 'pending',
         },
       });
 
