@@ -7,5 +7,6 @@ interface CreateQuestionPostDto {
   description: string;
   photo: string[];
   status: string;
+  user_id: string;
 }
 export default CreateQuestionPostDto;
