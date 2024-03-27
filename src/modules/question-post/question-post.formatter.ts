@@ -1,4 +1,4 @@
-import { InlineKeyboardButtons, MarkupButtons } from '../../components/button';
+import { InlineKeyboardButtons, MarkupButtons } from '../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/components';
 
 class QustionPostFormatter {

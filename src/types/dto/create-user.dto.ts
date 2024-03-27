@@ -1,4 +1,5 @@
 interface CreateUserDto {
+  username: string;
   tg_id: string;
   first_name: string;
   last_name: string;
@@ -8,6 +9,7 @@ interface CreateUserDto {
   age: number;
   gender: string;
   country: string;
+  display_name: null;
 }
 
 export default CreateUserDto;

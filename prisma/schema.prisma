@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id           String  @id @default(uuid()) // UUID type for user_id
+  username     String?  @unique
+  first_name   String // Required first name
+  last_name    String // Required last name
+  age          Int // Required age
+  phone_number String  @unique // Unique phone number
+  tg_id        String  @unique // Unique tg_id
+  email        String? // Optional email
+  country      String? // Optional country
+  city         String? // Optional city
+  gender       String? // Optional gender
+  display_name String? // Optional display name
+  bio          String? // Optional bio
+
+  followings Follows[]  @relation("Following")
+  followers  Follows[]  @relation("Follower")
+  questions  Question[]
+  answers    Answer[]
+  created_at  DateTime   @default(now())
+}
+
+model Follows {
+  id           String @id @default(uuid())
+  follower_id  String 
+  following_id String
+  follower     User   @relation("Follower", fields: [follower_id], references: [id])
+  following    User   @relation("Following", fields: [following_id], references: [id])
+
+  @@unique([follower_id, following_id])
+}
+
+model Question {
+  id          String   @id @default(uuid()) // UUID type for id
+  ar_br       String // Required enum field
+  bi_di       String // Required enum field
+  location    String // Required location field
+  woreda      String // Required woreda field
+  last_digit  String // Required last_digit field
+  description String // Optional description field
+  category    String
+  photo       String[] // Required array of photo URLs
+  
+
+  // status with enum ("approved, "pending", "rejected")
+  status      QuestionStatus   @default(pending)
+
+
+  user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
+  user_id      String // Foreign key to the User model
+  Answer      Answer[]
+  created_at  DateTime @default(now())
+}
+
+enum QuestionStatus {
+  approved
+  pending
+  rejected
+}
+
+model Answer {
+  id         String   @id @default(uuid()) // UUID type for id
+  answer_text String // Text of the answer
+  question   Question @relation(fields: [question_id], references: [id]) // Reference to the Question model
+  question_id String // Foreign key to the Question model
+  user       User     @relation(fields: [user_id], references: [id]) // Reference to the User model
+  user_id     String // Foreign key to the User model
+  created_at DateTime @default(now())
+}

@@ -1,5 +1,5 @@
 import { Markup } from 'telegraf';
-import { urlButton } from '../../components/button';
+import { urlButton } from '../../ui/button';
 import config from '../../config/config';
 
 class MainmenuFormatter {
