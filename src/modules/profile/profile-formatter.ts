@@ -8,11 +8,30 @@ import {
   iterateCities,
 } from '../../utils/constants/country-list';
 import { ICity } from 'country-state-city';
-import { capitalizeFirstLetter } from '../../utils/constants/string';
+import { areEqaul, capitalizeFirstLetter } from '../../utils/constants/string';
 
 class RegistrationFormatter {
   countries: any[] = [];
   countryCodes: any[] = ['et'];
+  previewButtons = [
+    [{ text: '✏️ Edit Profile', cbString: `edit_profile` }],
+    [
+      { text: 'My Question', cbString: `my_questions` },
+      { text: 'My Answers', cbString: `my_questions` },
+    ],
+    [
+      { text: 'Followers', cbString: `my_questions` },
+      { text: 'Following', cbString: `my_questions` },
+    ],
+    [{ text: 'Setting', cbString: `my_questions` }],
+  ];
+  editOptionsButtons = [
+    [{ text: ' Edit Name', cbString: `display_name` }],
+    [{ text: 'Edit Bio', cbString: `bio` }],
+    [{ text: 'Edit Gender', cbString: `gender` }],
+    [{ text: 'Back', cbString: `back` }],
+  ];
+
   messages = {
     useButtonError: 'Please use the buttons above to choose ',
     userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
@@ -23,10 +42,9 @@ class RegistrationFormatter {
     shareContactPrompt: 'lets start your first registration. Please share your contact.',
     shareContactWarning:
       'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
-    firstNamePrompt: 'Please enter your First name ',
-    lastNamePrompt: 'Please enter your Last name ',
-    agePrompt: 'Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format ',
-    genderPrompt: ' Please choose your gender ',
+    namePrompt: 'Please enter your name ',
+    bioPrompt: 'Please enter your Bio ',
+    genderPrompt: ' Please select your gender ',
     emailPrompt: ' Please enter your personal Email ',
     countryPrompt: ' Please choose your country ',
     cityPrompt: ' Please choose your City ',
@@ -38,6 +56,43 @@ class RegistrationFormatter {
   useButtonError(optionName: string) {
     return this.messages.useButtonError + optionName;
   }
+
+  preview(userData: any) {
+    return [this.formatePreview(userData), InlineKeyboardButtons(this.previewButtons)];
+  }
+
+  formatePreview(userData: any) {
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
+    const gap = '---------------------------------------\n';
+    const bio = `\nBio: ${userData.bio || 'none'}`;
+    return header + gap + bio;
+  }
+
+  editOptions() {
+    return ['Edit your Profile', InlineKeyboardButtons(this.editOptionsButtons)];
+  }
+
+  genderOpton(gender: string) {
+    return [
+      [{ text: `${areEqaul(gender, 'male', true) ? '✅' : ''} Male`, cbString: `male` }],
+      [{ text: `${areEqaul(gender, 'female', true) ? '✅' : ''} Female`, cbString: `female` }],
+      [{ text: 'Back', cbString: `back` }],
+    ];
+  }
+
+  editPrompt(editFiled: string, gender: string) {
+    switch (editFiled) {
+      case 'name':
+        return [this.messages.namePrompt];
+      case 'bio':
+        return [this.messages.bioPrompt];
+      case 'gender':
+        return [this.messages.genderPrompt, InlineKeyboardButtons(this.genderOpton(gender))];
+      default:
+        return [this.messages.namePrompt];
+    }
+  }
+
   termsAndConditionsDisplay() {
     return [
       this.messages.termsAndConditionsPromt,
@@ -82,16 +137,6 @@ class RegistrationFormatter {
       .persistent(false);
   }
 
-  shareContact() {
-    return [
-      'lets start your first registration. Please share your contact.',
-      Markup.keyboard([Markup.button.contactRequest('Share my contact'), 'Cancel'])
-        .oneTime()
-        .resize(),
-      ,
-      this.goBackButton(),
-    ];
-  }
   shareContactWarning() {
     return [
       'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
@@ -185,17 +230,7 @@ class RegistrationFormatter {
   getPreviewData(state: any) {
     return `${capitalizeFirstLetter(state.first_name)} ${capitalizeFirstLetter(state.last_name)}\n________________\n\nFirst name: ${capitalizeFirstLetter(state.first_name)} \n\nLast name: ${capitalizeFirstLetter(state.last_name)} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email || 'None'}\n\nPhone Number: ${state.phone_number}`;
   }
-  preview(state: any) {
-    return [
-      this.getPreviewData(state),
-      InlineKeyboardButtons([
-        [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Register', cbString: 'register_data' },
-        ],
-      ]),
-    ];
-  }
+
   editPreview(state: any) {
     return [
       this.getPreviewData(state),

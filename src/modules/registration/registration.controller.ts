@@ -23,6 +23,7 @@ class RegistrationController {
   }
   async agreeTermsHandler(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
@@ -54,6 +55,7 @@ class RegistrationController {
   }
 
   async shareContact(ctx: any) {
+    console.log('ccccccccccccccccc', ctx.message.from);
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
     const username = ctx.message.from.username;

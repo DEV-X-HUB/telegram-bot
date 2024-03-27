@@ -4,6 +4,7 @@ import RegistrationService from '../modules/registration/restgration.service';
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
+
   if (ctx?.message?.text && ctx?.message?.text?.startsWith('/')) {
     ctx.reply('Invalid input.');
     errorMsg && ctx.reply(errorMsg);
@@ -26,8 +27,8 @@ export function checkAndRedirectToScene() {
       if (command == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
-          ctx.reply(...new RegistrationFormatter().userExistMessage());
-          return ctx.scene.enter('start'); // Enter main menu the scene
+          // ctx.reply(...new RegistrationFormatter().userExistMessage());
+          // return ctx.scene.enter('start'); // Enter main menu the scene
         }
       }
       if (ctx.scene.scenes.has(command)) {
