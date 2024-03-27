@@ -6,8 +6,8 @@ import config from '../../config/config';
 import { Markup } from 'telegraf';
 import { areEqaul } from '../../utils/constants/string';
 
-import RegistrationFormatter from './registration-formatter';
-import RegistrationService from './restgration.service';
+import RegistrationFormatter from './profile-formatter';
+import RegistrationService from './profile.service';
 const registrationService = new RegistrationService();
 const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {

@@ -1,5 +1,5 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
-import RegistrationController from './registration.controller';
+import RegistrationController from './profile.controller';
 
 const registrationController = new RegistrationController();
 
