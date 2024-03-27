@@ -18,17 +18,53 @@ class RegistrationService {
     }
   }
 
-  async isUserRegisteredWithTGId(tgId: string): Promise<boolean> {
+  async getProfileDataWithTgId(tgId: string) {
     try {
       const user = await prisma.user.findUnique({
         where: {
           tg_id: tgId.toString(),
         },
+        include: {
+          questions: true,
+          followers: true,
+          followings: true,
+          answers: true,
+        },
       });
-      return Boolean(user);
+      return user;
     } catch (error) {
       console.error(error);
-      return false;
+      return null;
+    }
+  }
+
+  async updateProfile(userId: string, newData: any) {
+    console.log(newData);
+    try {
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          gender: newData.gender,
+          bio: newData.bio,
+          display_name: newData.display_name,
+        },
+      });
+      return await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          questions: true,
+          followers: true,
+          followings: true,
+          answers: true,
+        },
+      });
+    } catch (error: any) {
+      return null;
+      throw new Error(`Error updating profile: ${error.message}`);
     }
   }
 

@@ -1,25 +1,29 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
-import RegistrationController from './profile.controller';
+import ProfileController from './profile.controller';
+import ProfileFormatter from './profile-formatter';
 
-const registrationController = new RegistrationController();
+const profileController = new ProfileController();
+const profileFormatter = new ProfileFormatter();
 
-const registrationScene = new Scenes.WizardScene(
-  'register',
-  registrationController.agreeTermsDisplay,
-  registrationController.agreeTermsHandler,
-  registrationController.shareContact,
-  registrationController.enterFirstName,
-  registrationController.enterLastName,
-  registrationController.enterAge,
-  registrationController.chooseGender,
-  registrationController.enterEmail,
-  registrationController.chooseCountry,
-  registrationController.chooseCity,
-  registrationController.editRegister,
-  registrationController.editData,
-  registrationController.editCity,
-);
+const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
+  let tg_id;
+  if (ctx.callbackQuery) tg_id = ctx.callbackQuery.from.id;
+  else tg_id = ctx.message.from.id;
+  const state = ctx.wizard.state;
+  if (!state.activity || state.activity == '') return profileController.preview(ctx);
 
-export default registrationScene;
+  switch (state.activity) {
+    case 'preview':
+      return profileController.previewHandler(ctx);
+    case 'profile_edit_option_view':
+      return profileController.editProfileOption(ctx);
+    case 'profile_edit_editing':
+      return profileController.editProfileEditField(ctx);
+    case 'profile_edit_option_view':
+      return profileController.previewHandler(ctx);
+  }
+});
+
+export default ProfileScene;
 
 // Handle errors gracefully (optional)

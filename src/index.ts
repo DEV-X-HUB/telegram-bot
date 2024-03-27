@@ -7,11 +7,12 @@ import { checkUserInChannelandPromtJoin } from './middleware/auth';
 import MainmenuScene from './modules/mainmenu/mainmenu.scene';
 import Service1Scene from './modules/service1/service1.scene';
 import QuestionPostScene from './modules/question-post/question-post.scene';
+import ProfileScene from './modules/profile/profile.scene';
 
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, QuestionPostScene]);
+    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, QuestionPostScene, ProfileScene]);
     bot.use(session());
     bot.use(stage.middleware());
     bot.use(checkUserInChannelandPromtJoin());
