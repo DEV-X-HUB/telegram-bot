@@ -52,7 +52,8 @@ model Question {
   location    String // Required location field
   woreda      String // Required woreda field
   last_digit  String // Required last_digit field
-  description String? // Optional description field
+  description String // Optional description field
+  category    String
   photo       String[] // Required array of photo URLs
   status      String   @default("pending") // Enum field with default value
   user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
