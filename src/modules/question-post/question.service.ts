@@ -1,15 +1,16 @@
 import CreateQuestionPostDto from '../../types/dto/create-question-post.dto';
 import prisma from '../../loaders/db-connecion';
+import { v4 as UUID } from 'uuid';
 
 class QuestionService {
   constructor() {}
 
-  static async createQuestionPost(questionPost: any, tg_id: string) {
+  static async createQuestionPost(questionPost: CreateQuestionPostDto, tg_id: string) {
     try {
       // Find user with tg_id
       const user = await prisma.user.findUnique({
         where: {
-          tg_id: '1',
+          tg_id,
         },
       });
 
@@ -24,6 +25,7 @@ class QuestionService {
       // Create question and store it
       const question = await prisma.question.create({
         data: {
+          id: UUID(),
           ...questionPost,
           user_id: user.id,
         },
