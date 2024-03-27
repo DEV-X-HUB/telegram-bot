@@ -7,7 +7,7 @@ import { Markup } from 'telegraf';
 function setCommands(commands: any[]) {
   const bot = Bot();
   if (bot != null) {
-    bot.telegram.setMyCommands(
+    return bot.telegram.setMyCommands(
       commands.map((command) => ({
         command: command.name,
         description: command.description,
