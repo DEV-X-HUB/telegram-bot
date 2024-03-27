@@ -15,7 +15,7 @@ datasource db {
 
 model User {
   id           String  @id @default(uuid()) // UUID type for user_id
-  username     String  @unique
+  username     String?  @unique
   first_name   String // Required first name
   last_name    String // Required last name
   age          Int // Required age
@@ -32,7 +32,7 @@ model User {
   followers  Follows[]  @relation("Follower")
   questions  Question[]
   answers    Answer[]
-  createdAt  DateTime   @default(now())
+  created_at  DateTime   @default(now())
 }
 
 model Follows {
@@ -55,16 +55,18 @@ model Question {
   description String? // Optional description field
   photo       String[] // Required array of photo URLs
   status      String   @default("pending") // Enum field with default value
-  user        User     @relation(fields: [userId], references: [id]) // Reference to the User model
-  userId      String // Foreign key to the User model
+  user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
+  user_id      String // Foreign key to the User model
   Answer      Answer[]
+  created_at  DateTime @default(now())
 }
 
 model Answer {
   id         String   @id @default(uuid()) // UUID type for id
-  answerText String // Text of the answer
-  question   Question @relation(fields: [questionId], references: [id]) // Reference to the Question model
-  questionId String // Foreign key to the Question model
-  user       User     @relation(fields: [userId], references: [id]) // Reference to the User model
-  userId     String // Foreign key to the User model
+  answer_text String // Text of the answer
+  question   Question @relation(fields: [question_id], references: [id]) // Reference to the Question model
+  question_id String // Foreign key to the Question model
+  user       User     @relation(fields: [user_id], references: [id]) // Reference to the User model
+  user_id     String // Foreign key to the User model
+  created_at DateTime @default(now())
 }

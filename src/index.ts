@@ -19,7 +19,7 @@ const ignite = () => {
     bot.use(checkAndRedirectToScene());
   }
   process.on('SIGINT', () => {
-    dbConnection.close();
+    // dbConnection.close();
     bot?.stop();
   });
 };
