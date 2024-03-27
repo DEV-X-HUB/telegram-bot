@@ -24,8 +24,9 @@ const ignite = () => {
       { name: 'start', description: 'Start the bot' },
       { name: 'help', description: 'Display help' },
       { name: 'menu', description: 'Display main menu' },
-      { name: 'service1', description: 'Service 1' },
-      { name: 'question', description: 'Post a question' },
+      { name: 'register', description: 'Register to the bot' },
+      { name: 'profile', description: 'View your profile' },
+      // { name: 'question', description: 'Post a question' },
     ];
     setCommands(commands);
   }
