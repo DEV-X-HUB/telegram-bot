@@ -55,11 +55,22 @@ model Question {
   description String // Optional description field
   category    String
   photo       String[] // Required array of photo URLs
-  status      String   @default("pending") // Enum field with default value
+  
+
+  // status with enum ("approved, "pending", "rejected")
+  status      QuestionStatus   @default(pending)
+
+
   user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
   user_id      String // Foreign key to the User model
   Answer      Answer[]
   created_at  DateTime @default(now())
+}
+
+enum QuestionStatus {
+  approved
+  pending
+  rejected
 }
 
 model Answer {
