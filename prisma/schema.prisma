@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id           String  @id @default(uuid()) // UUID type for user_id
+  username     String  @unique
+  first_name   String // Required first name
+  last_name    String // Required last name
+  age          Int // Required age
+  phone_number String  @unique // Unique phone number
+  tg_id        String  @unique // Unique tg_id
+  email        String? // Optional email
+  country      String? // Optional country
+  city         String? // Optional city
+  gender       String? // Optional gender
+  display_name String? // Optional display name
+  bio          String? // Optional bio
+
+  followings Follows[]  @relation("Following")
+  followers  Follows[]  @relation("Follower")
+  questions  Question[]
+  answers    Answer[]
+  createdAt  DateTime   @default(now())
+}
+
+model Follows {
+  id           String @id @default(uuid())
+  follower_id  String 
+  following_id String
+  follower     User   @relation("Follower", fields: [follower_id], references: [id])
+  following    User   @relation("Following", fields: [following_id], references: [id])
+
+  @@unique([follower_id, following_id])
+}
+
+model Question {
+  id          String   @id @default(uuid()) // UUID type for id
+  ar_br       String // Required enum field
+  bi_di       String // Required enum field
+  location    String // Required location field
+  woreda      String // Required woreda field
+  last_digit  String // Required last_digit field
+  description String? // Optional description field
+  photo       String[] // Required array of photo URLs
+  status      String   @default("pending") // Enum field with default value
+  user        User     @relation(fields: [userId], references: [id]) // Reference to the User model
+  userId      String // Foreign key to the User model
+  Answer      Answer[]
+}
+
+model Answer {
+  id         String   @id @default(uuid()) // UUID type for id
+  answerText String // Text of the answer
+  question   Question @relation(fields: [questionId], references: [id]) // Reference to the Question model
+  questionId String // Foreign key to the Question model
+  user       User     @relation(fields: [userId], references: [id]) // Reference to the User model
+  userId     String // Foreign key to the User model
+}
