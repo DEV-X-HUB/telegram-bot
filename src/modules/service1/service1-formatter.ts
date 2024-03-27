@@ -1,4 +1,4 @@
-import { MarkupButtons } from '../../components/button';
+import { MarkupButtons } from '../../ui/button';
 
 class Service1Formatter {
   constructor() {}

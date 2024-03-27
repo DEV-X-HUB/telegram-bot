@@ -1,5 +1,5 @@
 import { Markup } from 'telegraf';
-import { InlineKeyboardButtons, MarkupButtons } from '../../components/button';
+import { InlineKeyboardButtons, MarkupButtons } from '../../ui/button';
 import {
   breakeArrayTowNColumn,
   getCitiesOfCountry,
