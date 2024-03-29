@@ -51,6 +51,33 @@ class RegistrationFormatter {
     cityPrompt: ' Please choose your City ',
   };
 
+  questionActions() {
+    return [
+      [
+        { text: 'Edit Question', cbString: 'edit' },
+        { text: 'Add poll', cbString: 'poll' },
+      ],
+      [
+        { text: 'Notify Settings', cbString: 'notify' },
+        { text: 'Disable Reply', cbString: 'disable_reply' },
+      ],
+      [
+        { text: ' @Mention Previous Question', cbString: 'mention' },
+        { text: 'Cancel', cbString: 'cancel' },
+      ],
+      [{ text: 'Submit', cbString: 'submit' }],
+    ];
+  }
+
+  questionPreview(questionData: any) {
+    console.log(questionData);
+    if (!questionData) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
+    return [
+      `#${questionData.category} \n\n${questionData.description} \n\nBy: ${questionData?.display_name || 'Anonymous'} \n\n${questionData.created_at}) \n\nStatus: ${questionData.status}`,
+      InlineKeyboardButtons(this.questionActions()),
+    ];
+  }
+
   constructor() {
     this.countries = getSelectedCoutryList();
   }
