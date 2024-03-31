@@ -36,6 +36,7 @@ class QuestionPostSectionBController {
     ctx.wizard.state.mainCategory = callbackQuery.data;
     console.log(callbackQuery.data);
     if (areEqaul(callbackQuery.data, 'main_10', true)) {
+      ctx.wizard.state.subCatagory = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...questionPostSectionBFormatter.bIDIOptionDisplay());
       return ctx.wizard.selectStep(4); // jumping to step with step index(bi di selector(id first))
