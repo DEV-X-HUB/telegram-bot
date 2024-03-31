@@ -25,11 +25,15 @@ export const checkUserInChannel = async (user_id: string | number): Promise<bool
 
 export function checkUserInChannelandPromtJoin() {
   return async (ctx: any, next: any) => {
-    const isUserJoined = await checkUserInChannel(ctx.message.from.id);
+    let sender;
+    if (ctx.callbackQuery) sender = ctx.callbackQuery.from;
+    else sender = ctx.message.from;
+
+    const isUserJoined = await checkUserInChannel(sender.id);
     console.log(isUserJoined, 'has joined the channel');
     if (isUserJoined) {
     } else {
-      return ctx.reply(...mainMenuFormmater.formatJoinMessage(ctx.message.from.first_name));
+      return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
     }
     return next();
   };

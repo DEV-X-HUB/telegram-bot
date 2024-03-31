@@ -10,7 +10,7 @@ class MainmenuFormatter {
       Markup.keyboard([
         [Markup.button.callback('Post Questions', 'posting'), Markup.button.callback('Service_2', 'Service 2')],
         [Markup.button.callback('Service_3', 'Service 3'), Markup.button.callback('Service_4', 'Service 4')],
-        [Markup.button.callback('Service_5', 'Service 5'), Markup.button.callback('Service_6', 'Service 6')],
+        [Markup.button.callback('Service_5', 'Service 5'), Markup.button.callback('Profile', 'Service 6')],
         [Markup.button.callback('Service_7', 'Service 7'), Markup.button.callback('Next', 'Next')],
       ]).resize(),
     ];

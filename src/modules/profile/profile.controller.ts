@@ -4,49 +4,65 @@ import { calculateAge } from '../../utils/constants/date';
 import config from '../../config/config';
 
 import { Markup } from 'telegraf';
-import { areEqaul } from '../../utils/constants/string';
+import { areEqaul, isInInlineOption } from '../../utils/constants/string';
 
-import RegistrationFormatter from './registration-formatter';
-import RegistrationService from './restgration.service';
-const registrationService = new RegistrationService();
+import RegistrationFormatter from './profile-formatter';
+import ProfileService from './profile.service';
+const profileService = new ProfileService();
+const profileFormatter = new RegistrationFormatter();
 const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {
   constructor() {}
-  async agreeTermsDisplay(ctx: any) {
-    await ctx.reply(config.terms_condtion_link, {
-      reply_markup: {
-        remove_keyboard: true,
-      },
-    });
-    await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
-    return ctx.wizard.next();
+  saveToState(ctx: any, userData: any) {
+    ctx.wizard.state.userData = {
+      tg_id: userData?.tg_id,
+      id: userData?.id,
+      display_name: userData?.display_name,
+      bio: userData?.bio,
+      gender: userData?.gender,
+      followers: userData?.followers.length,
+      followings: userData?.followings.length,
+      questions: userData?.questions.length,
+      answers: userData?.answers.length,
+      created_at: userData?.created_at,
+    };
   }
-  async agreeTermsHandler(ctx: any) {
+  async preview(ctx: any) {
+    let tg_id;
+    if (ctx.callbackQuery) tg_id = ctx.callbackQuery.from.id;
+    else tg_id = ctx.message.from.id;
+
+    const userData = await profileService.getProfileDataWithTgId(tg_id);
+    this.saveToState(ctx, userData);
+    ctx.wizard.state.activity = 'preview';
+    return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+  }
+  async previewHandler(ctx: any) {
+    const userData = ctx.wizard.state.userData;
     const callbackQuery = ctx.callbackQuery;
-
     if (callbackQuery)
-      switch (callbackQuery?.data) {
-        case 'agree_terms': {
+      switch (callbackQuery.data) {
+        case 'edit_profile': {
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.shareContact());
-          return ctx.wizard.next();
+          ctx.wizard.state.activity = 'profile_edit_option_view';
+          return ctx.reply(...registrationFormatter.editOptions());
         }
-        case 'dont_agree_terms': {
-          return ctx.reply(...registrationFormatter.messages.termsAndConditionsDisagreeWarning);
-        }
-        case 'back_from_terms': {
+        case 'my_followers': {
+          const followers = await profileService.getFollowersByUserId(userData.id);
+          console.log(followers);
           await deleteMessageWithCallback(ctx);
-          await deleteMessage(ctx, {
-            message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
-            chat_id: callbackQuery.message.chat.id,
-          });
-          ctx.scene.leave();
-          return ctx.scene.enter('start');
+          ctx.wizard.state.activity = 'followers_list_view';
+          return ctx.reply(...registrationFormatter.formateFollowersList(followers));
         }
-
+        case 'my_followings': {
+          const followings = await profileService.getFollowingsByUserId(userData.id);
+          console.log(followings);
+          await deleteMessageWithCallback(ctx);
+          ctx.wizard.state.activity = 'followings_list_view';
+          return ctx.reply(...registrationFormatter.formateFollowingsList(followings));
+        }
         default: {
           ctx.reply('Unknown Command');
-          return ctx.wizard.back();
         }
       }
     else {
@@ -54,23 +70,66 @@ class RegistrationController {
     }
   }
 
-  async shareContact(ctx: any) {
-    console.log('ccccccccccccccccc', ctx.message.from);
-    const contact = ctx?.message?.contact;
-    const text = ctx.message.text;
-    const username = ctx.message.from.username;
+  async editProfileOption(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return ctx.reply(registrationFormatter.messages.useButtonError);
 
-    if (text && text == 'Cancel') {
-      return ctx.reply(...registrationFormatter.shareContactWarning());
-    } else if (contact) {
-      ctx.wizard.state.phone_number = contact.phone_number;
-      if (username) ctx.wizard.state.username = `https://t.me/${username}`;
-      ctx.reply(...registrationFormatter.firstNameformatter());
-      return ctx.wizard.next();
-    } else return ctx.reply(...registrationFormatter.shareContactWarning());
+    deleteMessageWithCallback(ctx);
+    if (areEqaul(callbackQuery.data, 'back', true)) return this.preview(ctx);
+    ctx.wizard.state.activity = 'profile_edit_editing';
+    ctx.wizard.state.editField = callbackQuery.data;
+    return ctx.reply(...profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender));
+  }
+  async editProfileEditField(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    const message = ctx.message;
+    const state = ctx.wizard.state;
+    if (callbackQuery) {
+      state.userData.gender = callbackQuery.data;
+      const newData = await profileService.updateProfile(state.userData.id, {
+        bio: state.userData.bio,
+        gender: state.userData.gender,
+        display_name: state.userData.display_name,
+      });
+      deleteMessageWithCallback(ctx);
+      this.saveToState(ctx, newData);
+      ctx.wizard.state.activity = 'preview';
+      return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    }
+    state.userData[state.editField] = message.text;
+    const newData = await profileService.updateProfile(state.userData.id, {
+      bio: state.userData.bio,
+      gender: state.userData.gender,
+      display_name: state.userData.display_name,
+    });
+    this.saveToState(ctx, newData);
+    ctx.wizard.state.activity = 'preview';
+    return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
 
-  async enterFirstName(ctx: any) {
+  async followingList(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return ctx.reply(registrationFormatter.messages.useButtonError);
+    switch (callbackQuery.data) {
+      case 'back': {
+        ctx.wizard.state.activity = 'preview';
+        await deleteMessageWithCallback(ctx);
+        return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+      }
+    }
+  }
+  async followersList(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return ctx.reply(registrationFormatter.messages.useButtonError);
+    switch (callbackQuery.data) {
+      case 'back': {
+        ctx.wizard.state.activity = 'preview';
+        await deleteMessageWithCallback(ctx);
+        return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+      }
+    }
+  }
+  async questoinList(ctx: any) {
     const message = ctx.message.text;
     if (message == 'Back') {
       ctx.scene.leave();
@@ -84,7 +143,7 @@ class RegistrationController {
 
     return ctx.wizard.next();
   }
-  async enterLastName(ctx: any) {
+  async answerList(ctx: any) {
     const message = ctx.message.text;
     if (message == 'Back') {
       ctx.reply(...registrationFormatter.firstNameformatter());
@@ -223,7 +282,7 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'register_data': {
-          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+          const response = await profileService.registerUser(ctx.wizard.state, callbackQuery.from.id);
 
           if (response.success) {
             await deleteMessageWithCallback(ctx);
@@ -278,7 +337,7 @@ class RegistrationController {
 
     if (callbackMessage == 'register_data') {
       // registration
-      const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+      const response = await profileService.registerUser(ctx.wizard.state, callbackQuery.from.id);
 
       if (response.success) {
         await deleteMessageWithCallback(ctx);
