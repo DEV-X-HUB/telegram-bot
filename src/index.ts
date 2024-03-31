@@ -11,7 +11,7 @@ import QuestionPostScene from './modules/question-post/question-post.scene';
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, QuestionPostScene]);
+    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, ...QuestionPostScene]);
     bot.use(session());
     bot.use(stage.middleware());
     bot.use(checkUserInChannelandPromtJoin());

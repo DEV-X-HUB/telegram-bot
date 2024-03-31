@@ -1,10 +1,14 @@
-import { DescriptionSchema, lastDititSchema } from '../../types/schemas/question-post-schema';
+import { DescriptionSchema, IssueDateSchema, lastDititSchema } from '../../types/schemas/question-post-schema';
 
 type RegistrationValue = string | number | Date;
 
 export const questionPostValidator = (fieldName: string, value: RegistrationValue) => {
   let schema = null;
   switch (fieldName) {
+    case 'issue_date': {
+      schema = IssueDateSchema;
+      break;
+    }
     case 'last_digit': {
       schema = lastDititSchema;
       break;

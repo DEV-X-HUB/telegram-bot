@@ -34,3 +34,20 @@ export const lastDititSchema = z.string().refine(
   },
   { message: 'last digit  must be number' }, // Removed - replaced with specific errors
 );
+
+export const IssueDateSchema = z
+  .string()
+  .regex(/^\d{2}\/\d{4}$/)
+  .refine(
+    (value) => {
+      const [month, year] = value.split('/');
+      const monthNumber = parseInt(month);
+      const yearNumber = parseInt(year);
+
+      // Validate month (1 to 12) and year (current year onwards)
+      return monthNumber >= 1 && monthNumber <= 12 && yearNumber >= new Date().getFullYear();
+    },
+    {
+      message: 'Invalid date format',
+    },
+  );
