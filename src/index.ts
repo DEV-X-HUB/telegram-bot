@@ -10,11 +10,19 @@ import Service1Scene from './modules/service1/service1.scene';
 import QuestionPostScene from './modules/question-post/question-post.scene';
 import ProfileScene from './modules/profile/profile.scene';
 import { setCommands } from './utils/helper/commands';
+import Section1cScene from './modules/section1c/section1c.scene';
 
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, QuestionPostScene, ProfileScene]);
+    const stage = new Scenes.Stage([
+      RegistrationScene,
+      MainmenuScene,
+      Service1Scene,
+      QuestionPostScene,
+      ProfileScene,
+      Section1cScene,
+    ]);
     bot.use(session());
     bot.use(stage.middleware());
     bot.use(checkUserInChannelandPromtJoin());

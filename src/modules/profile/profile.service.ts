@@ -138,6 +138,20 @@ class RegistrationService {
       return { success: false, data: null, message: error?.message };
     }
   }
+
+  async getQuestionsOfUser(user_id: string) {
+    try {
+      const questions = await prisma.question.findMany({
+        where: {
+          user_id,
+        },
+      });
+      return questions;
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, data: null, message: error?.message };
+    }
+  }
 }
 
 export default RegistrationService;

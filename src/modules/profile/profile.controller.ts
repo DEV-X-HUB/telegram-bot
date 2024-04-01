@@ -27,6 +27,7 @@ class RegistrationController {
       created_at: userData?.created_at,
     };
   }
+
   async preview(ctx: any) {
     let tg_id;
     if (ctx.callbackQuery) tg_id = ctx.callbackQuery.from.id;
@@ -61,6 +62,29 @@ class RegistrationController {
           ctx.wizard.state.activity = 'followings_list_view';
           return ctx.reply(...registrationFormatter.formateFollowingsList(followings));
         }
+
+        case 'my_questions': {
+          let tg_id;
+          if (ctx.callbackQuery) tg_id = ctx.callbackQuery.from.id;
+          else tg_id = ctx.message.from.id;
+
+          const user = await profileService.getProfileDataWithTgId(tg_id);
+          console.log('user', user);
+          const questions: any = await profileService.getQuestionsOfUser(userData.id);
+
+          console.log(questions);
+          await deleteMessageWithCallback(ctx);
+          ctx.wizard.state.activity = 'questions_list_view';
+
+          // map over the questions array and return the question preview
+          questions.map((question: any) => {
+            return ctx.reply(...profileFormatter.questionPreview(question));
+          });
+        }
+
+        case 'cancel': {
+        }
+
         default: {
           ctx.reply('Unknown Command');
         }
@@ -129,49 +153,18 @@ class RegistrationController {
       }
     }
   }
-  async questoinList(ctx: any) {
-    const message = ctx.message.text;
-    if (message == 'Back') {
-      ctx.scene.leave();
-      return ctx.scene.enter('register');
+  async questionsList(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return ctx.reply(registrationFormatter.messages.useButtonError);
+    switch (callbackQuery.data) {
+      case 'cancel': {
+        ctx.wizard.state.activity = 'preview';
+        await deleteMessageWithCallback(ctx);
+        return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+      }
     }
-    const validationMessage = registrationValidator('first_name', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-
-    ctx.wizard.state.first_name = message;
-    ctx.reply(...registrationFormatter.lastNameformatter());
-
-    return ctx.wizard.next();
   }
-  async answerList(ctx: any) {
-    const message = ctx.message.text;
-    if (message == 'Back') {
-      ctx.reply(...registrationFormatter.firstNameformatter());
-      return ctx.wizard.back();
-    }
-    const validationMessage = registrationValidator('last_name', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-
-    ctx.wizard.state.last_name = ctx.message.text;
-    ctx.reply(...registrationFormatter.ageFormatter());
-    return ctx.wizard.next();
-  }
-
-  async enterAge(ctx: any) {
-    const message = ctx.message?.text;
-    if (message && message == 'Back') {
-      ctx.reply(...registrationFormatter.lastNameformatter());
-      return ctx.wizard.back();
-    }
-    const validationMessage = registrationValidator('age', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-
-    const age = calculateAge(ctx.message.text);
-    ctx.wizard.state.age = age;
-    await deleteKeyboardMarkup(ctx, registrationFormatter.messages.genderPrompt);
-    ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.removeKeyboard());
-    return ctx.wizard.next();
-  }
+  async answersList(ctx: any) {}
   async chooseGender(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return await ctx.reply(registrationFormatter.messages.useButtonError);
