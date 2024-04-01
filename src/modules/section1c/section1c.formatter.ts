@@ -165,6 +165,88 @@ class Section1CFormatter {
   photoPrompt() {
     return ['Attach four photos ', this.goBackButton(false)];
   }
+
+  getPreviewData(state: any) {
+    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
+  }
+
+  preview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Edit', cbString: 'preview_edit' },
+          { text: 'Notify settings', cbString: 'notify_settings' },
+          { text: 'Post', cbString: 'post_data' },
+        ],
+        [
+          { text: 'Mention previous post', cbString: 'mention_previous_post' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+      ]),
+    ];
+  }
+
+  //   editPreview(state: any) {
+  //     return [
+  //       this.getPreviewData(state),
+  //       InlineKeyboardButtons([
+  //         [
+  //           { text: 'AR/BR', cbString: 'ar_br' },
+  //           { text: 'BI/DI', cbString: 'bi_di' },
+  //         ],
+
+  //         [
+  //           { text: 'Location', cbString: 'location' },
+  //           { text: 'Woreda', cbString: 'woreda' },
+  //         ],
+  //         [
+  //           { text: 'Last Digit', cbString: 'last_digit' },
+  //           { text: 'Description', cbString: 'description' },
+  //         ],
+  //         [
+  //           { text: 'photo', cbString: 'photo' },
+  //           { text: 'Cancel', cbString: 'cancel' },
+  //         ],
+  //         [{ text: 'Done', cbString: 'editing_done' }],
+  //       ]),
+  //     ];
+  //   }
+
+  //   async editFieldDispay(editFiled: string) {
+  //     switch (editFiled) {
+  //       case 'ar_br':
+  //         return this.arBrOptionDisplay();
+  //       case 'bi_di':
+  //         return this.bIDIOptionDisplay();
+  //       case 'woreda':
+  //         return this.woredaListDisplay();
+  //       case 'last_digit':
+  //         return this.lastDidtitPrompt();
+  //       case 'location':
+  //         return this.locationPrompt();
+  //       case 'description':
+  //         return this.descriptionPrompt();
+
+  //       case 'photo':
+  //         return this.photoPrompt();
+  //       case 'cancel':
+  //         return await this.goBackButton();
+  //       default:
+  //         return ['none'];
+  //     }
+  //   }
+
+  //   previewCallToAction() {
+  //     return ['Preview your post and press once you are done'];
+  //   }
+
+  //   postingSuccessful() {
+  //     return ['Posted Successfully'];
+  //   }
+  //   postingError() {
+  //     return ['Post Error'];
+  //   }
   paperTimestampError() {
     return ['Please Choose Paper Stamp'];
   }
