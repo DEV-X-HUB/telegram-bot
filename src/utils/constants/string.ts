@@ -14,6 +14,8 @@ export const isInInlineOption = (text: string, options: TableInlineKeyboardButto
   });
   return exists;
 };
+
+// check if the text is in the markup options
 export const isInMarkUPOption = (text: string, options: TableMarkupKeyboardButtons) => {
   let exists = false;
   options.forEach((rowOption) => {
