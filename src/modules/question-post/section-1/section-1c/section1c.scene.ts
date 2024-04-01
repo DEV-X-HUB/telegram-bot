@@ -3,7 +3,7 @@ import QuestionPostSection1cController from './section1c.controller';
 
 const section1cController = new QuestionPostSection1cController();
 const QuestionPostSectionCScene = new Scenes.WizardScene(
-  'Section 1C',
+  'Post-Question-SectionC',
   section1cController.start,
   section1cController.choosePaperTimeStamp,
   section1cController.arBrOption,
