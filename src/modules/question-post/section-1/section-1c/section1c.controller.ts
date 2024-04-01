@@ -14,6 +14,7 @@ class QuestionPostSectionCController {
 
   async start(ctx: any) {
     ctx.wizard.state.category = 'Section1c';
+    await deleteKeyboardMarkup(ctx);
     await ctx.reply(...section1cFormatter.choosePaperStampDisplay());
 
     return ctx.wizard.next();
@@ -26,8 +27,10 @@ class QuestionPostSectionCController {
     if (callbackQuery) {
       if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
         deleteMessageWithCallback(ctx);
-        ctx.reply(...section1cFormatter.choosePaperStampDisplay());
-        return ctx.wizard.back();
+
+        // leave this scene and go back to the previous scene
+        ctx.scene.leave();
+        return ctx.scene.enter('Post Questions');
       }
 
       if (isInInlineOption(callbackQuery.data, section1cFormatter.paperStampOption)) {
