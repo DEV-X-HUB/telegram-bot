@@ -251,6 +251,64 @@ class Section1cController {
       // return ctx.wizard.next();
     }
   }
+  async editPost(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    console.log('here is the callback');
+
+    console.log(callbackQuery);
+
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        await ctx.reply(...section1cFormatter.photoPrompt(), section1cFormatter.goBackButton());
+        return ctx.wizard.back();
+      }
+      await ctx.reply('....');
+    } else {
+      const state = ctx.wizard.state;
+      switch (callbackQuery.data) {
+        case 'preview_edit': {
+          console.log('preview edit');
+          ctx.wizard.state.editField = null;
+          await deleteMessageWithCallback(ctx);
+          // ctx.reply(...section1cFormatter.editPreview(state), { parse_mode: 'HTML' });
+          return ctx.wizard.next();
+        }
+
+        // case 'editing_done': {
+        //   // await deleteMessageWithCallback(ctx);
+        //   await ctx.reply(postingFormatter.preview(state));
+        //   return ctx.wizard.back();
+        // }
+
+        case 'post_data': {
+          console.log('here you are');
+          // api request to post the data
+          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+          // console.log(response);
+
+          // if (response?.success) {
+          //   await deleteMessageWithCallback(ctx);
+          //   ctx.reply(...postingFormatter.postingSuccessful());
+          //   return ctx.scene.enter('start');
+          // } else {
+          //   ctx.reply(...postingFormatter.postingError());
+          //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+          //     await deleteMessageWithCallback(ctx);
+          //     return ctx.scene.enter('start');
+          //   }
+
+          // increment the registration attempt
+          return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+            ? parseInt(ctx.wizard.state.postingAttempt) + 1
+            : 1);
+        }
+      }
+      // default: {
+      //   await ctx.reply('DEFAULT');
+      // }
+    }
+  }
 }
 
 // async editData(ctx: any) {
