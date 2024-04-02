@@ -14,7 +14,8 @@ class QuestionPostSectionCController {
 
   async start(ctx: any) {
     ctx.wizard.state.category = 'Section1c';
-    await deleteKeyboardMarkup(ctx);
+
+    await deleteKeyboardMarkup(ctx, 'Please Choose Paper Stamp');
     await ctx.reply(...section1cFormatter.choosePaperStampDisplay());
 
     return ctx.wizard.next();
@@ -251,7 +252,7 @@ class QuestionPostSectionCController {
       ctx.reply(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       //   ctx.reply(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       //   ctx.reply(...postingFormatter.previewCallToAction());
-      // return ctx.wizard.next();
+      return ctx.wizard.next();
     }
   }
   async editPost(ctx: any) {
@@ -292,8 +293,10 @@ class QuestionPostSectionCController {
 
           // if (response?.success) {
           //   await deleteMessageWithCallback(ctx);
-          //   ctx.reply(...postingFormatter.postingSuccessful());
-          //   return ctx.scene.enter('start');
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...section1cFormatter.postingSuccessful());
+          await ctx.scene.leave();
+          return ctx.scene.enter('start');
           // } else {
           //   ctx.reply(...postingFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
@@ -302,9 +305,9 @@ class QuestionPostSectionCController {
           //   }
 
           // increment the registration attempt
-          return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
-            ? parseInt(ctx.wizard.state.postingAttempt) + 1
-            : 1);
+          // return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+          //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
+          //   : 1);
         }
       }
       // default: {

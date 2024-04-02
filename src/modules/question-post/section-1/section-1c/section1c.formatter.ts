@@ -160,7 +160,7 @@ class Section1CFormatter {
     return ['Enter Last Digit ', this.goBackButton(false)];
   }
   descriptionPrompt() {
-    return ['Enter Description maximum 200 words ', this.goBackButton(false)];
+    return ['Enter Description maximum 45 words ', this.goBackButton(false)];
   }
   photoPrompt() {
     return ['Attach four photos ', this.goBackButton(false)];
@@ -185,6 +185,10 @@ class Section1CFormatter {
         ],
       ]),
     ];
+  }
+
+  postingSuccessful() {
+    return ['Posted Successfully'];
   }
 
   //   editPreview(state: any) {
