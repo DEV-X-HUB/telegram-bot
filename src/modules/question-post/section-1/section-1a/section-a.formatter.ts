@@ -9,6 +9,18 @@ class QustionPostFormatter {
   woredaList: TableInlineKeyboardButtons;
   messages = {
     useButtonError: 'Please use Buttons to select options',
+    categoryPrompt: 'Please Choose on category from the options',
+    optionPrompt: 'Please Choose on category from the options',
+    arBrPromt: 'Please Choose from two',
+    chosseWoredaPrompt: 'Please Choose Your Woreda',
+    biDiPrompt: 'Please Choose ID first Icon',
+    lastDigitPrompt: 'Enter Last Digit',
+    locationPrompt: 'Enter sub city and location',
+    descriptionPrompt: 'Enter Description maximum 200 words',
+    attachPhotoPrompt: 'Attach four photos ',
+    reviewPrompt: 'Preview your post and press once you are done',
+    postSuccessMsg: 'Posted Successfully',
+    postErroMsg: 'Post Error',
   };
   constructor() {
     this.categories = [
@@ -68,34 +80,34 @@ class QustionPostFormatter {
     return MarkupButtons(this.backOption, oneTime);
   }
   chooseOptionString() {
-    return ['Please Choose on category from the options'];
+    return [this.messages.categoryPrompt];
   }
   chooseOptionDisplayString() {
-    return ['Please Choose on category from the options'];
+    return [this.messages.optionPrompt];
   }
   chooseOptionDisplay() {
     return [MarkupButtons(this.categories, true)];
   }
   arBrOptionDisplay() {
-    return ['Please Choose from two', InlineKeyboardButtons(this.arBrOption)];
+    return [this.messages.arBrPromt, InlineKeyboardButtons(this.arBrOption)];
   }
   woredaListDisplay() {
-    return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList)];
+    return [this.messages.chosseWoredaPrompt, InlineKeyboardButtons(this.woredaList)];
   }
   bIDIOptionDisplay() {
-    return ['Please Choose ID first Icon', InlineKeyboardButtons(this.bIDiOption), this.goBackButton(false)];
+    return [this.messages.biDiPrompt, InlineKeyboardButtons(this.bIDiOption), this.goBackButton(false)];
   }
-  lastDidtitPrompt() {
-    return ['Enter Last Digit ', this.goBackButton(false)];
+  lastDidtitDisplay() {
+    return [this.messages.lastDigitPrompt, this.goBackButton(false)];
   }
-  locationPrompt() {
-    return ['Enter sub city and location ', this.goBackButton(false)];
+  locationDisplay() {
+    return [this.messages.locationPrompt, this.goBackButton(false)];
   }
-  descriptionPrompt() {
-    return ['Enter Description maximum 200 words ', this.goBackButton(false)];
+  descriptionDisplay() {
+    return [this.messages.descriptionPrompt, this.goBackButton(false)];
   }
-  photoPrompt() {
-    return ['Attach four photos ', this.goBackButton(false)];
+  photoDisplay() {
+    return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
   getPreviewData(state: any) {
@@ -154,14 +166,14 @@ class QustionPostFormatter {
       case 'woreda':
         return this.woredaListDisplay();
       case 'last_digit':
-        return this.lastDidtitPrompt();
+        return this.lastDidtitDisplay();
       case 'location':
-        return this.locationPrompt();
+        return this.locationDisplay();
       case 'description':
-        return this.descriptionPrompt();
+        return this.descriptionDisplay();
 
       case 'photo':
-        return this.photoPrompt();
+        return this.photoDisplay();
       case 'cancel':
         return await this.goBackButton();
       default:
@@ -170,14 +182,14 @@ class QustionPostFormatter {
   }
 
   previewCallToAction() {
-    return ['Preview your post and press once you are done'];
+    return [this.messages.reviewPrompt];
   }
 
   postingSuccessful() {
-    return ['Posted Successfully'];
+    return [this.messages.postSuccessMsg];
   }
   postingError() {
-    return ['Post Error'];
+    return [this.messages.postErroMsg];
   }
 }
 
