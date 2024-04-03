@@ -81,7 +81,7 @@ class QuestionPostSectionBController {
     if (isInInlineOption(callbackQuery.data, questionPostSectionBFormatter.bIDiOption)) {
       ctx.wizard.state.bi_di = callbackQuery.data;
       deleteMessageWithCallback(ctx);
-      ctx.reply(...questionPostSectionBFormatter.lastDidtitPrompt());
+      ctx.reply(...questionPostSectionBFormatter.lastDidtitDisplay());
       return ctx.wizard.next();
     }
     ctx.reply('unkown option');
@@ -113,7 +113,7 @@ class QuestionPostSectionBController {
     if (!callbackQuery) return ctx.reply(questionPostSectionBFormatter.messages.useButtonError);
     if (areEqaul(callbackQuery.data, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      await ctx.reply(...questionPostSectionBFormatter.lastDidtitPrompt());
+      await ctx.reply(...questionPostSectionBFormatter.lastDidtitDisplay());
       return ctx.wizard.back();
     }
     ctx.wizard.state.condition = callbackQuery.data;
@@ -128,7 +128,7 @@ class QuestionPostSectionBController {
 
     if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      ctx.reply(...questionPostSectionBFormatter.lastDidtitPrompt());
+      ctx.reply(...questionPostSectionBFormatter.lastDidtitDisplay());
       return ctx.wizard.selectStep(5);
     }
 
@@ -201,7 +201,7 @@ class QuestionPostSectionBController {
     if (isInInlineOption(callbackQuery.data, questionPostSectionBFormatter.woredaList)) {
       ctx.wizard.state.woreda = callbackQuery.data;
       deleteMessageWithCallback(ctx);
-      ctx.reply(...questionPostSectionBFormatter.descriptionPrompt());
+      ctx.reply(...questionPostSectionBFormatter.descriptionDisplay());
       return ctx.wizard.next();
     }
     return ctx.reply('Unknown option. Please choose a valid option.');
@@ -218,7 +218,7 @@ class QuestionPostSectionBController {
     const validationMessage = questionPostValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
-    ctx.reply(...questionPostSectionBFormatter.photoPrompt());
+    ctx.reply(...questionPostSectionBFormatter.photoDisplay());
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
@@ -230,7 +230,7 @@ class QuestionPostSectionBController {
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...questionPostSectionBFormatter.photoPrompt());
+    if (!ctx.message.photo) return ctx.reply(...questionPostSectionBFormatter.photoDisplay());
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
@@ -268,7 +268,7 @@ class QuestionPostSectionBController {
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
-        await ctx.reply(...questionPostSectionBFormatter.photoPrompt(), questionPostSectionBFormatter.goBackButton());
+        await ctx.reply(...questionPostSectionBFormatter.photoDisplay(), questionPostSectionBFormatter.goBackButton());
         return ctx.wizard.back();
       }
       await ctx.reply('....');
@@ -329,15 +329,8 @@ class QuestionPostSectionBController {
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
 
-      // const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
-      // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
-      // await deleteMessage(ctx, {
-      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-      //   chat_id: ctx.message.chat.id,
-      // });
       return ctx.reply(...questionPostSectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
@@ -409,7 +402,7 @@ class QuestionPostSectionBController {
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...questionPostSectionBFormatter.photoPrompt());
+    if (!ctx.message.photo) return ctx.reply(...questionPostSectionBFormatter.photoDisplay());
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
