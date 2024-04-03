@@ -17,6 +17,8 @@ const QuestionPostSectionCScene = new Scenes.WizardScene(
   section1cController.enterDescription,
   section1cController.attachPhoto,
   section1cController.editPost,
+  section1cController.editData,
+  section1cController.editPhoto,
 );
 
 export default QuestionPostSectionCScene;

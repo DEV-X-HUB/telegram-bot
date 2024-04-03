@@ -191,55 +191,75 @@ class Section1CFormatter {
     return ['Posted Successfully'];
   }
 
-  //   editPreview(state: any) {
-  //     return [
-  //       this.getPreviewData(state),
-  //       InlineKeyboardButtons([
-  //         [
-  //           { text: 'AR/BR', cbString: 'ar_br' },
-  //           { text: 'BI/DI', cbString: 'bi_di' },
-  //         ],
+  editPreview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Paper stamp', cbString: 'paper_stamp' },
+          { text: 'AR/BR', cbString: 'ar_br' },
+        ],
 
-  //         [
-  //           { text: 'Location', cbString: 'location' },
-  //           { text: 'Woreda', cbString: 'woreda' },
-  //         ],
-  //         [
-  //           { text: 'Last Digit', cbString: 'last_digit' },
-  //           { text: 'Description', cbString: 'description' },
-  //         ],
-  //         [
-  //           { text: 'photo', cbString: 'photo' },
-  //           { text: 'Cancel', cbString: 'cancel' },
-  //         ],
-  //         [{ text: 'Done', cbString: 'editing_done' }],
-  //       ]),
-  //     ];
-  //   }
+        [
+          { text: 'BI/DI', cbString: 'bi_di' },
+          { text: 'Woreda', cbString: 'woreda' },
+        ],
+        [
+          { text: 'Service Type 1', cbString: 'service_type_1' },
+          { text: 'Service Type 2', cbString: 'service_type_2' },
+        ],
+        [
+          { text: 'Service Type 3', cbString: 'service_type_3' },
+          { text: 'Year of Confirmation', cbString: 'year_of_confirmation' },
+        ],
+        [
+          { text: 'Last Digit', cbString: 'last_digit' },
+          { text: 'Description', cbString: 'description' },
+        ],
+        [
+          { text: 'photo', cbString: 'photo' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+        [{ text: 'Done', cbString: 'editing_done' }],
+      ]),
+    ];
+  }
 
-  //   async editFieldDispay(editFiled: string) {
-  //     switch (editFiled) {
-  //       case 'ar_br':
-  //         return this.arBrOptionDisplay();
-  //       case 'bi_di':
-  //         return this.bIDIOptionDisplay();
-  //       case 'woreda':
-  //         return this.woredaListDisplay();
-  //       case 'last_digit':
-  //         return this.lastDidtitPrompt();
-  //       case 'location':
-  //         return this.locationPrompt();
-  //       case 'description':
-  //         return this.descriptionPrompt();
+  async editFieldDispay(editFiled: string) {
+    switch (editFiled) {
+      case 'paper_stamp':
+        return this.choosePaperStampDisplay();
+      case 'ar_br':
+        return this.arBrOptionDisplay();
+      case 'woreda':
+        return this.woredaListDisplay();
+      case 'service_type_1':
+        return this.serviceType1Display();
+      case 'service_type_2':
+        return this.serviceType2Display();
+      case 'service_type_3':
+        return this.serviceType3Display();
+      case 'year_of_confirmation':
+        return this.yearOfConfirmationPrompt();
+      case 'bi_di':
+        return this.bIDIOptionDisplay();
+      case 'last_digit':
+        return this.lastDigitPrompt();
 
-  //       case 'photo':
-  //         return this.photoPrompt();
-  //       case 'cancel':
-  //         return await this.goBackButton();
-  //       default:
-  //         return ['none'];
-  //     }
-  //   }
+      case 'description':
+        return this.descriptionPrompt();
+
+      case 'photo':
+        return this.photoPrompt();
+      case 'cancel':
+        return await this.goBackButton();
+
+      case 'done':
+        return this.postingSuccessful();
+      default:
+        return ['none'];
+    }
+  }
 
   //   previewCallToAction() {
   //     return ['Preview your post and press once you are done'];
