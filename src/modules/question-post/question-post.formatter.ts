@@ -16,8 +16,9 @@ class QustionPostFormatter {
 
       [
         { text: 'Section 1C', cbString: 'section_1c' },
-        { text: 'Back', cbString: 'Back' },
+        { text: 'Section 2', cbString: 'section_2' },
       ],
+      [{ text: 'Back', cbString: 'Back' }],
     ];
 
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
