@@ -30,6 +30,10 @@ class Section3Formatter {
   goBackButton(oneTime: boolean = true) {
     return MarkupButtons(this.backOption, oneTime);
   }
+
+  getPreviewData(state: any) {
+    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
+  }
 }
 
 export default Section3Formatter;
