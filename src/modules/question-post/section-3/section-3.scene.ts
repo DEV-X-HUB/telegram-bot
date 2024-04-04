@@ -1,9 +1,9 @@
 import { Scenes } from 'telegraf';
-import Section3Controller from './section3.controller';
+import Section3Controller from './section-3.controller';
 
 const section3Controller = new Section3Controller();
 const Section3Scene = new Scenes.WizardScene(
-  'Service_3',
+  'Post-Question-Section-3',
   section3Controller.start,
   section3Controller.chooseBirthOrMarital,
   section3Controller.enterTitle,

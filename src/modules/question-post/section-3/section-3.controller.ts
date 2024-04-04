@@ -1,8 +1,7 @@
-import config from '../../config/config';
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../utils/constants/string';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../utils/constants/chat';
+import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
 
-import Section3Formatter from './section3.formatter';
+import Section3Formatter from './section-3.formatter';
 const section3Formatter = new Section3Formatter();
 
 let imagesUploaded: any[] = [];
@@ -27,7 +26,7 @@ class Section3Controller {
 
         // leave this scene and go back to the previous scene
         ctx.scene.leave();
-        return ctx.scene.enter('Post Questions');
+        return ctx.scene.enter('start');
       }
 
       if (isInInlineOption(callbackQuery.data, section3Formatter.birthOrMaritalOption)) {

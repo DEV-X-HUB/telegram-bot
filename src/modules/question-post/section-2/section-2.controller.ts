@@ -24,8 +24,10 @@ class QuestionPostSectionBController {
 
     if (!callbackQuery) return ctx.reply(questionPostSectionBFormatter.messages.useButtonError);
 
-    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) return ctx.scene.enter('Post Questions');
-
+    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
+      deleteMessageWithCallback(ctx);
+      return ctx.scene.enter('start');
+    }
     if (isInInlineOption(callbackQuery.data, questionPostSectionBFormatter.typeOptions)) {
       ctx.wizard.state.type = callbackQuery.data;
       deleteMessageWithCallback(ctx);

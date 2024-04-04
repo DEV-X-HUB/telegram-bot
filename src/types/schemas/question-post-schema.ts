@@ -1,6 +1,7 @@
 import z, { ZodError } from 'zod';
+import config from '../../config/config';
 
-const maxWords = 200;
+const maxWords = parseInt(config.desc_word_length as string) || 45;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {

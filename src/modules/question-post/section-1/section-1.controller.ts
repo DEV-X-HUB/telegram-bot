@@ -1,13 +1,13 @@
-import { areEqaul, isInMarkUPOption } from '../../utils/constants/string';
+import { areEqaul, isInMarkUPOption } from '../../../utils/constants/string';
 
-import PostingFormatter from './question-post.formatter';
-const postingFormatter = new PostingFormatter();
+import Section1Formatter from './section-1.formatter';
+const section1Formatter = new Section1Formatter();
 
 class QuestionPostController {
   constructor() {}
 
   async start(ctx: any) {
-    await ctx.reply(...postingFormatter.chooseOptionDislay());
+    await ctx.reply(...section1Formatter.chooseOptionDislay());
 
     return ctx.wizard.next();
   }
@@ -20,7 +20,7 @@ class QuestionPostController {
       return ctx.scene.enter('start');
     }
 
-    if (isInMarkUPOption(option, postingFormatter.categories)) {
+    if (isInMarkUPOption(option, section1Formatter.categories)) {
       switch (option) {
         case 'Section 1A': {
           ctx.scene.leave();

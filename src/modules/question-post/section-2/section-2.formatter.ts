@@ -1,5 +1,6 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
+import config from '../../../config/config';
 
 class QustionPostSection2Formatter {
   backOption: TableMarkupKeyboardButtons;
@@ -8,7 +9,8 @@ class QustionPostSection2Formatter {
     typePrompt: 'What are you Looking for',
     enterTitlePrompt: 'Enter Title',
     typePrompt1: '',
-    descriptionPrompt: 'Enter Description maximum 200 words ',
+
+    descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPromp: 'Attach a photo',
     useButtonError: 'Please use Buttons to select options',
   };

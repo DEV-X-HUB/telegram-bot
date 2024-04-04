@@ -19,7 +19,7 @@ class QuestionPostSectionBController {
   async enterTitle(ctx: any) {
     const text = ctx.message.text;
 
-    if (areEqaul(text, 'back', true)) return ctx.scene.enter('Post Questions');
+    if (areEqaul(text, 'back', true)) return ctx.scene.enter('Post-Question-Section-1');
     ctx.wizard.state.title = text;
     await deleteKeyboardMarkup(ctx, questionPostSectionBFormatter.messages.categoriesPrompt);
     ctx.reply(...questionPostSectionBFormatter.mainCategoryOption());
@@ -30,6 +30,7 @@ class QuestionPostSectionBController {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return ctx.reply(questionPostSectionBFormatter.messages.useButtonError);
     if (areEqaul(callbackQuery.data, 'back', true)) {
+      deleteMessageWithCallback(ctx);
       await ctx.reply(...questionPostSectionBFormatter.InsertTiteDisplay());
       return ctx.wizard.back();
     }

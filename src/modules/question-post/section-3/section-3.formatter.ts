@@ -1,5 +1,5 @@
-import { InlineKeyboardButtons, MarkupButtons } from '../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/components';
+import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
 
 class Section3Formatter {
   birthOrMaritalOption: TableInlineKeyboardButtons;

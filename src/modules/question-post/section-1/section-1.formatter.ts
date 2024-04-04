@@ -1,7 +1,7 @@
-import { MarkupButtons } from '../../ui/button';
-import { TableMarkupKeyboardButtons } from '../../types/components';
+import { MarkupButtons } from '../../../ui/button';
+import { TableMarkupKeyboardButtons } from '../../../types/components';
 
-class QustionPostFormatter {
+class Section1Formatter {
   categories: TableMarkupKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
   messages = {
@@ -16,9 +16,8 @@ class QustionPostFormatter {
 
       [
         { text: 'Section 1C', cbString: 'section_1c' },
-        { text: 'Section 2', cbString: 'section_2' },
+        { text: 'Back', cbString: 'Back' },
       ],
-      [{ text: 'Back', cbString: 'Back' }],
     ];
 
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
@@ -31,4 +30,4 @@ class QustionPostFormatter {
     return [this.messages.categoriesPrompt, MarkupButtons(this.categories, true)];
   }
 }
-export default QustionPostFormatter;
+export default Section1Formatter;
