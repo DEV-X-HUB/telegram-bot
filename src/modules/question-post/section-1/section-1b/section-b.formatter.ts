@@ -22,6 +22,17 @@ class QustionPostSectionBFormatter {
     subCategoriesPrompt: 'Please Choose Sub Category category',
     conditonPrompt: 'What is the condition',
     useButtonError: 'Please use Buttons to select options',
+
+    categoryPrompt: 'Please Choose on category from the options',
+    optionPrompt: 'Please Choose on category from the options',
+    arBrPromt: 'Please Choose from two',
+    chosseWoredaPrompt: 'Please Choose Your Woreda',
+    lastDigitPrompt: 'Enter Last Digit',
+    locationPrompt: 'Enter sub city and location',
+    attachPhotoPrompt: 'Attach four photos ',
+    reviewPrompt: 'Preview your post and press once you are done',
+    postSuccessMsg: 'Posted Successfully',
+    postErroMsg: 'Post Error',
   };
   constructor() {
     this.categories = [
@@ -153,7 +164,7 @@ class QustionPostSectionBFormatter {
   bIDIOptionDisplay() {
     return [this.messages.biDiPrompt, InlineKeyboardButtons(this.bIDiOption)];
   }
-  lastDidtitPrompt() {
+  lastDidtitDisplay() {
     return ['Enter Last Digit ', this.goBackButton(false)];
   }
   subCategoryOption(mainCategory: string) {
@@ -179,14 +190,14 @@ class QustionPostSectionBFormatter {
     return [this.messages.chooseWoredaPrompt, InlineKeyboardButtons(this.woredaList)];
   }
 
-  locationPrompt() {
-    return ['Enter sub city and location ', this.goBackButton(false)];
+  locationDisplay() {
+    return [this.messages.locationPrompt, this.goBackButton(false)];
   }
-  descriptionPrompt() {
+  descriptionDisplay() {
     return [this.messages.descriptionPrompt, this.goBackButton(false)];
   }
-  photoPrompt() {
-    return ['Attach four photos ', this.goBackButton(false)];
+  photoDisplay() {
+    return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
   getPreviewData(state: any) {
@@ -248,14 +259,14 @@ class QustionPostSectionBFormatter {
       case 'woreda':
         return this.woredaListDisplay();
       case 'last_digit':
-        return this.lastDidtitPrompt();
+        return this.lastDidtitDisplay();
       case 'location':
-        return this.locationPrompt();
+        return this.locationDisplay();
       case 'description':
-        return this.descriptionPrompt();
+        return this.descriptionDisplay();
 
       case 'photo':
-        return this.photoPrompt();
+        return this.photoDisplay();
       case 'cancel':
         return await this.goBackButton();
       default:
@@ -264,14 +275,14 @@ class QustionPostSectionBFormatter {
   }
 
   previewCallToAction() {
-    return ['Preview your post and press once you are done'];
+    return [this.messages.reviewPrompt];
   }
 
   postingSuccessful() {
-    return ['Posted Successfully'];
+    return [this.messages.postSuccessMsg];
   }
   postingError() {
-    return ['Post Error'];
+    return [this.messages.postErroMsg];
   }
 }
 

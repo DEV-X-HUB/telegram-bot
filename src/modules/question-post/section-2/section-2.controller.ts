@@ -1,135 +1,76 @@
-import config from '../../../../config/config';
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../utils/constants/chat';
+import { areEqaul, isInInlineOption } from '../../../utils/constants/string';
 
-import Section1AFormatter from './section-a.formatter';
-import QuestionService from '../../question-post.service';
-import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
-const section1AFormatter = new Section1AFormatter();
+import QuestionPostSectionBFormatter from './section-2.formatter';
+import QuestionService from '../question-post.service';
+import { questionPostValidator } from '../../../utils/validator/question-post-validaor';
+const questionPostSectionBFormatter = new QuestionPostSectionBFormatter();
 
 let imagesUploaded: any[] = [];
-const imagesNumber = 4;
+const imagesNumber = 1;
 
-class QuestionPostSectionAController {
+class QuestionPostSectionBController {
   constructor() {}
 
   async start(ctx: any) {
-    deleteKeyboardMarkup(ctx, section1AFormatter.messages.arBrPromt);
-    await ctx.reply(...section1AFormatter.arBrOptionDisplay());
+    await deleteKeyboardMarkup(ctx, questionPostSectionBFormatter.messages.typePrompt);
+    ctx.reply(...questionPostSectionBFormatter.typeOptionsDisplay());
+
     return ctx.wizard.next();
   }
 
-  async arBrOption(ctx: any) {
+  async chooseType(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
-    if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
+    if (!callbackQuery) return ctx.reply(questionPostSectionBFormatter.messages.useButtonError);
 
-    if (areEqaul(callbackQuery.data, 'back', true)) return ctx.scene.enter('Post Questions');
+    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) return ctx.scene.enter('Post Questions');
 
-    if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
-      ctx.wizard.state.ar_br = callbackQuery.data;
-      ctx.wizard.state.category = 'Section 1A';
+    if (isInInlineOption(callbackQuery.data, questionPostSectionBFormatter.typeOptions)) {
+      ctx.wizard.state.type = callbackQuery.data;
       deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.woredaListDisplay());
+      ctx.reply(...questionPostSectionBFormatter.enterTiteDisplay());
       return ctx.wizard.next();
     }
-    return ctx.reply('Unknown option. Please choose a valid option.');
+    ctx.reply('unkown option');
   }
-  async choooseWoreda(ctx: any) {
-    const message = ctx.message?.text;
-    const callbackQuery = ctx.callbackQuery;
 
-    if (!callbackQuery) {
-      if (message && areEqaul(message, 'back', true)) {
-        ctx.reply(...section1AFormatter.arBrOptionDisplay());
-        return ctx.wizard.back();
-      }
-    }
-    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.arBrOptionDisplay());
+  async enterTitle(ctx: any) {
+    const text = ctx.message.text;
+
+    if (areEqaul(text, 'back', true)) {
+      await deleteKeyboardMarkup(ctx, questionPostSectionBFormatter.messages.typePrompt);
+      ctx.reply(...questionPostSectionBFormatter.typeOptionsDisplay());
       return ctx.wizard.back();
     }
-
-    if (isInInlineOption(callbackQuery.data, section1AFormatter.woredaList)) {
-      ctx.wizard.state.woreda = callbackQuery.data;
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.bIDIOptionDisplay());
-      return ctx.wizard.next();
-    }
-    return ctx.reply('Unknown option. Please choose a valid option.');
-  }
-  async IDFirstOption(ctx: any) {
-    const message = ctx.message?.text;
-    const callbackQuery = ctx.callbackQuery;
-
-    if (!callbackQuery) {
-      if (message && areEqaul(message, 'back', true)) {
-        ctx.reply(...section1AFormatter.woredaListDisplay());
-        return ctx.wizard.back();
-      }
-      return ctx.reply('Unknown option. Please use buttons to choose .');
-    }
-    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.woredaListDisplay());
-      return ctx.wizard.back();
-    }
-
-    if (isInInlineOption(callbackQuery.data, section1AFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.lastDidtitDisplay());
-      return ctx.wizard.next();
-    }
-  }
-  async enterLastDigit(ctx: any) {
-    const message = ctx.message?.text;
-    if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...section1AFormatter.bIDIOptionDisplay());
-      return ctx.wizard.back();
-    }
-
-    // const validationMessage = questionPostValidator('last_digit', message);
-    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.last_digit = message;
-    ctx.reply(...section1AFormatter.locationDisplay());
+    ctx.wizard.state.title = text;
+    ctx.reply(...questionPostSectionBFormatter.enterDescriptionDisplay());
     return ctx.wizard.next();
   }
-  async enterLocation(ctx: any) {
-    const message = ctx.message?.text;
-    if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...section1AFormatter.lastDidtitDisplay());
-      return ctx.wizard.back();
-    }
 
-    // assign the location to the state
-    ctx.wizard.state.location = message;
-    await ctx.reply(...section1AFormatter.descriptionDisplay());
-    return ctx.wizard.next();
-  }
   async enterDescription(ctx: any) {
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...section1AFormatter.locationDisplay());
+      ctx.reply(...questionPostSectionBFormatter.enterTiteDisplay());
       return ctx.wizard.back();
     }
 
     const validationMessage = questionPostValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
-    ctx.reply(...section1AFormatter.photoDisplay());
+    ctx.reply(...questionPostSectionBFormatter.photoPrompt());
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    console.log(' being received');
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...section1AFormatter.bIDIOptionDisplay());
+      ctx.reply(...questionPostSectionBFormatter.enterDescriptionDisplay());
       return ctx.wizard.back();
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...section1AFormatter.photoDisplay());
+    if (!ctx.message.photo) return ctx.reply(...questionPostSectionBFormatter.photoPrompt());
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
@@ -153,8 +94,8 @@ class QuestionPostSectionAController {
 
       // empty the images array
       imagesUploaded = [];
-      ctx.reply(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      ctx.reply(...section1AFormatter.previewCallToAction());
+      ctx.reply(...questionPostSectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.reply(...questionPostSectionBFormatter.previewCallToAction());
       return ctx.wizard.next();
     }
   }
@@ -167,7 +108,7 @@ class QuestionPostSectionAController {
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
-        await ctx.reply(...section1AFormatter.photoDisplay(), section1AFormatter.goBackButton());
+        await ctx.reply(...questionPostSectionBFormatter.photoPrompt(), questionPostSectionBFormatter.goBackButton());
         return ctx.wizard.back();
       }
       await ctx.reply('....');
@@ -178,13 +119,13 @@ class QuestionPostSectionAController {
           console.log('preview edit');
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.reply(...questionPostSectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
         // case 'editing_done': {
         //   // await deleteMessageWithCallback(ctx);
-        //   await ctx.reply(section1AFormatter.preview(state));
+        //   await ctx.reply(questionPostSectionBFormatter.preview(state));
         //   return ctx.wizard.back();
         // }
 
@@ -196,10 +137,10 @@ class QuestionPostSectionAController {
 
           if (response?.success) {
             await deleteMessageWithCallback(ctx);
-            ctx.reply(...section1AFormatter.postingSuccessful());
+            ctx.reply(...questionPostSectionBFormatter.postingSuccessful());
             return ctx.scene.enter('start');
           } else {
-            ctx.reply(...section1AFormatter.postingError());
+            ctx.reply(...questionPostSectionBFormatter.postingError());
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
               await deleteMessageWithCallback(ctx);
               return ctx.scene.enter('start');
@@ -228,10 +169,16 @@ class QuestionPostSectionAController {
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
 
+      // const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
+      // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
-
-      return ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+      // await deleteMessage(ctx, {
+      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+      //   chat_id: ctx.message.chat.id,
+      // });
+      return ctx.reply(...questionPostSectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
@@ -250,13 +197,13 @@ class QuestionPostSectionAController {
       if (response.success) {
         ctx.wizard.state.status = 'pending';
         await deleteMessageWithCallback(ctx);
-        await ctx.reply(...section1AFormatter.postingSuccessful());
+        await ctx.reply(...questionPostSectionBFormatter.postingSuccessful());
         return ctx.scene.enter('start');
       }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
 
-      // ctx.reply(...section1AFormatter.postingError());
+      // ctx.reply(...questionPostSectionBFormatter.postingError());
       if (registrationAttempt >= 2) {
         await deleteMessageWithCallback(ctx);
         return ctx.scene.enter('start');
@@ -265,7 +212,7 @@ class QuestionPostSectionAController {
     } else if (callbackMessage == 'editing_done') {
       // await deleteMessageWithCallback(ctx);
 
-      await ctx.reply(...section1AFormatter.preview(state));
+      await ctx.reply(...questionPostSectionBFormatter.preview(state));
       return ctx.wizard.back();
     }
 
@@ -276,7 +223,7 @@ class QuestionPostSectionAController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      await ctx.reply(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.reply(...((await questionPostSectionBFormatter.editFieldDispay(callbackMessage)) as any));
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }
@@ -287,7 +234,7 @@ class QuestionPostSectionAController {
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
       ctx.wizard.state.editField = null;
-      return ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.reply(...questionPostSectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
   }
   async editPhoto(ctx: any) {
@@ -297,12 +244,12 @@ class QuestionPostSectionAController {
         message_id: (parseInt(messageText.message_id) - 1).toString(),
         chat_id: messageText.chat.id,
       });
-      ctx.reply(...section1AFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.reply(...questionPostSectionBFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...section1AFormatter.photoDisplay());
+    if (!ctx.message.photo) return ctx.reply(...questionPostSectionBFormatter.photoPrompt());
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
@@ -324,10 +271,10 @@ class QuestionPostSectionAController {
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...section1AFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.reply(...questionPostSectionBFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
   }
 }
 
-export default QuestionPostSectionAController;
+export default QuestionPostSectionBController;

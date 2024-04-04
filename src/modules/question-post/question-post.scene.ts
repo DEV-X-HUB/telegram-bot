@@ -1,8 +1,9 @@
 import { Scenes } from 'telegraf';
 import QuestionPostController from './question-post.controller';
-import QuestionPostSection1AScene from './section-1/section-1a/sectoion-a-scene';
-import QuestionPostSection1BScene from './section-1/section-1b/section-b.scene';
-import QuestionPostSection1CScene from './section-1/section-1c/section1c.scene';
+import QuestionPostSectionAScene from './section-1/section-1a/sectoion-a-scene';
+import QuestionPostSectionBScene from './section-1/section-1b/section-b.scene';
+import QuestionPostSectionCScene from './section-1/section-1c/section1c.scene';
+import QuestionPostSection2Scene from './section-2/section-2.scene';
 
 const questionPostController = new QuestionPostController();
 const QuestionPostScene = new Scenes.WizardScene(
@@ -11,4 +12,10 @@ const QuestionPostScene = new Scenes.WizardScene(
   questionPostController.chooseOption,
 );
 
-export default [QuestionPostScene, QuestionPostSection1AScene, QuestionPostSection1BScene, QuestionPostSection1CScene];
+export default [
+  QuestionPostScene,
+  QuestionPostSectionBScene,
+  QuestionPostSectionAScene,
+  QuestionPostSectionCScene,
+  QuestionPostSection2Scene,
+];
