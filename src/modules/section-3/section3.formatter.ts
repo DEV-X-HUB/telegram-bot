@@ -72,6 +72,21 @@ class Section3Formatter {
       ]),
     ];
   }
+
+  async editFieldDisplay(editField: string) {
+    switch (editField) {
+      case 'birth_or_marital':
+        return this.birthOrMaritalOptionDisplay();
+      case 'title':
+        return this.titlePrompt();
+      case 'description':
+        return this.descriptionPrompt();
+      case 'photo':
+        return this.photoPrompt();
+      default:
+        return this.displayError();
+    }
+  }
 }
 
 export default Section3Formatter;
