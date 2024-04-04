@@ -23,7 +23,7 @@ const ignite = () => {
 
     bot.use(session());
     bot.use(stage.middleware());
-    bot.use(checkUserInChannelandPromtJoin());
+    // bot.use(checkUserInChannelandPromtJoin());
     bot.use(checkAndRedirectToScene());
 
     // Display help with commands and descriptions

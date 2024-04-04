@@ -5,7 +5,7 @@ import Section3Formatter from './section-3.formatter';
 const section3Formatter = new Section3Formatter();
 
 let imagesUploaded: any[] = [];
-const imagesNumber = 4;
+const imagesNumber = 1;
 
 class Section3Controller {
   constructor() {}
@@ -89,7 +89,7 @@ class Section3Controller {
       const mediaGroup = imagesUploaded.map((image: any) => ({
         media: image,
         type: 'photo',
-        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+        caption: image == imagesUploaded[0] ? 'Here is the image you uploaded' : '',
       }));
 
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);

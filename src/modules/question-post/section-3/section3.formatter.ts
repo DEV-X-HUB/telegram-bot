@@ -4,6 +4,14 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 class Section3Formatter {
   birthOrMaritalOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
+  messages = {
+    choosePrompt: 'Choose an option',
+    titlePrompt: 'What is the title?',
+    descriptionPrompt: 'Enter description maximimum 45 words',
+    photoPrompt: 'Attach one photo ',
+    postingSuccessful: 'Posted Successfully',
+    displayError: 'Invalid input, please try again',
+  };
   constructor() {
     this.birthOrMaritalOption = [
       [
@@ -15,16 +23,16 @@ class Section3Formatter {
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
   }
   birthOrMaritalOptionDisplay() {
-    return ['Choose an option', InlineKeyboardButtons(this.birthOrMaritalOption)];
+    return [this.messages.choosePrompt, InlineKeyboardButtons(this.birthOrMaritalOption)];
   }
   titlePrompt() {
-    return ['What is the title?', this.goBackButton(false)];
+    return [this.messages.titlePrompt, this.goBackButton(false)];
   }
   descriptionPrompt() {
-    return ['Enter description maximimum 45 words'];
+    return [this.messages.descriptionPrompt];
   }
   photoPrompt() {
-    return ['Attach one photo ', this.goBackButton(false)];
+    return [this.messages.photoPrompt, this.goBackButton(false)];
   }
 
   goBackButton(oneTime: boolean = true) {
@@ -84,15 +92,20 @@ class Section3Formatter {
       case 'photo':
         return this.photoPrompt();
       default:
-        return this.displayError();
+        return this.inputError();
     }
   }
+
+  inputError() {
+    return ['Invalid input, please try again'];
+  }
+
   postingSuccessful() {
     return ['Posted Successfully'];
   }
 
-  displayError() {
-    return ['Invalid input, please try again'];
+  postingError() {
+    return ['Posting failed'];
   }
 }
 
