@@ -34,6 +34,44 @@ class Section3Formatter {
   getPreviewData(state: any) {
     return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
   }
+
+  preview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Edit', cbString: 'preview_edit' },
+          { text: 'Notify Settings', cbString: 'notify_settings' },
+          { text: 'Post', cbString: 'post_data' },
+        ],
+        [
+          { text: 'Mention previous post', cbString: 'mention_previous_post' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+      ]),
+    ];
+  }
+
+  editPreview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Birth/Marital', cbString: 'birth_or_marital' },
+          { text: 'Title', cbString: 'title' },
+        ],
+        [
+          { text: 'Description', cbString: 'description' },
+
+          { text: 'Photo', cbString: 'photo' },
+        ],
+        [
+          { text: 'Cancel', cbString: 'cancel' },
+          { text: 'Done', cbString: 'editing_done' },
+        ],
+      ]),
+    ];
+  }
 }
 
 export default Section3Formatter;
