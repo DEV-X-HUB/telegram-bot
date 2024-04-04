@@ -26,6 +26,10 @@ class Section3Formatter {
   photoPrompt() {
     return ['Attach four photos ', this.goBackButton(false)];
   }
+
+  goBackButton(oneTime: boolean = true) {
+    return MarkupButtons(this.backOption, oneTime);
+  }
 }
 
 export default Section3Formatter;
