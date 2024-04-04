@@ -34,9 +34,8 @@ class QuestionPostController {
           ctx.scene.leave();
           return ctx.scene.enter('Post-Question-SectionC');
         }
-
         default:
-          return ctx.replys('Unknown option. Please choose a valid option.');
+          return ctx.reply('Unknown option. Please choose a valid option.');
       }
     }
   }
