@@ -87,6 +87,13 @@ class Section3Formatter {
         return this.displayError();
     }
   }
+  postingSuccessful() {
+    return ['Posted Successfully'];
+  }
+
+  displayError() {
+    return ['Invalid input, please try again'];
+  }
 }
 
 export default Section3Formatter;
