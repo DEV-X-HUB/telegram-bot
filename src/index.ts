@@ -10,11 +10,18 @@ import Service1Scene from './modules/service1/service1.scene';
 import QuestionPostScene from './modules/question-post/question-post.scene';
 import ProfileScene from './modules/profile/profile.scene';
 import { setCommands } from './utils/helper/commands';
+import Section3Scene from './modules/section-3/section3.scene';
 
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, ...QuestionPostScene]);
+    const stage = new Scenes.Stage([
+      RegistrationScene,
+      MainmenuScene,
+      Service1Scene,
+      Section3Scene,
+      ...QuestionPostScene,
+    ]);
 
     bot.use(session());
     bot.use(stage.middleware());
