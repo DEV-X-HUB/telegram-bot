@@ -42,6 +42,30 @@ class Section3Controller {
       // return ctx.wizard.steps[ctx.wizard.cursor](ctx);
     }
   }
+
+  async enterTitle(ctx: any) {
+    const message = ctx.message.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
+      return ctx.wizard.back();
+    }
+
+    ctx.wizard.state.title = message;
+    await ctx.reply(...section3Formatter.descriptionPrompt());
+    return ctx.wizard.next();
+  }
+
+  async enterDescription(ctx: any) {
+    const message = ctx.message.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
+      return ctx.wizard.back();
+    }
+
+    ctx.wizard.state.description = message;
+    await ctx.reply(...section3Formatter.photoPrompt());
+    return ctx.wizard.next();
+  }
 }
 
 export default Section3Controller;
