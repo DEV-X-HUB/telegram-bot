@@ -9,7 +9,7 @@ const section1cFormatter = new QuestionPostSection1CFormatter();
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
-class QuestionPostSectionCController {
+class QuestionPostSection1CController {
   constructor() {}
 
   async start(ctx: any) {
@@ -449,4 +449,4 @@ class QuestionPostSectionCController {
     }
   }
 }
-export default QuestionPostSectionCController;
+export default QuestionPostSection1CController;

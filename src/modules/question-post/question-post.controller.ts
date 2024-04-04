@@ -34,13 +34,8 @@ class QuestionPostController {
           ctx.scene.leave();
           return ctx.scene.enter('Post-Question-SectionC');
         }
-        case 'Section 2': {
-          ctx.scene.leave();
-          return ctx.scene.enter('Post-Question-Section2');
-        }
-
         default:
-          return ctx.replys('Unknown option. Please choose a valid option.');
+          return ctx.reply('Unknown option. Please choose a valid option.');
       }
     }
   }

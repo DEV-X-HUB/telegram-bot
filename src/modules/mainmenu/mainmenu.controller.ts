@@ -33,7 +33,7 @@ class MainMenuController {
 
     if (ctx.scene.scenes.has(option)) {
       ctx.scene.leave();
-      return ctx.scene.enter(option);
+      return ctx.scene.enter('Service_3');
     } else {
       return ctx.reply('Unknown option. Please choose a valid option.');
     }
