@@ -136,6 +136,65 @@ class ManufactureController {
       return ctx.wizard.next();
     }
   }
+
+  async preview(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) {
+      const message = ctx.message.text;
+      if (message == 'Back') {
+        await ctx.reply(...manufactureFormatter.descriptionPrompt(), manufactureFormatter.goBackButton());
+        return ctx.wizard.back();
+      }
+      await ctx.reply('....');
+    } else {
+      const state = ctx.wizard.state;
+      switch (callbackQuery.data) {
+        case 'preview_edit': {
+          console.log('preview edit');
+          ctx.wizard.state.editField = null;
+          await deleteMessageWithCallback(ctx);
+          ctx.reply(...manufactureFormatter.editPreview(state), { parse_mode: 'HTML' });
+          return ctx.wizard.next();
+        }
+
+        case 'editing_done': {
+          // await deleteMessageWithCallback(ctx);
+          await ctx.reply(manufactureFormatter.preview(state));
+          return ctx.wizard.back();
+        }
+
+        case 'post_data': {
+          console.log('here you are');
+          // api request to post the data
+          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+          // console.log(response);
+
+          // if (response?.success) {
+          //   await deleteMessageWithCallback(ctx);
+          await deleteMessageWithCallback(ctx);
+          //   await ctx.reply(...manufactureFormatter.postingSuccessful());
+          await displayDialog(ctx, 'Posted successfully');
+
+          await ctx.scene.leave();
+          return ctx.scene.enter('start');
+          // } else {
+          //   ctx.reply(...postingFormatter.postingError());
+          //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+          //     await deleteMessageWithCallback(ctx);
+          //     return ctx.scene.enter('start');
+          //   }
+
+          // increment the registration attempt
+          // return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+          //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
+          //   : 1);
+        }
+      }
+      // default: {
+      //   await ctx.reply('DEFAULT');
+      // }
+    }
+  }
 }
 
 export default ManufactureController;
