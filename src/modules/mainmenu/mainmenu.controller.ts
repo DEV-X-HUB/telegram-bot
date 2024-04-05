@@ -45,6 +45,10 @@ class MainMenuController {
         ctx.scene.leave();
         return ctx.scene.enter('Post-Question-Section-3');
       }
+      case 'Service 4': {
+        ctx.scene.leave();
+        return ctx.scene.enter('Post-Question-Section-4');
+      }
       default:
         if (ctx.scene.scenes.has(option)) {
           ctx.scene.leave();
