@@ -195,6 +195,89 @@ class ManufactureController {
       // }
     }
   }
+
+  async editData(ctx: any) {
+    const state = ctx.wizard.state;
+    const fileds = [
+      'sector',
+      'number_of_worker',
+      'estimated_capital',
+      'enterprise_name',
+      'description',
+      'photo',
+      'cancel',
+      'done',
+    ];
+    const callbackQuery = ctx?.callbackQuery;
+    const editField = ctx.wizard.state?.editField;
+    if (!callbackQuery) {
+      // changing field value
+      const messageText = ctx.message.text;
+      if (!editField) return await ctx.reply('invalid input ');
+
+      // const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
+      // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
+      ctx.wizard.state[editField] = messageText;
+      await deleteKeyboardMarkup(ctx);
+      // await deleteMessage(ctx, {
+      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+      //   chat_id: ctx.message.chat.id,
+      // });
+      return ctx.reply(...manufactureFormatter.editPreview(state), { parse_mode: 'HTML' });
+    }
+
+    // if callback exists
+    // save the mesage id for later deleting
+    ctx.wizard.state.previousMessageData = {
+      message_id: ctx.callbackQuery.message.message_id,
+      chat_id: ctx.callbackQuery.message.chat.id,
+    };
+    const callbackMessage = callbackQuery.data;
+
+    if (callbackMessage == 'post_data') {
+      console.log('Posted Successfully');
+      return await displayDialog(ctx, 'Posted successfully');
+      //   return ctx.reply(...manufactureFormatter.postingSuccessful());
+      // registration
+      // api call for registration
+      // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+
+      // if (response.success) {
+      //   ctx.wizard.state.status = 'pending';
+      //   await deleteMessageWithCallback(ctx);
+      //   await ctx.reply(...postingFormatter.postingSuccessful());
+      //   return ctx.scene.enter('start');
+      // }
+
+      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
+
+      // ctx.reply(...postingFormatter.postingError());
+      if (registrationAttempt >= 2) {
+        await deleteMessageWithCallback(ctx);
+        return ctx.scene.enter('start');
+      }
+      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    } else if (callbackMessage == 'editing_done') {
+      // await deleteMessageWithCallback(ctx);
+
+      await ctx.reply(...manufactureFormatter.preview(state));
+
+      return ctx.wizard.back();
+    }
+
+    // if user chooses a field to edit
+    if (fileds.some((filed) => filed == callbackQuery.data)) {
+      // selecting field to change
+      ctx.wizard.state.editField = callbackMessage;
+      await ctx.telegram.deleteMessage(
+        ctx.wizard.state.previousMessageData.chat_id,
+        ctx.wizard.state.previousMessageData.message_id,
+      );
+      await ctx.reply(...((await manufactureFormatter.editFieldDisplay(callbackMessage)) as any));
+      return;
+    }
+  }
 }
 
 export default ManufactureController;
