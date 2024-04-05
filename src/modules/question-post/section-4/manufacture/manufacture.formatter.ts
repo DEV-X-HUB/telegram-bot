@@ -138,6 +138,18 @@ class ManufactureFormatter {
         return this.inputError();
     }
   }
+
+  inputError() {
+    return ['Invalid input, please try again'];
+  }
+
+  postingSuccessful() {
+    return ['Posted Successfully'];
+  }
+
+  postingError() {
+    return ['Posting failed'];
+  }
 }
 
 export default ManufactureFormatter;
