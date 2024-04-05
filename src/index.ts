@@ -1,6 +1,5 @@
 import { Scenes, session } from 'telegraf';
 import Bot from './loaders/bot';
-import { Markup } from 'telegraf';
 
 import RegistrationScene from './modules/registration/registration.scene';
 import { checkAndRedirectToScene } from './middleware/check-command';
@@ -10,7 +9,6 @@ import Service1Scene from './modules/service1/service1.scene';
 import QuestionPostScene from './modules/question-post/question-post.scene';
 import ProfileScene from './modules/profile/profile.scene';
 import { setCommands } from './utils/helper/commands';
-import Section3Scene from './modules/section-3/section3.scene';
 
 const ignite = () => {
   const bot = Bot();
@@ -19,13 +17,13 @@ const ignite = () => {
       RegistrationScene,
       MainmenuScene,
       Service1Scene,
-      Section3Scene,
+      ProfileScene,
       ...QuestionPostScene,
     ]);
 
     bot.use(session());
     bot.use(stage.middleware());
-    bot.use(checkUserInChannelandPromtJoin());
+    // bot.use(checkUserInChannelandPromtJoin());
     bot.use(checkAndRedirectToScene());
 
     // Display help with commands and descriptions

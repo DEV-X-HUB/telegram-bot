@@ -1,6 +1,7 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
 import { areEqaul } from '../../../../utils/constants/string';
+import config from '../../../../config/config';
 
 class QustionPostSectionBFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -14,7 +15,7 @@ class QustionPostSectionBFormatter {
     dateOfIssuePrompt: 'Date of Issue mm/yyyy',
     dateOfExpirePrompt: 'Date of Expire mm/yyyy',
     biDiPrompt: 'Please Choose ID first Icon',
-    descriptionPrompt: 'Enter Description maximum 200 words ',
+    descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     chooseWoredaPrompt: 'Please Choose Your Woreda',
     originalLocationPrompt: 'Original Location ',
     invalidDateErrorPrompt: 'Invalid Date format',

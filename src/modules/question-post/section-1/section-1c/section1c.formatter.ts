@@ -1,5 +1,6 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import config from '../../../../config/config';
 
 class Section1CFormatter {
   arBrOption: TableInlineKeyboardButtons;
@@ -10,6 +11,23 @@ class Section1CFormatter {
   serviceType2: TableInlineKeyboardButtons;
   serviceType3: TableInlineKeyboardButtons;
   bIDiOption: TableInlineKeyboardButtons;
+
+  messages = {
+    useButtonError: 'Please use Buttons to select options',
+    categoryPrompt: 'Please Choose on category from the options',
+    optionPrompt: 'Please Choose on category from the options',
+    arBrPromt: 'Please Choose from two',
+    chosseWoredaPrompt: 'Please Choose Your Woreda',
+    biDiPrompt: 'Please Choose ID first Icon',
+    lastDigitPrompt: 'Enter Last Digit',
+    locationPrompt: 'Enter sub city and location',
+    descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
+    attachPhotoPrompt: 'Attach four photos ',
+    reviewPrompt: 'Preview your post and press once you are done',
+    postSuccessMsg: 'Posted Successfully',
+    postErroMsg: 'Post Error',
+  };
+
   constructor() {
     this.arBrOption = [
       [

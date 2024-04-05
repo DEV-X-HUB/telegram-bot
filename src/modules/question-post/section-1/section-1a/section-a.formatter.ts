@@ -1,5 +1,6 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import config from '../../../../config/config';
 
 class QustionPostFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -16,7 +17,7 @@ class QustionPostFormatter {
     biDiPrompt: 'Please Choose ID first Icon',
     lastDigitPrompt: 'Enter Last Digit',
     locationPrompt: 'Enter sub city and location',
-    descriptionPrompt: 'Enter Description maximum 200 words',
+    descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg: 'Posted Successfully',

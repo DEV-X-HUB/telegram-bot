@@ -28,10 +28,9 @@ class QuestionPostSection1CController {
     if (callbackQuery) {
       if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
         deleteMessageWithCallback(ctx);
-
         // leave this scene and go back to the previous scene
         ctx.scene.leave();
-        return ctx.scene.enter('Post Questions');
+        return ctx.scene.enter('Post-Question-Section-1');
       }
 
       if (isInInlineOption(callbackQuery.data, section1cFormatter.paperStampOption)) {

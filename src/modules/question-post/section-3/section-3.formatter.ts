@@ -1,5 +1,5 @@
-import { InlineKeyboardButtons, MarkupButtons } from '../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/components';
+import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
 
 class Section3Formatter {
   birthOrMaritalOption: TableInlineKeyboardButtons;
@@ -24,7 +24,7 @@ class Section3Formatter {
     return ['Enter description maximimum 45 words'];
   }
   photoPrompt() {
-    return ['Attach four photos ', this.goBackButton(false)];
+    return ['Attach one photo ', this.goBackButton(false)];
   }
 
   goBackButton(oneTime: boolean = true) {
