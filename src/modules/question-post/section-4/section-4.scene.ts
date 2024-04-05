@@ -1,5 +1,6 @@
 import { Scenes } from 'telegraf';
 import QuestionPostController from './section-4.controller';
+import QuestionPostSectionConstructionScene from './construction/construction.scene';
 
 const questionPostController = new QuestionPostController();
 const QuestionPostScene4 = new Scenes.WizardScene(
@@ -8,4 +9,4 @@ const QuestionPostScene4 = new Scenes.WizardScene(
   questionPostController.chooseOption,
 );
 
-export default [QuestionPostScene4];
+export default [QuestionPostScene4, QuestionPostSectionConstructionScene];

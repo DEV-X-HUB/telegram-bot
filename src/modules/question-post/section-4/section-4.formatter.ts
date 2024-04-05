@@ -1,4 +1,4 @@
-import { MarkupButtons } from '../../../ui/button';
+import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
 
 class Section4Formatter {
@@ -23,7 +23,7 @@ class Section4Formatter {
   }
 
   chooseOptionDislay() {
-    return [this.messages.categoriesPrompt, MarkupButtons(this.categories, true)];
+    return [this.messages.categoriesPrompt, InlineKeyboardButtons(this.categories)];
   }
 }
 export default Section4Formatter;

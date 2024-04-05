@@ -1,3 +1,4 @@
+import { deleteKeyboardMarkup, deleteMessageWithCallback } from '../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
 
 import Section4Formatter from './section-4.formatter';
@@ -7,6 +8,7 @@ class QuestionPostSection4Controller {
   constructor() {}
 
   async start(ctx: any) {
+    await deleteKeyboardMarkup(ctx, section4Formatter.messages.categoriesPrompt);
     await ctx.reply(...section4Formatter.chooseOptionDislay());
 
     return ctx.wizard.next();
@@ -21,15 +23,18 @@ class QuestionPostSection4Controller {
 
     switch (callbackQuery.data) {
       case 'manufactory': {
+        await deleteMessageWithCallback(ctx);
         ctx.scene.leave();
         return ctx.scene.enter('Post-Question-Section4-Manufactor');
       }
       case 'construction': {
         ctx.scene.leave();
+        await deleteMessageWithCallback(ctx);
         return ctx.scene.enter('Post-Question-SectionB-Construction');
       }
       case 'chicken-farm': {
         ctx.scene.leave();
+        await deleteMessageWithCallback(ctx);
         return ctx.scene.enter('Post-Question-SectionC-Chicken-farm');
       }
       default:
