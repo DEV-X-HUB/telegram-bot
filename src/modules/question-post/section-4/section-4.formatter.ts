@@ -1,10 +1,10 @@
-import { MarkupButtons } from '../../../ui/button';
+import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
 
 class Section4Formatter {
   categories: TableInlineKeyboardButtons = [
     [
-      { text: 'Manufactor', cbString: 'manufactor' },
+      { text: 'Manufacture', cbString: 'manufacture' },
       { text: 'Chicken Farm', cbString: 'chicken-farm' },
       { text: 'Construction', cbString: 'construction' },
     ],
@@ -15,7 +15,7 @@ class Section4Formatter {
 
   messages = {
     useButtonError: 'Please use Buttons to select options',
-    categoriesPrompt: 'Please Choose on category from the options',
+    categoriesPrompt: 'Please Choose one category from the options',
   };
   constructor() {}
   goBackButton(oneTime: boolean = true) {
@@ -23,7 +23,7 @@ class Section4Formatter {
   }
 
   chooseOptionDislay() {
-    return [this.messages.categoriesPrompt, MarkupButtons(this.categories, true)];
+    return [this.messages.categoriesPrompt, InlineKeyboardButtons(this.categories)];
   }
 }
 export default Section4Formatter;
