@@ -31,6 +31,26 @@ class ChickenFarmFormatter {
 
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
   }
+
+  sectorPrompt() {
+    return [this.messages.sectorPrompt, this.goBackButton()];
+  }
+
+  estimatedCapitalPrompt() {
+    return [this.messages.estimatedCapitalPrompt, InlineKeyboardButtons(this.estimatedCapitalOption)];
+  }
+
+  enterpriseNamePrompt() {
+    return [this.messages.enterpriseNamePrompt, this.goBackButton()];
+  }
+
+  descriptionPrompt() {
+    return [this.messages.descriptionPrompt];
+  }
+
+  goBackButton(oneTime: boolean = true) {
+    return MarkupButtons(this.backOption, oneTime);
+  }
 }
 
 export default ChickenFarmFormatter;
