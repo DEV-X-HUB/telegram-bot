@@ -54,6 +54,33 @@ class ManufactureFormatter {
 
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
   }
+
+  sectorPrompt() {
+    return [this.messages.sectorPrompt, this.goBackButton()];
+  }
+
+  numberOfWorkerPrompt() {
+    return [this.messages.numberOfWorkerPrompt, InlineKeyboardButtons(this.numberOfWorkerOption)];
+  }
+
+  estimatedCapitalPrompt() {
+    return [this.messages.estimatedCapitalPrompt, InlineKeyboardButtons(this.estimatedCapitalOption)];
+  }
+
+  enterpriseNamePrompt() {
+    return [this.messages.enterpriseNamePrompt, this.goBackButton()];
+  }
+
+  descriptionPrompt() {
+    return [this.messages.descriptionPrompt];
+  }
+  photoPrompt() {
+    return [this.messages.photoPrompt, this.goBackButton(false)];
+  }
+
+  goBackButton(oneTime: boolean = true) {
+    return MarkupButtons(this.backOption, oneTime);
+  }
 }
 
 export default ManufactureFormatter;
