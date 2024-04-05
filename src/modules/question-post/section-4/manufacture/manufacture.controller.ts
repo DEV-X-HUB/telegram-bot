@@ -278,6 +278,45 @@ class ManufactureController {
       return;
     }
   }
+
+  async editPhoto(ctx: any) {
+    const messageText = ctx.message?.text;
+    if (messageText && areEqaul(messageText, 'back', true)) {
+      await deleteMessage(ctx, {
+        message_id: (parseInt(messageText.message_id) - 1).toString(),
+        chat_id: messageText.chat.id,
+      });
+      ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return ctx.wizard.back();
+    }
+
+    // check if image is attached
+    if (!ctx.message.photo) return ctx.reply(...manufactureFormatter.photoPrompt());
+
+    // Add the image to the array
+    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    // Check if all images received
+    if (imagesUploaded.length === imagesNumber) {
+      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+
+      const mediaGroup = imagesUploaded.map((image: any) => ({
+        media: image,
+        type: 'photo',
+        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+      }));
+
+      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+
+      // Save the images to the state
+      ctx.wizard.state.photo = imagesUploaded;
+
+      // empty the images array
+      // imagesUploaded.length = 0;
+      ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return ctx.wizard.back();
+    }
+  }
 }
 
 export default ManufactureController;
