@@ -95,6 +95,47 @@ class ManufactureController {
     await ctx.reply(...manufactureFormatter.photoPrompt());
     return ctx.wizard.next();
   }
+
+  async attachPhoto(ctx: any) {
+    console.log('being received');
+
+    const message = ctx?.message?.text;
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...manufactureFormatter.descriptionPrompt());
+      return ctx.wizard.back();
+    }
+
+    // check if image is attached
+    if (!ctx.message.photo) return ctx.reply(...manufactureFormatter.photoPrompt());
+
+    // Add the image to the array
+    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    // Check if all images received
+    if (imagesUploaded.length == imagesNumber) {
+      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+      // console.log(file);
+
+      const mediaGroup = imagesUploaded.map((image: any) => ({
+        media: image,
+        type: 'photo',
+        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
+      }));
+
+      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+
+      // Save the images to the state
+      ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.status = 'preview';
+
+      // empty the images array
+      imagesUploaded = [];
+      ctx.reply(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      //   ctx.reply(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      //   ctx.reply(...postingFormatter.previewCallToAction());
+      return ctx.wizard.next();
+    }
+  }
 }
 
 export default ManufactureController;
