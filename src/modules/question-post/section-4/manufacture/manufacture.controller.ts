@@ -164,7 +164,7 @@ class ManufactureController {
         }
 
         case 'post_data': {
-          console.log('here you are');
+          // console.log('here you are');
           // api request to post the data
           // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
           // console.log(response);
@@ -172,11 +172,11 @@ class ManufactureController {
           // if (response?.success) {
           //   await deleteMessageWithCallback(ctx);
           await deleteMessageWithCallback(ctx);
-          //   await ctx.reply(...manufactureFormatter.postingSuccessful());
           await displayDialog(ctx, 'Posted successfully');
-
           await ctx.scene.leave();
           return ctx.scene.enter('start');
+          //   await ctx.reply(...manufactureFormatter.postingSuccessful());
+
           // } else {
           //   ctx.reply(...postingFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
