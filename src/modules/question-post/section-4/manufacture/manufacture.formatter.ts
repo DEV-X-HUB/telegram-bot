@@ -81,6 +81,63 @@ class ManufactureFormatter {
   goBackButton(oneTime: boolean = true) {
     return MarkupButtons(this.backOption, oneTime);
   }
+
+  getPreviewData(state: any) {
+    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector} \n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
+  }
+
+  preview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Edit', cbString: 'preview_edit' },
+          { text: 'Notify Settings', cbString: 'notify_settings' },
+          { text: 'Post', cbString: 'post_data' },
+        ],
+        [
+          { text: 'Mention previous post', cbString: 'mention_previous_post' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+      ]),
+    ];
+  }
+
+  editPreview(state: any) {
+    return [
+      this.getPreviewData(state),
+      InlineKeyboardButtons([
+        [
+          { text: 'Sector', cbString: 'sector' },
+          { text: 'Number of worker', cbString: 'number_of_worker' },
+        ],
+        [
+          { text: 'Enterprise Name', cbString: 'enterprise_name' },
+          { text: 'Estimated Capital', cbString: 'estimated_capital' },
+        ],
+        [
+          { text: 'Description', cbString: 'description' },
+          { text: 'Cancel', cbString: 'cancel' },
+        ],
+        [{ text: 'Done', cbString: 'editing_done' }],
+      ]),
+    ];
+  }
+
+  async editFieldDisplay(editField: string) {
+    switch (editField) {
+      case 'sector':
+        return this.sectorPrompt();
+      case 'estimated_capital':
+        return this.estimatedCapitalPrompt();
+      case 'enterprise_name':
+        return this.enterpriseNamePrompt();
+      case 'description':
+        return this.descriptionPrompt();
+      default:
+        return this.inputError();
+    }
+  }
 }
 
 export default ManufactureFormatter;
