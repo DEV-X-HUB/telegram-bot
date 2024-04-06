@@ -20,8 +20,54 @@ export default () => {
   const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, ProfileScene, ...QuestionPostScene]);
   bot.use(session());
   bot.use(stage.middleware());
-  bot.use(checkUserInChannelandPromtJoin());
+  // bot.use(checkUserInChannelandPromtJoin());
   bot.use(checkAndRedirectToScene());
+
+  // prefill text message on user input
+  // ( switch_inline_query_current_chat: 'text' ) will prefill the text message on user input
+  // bot.command('start', async (ctx) => {
+  //   return await ctx.reply('Welcome to the bot', {
+  //     reply_markup: {
+  //       inline_keyboard: [
+  //         [
+  //           { text: 'Register', switch_inline_query_current_chat: '' },
+  //           { text: 'Profile', switch_inline_query_current_chat: 'Profile' },
+  //         ],
+  //       ],
+  //     },
+  //   });
+  // });
+
+  // display inline query result so that when user types the username of the bot, it will show the result
+
+  // bot.on('inline_query', async (ctx) => {
+  //   return await ctx.answerInlineQuery([
+  //     {
+  //       type: 'article',
+  //       id: '1',
+  //       title: 'Inline Query',
+  //       input_message_content: {
+  //         message_text: 'Inline Query',
+  //       },
+  //     },
+  //     {
+  //       type: 'article',
+  //       id: '2',
+  //       title: 'Inline Query',
+  //       input_message_content: {
+  //         message_text: 'Inline Query',
+  //       },
+  //     },
+  //     {
+  //       type: 'article',
+  //       id: '3',
+  //       title: 'Inline Query',
+  //       input_message_content: {
+  //         message_text: 'Inline Query',
+  //       },
+  //     },
+  //   ]);
+  // });
 
   // Display help with commands and descriptions
   const commands = [
@@ -32,7 +78,7 @@ export default () => {
     { name: 'profile', description: 'View your profile' },
     // { name: 'question', description: 'Post a question' },
   ];
-  setCommands(commands);
+  // setCommands(commands);
   dbConnecion;
   return bot;
 };
