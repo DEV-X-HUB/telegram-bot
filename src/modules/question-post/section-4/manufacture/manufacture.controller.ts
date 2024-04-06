@@ -12,8 +12,8 @@ const imagesNumber = 4;
 class ManufactureController {
   constructor() {}
   async start(ctx: any) {
-    ctx.wizard.state.category = 'Chicken Farm';
-    await deleteMessageWithCallback(ctx);
+    ctx.wizard.state.category = 'Manufacture';
+
     await ctx.reply(...manufactureFormatter.sectorPrompt());
     return ctx.wizard.next();
   }

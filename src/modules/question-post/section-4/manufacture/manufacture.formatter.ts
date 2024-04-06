@@ -83,7 +83,7 @@ class ManufactureFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector} \n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
+    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector}\n\nWorker: ${state.number_of_worker} \n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
   }
 
   preview(state: any) {

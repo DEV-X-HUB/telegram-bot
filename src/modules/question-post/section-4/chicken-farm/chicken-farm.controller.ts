@@ -13,7 +13,7 @@ class ChickenFarmController {
   constructor() {}
   async start(ctx: any) {
     ctx.wizard.state.category = 'Chicken Farm';
-    await deleteMessageWithCallback(ctx);
+
     await ctx.reply(...chickenFarmFormatter.sectorPrompt());
     return ctx.wizard.next();
   }
@@ -165,8 +165,9 @@ class ChickenFarmController {
     const callbackMessage = callbackQuery.data;
 
     if (callbackMessage == 'post_data') {
-      console.log('Posted Successfully');
-      return await displayDialog(ctx, 'Posted successfully');
+      // console.log('Posted Successfully');
+      await displayDialog(ctx, 'Posted successfully');
+      return ctx.scene.enter('start');
       // return ctx.reply(...chickenFarmFormatter.postingSuccessful());
       // registration
       // api call for registration
