@@ -16,7 +16,6 @@ class QuestionPostSection4Controller {
   async chooseOption(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
-    console.log(callbackQuery.data);
     if (!callbackQuery) return ctx.reply(section4Formatter.messages.useButtonError);
 
     if (areEqaul(callbackQuery.data, 'back', true)) return ctx.scene.enter('start');
