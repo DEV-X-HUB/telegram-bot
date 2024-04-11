@@ -33,6 +33,47 @@ export default () => {
     // { name: 'question', description: 'Post a question' },
   ];
   setCommands(commands);
+
+  bot.on('inline_query', async (ctx: any) => {
+    const offset = parseInt(ctx.inlineQuery.offset) || 0;
+
+    let items = [];
+
+    for (var i = 0; i < 100; i++) {
+      items.push({
+        title: 'Item ' + i,
+        desc: 'item ' + i + ' desc',
+        id: '0000' + i,
+        moreinfo: 'More info about item' + i + ', mucho importante information',
+      });
+    }
+
+    let results = items.slice(offset, offset + 10).map((item) => ({
+      type: 'article',
+      id: item.id,
+      title: item.title,
+      description: item.desc,
+      input_message_content: {
+        message_text: '*' + item.title + '*\n' + item.desc,
+        parse_mode: 'Markdown',
+      },
+      reply_markup: {
+        inline_keyboard: [[{ text: 'More info', callback_data: 'moreinfo' }]],
+      },
+      hide_url: true,
+      url: 'http://www.domain.se/' + item.id,
+    }));
+
+    console.log('hello');
+
+    let ourReturn = ctx.answerInlineQuery(results, {
+      is_personal: true,
+      next_offset: offset + results.length,
+      cache_time: 10,
+    });
+
+    return ourReturn;
+  });
   dbConnecion;
   return bot;
 };
