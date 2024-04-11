@@ -37,6 +37,25 @@ class RegistrationService {
       return null;
     }
   }
+  async getProfileDataWithId(userId: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId.toString(),
+        },
+        include: {
+          questions: true,
+          followers: true,
+          followings: true,
+          answers: true,
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 
   async updateProfile(userId: string, newData: any) {
     try {

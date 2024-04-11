@@ -11,7 +11,7 @@ import ProfileService from './profile.service';
 const profileService = new ProfileService();
 const profileFormatter = new RegistrationFormatter();
 const registrationFormatter = new RegistrationFormatter();
-class RegistrationController {
+class ProfileController {
   constructor() {}
   saveToState(ctx: any, userData: any) {
     ctx.wizard.state.userData = {
@@ -37,6 +37,10 @@ class RegistrationController {
     this.saveToState(ctx, userData);
     ctx.wizard.state.activity = 'preview';
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+  }
+  async viewProfileByThirdParty(ctx: any, userId: string) {
+    const userData = await profileService.getProfileDataWithId(userId);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData));
   }
   async previewHandler(ctx: any) {
     const userData = ctx.wizard.state.userData;
@@ -417,4 +421,4 @@ class RegistrationController {
   }
 }
 
-export default RegistrationController;
+export default ProfileController;

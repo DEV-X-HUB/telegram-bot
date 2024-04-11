@@ -2,7 +2,9 @@ import QuestionController from '../modules/question/question.controller';
 import RegistrationFormatter from '../modules/registration/registration-formatter';
 import RegistrationService from '../modules/registration/restgration.service';
 import QuestionFormmatter from '../modules/question/question.formmater';
-
+import ProfileController from '../modules/profile/profile.controller';
+import { checkQueries } from './check-callback';
+const profileController = new ProfileController();
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
@@ -23,15 +25,8 @@ export function checkAndRedirectToScene() {
     if (!text) return next();
     if (text && text.startsWith('/')) {
       const query = ctx.message.text.split(' ')[1];
-      console.log(query);
-      if (query == 'all_questions') {
-        ctx.reply(
-          new QuestionFormmatter().displayAllPromptFomatter(
-            ctx.scene.state.searchText,
-            ctx.scene.state.questionsNumber,
-          ),
-        );
-      }
+      if (query) return checkQueries(ctx, query, next);
+
       if (text.includes('start') && query) return QuestionController.handleAnswerBrowseQuery(ctx, query);
 
       const command = text.slice(1); // Remove the leading slash

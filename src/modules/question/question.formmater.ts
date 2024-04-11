@@ -1,4 +1,5 @@
 import config from '../../config/config';
+import { TableInlineKeyboardButtons } from '../../types/components';
 import { InlineKeyboardButtons } from '../../ui/button';
 import { formatDateFromIsoString } from '../../utils/constants/date';
 
@@ -9,24 +10,34 @@ class QuestionFormmatter {
     NoQuestionMessageText: 'Click the button below  to ask ',
     allQuestionsMsg: 'Click the button below  to list the questions ',
   };
+
   constructor() {}
 
-  seachQuestionTopBar(questionsNumber: number = 0) {
+  seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
       button: {
         text: `${questionsNumber} Questions: Show All`,
-        start_parameter: 'all_questions',
+        start_parameter: `all_questions_${searchString}_${questionsNumber}`,
       },
     };
   }
 
-  questionOptionsButtons(questionId: string) {
-    return [
-      // navigate to the bot and start the bot with the command 'answer'
-      { text: `Answer`, url: `${config.bot_url}?start=answer_${questionId}` },
-      { text: `Browse`, url: `${config.bot_url}?start=browse_${questionId}` },
-    ];
+  questionOptionsButtons(questionId: string, withUrl?: boolean) {
+    if (withUrl)
+      return [
+        // navigate to the bot and start the bot with the command 'answer'
+        { text: `Answer`, url: `${config.bot_url}?start=answer_${questionId}` },
+        { text: `Browse`, url: `${config.bot_url}?start=browse_${questionId}` },
+      ];
+    else
+      return InlineKeyboardButtons([
+        [
+          { text: 'Answer', cbString: `answer_${questionId}` },
+          { text: 'Browse', cbString: `browse_${questionId}` },
+        ],
+      ]);
   }
+
   formatSearchQuestions(questions: any[]) {
     return questions.map((question, index) => ({
       type: 'article',
@@ -44,7 +55,7 @@ class QuestionFormmatter {
         ],
       },
       reply_markup: {
-        inline_keyboard: [this.questionOptionsButtons(question.id.toString())],
+        inline_keyboard: [this.questionOptionsButtons(question.id.toString(), true)],
       },
       description: `Asked ${formatDateFromIsoString(question?.created_at)}, ${question.Answer.length} Answers`,
     }));
@@ -78,10 +89,16 @@ class QuestionFormmatter {
   }
   displayAllPromptFomatter = (questionsNumber: number, searchString: string) => {
     return [
-      `Found ${questionsNumber} qustiosn matching word $${searchString}\n${this.messages.allQuestionsMsg}`,
-      InlineKeyboardButtons([]),
+      `Found ${questionsNumber} Questions matching word "${searchString}"\n${this.messages.allQuestionsMsg}`,
+      InlineKeyboardButtons([[{ text: 'Show All Question', cbString: 'show_all_questions:1' }]]),
     ];
   };
+  formatSingleQuestion(question: any) {
+    return [
+      `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,
+      this.questionOptionsButtons(question.id),
+    ];
+  }
 }
 
 export default QuestionFormmatter;

@@ -88,11 +88,25 @@ class RegistrationFormatter {
   preview(userData: any) {
     return [this.formatePreview(userData), InlineKeyboardButtons(this.previewButtons)];
   }
+  profilePreviwByThirdParty(userData: any) {
+    return [
+      this.formatePreviewByThirdParty(userData),
+      InlineKeyboardButtons([[{ text: 'Follow', cbString: `subsribe_${userData.id}` }]]),
+    ];
+  }
 
   formatePreview(userData: any) {
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers} Followers | ${userData.followings} Followings\n`;
     const gap = '---------------------------------------\n';
     const qaStat = `Asked ${userData.questions} Questions, Answered ${userData.answers} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const bio = `\nBio: ${userData.bio || 'none'}`;
+    return header + gap + qaStat + bio;
+  }
+  formatePreviewByThirdParty(userData: any) {
+    console.log(userData);
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
+    const gap = '---------------------------------------\n';
+    const qaStat = `Asked ${userData.questions.length} Questions, Answered ${userData.answers.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
