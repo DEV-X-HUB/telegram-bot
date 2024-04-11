@@ -27,6 +27,10 @@ export default () => {
 
   // prefill text message on user input
   // ( switch_inline_query_current_chat: 'text' ) will prefill the text message on user input
+  bot.command('start', async (ctx) => {
+    const query = ctx.message.text.split(' ')[1];
+    if (query) return SearchQuestionController.handleAnswerBrowseQuery(ctx, query);
+  });
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 

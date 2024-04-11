@@ -1,8 +1,9 @@
-import SearchQuestionFormmatter from './question.formmater';
-import SearchQuestionService from './question.service';
+import QuestionFormmatter from './question.formmater';
+import QuestionService from './question.service';
 
-const searchQuestionService = new SearchQuestionService();
-const searchQuestionFormmatter = new SearchQuestionFormmatter();
+import { Context } from 'telegraf';
+const questionService = new QuestionService();
+const questionFormmatter = new QuestionFormmatter();
 
 const ressult = {
   type: 'article',
@@ -20,7 +21,7 @@ const ressult = {
     ],
   },
   reply_markup: {
-    inline_keyboard: [searchQuestionFormmatter.questionOptionsButtons('id')],
+    inline_keyboard: [questionFormmatter.questionOptionsButtons('id')],
   },
   description: 'Asked 1 month ago, 2 Answers',
 };
@@ -31,7 +32,20 @@ class QuestionController {
   static async handleSearch(ctx: any) {
     const query = ctx?.update?.inline_query?.query;
     if (!query) return;
-    return await ctx.answerInlineQuery([ressult], searchQuestionFormmatter.displayAllQuestionsButton(5));
+    const { status, questions } = await questionService.getQuestionsByDescription(query);
+    if (status == 'fail') return await ctx.reply('unable to make search');
+    ctx.scene.state.searchText = query;
+    ctx.scene.state.questionsNumber = questions.length;
+
+    if (questions.length == 0)
+      return await ctx.answerInlineQuery(
+        [...questionFormmatter.formatNoQuestionsErrorMessage()],
+        questionFormmatter.seachQuestionTopBar(0),
+      );
+    return await ctx.answerInlineQuery(
+      [...questionFormmatter.formatSearchQuestions(questions)],
+      questionFormmatter.seachQuestionTopBar(questions.length),
+    );
   }
   static async handleAnswerBrowseQuery(ctx: any, query: string) {
     if (query.startsWith('answer')) {

@@ -1,46 +1,30 @@
+import prisma from '../../loaders/db-connecion';
+
 class QuestionService {
   constructor() {}
 
-  async handleSearch(ctx: any) {
-    return await ctx.answerInlineQuery(
-      [
-        {
-          type: 'article',
-          id: '0',
-          title: 'Hello guys here is my question 3',
-          input_message_content: {
-            message_text: '#tech\n\nWhat is the best programming language for beginners? \n\nBy: @username',
-            parse_mode: 'Markdown',
-            entities: [
-              {
-                type: 'bold',
-                offset: 0,
-                length: 10,
-              },
-            ],
+  async getQuestionsByDescription(searchText: string) {
+    try {
+      const questions = await prisma.question.findMany({
+        where: {
+          description: {
+            contains: searchText,
           },
-          reply_markup: {
-            inline_keyboard: [
-              [
-                // navigate to the bot and start the bot with the command 'answer'
-                { text: 'Answer', url: 'https://t.me/ttynabot?start=answer' },
-                { text: 'Browse', url: 'https://t.me/ttynabot?start=browse' },
-              ],
-            ],
-          },
-          description: 'Asked 1 month ago, 2 Answers',
         },
-      ],
-
-      {
-        button: {
-          text: '62 Questions: Show All',
-          start_parameter: 'from_inline',
+        include: {
+          Answer: true,
         },
-      },
-    );
+      });
+      return {
+        status: 'success',
+        questions: questions.concat(questions).concat(questions).concat(questions).concat(questions),
+        // questions,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { status: 'fail', questions: [] };
+    }
   }
-  async searchByTitle() {}
 }
 
 export default QuestionService;

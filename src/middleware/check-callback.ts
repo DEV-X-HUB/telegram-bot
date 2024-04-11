@@ -3,7 +3,6 @@ import QuestionController from '../modules/question/question.controller';
 // Middleware to check if user entered command and redirect to its scene
 export function checkCallBacks() {
   return async (ctx: any, next: any) => {
-    console.log('is callback checks');
     const callbackQuery = ctx?.callbackQuery;
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
