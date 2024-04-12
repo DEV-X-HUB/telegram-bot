@@ -29,8 +29,13 @@ export function checkCallBacks() {
 }
 
 export function checkQueries(ctx: any, query: string, next: any) {
-  console.log(query);
+  console.log(query, 'qurys');
+
   switch (true) {
+    case query.startsWith('all_questions'): {
+      const [_, _s, searachText, round] = query.split(':');
+      return QuestionController.listAllQuestions(ctx, parseInt(round));
+    }
     case query.startsWith('answer'): {
       return QuestionController.handleAnswerQuery(ctx, query);
     }

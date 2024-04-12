@@ -128,13 +128,12 @@ class QuestionController {
     const { status, questions } = await questionService.geAlltQuestions();
     if (status == 'fail') return ctx.reply('error while');
 
-    for (const question of questions.slice((round - 1) * roundSize, round * roundSize)) {
+    for (const question of questions) {
       const mediaGroup = question.photo.map((image) => ({
         media: image,
         type: 'photo',
         caption: 'Images uploaded with the Question',
       }));
-
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
       await ctx.replyWithHTML(...questionFormmatter.formatSingleQuestion(question));
     }
