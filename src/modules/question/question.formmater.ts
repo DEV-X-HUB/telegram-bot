@@ -15,10 +15,8 @@ class QuestionFormmatter {
 
   seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
-      button: {
-        text: `${questionsNumber} Questions: Show All`,
-        start_parameter: `all_questions_${searchString}_${questionsNumber}`,
-      },
+      text: `${questionsNumber} Questions: Show All`,
+      start_parameter: `all_questions_${searchString}_${questionsNumber}`,
     };
   }
 
@@ -44,8 +42,8 @@ class QuestionFormmatter {
       id: `${question.id}_${index}`,
       title: question.description,
       input_message_content: {
-        message_text: `#${question.category}\n\n${question.description}? \n\nBy: @username`,
-        parse_mode: 'Markdown',
+        message_text: `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,
+        parse_mode: 'HTML',
         entities: [
           {
             type: 'bold',
