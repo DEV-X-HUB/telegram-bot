@@ -49,6 +49,14 @@ class MainMenuController {
         ctx.scene.leave();
         return ctx.scene.enter('Post-Question-Section-4');
       }
+      case '🔍 Search Questions': {
+        await ctx.reply('Search questions using button below', {
+          reply_markup: {
+            inline_keyboard: [[{ text: '🔍 Search ', switch_inline_query_current_chat: '' }]],
+          },
+        });
+        return ctx.scene.leave();
+      }
       default:
         if (ctx.scene.scenes.has(option)) {
           ctx.scene.leave();

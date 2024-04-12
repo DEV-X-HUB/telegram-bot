@@ -1,11 +1,15 @@
+import QuestionController from '../modules/question/question.controller';
 import RegistrationFormatter from '../modules/registration/registration-formatter';
 import RegistrationService from '../modules/registration/restgration.service';
-
+import QuestionFormmatter from '../modules/question/question.formmater';
+import ProfileController from '../modules/profile/profile.controller';
+import { checkQueries } from './check-callback';
+const profileController = new ProfileController();
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
 
-  if (ctx?.message?.text && ctx?.message?.text?.startsWith('/')) {
+  if (ctx.message && ctx?.message?.text && ctx?.message?.text?.startsWith('/')) {
     ctx.reply('Invalid input.');
     errorMsg && ctx.reply(errorMsg);
     return true;
@@ -17,12 +21,14 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 // Middleware to check if user entered command and redirect to its scene
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
-    console.log(ctx.callbackQuery, 'check commad ');
-    console.log(ctx.message, 'check commad ');
-    const text = ctx.message.text;
-
+    const text = ctx?.message?.text;
+    if (!text) return next();
     if (text && text.startsWith('/')) {
-      console.log(text, 'commad');
+      const query = ctx.message.text.split(' ')[1];
+      if (query) return checkQueries(ctx, query, next);
+
+      if (text.includes('start') && query) return QuestionController.handleAnswerBrowseQuery(ctx, query);
+
       const command = text.slice(1); // Remove the leading slash
       if (command == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
