@@ -44,6 +44,7 @@ class ProfileController {
     const currentUserData = findSender(ctx);
     const currentUser = await profileService.getProfileByTgId(currentUserData.id);
     if (!currentUser) return;
+    // console.log(currentUser.id, userId); retur
     if (currentUser?.id == userId) {
       return ctx.scene.enter('Profile');
     }

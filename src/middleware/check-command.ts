@@ -48,8 +48,8 @@ export function checkAndRedirectToScene() {
       if (commandText == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
-          // ctx.reply(...new RegistrationFormatter().userExistMessage());
-          // return MainMenuController.onStart(ctx);
+          ctx.reply(...new RegistrationFormatter().userExistMessage());
+          return MainMenuController.onStart(ctx);
         }
       }
       if (ctx.scene.scenes.has(commandText)) {
