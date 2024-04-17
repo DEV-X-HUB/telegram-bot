@@ -24,8 +24,9 @@ export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
     if (!text) return next();
+
+    if (!text) return next();
     if (text && text.startsWith('/')) {
-      // console.log(text);`
       const [command, query] = ctx.message.text.split(' ');
       const commandText = command.slice(1);
       if (query) return checkQueries(ctx, query, next);
@@ -48,7 +49,7 @@ export function checkAndRedirectToScene() {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
           // ctx.reply(...new RegistrationFormatter().userExistMessage());
-          // return ctx.scene.enter('start'); // Enter main menu the scene
+          // return MainMenuController.onStart(ctx);
         }
       }
       if (ctx.scene.scenes.has(commandText)) {
@@ -61,5 +62,24 @@ export function checkAndRedirectToScene() {
     return next();
   };
 }
+export function checkAndRedirectToSceneInRegistration() {
+  return async (ctx: any, next: any) => {
+    const text = ctx?.message?.text;
+    if (!text) return next();
 
-const sceneNames = ['start', 'register'];
+    if (text && text.startsWith('/')) {
+      const commandText = text.slice(1);
+
+      if (commandText == 'register') {
+        ctx?.scene?.leave();
+        return ctx.scene.enter('register');
+      }
+      if (commandText == 'restart') {
+        ctx?.scene?.leave();
+        return ctx.scene.enter('register');
+      }
+    }
+
+    return next();
+  };
+}

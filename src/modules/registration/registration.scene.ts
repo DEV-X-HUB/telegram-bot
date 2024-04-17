@@ -1,5 +1,6 @@
-import { Telegraf, Context, Scenes, Markup } from 'telegraf';
+import { Scenes } from 'telegraf';
 import RegistrationController from './registration.controller';
+import { checkAndRedirectToSceneInRegistration } from '../../middleware/check-command';
 
 const registrationController = new RegistrationController();
 
@@ -20,6 +21,6 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.editCity,
 );
 
-export default registrationScene;
+registrationScene.use(checkAndRedirectToSceneInRegistration());
 
-// Handle errors gracefully (optional)
+export default registrationScene;

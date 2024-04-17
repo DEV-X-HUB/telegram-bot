@@ -15,7 +15,6 @@ class QuestionPostController {
 
   async chooseOption(ctx: any) {
     const option = ctx.message.text;
-    console.log('option', option);
     if (areEqaul(option, 'back', true)) {
       // go back to the previous scene
       ctx.scene.leave();
