@@ -29,3 +29,7 @@ export const isInMarkUPOption = (text: string, options: TableMarkupKeyboardButto
 export const capitalizeFirstLetter = (word: string) => {
   return word[0].toLocaleUpperCase() + word.slice(1);
 };
+
+export const capitalize = (word: string) => {
+  return word.charAt(0).toLocaleUpperCase() + word.slice(1);
+};

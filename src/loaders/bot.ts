@@ -11,6 +11,7 @@ import ProfileScene from '../modules/profile/profile.scene';
 import { setCommands } from '../utils/helper/commands';
 import SearchQuestionController from '../modules/question/question.controller';
 import { checkCallBacks } from '../middleware/check-callback';
+import { AnswerQuestionScene } from '../modules/question/question.scene';
 
 let bot: Telegraf<Context> | null = null;
 
@@ -18,7 +19,13 @@ export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
-  const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, ProfileScene, ...QuestionPostScene]);
+  const stage = new Scenes.Stage([
+    RegistrationScene,
+    MainmenuScene,
+    ProfileScene,
+    ...QuestionPostScene,
+    AnswerQuestionScene,
+  ]);
   bot.use(checkCallBacks());
   bot.use(session());
   bot.use(checkUserInChannelandPromtJoin());
@@ -28,6 +35,8 @@ export default () => {
   // prefill text message on user input
   // ( switch_inline_query_current_chat: 'text' ) will prefill the text message on user input
   bot.command('start', async (ctx) => {
+    //send images inside the message (InlineQueryResultPhoto)
+
     const query = ctx.message.text.split(' ')[1];
     if (query) return SearchQuestionController.handleAnswerBrowseQuery(ctx, query);
   });

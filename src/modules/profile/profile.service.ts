@@ -1,7 +1,7 @@
 import CreateUserDto from '../../types/dto/create-user.dto';
 import prisma from '../../loaders/db-connecion';
 import { v4 as UID } from 'uuid';
-class RegistrationService {
+class ProfileService {
   constructor() {}
 
   async isUserRegisteredWithPhone(phoneNumber: string): Promise<boolean> {
@@ -18,6 +18,19 @@ class RegistrationService {
     }
   }
 
+  async getProfileByTgId(tgId: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          tg_id: tgId.toString(),
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
   async getProfileDataWithTgId(tgId: string) {
     try {
       const user = await prisma.user.findUnique({
@@ -171,6 +184,52 @@ class RegistrationService {
       return { success: false, data: null, message: error?.message };
     }
   }
+
+  async followUser(followerId: string, followingId: string) {
+    try {
+      await prisma.follows.create({
+        data: {
+          follower_id: followerId,
+          following_id: followingId,
+        },
+      });
+      return { status: 'success', message: `You followed user with ID ${followingId}.` };
+    } catch (error) {
+      console.error('Error following user:', error);
+      return { status: 'fail', message: `unable to make operation` };
+    }
+  }
+
+  async unfollowUser(followerId: string, followingId: string) {
+    try {
+      await prisma.follows.deleteMany({
+        where: {
+          follower_id: followerId,
+          following_id: followingId,
+        },
+      });
+      return { status: 'success', message: `You Unfollowed user with ID ${followingId}.` };
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+
+      return { status: 'fail', message: `unable to make operation` };
+    }
+  }
+
+  async isFollowing(currentUserId: string, userId: string) {
+    try {
+      const follow = await prisma.follows.findFirst({
+        where: {
+          follower_id: currentUserId,
+          following_id: userId,
+        },
+      });
+      return { status: 'success', isFollowing: !!follow };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, isFollowing: false };
+    }
+  }
 }
 
-export default RegistrationService;
+export default ProfileService;

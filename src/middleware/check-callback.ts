@@ -8,10 +8,16 @@ export function checkCallBacks() {
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
 
+    console.log(query);
+
     switch (true) {
       case query.startsWith('show_all_questions'): {
         const [_, round] = query.split(':');
         return QuestionController.listAllQuestions(ctx, round);
+      }
+      case query.startsWith('question_detail'): {
+        const [_, questionId] = query.split(':');
+        return QuestionController.getQuestionDetail(ctx, questionId);
       }
 
       case query.startsWith('answer'):
@@ -20,8 +26,10 @@ export function checkCallBacks() {
       case query.startsWith('browse'):
         return QuestionController.handleBrowseQuery(ctx, query);
 
-      case query.startsWith('subscribe'):
-        return QuestionController.handleSubscribeQuery(ctx, query);
+      case query.startsWith('follow'):
+        return profileController.handleFollow(ctx, query);
+      case query.startsWith('unfollow'):
+        return profileController.handlUnfollow(ctx, query);
     }
 
     return next();
@@ -29,8 +37,6 @@ export function checkCallBacks() {
 }
 
 export function checkQueries(ctx: any, query: string, next: any) {
-  console.log(query, 'qurys');
-
   switch (true) {
     case query.startsWith('all_questions'): {
       const [_, _s, searachText, round] = query.split(':');
