@@ -21,6 +21,6 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.editCity,
 );
 
-registrationScene.use(checkAndRedirectToSceneInRegistration());
+// registrationScene.use(checkAndRedirectToSceneInRegistration());
 
 export default registrationScene;
