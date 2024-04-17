@@ -23,7 +23,7 @@ class MainmenuFormatter {
   ];
   constructor() {}
   chooseServiceDisplay() {
-    return ['Select an option ', MarkupButtons(this.mainMenuOptions)];
+    return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptions)];
   }
   formatJoinMessage(first_name: string) {
     return [
