@@ -4,6 +4,7 @@ import RegistrationService from '../modules/registration/restgration.service';
 import QuestionFormmatter from '../modules/question/question.formmater';
 import ProfileController from '../modules/profile/profile.controller';
 import { checkQueries } from './check-callback';
+import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 const profileController = new ProfileController();
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
@@ -24,21 +25,25 @@ export function checkAndRedirectToScene() {
     const text = ctx?.message?.text;
     if (!text) return next();
     if (text && text.startsWith('/')) {
-      const query = ctx.message.text.split(' ')[1];
+      // console.log(text);`
+      const [command, query] = ctx.message.text.split(' ');
+      const commandText = command.slice(1);
       if (query) return checkQueries(ctx, query, next);
 
-      if (text.includes('start') && query) return QuestionController.handleAnswerBrowseQuery(ctx, query);
+      if (commandText == 'start') {
+        ctx?.scene?.leave();
+        return MainMenuController.onStart(ctx);
+      }
 
-      const command = text.slice(1); // Remove the leading slash
-      if (command == 'register') {
+      if (commandText == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
           // ctx.reply(...new RegistrationFormatter().userExistMessage());
           // return ctx.scene.enter('start'); // Enter main menu the scene
         }
       }
-      if (ctx.scene.scenes.has(command)) {
-        return ctx.scene.enter(command);
+      if (ctx.scene.scenes.has(commandText)) {
+        return ctx.scene.enter(commandText);
       } else {
         return ctx.reply('Unknown option. Please choose a valid option.');
       }

@@ -1,3 +1,4 @@
+import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import ProfileController from '../modules/profile/profile.controller';
 import QuestionController from '../modules/question/question.controller';
 const profileController = new ProfileController();
@@ -32,6 +33,14 @@ export function checkCallBacks() {
         return profileController.handlUnfollow(ctx, query);
     }
 
+    return next();
+  };
+}
+export function checkMenuOptions() {
+  const mainMenus = ['Service 1', 'Service 2', 'Service 3', 'Service 4', '🔍 Search Questions'];
+  return async (ctx: any, next: any) => {
+    const message = ctx?.message?.text;
+    if (message && mainMenus.includes(message)) return MainMenuController.chooseOption(ctx);
     return next();
   };
 }
