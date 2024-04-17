@@ -21,7 +21,7 @@ export default () => {
   const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, ProfileScene, ...QuestionPostScene]);
   bot.use(checkCallBacks());
   bot.use(session());
-  bot.use(checkUserInChannelandPromtJoin());
+  // bot.use(checkUserInChannelandPromtJoin());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
 
@@ -32,7 +32,44 @@ export default () => {
     if (query) return SearchQuestionController.handleAnswerBrowseQuery(ctx, query);
   });
 
-  bot.on('inline_query', SearchQuestionController.handleSearch);
+  // bot.on('inline_query', SearchQuestionController.handleSearch);
+
+  //send images inside the message (InlineQueryResultPhoto)
+  bot.on('inline_query', async (ctx) => {
+    return ctx.answerInlineQuery([
+      {
+        type: 'photo',
+        id: '1',
+        title: 'photo',
+        description: 'photo description',
+
+        photo_url:
+          'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
+        thumbnail_url:
+          'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
+        // thumbnail_width: 50,
+        // thumbnail_height: 50,
+
+        // caption
+        caption: 'Here is the image associated with the question',
+        caption_entities: [
+          {
+            type: 'bold',
+            offset: 0,
+            length: 10,
+          },
+        ],
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: 'Answer', callback_data: 'answer_qid' },
+              { text: 'Browse', callback_data: 'browse_qid' },
+            ],
+          ],
+        },
+      },
+    ]);
+  });
 
   // // when user clicks on 'answer' button
   // bot.command('answer', async (ctx) => {

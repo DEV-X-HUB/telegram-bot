@@ -13,16 +13,16 @@ class QuestionController {
     const { status, questions } = await questionService.getQuestionsByDescription(query);
     if (status == 'fail') return await ctx.reply('unable to make search');
 
-    if (questions.length == 0)
-      return await ctx.answerInlineQuery(
-        [...questionFormmatter.formatNoQuestionsErrorMessage()],
-        questionFormmatter.seachQuestionTopBar(0, query),
-      );
+    // if (questions.length == 0)
+    // return await ctx.answerInlineQuery(
+    //   [...questionFormmatter.formatNoQuestionsErrorMessage()],
+    //   questionFormmatter.seachQuestionTopBar(0, query),
+    // );
 
-    return await ctx.answerInlineQuery(
-      [...questionFormmatter.formatSearchQuestions(questions)],
-      questionFormmatter.seachQuestionTopBar(questions.length, query),
-    );
+    // return await ctx.answerInlineQuery(
+    //   [...questionFormmatter.formatSearchQuestions(questions)],
+    //   questionFormmatter.seachQuestionTopBar(questions.length, query),
+    // );
   }
   static async handleAnswerBrowseQuery(ctx: any, query: string) {
     if (query.startsWith('answer')) {

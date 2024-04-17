@@ -58,6 +58,18 @@ class QuestionFormmatter {
         inline_keyboard: [this.questionOptionsButtons(question.id.toString(), true)],
       },
       description: `Asked ${formatDateFromIsoString(question?.created_at)}, ${question.Answer.length} Answers`,
+      // thumbnail_url:
+      //   'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
+      // thumbnail_url: question.photo[0],
+      // send image inside the message
+      photo_url: question.photo[0],
+      photo_width: 500,
+      photo_height: 500,
+
+      // thumbnail
+      // thumb_url: question.photo[0],
+      // thumb_width: 500,
+      // thumb_height: 500,
     }));
   }
   formatNoQuestionsErrorMessage() {
