@@ -8,6 +8,7 @@ import { areEqaul } from '../../utils/constants/string';
 
 import RegistrationFormatter from './registration-formatter';
 import RegistrationService from './restgration.service';
+import MainMenuController from '../mainmenu/mainmenu.controller';
 const registrationService = new RegistrationService();
 const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {
@@ -23,6 +24,7 @@ class RegistrationController {
   }
   async agreeTermsHandler(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+
     if (callbackQuery)
       switch (callbackQuery?.data) {
         case 'agree_terms': {
@@ -40,7 +42,7 @@ class RegistrationController {
             chat_id: callbackQuery.message.chat.id,
           });
           ctx.scene.leave();
-          return ctx.scene.enter('start');
+          return MainMenuController.onStart(ctx);
         }
 
         default: {
@@ -54,13 +56,16 @@ class RegistrationController {
   }
 
   async shareContact(ctx: any) {
+    console.log('ccccccccccccccccc', ctx.message.from);
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
+    const username = ctx.message.from.username;
 
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.wizard.state.phone_number = contact.phone_number;
+      if (username) ctx.wizard.state.username = `https://t.me/${username}`;
       ctx.reply(...registrationFormatter.firstNameformatter());
       return ctx.wizard.next();
     } else return ctx.reply(...registrationFormatter.shareContactWarning());
@@ -224,12 +229,14 @@ class RegistrationController {
           if (response.success) {
             await deleteMessageWithCallback(ctx);
             ctx.reply(...registrationFormatter.registrationSuccess());
-            return ctx.scene.enter('start');
+            ctx.scene.leave();
+            return MainMenuController.onStart(ctx);
           } else {
             ctx.reply(...registrationFormatter.registrationError());
             if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
               await deleteMessageWithCallback(ctx);
-              return ctx.scene.enter('start');
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
             }
             return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
               ? parseInt(ctx.wizard.state.registrationAttempt) + 1
@@ -272,10 +279,25 @@ class RegistrationController {
     };
     const callbackMessage = callbackQuery.data;
 
-    if (callbackMessage == 'finish_edit') {
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      return ctx.wizard.back();
+    if (callbackMessage == 'register_data') {
+      // registration
+      const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+
+      if (response.success) {
+        await deleteMessageWithCallback(ctx);
+        ctx.reply(...registrationFormatter.registrationSuccess());
+        ctx.scene.leave();
+            return MainMenuController.onStart(ctx);
+      }
+
+      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
+      ctx.reply(...registrationFormatter.registrationError());
+      if (registrationAttempt >= 2) {
+        await deleteMessageWithCallback(ctx);
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
+      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     }
     if (areEqaul(callbackMessage, 'back', true)) {
       deleteMessageWithCallback(ctx);

@@ -1,19 +1,29 @@
-import { Markup } from 'telegraf';
-import { urlButton } from '../../components/button';
+import { MarkupButtons, urlButton } from '../../ui/button';
 import config from '../../config/config';
+import { TableMarkupKeyboardButtons } from '../../types/components';
 
 class MainmenuFormatter {
+  messages = {
+    selectOptionPrompt: 'Select an option',
+  };
+  mainMenuOptions: TableMarkupKeyboardButtons = [
+    [
+      { text: 'Service 1', cbString: '' },
+      { text: 'Service 2', cbString: '' },
+    ],
+    [
+      { text: 'Service 3', cbString: '' },
+      { text: 'Service 4', cbString: '' },
+    ],
+    [
+      { text: '🔍 Search Questions', cbString: '' },
+      { text: 'Service 4', cbString: '' },
+    ],
+    [{ text: 'Next', cbString: '' }],
+  ];
   constructor() {}
   chooseServiceDisplay() {
-    return [
-      'Select an option ',
-      Markup.keyboard([
-        [Markup.button.callback('Post Questions', 'posting'), Markup.button.callback('Service_2', 'Service 2')],
-        [Markup.button.callback('Service_3', 'Service 3'), Markup.button.callback('Service_4', 'Service 4')],
-        [Markup.button.callback('Service_5', 'Service 5'), Markup.button.callback('Service_6', 'Service 6')],
-        [Markup.button.callback('Service_7', 'Service 7'), Markup.button.callback('Next', 'Next')],
-      ]).resize(),
-    ];
+    return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptions)];
   }
   formatJoinMessage(first_name: string) {
     return [

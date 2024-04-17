@@ -1,27 +1,24 @@
-import { Scenes, session } from 'telegraf';
 import Bot from './loaders/bot';
 
-import RegistrationScene from './modules/registration/registration.scene';
-import { checkAndRedirectToScene } from './middleware/check-command';
-import { checkUserInChannelandPromtJoin } from './middleware/auth';
-import MainmenuScene from './modules/mainmenu/mainmenu.scene';
-import Service1Scene from './modules/service1/service1.scene';
-import dbConnection from './loaders/db-connecion';
-import QuestionPostScene from './modules/question-post/question-post.scene';
-
+import Express from 'express';
+import config from './config/config';
+const app = Express();
 const ignite = () => {
   const bot = Bot();
   if (bot) {
-    const stage = new Scenes.Stage([RegistrationScene, MainmenuScene, Service1Scene, QuestionPostScene]);
-    bot.use(session());
-    bot.use(stage.middleware());
-    bot.use(checkUserInChannelandPromtJoin());
-    bot.use(checkAndRedirectToScene());
-  }
-  process.on('SIGINT', () => {
-    dbConnection.close();
-    bot?.stop();
-  });
-};
+    app.use(bot.webhookCallback('/secret-path'));
+    const server = app.listen(config.port, () => {
+      console.log(`bot is running on port ${config.port}`);
+    });
 
+    process.once('SIGINT', () => {
+      bot.stop('SIGINT');
+      server.close();
+    });
+    process.once('SIGTERM', () => {
+      bot.stop('SIGTERM');
+      server.close();
+    });
+  } else console.log('bot is not initailized  ');
+};
 ignite();

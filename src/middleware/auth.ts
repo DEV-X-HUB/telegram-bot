@@ -1,6 +1,7 @@
 import axios from 'axios';
 import config from '../config/config';
 import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
+import { findSender } from '../utils/constants/chat';
 const mainMenuFormmater = new MainMenuFormmater();
 
 // Define the base URL
@@ -16,7 +17,7 @@ export const checkUserInChannel = async (user_id: string | number): Promise<bool
     const {
       data: { ok, result },
     } = await axios.get(`${baseUrl}/getChatMember`, { params });
-    return result.status == 'member';
+    return result.status != 'left';
   } catch (error) {
     console.log(error);
     return false;
@@ -25,11 +26,11 @@ export const checkUserInChannel = async (user_id: string | number): Promise<bool
 
 export function checkUserInChannelandPromtJoin() {
   return async (ctx: any, next: any) => {
-    const isUserJoined = await checkUserInChannel(ctx.message.from.id);
-    console.log(isUserJoined, 'has joined the channel');
+    const sender = findSender(ctx);
+    const isUserJoined = await checkUserInChannel(sender.id);
     if (isUserJoined) {
     } else {
-      return ctx.reply(...mainMenuFormmater.formatJoinMessage(ctx.message.from.first_name));
+      return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
     }
     return next();
   };

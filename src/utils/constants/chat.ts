@@ -23,3 +23,12 @@ export const deleteKeyboardMarkup = async (ctx: any, message?: string) => {
     chat_id: ctx.message.chat.id,
   });
 };
+
+export const findSender = (ctx: any) => {
+  let sender;
+  if (ctx?.callbackQuery) sender = ctx?.callbackQuery?.from;
+  if (ctx?.inline_query) sender = ctx?.inline_query?.from;
+  if (ctx?.message) sender = ctx?.message?.from;
+  if (ctx?.update.inline_query) sender = ctx?.update.inline_query?.from;
+  return sender;
+};
