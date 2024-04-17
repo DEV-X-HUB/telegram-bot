@@ -30,6 +30,7 @@ export default () => {
 
   const commands = [
     { name: 'start', description: 'Start the bot' },
+    { name: 'search', description: 'Start the bot' },
     { name: 'help', description: 'Display help' },
     { name: 'menu', description: 'Display main menu' },
     { name: 'register', description: 'Register to the bot' },

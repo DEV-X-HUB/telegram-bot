@@ -5,6 +5,7 @@ import QuestionPostSectionConstructionFormmater from './construction.formatter';
 import QuestionService from '../../question-post.service';
 import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
 import { displayDialog } from '../../../../ui/dialog';
+import MainMenuController from '../../../mainmenu/mainmenu.controller';
 const constructionFormatter = new QuestionPostSectionConstructionFormmater();
 
 let imagesUploaded: any[] = [];
@@ -210,7 +211,8 @@ class QuestionPostSectionConstructionController {
 
         case 'cancel': {
           await deleteMessageWithCallback(ctx);
-          return ctx.scene.enter('start');
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
         }
         case 'post_data': {
           console.log('here you are');
@@ -219,17 +221,20 @@ class QuestionPostSectionConstructionController {
           // console.log(response);
           // ctx.reply(...constructionFormatter.postingSuccessful());
           await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
-          return ctx.scene.enter('start');
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
 
           // if (response?.success) {
           //   await deleteMessageWithCallback(ctx);
           //   ctx.reply(...constructionFormatter.postingSuccessful());
-          //   return ctx.scene.enter('start');
+          // ctx.scene.leave();
+          // return MainMenuController.onStart(ctx);
           // } else {
           //   ctx.reply(...constructionFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
           //     await deleteMessageWithCallback(ctx);
-          //     return ctx.scene.enter('start');
+          //       ctx.scene.leave();
+          // return MainMenuController.onStart(ctx);
           //   }
 
           // increment the registration attempt

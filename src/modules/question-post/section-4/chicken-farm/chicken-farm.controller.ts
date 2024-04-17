@@ -2,6 +2,7 @@ import config from '../../../../config/config';
 import { displayDialog } from '../../../../ui/dialog';
 import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+import MainMenuController from '../../../mainmenu/mainmenu.controller';
 
 import ChickenFarmFormatter from './chicken-farm.formatter';
 const chickenFarmFormatter = new ChickenFarmFormatter();
@@ -114,12 +115,14 @@ class ChickenFarmController {
           await displayDialog(ctx, 'Posted successfully');
           // await ctx.reply(...chickenFarmFormatter.postingSuccessful());
           await ctx.scene.leave();
-          return ctx.scene.enter('start');
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
           // } else {
           //   ctx.reply(...postingFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
           //     await deleteMessageWithCallback(ctx);
-          //     return ctx.scene.enter('start');
+          //    ctx.scene.leave();
+          // return MainMenuController.onStart(ctx);
           //   }
 
           // increment the registration attempt
@@ -167,7 +170,8 @@ class ChickenFarmController {
     if (callbackMessage == 'post_data') {
       // console.log('Posted Successfully');
       await displayDialog(ctx, 'Posted successfully');
-      return ctx.scene.enter('start');
+      ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
       // return ctx.reply(...chickenFarmFormatter.postingSuccessful());
       // registration
       // api call for registration
@@ -177,7 +181,8 @@ class ChickenFarmController {
       //   ctx.wizard.state.status = 'pending';
       //   await deleteMessageWithCallback(ctx);
       //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //   return ctx.scene.enter('start');
+      //  ctx.scene.leave();
+      // return MainMenuController.onStart(ctx);
       // }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
@@ -185,7 +190,8 @@ class ChickenFarmController {
       // ctx.reply(...postingFormatter.postingError());
       if (registrationAttempt >= 2) {
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     } else if (callbackMessage == 'editing_done') {

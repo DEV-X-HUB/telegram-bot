@@ -1,4 +1,5 @@
 import { areEqaul, isInMarkUPOption } from '../../../utils/constants/string';
+import MainMenuController from '../../mainmenu/mainmenu.controller';
 
 import Section1Formatter from './section-1.formatter';
 const section1Formatter = new Section1Formatter();
@@ -17,7 +18,8 @@ class QuestionPostController {
     console.log('option', option);
     if (areEqaul(option, 'back', true)) {
       // go back to the previous scene
-      return ctx.scene.enter('start');
+      ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
     }
 
     if (isInMarkUPOption(option, section1Formatter.categories)) {
