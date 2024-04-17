@@ -1,5 +1,6 @@
 import { deleteKeyboardMarkup, deleteMessageWithCallback } from '../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
+import MainMenuController from '../../mainmenu/mainmenu.controller';
 
 import Section4Formatter from './section-4.formatter';
 const section4Formatter = new Section4Formatter();
@@ -18,7 +19,10 @@ class QuestionPostSection4Controller {
 
     if (!callbackQuery) return ctx.reply(section4Formatter.messages.useButtonError);
 
-    if (areEqaul(callbackQuery.data, 'back', true)) return ctx.scene.enter('start');
+    if (areEqaul(callbackQuery.data, 'back', true)) {
+      ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
+    }
 
     switch (callbackQuery.data) {
       case 'manufacture': {

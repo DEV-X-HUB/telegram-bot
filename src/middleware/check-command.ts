@@ -35,6 +35,15 @@ export function checkAndRedirectToScene() {
         return MainMenuController.onStart(ctx);
       }
 
+      if (commandText == 'search') {
+        ctx?.scene?.leave();
+        return await ctx.reply('Search questions using button below', {
+          reply_markup: {
+            inline_keyboard: [[{ text: '🔍 Search ', switch_inline_query_current_chat: '' }]],
+          },
+        });
+      }
+
       if (commandText == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {

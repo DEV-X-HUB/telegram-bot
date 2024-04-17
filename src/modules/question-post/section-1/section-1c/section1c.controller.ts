@@ -1,6 +1,7 @@
 import config from '../../../../config/config';
 import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+import MainMenuController from '../../../mainmenu/mainmenu.controller';
 
 import QuestionPostSection1CFormatter from './section1c.formatter';
 // import QuestionService from './question.service';
@@ -294,13 +295,15 @@ class QuestionPostSection1CController {
           //   await deleteMessageWithCallback(ctx);
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section1cFormatter.postingSuccessful());
+
           await ctx.scene.leave();
-          return ctx.scene.enter('start');
+          return MainMenuController.onStart(ctx);
           // } else {
           //   ctx.reply(...postingFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
           //     await deleteMessageWithCallback(ctx);
-          //     return ctx.scene.enter('start');
+          //      ctx.scene.leave();
+          // return MainMenuController.onStart(ctx);
           //   }
 
           // increment the registration attempt
@@ -370,7 +373,8 @@ class QuestionPostSection1CController {
       //   ctx.wizard.state.status = 'pending';
       //   await deleteMessageWithCallback(ctx);
       //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //   return ctx.scene.enter('start');
+      //    ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
       // }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
@@ -378,7 +382,8 @@ class QuestionPostSection1CController {
       // ctx.reply(...postingFormatter.postingError());
       if (registrationAttempt >= 2) {
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     } else if (callbackMessage == 'editing_done') {

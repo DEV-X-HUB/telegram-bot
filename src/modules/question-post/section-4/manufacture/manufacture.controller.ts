@@ -2,6 +2,7 @@ import config from '../../../../config/config';
 import { displayDialog } from '../../../../ui/dialog';
 import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+import MainMenuController from '../../../mainmenu/mainmenu.controller';
 
 import ManufactureFormatter from './manufacture.formatter';
 const manufactureFormatter = new ManufactureFormatter();
@@ -174,14 +175,16 @@ class ManufactureController {
           await deleteMessageWithCallback(ctx);
           await displayDialog(ctx, 'Posted successfully');
           await ctx.scene.leave();
-          return ctx.scene.enter('start');
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
           //   await ctx.reply(...manufactureFormatter.postingSuccessful());
 
           // } else {
           //   ctx.reply(...postingFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
           //     await deleteMessageWithCallback(ctx);
-          //     return ctx.scene.enter('start');
+          //       ctx.scene.leave();
+          // return MainMenuController.onStart(ctx);
           //   }
 
           // increment the registration attempt
@@ -247,7 +250,8 @@ class ManufactureController {
       //   ctx.wizard.state.status = 'pending';
       //   await deleteMessageWithCallback(ctx);
       //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //   return ctx.scene.enter('start');
+      //  ctx.scene.leave();
+      // return MainMenuController.onStart(ctx);
       // }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
@@ -255,7 +259,8 @@ class ManufactureController {
       // ctx.reply(...postingFormatter.postingError());
       if (registrationAttempt >= 2) {
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     } else if (callbackMessage == 'editing_done') {
