@@ -110,7 +110,7 @@ class QuestionFormmatter {
   getFormattedQuestionPreview(question: any) {
     switch (true) {
       case areEqaul(question.category, 'Section 1A', true): {
-        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>`;
+        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name != null ? question.user.display_name : 'Anonymous '}</a>`;
       }
     }
   }
@@ -127,7 +127,7 @@ class QuestionFormmatter {
   getformattedQuestionDetail(question: any) {
     switch (true) {
       case areEqaul(question.category, 'Section 1A', true): {
-        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit} ${question.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${question.location} \n\nDescription: ${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name || 'Anonymous '}</a>\n\nStatus : ${question.status}`;
+        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit} ${question.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${question.location} \n\nDescription: ${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name != null ? question.user.display_name : 'Anonymous '}</a>\n\nStatus : ${question.status}`;
       }
     }
   }
