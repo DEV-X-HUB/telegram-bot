@@ -8,6 +8,7 @@ import { areEqaul } from '../../utils/constants/string';
 
 import RegistrationFormatter from './registration-formatter';
 import RegistrationService from './restgration.service';
+import MainMenuController from '../mainmenu/mainmenu.controller';
 const registrationService = new RegistrationService();
 const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {
@@ -41,7 +42,7 @@ class RegistrationController {
             chat_id: callbackQuery.message.chat.id,
           });
           ctx.scene.leave();
-          return ctx.scene.enter('start');
+          return MainMenuController.onStart(ctx);
         }
 
         default: {
@@ -228,12 +229,14 @@ class RegistrationController {
           if (response.success) {
             await deleteMessageWithCallback(ctx);
             ctx.reply(...registrationFormatter.registrationSuccess());
-            return ctx.scene.enter('start');
+            ctx.scene.leave();
+            return MainMenuController.onStart(ctx);
           } else {
             ctx.reply(...registrationFormatter.registrationError());
             if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
               await deleteMessageWithCallback(ctx);
-              return ctx.scene.enter('start');
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
             }
             return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
               ? parseInt(ctx.wizard.state.registrationAttempt) + 1
@@ -283,14 +286,16 @@ class RegistrationController {
       if (response.success) {
         await deleteMessageWithCallback(ctx);
         ctx.reply(...registrationFormatter.registrationSuccess());
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+            return MainMenuController.onStart(ctx);
       }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
       ctx.reply(...registrationFormatter.registrationError());
       if (registrationAttempt >= 2) {
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     }

@@ -4,6 +4,7 @@ import { areEqaul, isInInlineOption } from '../../../utils/constants/string';
 import QuestionPostSectionBFormatter from './section-2.formatter';
 import QuestionService from '../question-post.service';
 import { questionPostValidator } from '../../../utils/validator/question-post-validaor';
+import MainMenuController from '../../mainmenu/mainmenu.controller';
 const questionPostSectionBFormatter = new QuestionPostSectionBFormatter();
 
 let imagesUploaded: any[] = [];
@@ -26,7 +27,8 @@ class QuestionPostSectionBController {
 
     if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      return ctx.scene.enter('start');
+      ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
     }
     if (isInInlineOption(callbackQuery.data, questionPostSectionBFormatter.typeOptions)) {
       ctx.wizard.state.type = callbackQuery.data;
@@ -140,12 +142,14 @@ class QuestionPostSectionBController {
           // if (response?.success) {
           await deleteMessageWithCallback(ctx);
           ctx.reply(...questionPostSectionBFormatter.postingSuccessful());
-          return ctx.scene.enter('start');
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
           // } else {
           ctx.reply(...questionPostSectionBFormatter.postingError());
           if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
             await deleteMessageWithCallback(ctx);
-            return ctx.scene.enter('start');
+            ctx.scene.leave();
+            return MainMenuController.onStart(ctx);
           }
 
           // increment the registration attempt
@@ -200,7 +204,8 @@ class QuestionPostSectionBController {
       //   ctx.wizard.state.status = 'pending';
       //   await deleteMessageWithCallback(ctx);
       await ctx.reply(...questionPostSectionBFormatter.postingSuccessful());
-      return ctx.scene.enter('start');
+      ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
       // }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
@@ -208,7 +213,8 @@ class QuestionPostSectionBController {
       // ctx.reply(...questionPostSectionBFormatter.postingError());
       if (registrationAttempt >= 2) {
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     } else if (callbackMessage == 'editing_done') {

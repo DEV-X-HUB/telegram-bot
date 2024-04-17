@@ -35,6 +35,7 @@ class RegistrationFormatter {
 
   messages = {
     useButtonError: 'Please use the buttons above to choose ',
+    dbError: 'Unable to process your request please try again ',
     userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
     termsAndConditionsPromt:
       'Do you agree with these Terms and Conditions?  Please select Yes or No from the Buttons below',
@@ -70,7 +71,6 @@ class RegistrationFormatter {
   }
 
   questionPreview(questionData: any) {
-    console.log(questionData);
     if (!questionData) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
     return [
       `#${questionData.category} \n\n${questionData.description} \n\nBy: ${questionData?.display_name || 'Anonymous'} \n\n${questionData.created_at}) \n\nStatus: ${questionData.status}`,
@@ -88,10 +88,18 @@ class RegistrationFormatter {
   preview(userData: any) {
     return [this.formatePreview(userData), InlineKeyboardButtons(this.previewButtons)];
   }
-  profilePreviwByThirdParty(userData: any) {
+  profilePreviwByThirdParty(userData: any, followed: boolean) {
+    // -------------
     return [
       this.formatePreviewByThirdParty(userData),
-      InlineKeyboardButtons([[{ text: 'Follow', cbString: `subsribe_${userData.id}` }]]),
+      InlineKeyboardButtons([
+        [
+          {
+            text: `${followed ? 'Unfollow' : 'Follow'}`,
+            cbString: `${followed ? 'unfollow' : 'follow'}_${userData.id}`,
+          },
+        ],
+      ]),
     ];
   }
 
@@ -103,7 +111,6 @@ class RegistrationFormatter {
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
-    console.log(userData);
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
     const qaStat = `Asked ${userData.questions.length} Questions, Answered ${userData.answers.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;

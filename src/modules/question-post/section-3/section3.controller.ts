@@ -1,6 +1,7 @@
 import config from '../../../config/config';
 import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
+import MainMenuController from '../../mainmenu/mainmenu.controller';
 
 import Section3Formatter from './section3.formatter';
 const section3Formatter = new Section3Formatter();
@@ -25,9 +26,9 @@ class Section3Controller {
       if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
         deleteMessageWithCallback(ctx);
 
-        // leave this scene and go back to the previous scene
+        // leave this scene
         ctx.scene.leave();
-        return ctx.scene.enter('Post Questions');
+        return MainMenuController.onStart(ctx);
       }
 
       if (isInInlineOption(callbackQuery.data, section3Formatter.birthOrMaritalOption)) {

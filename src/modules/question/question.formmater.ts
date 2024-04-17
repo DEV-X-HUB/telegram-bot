@@ -1,24 +1,32 @@
+import { Question, User } from '@prisma/client';
 import config from '../../config/config';
 import { TableInlineKeyboardButtons } from '../../types/components';
 import { InlineKeyboardButtons } from '../../ui/button';
 import { formatDateFromIsoString } from '../../utils/constants/date';
+import { capitalize, areEqaul } from '../../utils/constants/string';
 
 class QuestionFormmatter {
+  answerOptions: TableInlineKeyboardButtons = [
+    [
+      { text: '✏️ Edit', cbString: 'edit_answer' },
+      { text: 'cancel', cbString: 'cancel_answer' },
+    ],
+    [{ text: '✅ Post', cbString: 'post_answer' }],
+  ];
   messages = {
     noQuestionTitle: '**No question found mathcing your query**',
     noQuestionDesc: 'Click here to ask a question',
     NoQuestionMessageText: 'Click the button below  to ask ',
     allQuestionsMsg: 'Click the button below  to list the questions ',
+    useButtonError: 'use buttons to select  ',
   };
 
   constructor() {}
 
   seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
-      button: {
-        text: `${questionsNumber} Questions: Show All`,
-        start_parameter: `all_questions_${searchString}_${questionsNumber}`,
-      },
+      text: `${questionsNumber} Questions: Show All`,
+      start_parameter: `all_questions_${searchString}_${questionsNumber}`,
     };
   }
 
@@ -27,13 +35,13 @@ class QuestionFormmatter {
       return [
         // navigate to the bot and start the bot with the command 'answer'
         { text: `Answer`, url: `${config.bot_url}?start=answer_${questionId}` },
-        { text: `Browse`, url: `${config.bot_url}?start=browse_${questionId}` },
+        // { text: `Browse`, url: `${config.bot_url}?start=browse_${questionId}` },
       ];
     else
       return InlineKeyboardButtons([
         [
-          { text: 'Answer', cbString: `answer_${questionId}` },
           { text: 'Browse', cbString: `browse_${questionId}` },
+          { text: 'Subscribe', cbString: `subscribe_${questionId}` },
         ],
       ]);
   }
@@ -44,8 +52,8 @@ class QuestionFormmatter {
       id: `${question.id}_${index}`,
       title: question.description,
       input_message_content: {
-        message_text: `#${question.category}\n\n${question.description}? \n\nBy: @username`,
-        parse_mode: 'Markdown',
+        message_text: `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,
+        parse_mode: 'HTML',
         entities: [
           {
             type: 'bold',
@@ -57,19 +65,7 @@ class QuestionFormmatter {
       reply_markup: {
         inline_keyboard: [this.questionOptionsButtons(question.id.toString(), true)],
       },
-      description: `Asked ${formatDateFromIsoString(question?.created_at)}, ${question.Answer.length} Answers`,
-      // thumbnail_url:
-      //   'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
-      // thumbnail_url: question.photo[0],
-      // send image inside the message
-      photo_url: question.photo[0],
-      photo_width: 500,
-      photo_height: 500,
-
-      // thumbnail
-      // thumb_url: question.photo[0],
-      // thumb_width: 500,
-      // thumb_height: 500,
+      description: `Posted ${formatDateFromIsoString(question?.created_at)},  ${capitalize(question.status)}`,
     }));
   }
   formatNoQuestionsErrorMessage() {
@@ -105,11 +101,35 @@ class QuestionFormmatter {
       InlineKeyboardButtons([[{ text: 'Show All Question', cbString: 'show_all_questions:1' }]]),
     ];
   };
-  formatSingleQuestion(question: any) {
+  formatSingleQuestion(question: any, forAnswer?: boolean) {
     return [
       `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,
-      this.questionOptionsButtons(question.id),
+      this.questionOptionsButtons(question.id, !forAnswer),
     ];
+  }
+  getFormattedQuestionPreview(question: any) {
+    switch (true) {
+      case areEqaul(question.category, 'Section 1A', true): {
+        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>`;
+      }
+    }
+  }
+  formatQuestionDetail(question: any, forAnswer?: boolean) {
+    return [this.getformattedQuestionDetail(question)];
+  }
+  formatAnswerPreview(answer: string, sender: User) {
+    return [
+      `${answer}\n\n\nBy: <a href="${config.bot_url}?start=userProfile_${sender.id}">${sender.display_name}</a>\n${formatDateFromIsoString(new Date().toISOString())}`,
+      InlineKeyboardButtons(this.answerOptions),
+    ];
+  }
+
+  getformattedQuestionDetail(question: any) {
+    switch (true) {
+      case areEqaul(question.category, 'Section 1A', true): {
+        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit} ${question.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${question.location} \n\nDescription: ${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n\nStatus : ${question.status}`;
+      }
+    }
   }
 }
 

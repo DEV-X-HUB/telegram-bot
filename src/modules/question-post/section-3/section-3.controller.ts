@@ -1,5 +1,6 @@
 import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
+import MainMenuController from '../../mainmenu/mainmenu.controller';
 
 import Section3Formatter from './section-3.formatter';
 const section3Formatter = new Section3Formatter();
@@ -24,9 +25,9 @@ class Section3Controller {
       if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
         deleteMessageWithCallback(ctx);
 
-        // leave this scene and go back to the previous scene
+        // leave this scene a
         ctx.scene.leave();
-        return ctx.scene.enter('start');
+        return MainMenuController.onStart(ctx);
       }
 
       if (isInInlineOption(callbackQuery.data, section3Formatter.birthOrMaritalOption)) {
@@ -147,8 +148,8 @@ class Section3Controller {
           //   await deleteMessageWithCallback(ctx);
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section3Formatter.postingSuccessful());
-          await ctx.scene.leave();
-          return ctx.scene.enter('start');
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
           // } else {
           //   ctx.reply(...postingFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
@@ -215,8 +216,8 @@ class Section3Controller {
 
       // ctx.reply(...postingFormatter.postingError());
       if (registrationAttempt >= 2) {
-        await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('start');
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
       }
       return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
     } else if (callbackMessage == 'editing_done') {
