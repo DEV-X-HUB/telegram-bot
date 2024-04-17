@@ -12,6 +12,7 @@ import MainMenuController from '../mainmenu/mainmenu.controller';
 const profileService = new ProfileService();
 const profileFormatter = new RegistrationFormatter();
 const registrationFormatter = new RegistrationFormatter();
+import { Context } from 'telegraf';
 class ProfileController {
   constructor() {}
   saveToState(ctx: any, userData: any) {
@@ -100,17 +101,16 @@ class ProfileController {
         }
         case 'my_followers': {
           const followers = await profileService.getFollowersByUserId(userData.id);
-          console.log(followers);
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.activity = 'followers_list_view';
-          return ctx.reply(...registrationFormatter.formateFollowersList(followers));
+          return ctx.replyWithHTML(...registrationFormatter.formateFollowersList(followers));
         }
         case 'my_followings': {
           const followings = await profileService.getFollowingsByUserId(userData.id);
-          console.log(followings);
+
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.activity = 'followings_list_view';
-          return ctx.reply(...registrationFormatter.formateFollowingsList(followings));
+          return ctx.replyWithHTML(...registrationFormatter.formateFollowingsList(followings));
         }
 
         case 'my_questions': {

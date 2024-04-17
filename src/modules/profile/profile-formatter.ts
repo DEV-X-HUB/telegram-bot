@@ -10,6 +10,7 @@ import {
 import { ICity } from 'country-state-city';
 import { areEqaul, capitalizeFirstLetter } from '../../utils/constants/string';
 import { formatDateFromIsoString } from '../../utils/constants/date';
+import config from '../../config/config';
 
 class RegistrationFormatter {
   countries: any[] = [];
@@ -51,6 +52,9 @@ class RegistrationFormatter {
     countryPrompt: ' Please choose your country ',
     cityPrompt: ' Please choose your City ',
   };
+  constructor() {
+    this.countries = getSelectedCoutryList();
+  }
 
   questionActions() {
     return [
@@ -78,9 +82,6 @@ class RegistrationFormatter {
     ];
   }
 
-  constructor() {
-    this.countries = getSelectedCoutryList();
-  }
   useButtonError(optionName: string) {
     return this.messages.useButtonError + optionName;
   }
@@ -111,7 +112,6 @@ class RegistrationFormatter {
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
-    console.log(userData);
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
     const qaStat = `Asked ${userData.questions.length} Questions, Answered ${userData.answers.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
@@ -145,22 +145,38 @@ class RegistrationFormatter {
   }
 
   formateFollowersList(followers: any[]) {
+    let followerList = '';
     const header = `${followers.length} Followers  \n`;
     const gap = '\n-----------------------------------\n';
-    // if (followers.length == 0)
-    return [
-      header + gap + "You don't have any followers yet." + gap,
-      InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
-    ];
+
+    if (followers.length == 0)
+      return [
+        header + gap + "You don't have any followers yet." + gap,
+        InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
+      ];
+
+    followers.forEach((follower, index) => {
+      followerList += ` <a href="${config.bot_url}?start=userProfile_${follower.id}">${follower.display_name != null ? follower.display_name : 'Anonymous '}</a> ${followers.length == index + 1 ? '' : '\n'}`;
+    });
+
+    return [header + gap + followerList + gap, InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]])];
   }
   formateFollowingsList(followings: any[]) {
+    let followingList = '';
     const header = `${followings.length} followings \n`;
     const gap = '\n-----------------------------------\n';
-    // if (followings.length == 0)
-    return [
-      header + gap + 'You are not following anynone' + gap,
-      InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
-    ];
+
+    if (followings.length == 0)
+      return [
+        header + gap + 'You are not following anynone' + gap,
+        InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
+      ];
+
+    followings.forEach((following, index) => {
+      followingList += ` <a href="${config.bot_url}?start=userProfile_${following.id}">${following.display_name != null ? following.display_name : 'Anonymous '}</a> ${followings.length == index + 1 ? '' : '\n'}`;
+    });
+
+    return [header + gap + followingList + gap, InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]])];
   }
 
   termsAndConditionsDisplay() {
