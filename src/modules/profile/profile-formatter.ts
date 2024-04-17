@@ -111,6 +111,7 @@ class RegistrationFormatter {
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
+    console.log(userData);
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
     const qaStat = `Asked ${userData.questions.length} Questions, Answered ${userData.answers.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;

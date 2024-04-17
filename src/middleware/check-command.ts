@@ -23,6 +23,7 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
+    console.log(text);
     if (!text) return next();
 
     if (!text) return next();
@@ -48,11 +49,12 @@ export function checkAndRedirectToScene() {
       if (commandText == 'register') {
         const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(ctx.message.from.id);
         if (isUserRegistered) {
-          ctx.reply(...new RegistrationFormatter().userExistMessage());
-          return MainMenuController.onStart(ctx);
+          // ctx.reply(...new RegistrationFormatter().userExistMessage());
+          // return MainMenuController.onStart(ctx);
         }
       }
       if (ctx.scene.scenes.has(commandText)) {
+        ctx?.scene?.leave();
         return ctx.scene.enter(commandText);
       } else {
         return ctx.reply('Unknown option. Please choose a valid option.');

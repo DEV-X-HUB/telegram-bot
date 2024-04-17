@@ -44,7 +44,8 @@ class ProfileController {
     const currentUserData = findSender(ctx);
     const currentUser = await profileService.getProfileByTgId(currentUserData.id);
     if (!currentUser) return;
-    // console.log(currentUser.id, userId); retur
+    console.log(currentUser.id, userId);
+
     if (currentUser?.id == userId) {
       return ctx.scene.enter('Profile');
     }
@@ -53,6 +54,7 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
+
     return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing));
   }
   async handleFollow(ctx: any, query: string) {

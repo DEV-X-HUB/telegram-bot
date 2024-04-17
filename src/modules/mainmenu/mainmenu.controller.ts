@@ -31,6 +31,10 @@ class MainMenuController {
 
         return ctx.scene.enter('Post-Question-Section-3');
       }
+      case 'Profile': {
+        ctx.scene.leave();
+        return ctx.scene.enter('Profile');
+      }
       case 'Service 4': {
         ctx.scene.leave();
         return ctx.scene.enter('Post-Question-Section-4');
