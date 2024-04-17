@@ -37,7 +37,7 @@ export function checkCallBacks() {
   };
 }
 export function checkMenuOptions() {
-  const mainMenus = ['Service 1', 'Service 2', 'Service 3', 'Service 4', '🔍 Search Questions'];
+  const mainMenus = ['Service 1', 'Service 2', 'Service 3', 'Service 4', '🔍 Search Questions', 'Profile'];
   return async (ctx: any, next: any) => {
     const message = ctx?.message?.text;
     if (message && mainMenus.includes(message)) return MainMenuController.chooseOption(ctx);

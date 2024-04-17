@@ -23,6 +23,7 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
+
     if (!text) return next();
 
     if (!text) return next();
@@ -53,6 +54,7 @@ export function checkAndRedirectToScene() {
         }
       }
       if (ctx.scene.scenes.has(commandText)) {
+        ctx?.scene?.leave();
         return ctx.scene.enter(commandText);
       } else {
         return ctx.reply('Unknown option. Please choose a valid option.');

@@ -19,7 +19,10 @@ class MainmenuFormatter {
       { text: '🔍 Search Questions', cbString: '' },
       { text: 'Service 4', cbString: '' },
     ],
-    [{ text: 'Next', cbString: '' }],
+    [
+      { text: 'Profile', cbString: '' },
+      { text: 'Next', cbString: '' },
+    ],
   ];
   constructor() {}
   chooseServiceDisplay() {
