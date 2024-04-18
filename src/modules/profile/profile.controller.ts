@@ -40,55 +40,6 @@ class ProfileController {
     ctx.wizard.state.activity = 'preview';
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
-
-  async viewProfileByThirdParty(ctx: any, userId: string) {
-    const currentUserData = findSender(ctx);
-    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
-    if (!currentUser) return;
-    console.log(currentUser.id, userId);
-
-    if (currentUser?.id == userId) {
-      return ctx.scene.enter('Profile');
-    }
-
-    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id, userId);
-    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
-
-    const userData = await profileService.getProfileDataWithId(userId);
-
-    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing));
-  }
-  async handleFollow(ctx: any, query: string) {
-    const [_, userId] = query.split('_');
-    const currentUserData = findSender(ctx);
-    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
-    if (!currentUser) return;
-
-    const { status } = await profileService.followUser(currentUser?.id, userId);
-    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
-
-    const userData = await profileService.getProfileDataWithId(userId);
-    if (userData)
-      return ctx.editMessageReplyMarkup({
-        inline_keyboard: [[{ text: 'Unfollow', callback_data: `unfollow_${userData.id}` }]],
-      });
-  }
-  async handlUnfollow(ctx: any, query: string) {
-    const [_, userId] = query.split('_');
-    const currentUserData = findSender(ctx);
-    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
-    if (!currentUser) return;
-
-    const userData = await profileService.getProfileDataWithId(userId);
-
-    const { status } = await profileService.unfollowUser(currentUser?.id, userId);
-    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
-
-    if (userData)
-      return ctx.editMessageReplyMarkup({
-        inline_keyboard: [[{ text: 'Follow', callback_data: `follow1_${userData?.id}` }]],
-      });
-  }
   async previewHandler(ctx: any) {
     const userData = ctx.wizard.state.userData;
     const callbackQuery = ctx.callbackQuery;
@@ -132,7 +83,10 @@ class ProfileController {
           });
         }
 
-        case 'cancel': {
+        case 'back': {
+          deleteMessageWithCallback(ctx);
+          ctx?.scene?.leave();
+          return MainMenuController.onStart(ctx);
         }
 
         default: {
@@ -142,6 +96,54 @@ class ProfileController {
     else {
       ctx.reply(registrationFormatter.messages.useButtonError);
     }
+  }
+
+  async viewProfileByThirdParty(ctx: any, userId: string) {
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    if (currentUser?.id == userId) {
+      return ctx.scene.enter('Profile');
+    }
+
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id, userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing));
+  }
+  async handleFollow(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status } = await profileService.followUser(currentUser?.id, userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+    if (userData)
+      return ctx.editMessageReplyMarkup({
+        inline_keyboard: [[{ text: 'Unfollow', callback_data: `unfollow_${userData.id}` }]],
+      });
+  }
+  async handlUnfollow(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const userData = await profileService.getProfileDataWithId(userId);
+
+    const { status } = await profileService.unfollowUser(currentUser?.id, userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    if (userData)
+      return ctx.editMessageReplyMarkup({
+        inline_keyboard: [[{ text: 'Follow', callback_data: `follow1_${userData?.id}` }]],
+      });
   }
 
   async editProfileOption(ctx: any) {

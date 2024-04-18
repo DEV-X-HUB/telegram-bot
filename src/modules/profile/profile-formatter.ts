@@ -25,7 +25,10 @@ class RegistrationFormatter {
       { text: 'Followers', cbString: `my_followers` },
       { text: 'Following', cbString: `my_followings` },
     ],
-    [{ text: 'Setting', cbString: `profile_setting` }],
+    [
+      { text: 'Setting', cbString: `profile_setting` },
+      { text: 'Back', cbString: `back` },
+    ],
   ];
   editOptionsButtons = [
     [{ text: ' Edit Name', cbString: `display_name` }],
