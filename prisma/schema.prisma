@@ -38,6 +38,7 @@ model User {
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
+  posts      Post[]
   created_at  DateTime   @default(now())
 }
 
@@ -58,37 +59,75 @@ model Post {
   status      PostStatus   @default(pending)
   category    String
 
-  // Define relation with subcategory models
-  Service1A   Service1A?
+  user        User     @relation(fields: [user_id], references: [id]) 
+  user_id     String
+
+  // Define relation with categories and sub categories models
+  Service1A   Service1A? 
   Service1B   Service1B?
+  Service1C   Service1C?
+  Service2    Service2?
   Service3    Service3?
   Service4ChickenFarm Service4ChickenFarm?
   Service4Manufacture Service4Manufacture?
   Service4Construction Service4Construction?
-  // Add other categories as needed
 }
 
 
 
 
 model Service1A {
-  id             String   @id @default(uuid())
-  post_id        String   @unique
-  arbr           Float
-  height         Float
-  depth          Float
-
-  post   Post @relation(fields: [post_id], references: [id])
+  id                String   @id @default(uuid()) 
+  post_id           String   @unique
+  arbr_value        String 
+  id_first_option   String 
+  location          String 
+  woreda            String 
+  last_digit        String
+  photo             String[] 
+  post              Post @relation(fields: [post_id], references: [id])
 }
+
 model Service1B {
-  id             String   @id @default(uuid())
-  post_id        String   @unique
-  arbr           Float
-  height         Float
-  depth          Float
-
-  post   Post @relation(fields: [post_id], references: [id])
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  title                       String 
+  main_category               String 
+  sub_category                String 
+  id_first_option             String 
+  last_digit                  String
+  condition                   String 
+  issue_date                  DateTime? 
+  expire_date                 DateTime? 
+  location                    String? 
+  woreda                      String 
+  photo                       String[] 
+  post                        Post @relation(fields: [post_id], references: [id])
 }
+
+model Service1C {
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  arbr_value                  String
+  paper_stamp                 String 
+  id_first_option             String 
+  woreda                      String 
+  service_type1               String 
+  service_type2               String 
+  service_type3               String 
+  last_digit                  String
+  photo                       String[] 
+  post                        Post @relation(fields: [post_id], references: [id])
+}
+model Service2 {
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  service_type                String
+  title                       String 
+  photo                       String[] @default([])
+  post                        Post @relation(fields: [post_id], references: [id])
+}
+
 
 
 model Service3 {
@@ -141,10 +180,4 @@ model Service4Construction {
 }
 
 
-enum PostStatus {
-  pending
-  open
-  closed
-  rejected
-}
 
