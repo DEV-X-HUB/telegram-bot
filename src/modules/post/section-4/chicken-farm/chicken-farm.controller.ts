@@ -5,6 +5,7 @@ import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 
 import ChickenFarmFormatter from './chicken-farm.formatter';
+import Section4ChickenFarmService from './chicken-farm.service';
 const chickenFarmFormatter = new ChickenFarmFormatter();
 
 let imagesUploaded: any[] = [];
@@ -106,34 +107,38 @@ class ChickenFarmController {
         case 'post_data': {
           console.log('here you are');
           // api request to post the data
-          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
-          // console.log(response);
+          const response = await Section4ChickenFarmService.createChickenFarmPost(
+            ctx.wizard.state,
+            callbackQuery.from.id,
+          );
+          console.log(response);
 
-          // if (response?.success) {
-          //   await deleteMessageWithCallback(ctx);
-          await deleteMessageWithCallback(ctx);
-          await displayDialog(ctx, 'Posted successfully');
-          // await ctx.reply(...chickenFarmFormatter.postingSuccessful());
-          await ctx.scene.leave();
-          ctx.scene.leave();
-          return MainMenuController.onStart(ctx);
-          // } else {
-          //   ctx.reply(...postingFormatter.postingError());
-          //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
-          //     await deleteMessageWithCallback(ctx);
-          //    ctx.scene.leave();
-          // return MainMenuController.onStart(ctx);
-          //   }
+          if (response?.success) {
+            // await deleteMessageWithCallback(ctx);
+            await deleteMessageWithCallback(ctx);
 
-          // increment the registration attempt
-          // return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
-          //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
-          //   : 1);
+            await ctx.reply(...chickenFarmFormatter.postingSuccessful());
+            await ctx.scene.leave();
+
+            return MainMenuController.onStart(ctx);
+          } else {
+            ctx.reply(...chickenFarmFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
+            }
+
+            // increment the registration attempt
+            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+              ? parseInt(ctx.wizard.state.postingAttempt) + 1
+              : 1);
+          }
         }
+        // default: {
+        //   await ctx.reply('DEFAULT');
+        // }
       }
-      // default: {
-      //   await ctx.reply('DEFAULT');
-      // }
     }
   }
 
@@ -169,21 +174,21 @@ class ChickenFarmController {
 
     if (callbackMessage == 'post_data') {
       // console.log('Posted Successfully');
-      await displayDialog(ctx, 'Posted successfully');
+      // await displayDialog(ctx, 'Posted successfully');
       ctx.scene.leave();
-      return MainMenuController.onStart(ctx);
+      // return MainMenuController.onStart(ctx);
       // return ctx.reply(...chickenFarmFormatter.postingSuccessful());
       // registration
       // api call for registration
-      // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+      const response = await Section4ChickenFarmService.createChickenFarmPost(ctx.wizard.state, callbackQuery.from.id);
 
-      // if (response.success) {
-      //   ctx.wizard.state.status = 'pending';
-      //   await deleteMessageWithCallback(ctx);
-      //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //  ctx.scene.leave();
-      // return MainMenuController.onStart(ctx);
-      // }
+      if (response.success) {
+        ctx.wizard.state.status = 'pending';
+        await deleteMessageWithCallback(ctx);
+        await ctx.reply(...chickenFarmFormatter.postingSuccessful());
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
 
