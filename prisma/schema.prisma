@@ -79,25 +79,25 @@ model Service1B {
   height         Float
   depth          Float
 
-  post   Post @relation(fields: [post_id], references: [id])
+  post           Post @relation(fields: [post_id], references: [id])
 }
 
 
 model Service3 {
-  id             String   @id @default(uuid())
-  post_id        String   @unique
+  id               String   @id @default(uuid())
+  post_id          String   @unique
   birth_or_marital String
-  title      String
-  photo      String[] // Required array of photo URLs
+  title            String
+  photo            String[] // Required array of photo URLs
 
   post   Post @relation(fields: [post_id], references: [id])
 }
 
 
 model Service4ChickenFarm {
-  id             String   @id @default(uuid()) 
-  post_id        String   @unique
-  sector         String
+  id                String   @id @default(uuid()) 
+  post_id           String   @unique
+  sector            String
   estimated_capital String
   enterprise_name   String
 
@@ -107,29 +107,29 @@ model Service4ChickenFarm {
 
 
 model Service4Manufacture {
-  id             String   @id @default(uuid()) 
-  post_id        String   @unique
-  sector         String
-  number_of_workers Float
+  id                String   @id @default(uuid()) 
+  post_id           String   @unique
+  sector            String
+  number_of_workers Int
   estimated_capital String
   enterprise_name   String
-  photo      String[] // Required array of photo URLs
+  photo             String[] // Required array of photo URLs
 
   post   Post @relation(fields: [post_id], references: [id])
 }
 
 
 model Service4Construction {
-  id             String   @id @default(uuid())
-  post_id        String   @unique
-  construction_size String?
-  company_experience String?
+  id                    String   @id @default(uuid())
+  post_id               String   @unique
+  construction_size     String?
+  company_experience    String?
   document_request_type String?
-  land_size String?
-  land_status String?
-  location String
-  photo      String[] // Required array of photo URLs
-  post   Post @relation(fields: [post_id], references: [id])
+  land_size             String?
+  land_status           String?
+  location              String
+  photo                 String[] // Required array of photo URLs
+  post                  Post @relation(fields: [post_id], references: [id])
 }
 
 
