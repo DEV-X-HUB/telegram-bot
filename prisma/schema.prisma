@@ -131,24 +131,25 @@ model Service2 {
 
 
 model Service3 {
-  id               String   @id @default(uuid())
-  post_id          String   @unique
-  birth_or_marital String
-  title            String
-  photo            String[] // Required array of photo URLs
+  id                     String   @id @default(uuid())
+  post_id                String   @unique
+  birth_or_marital       String
+  title                  String
+  photo                  String[] // Required array of photo URLs
 
-  post   Post @relation(fields: [post_id], references: [id])
+  post                  Post @relation(fields: [post_id], references: [id])
 }
 
 
 model Service4ChickenFarm {
-  id                String   @id @default(uuid()) 
-  post_id           String   @unique
-  sector            String
-  estimated_capital String
-  enterprise_name   String
+  
+  id                      String   @id @default(uuid()) 
+  post_id                 String   @unique
+  sector                  String
+  estimated_capital       String
+  enterprise_name         String
 
-  post   Post @relation(fields: [post_id], references: [id])
+  post                   Post @relation(fields: [post_id], references: [id])
 
 }
 
