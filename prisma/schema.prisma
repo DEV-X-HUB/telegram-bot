@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -12,7 +7,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DB_URL")
 }
-
 
 enum PostStatus {
   open 
@@ -48,7 +42,6 @@ model Follows {
   following_id String
   follower     User   @relation("Follower", fields: [follower_id], references: [id])
   following    User   @relation("Following", fields: [following_id], references: [id])
-
   @@unique([follower_id, following_id])
 }
 
@@ -142,42 +135,40 @@ model Service3 {
 
 
 model Service4ChickenFarm {
-  
+
   id                      String   @id @default(uuid()) 
   post_id                 String   @unique
   sector                  String
   estimated_capital       String
   enterprise_name         String
-
-  post                   Post @relation(fields: [post_id], references: [id])
+  post                    Post @relation(fields: [post_id], references: [id])
 
 }
 
 
 model Service4Manufacture {
-  id                String   @id @default(uuid()) 
-  post_id           String   @unique
-  sector            String
-  number_of_workers Int
-  estimated_capital String
-  enterprise_name   String
-  photo             String[] // Required array of photo URLs
-
-  post   Post @relation(fields: [post_id], references: [id])
+  id                        String   @id @default(uuid()) 
+  post_id                   String   @unique
+  sector                    String
+  number_of_workers         Int
+  estimated_capital         String
+  enterprise_name           String
+  photo                     String[] // Required array of photo URLs
+  post                     Post @relation(fields: [post_id], references: [id])
 }
 
 
 model Service4Construction {
-  id                    String   @id @default(uuid())
-  post_id               String   @unique
-  construction_size     String?
-  company_experience    String?
-  document_request_type String?
-  land_size             String?
-  land_status           String?
-  location              String
-  photo                 String[] // Required array of photo URLs
-  post                  Post @relation(fields: [post_id], references: [id])
+  id                        String   @id @default(uuid())
+  post_id                   String   @unique
+  construction_size         String?
+  company_experience        String?
+  document_request_type     String?
+  land_size                 String?
+  land_status               String?
+  location                  String
+  photo                     String[] // Required array of photo URLs
+  post                      Post @relation(fields: [post_id], references: [id])
 }
 
 
