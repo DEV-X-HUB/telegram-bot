@@ -1,6 +1,8 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
 import config from '../../../../config/config';
+import { areEqaul } from '../../../../utils/constants/string';
+import { NotifyOption } from '../../../../types/params';
 
 class QustionPostFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -11,6 +13,7 @@ class QustionPostFormatter {
   messages = {
     useButtonError: 'Please use Buttons to select options',
     categoryPrompt: 'Please Choose on category from the options',
+    notifyOptionPrompt: 'Select who can be notified this question',
     optionPrompt: 'Please Choose on category from the options',
     arBrPromt: 'Please Choose from two',
     chosseWoredaPrompt: 'Please Choose Your Woreda',
@@ -111,6 +114,27 @@ class QustionPostFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
+  notifyOptionDisplay(notifyOption: NotifyOption) {
+    return [
+      this.messages.notifyOptionPrompt,
+      InlineKeyboardButtons([
+        [
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
+        ],
+        [
+          {
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
+          },
+        ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
+      ]),
+    ];
+  }
+
   getPreviewData(state: any) {
     return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
@@ -165,7 +189,7 @@ class QustionPostFormatter {
         ],
         [
           { text: 'photo', cbString: 'photo' },
-          { text: 'Cancel', cbString: 'cancel' },
+          { text: 'Cancel', cbString: 'cancel_edit' },
         ],
         [{ text: 'Done', cbString: 'editing_done' }],
       ]),

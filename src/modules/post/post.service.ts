@@ -89,10 +89,12 @@ class QuestionService {
   }
   static async createServie1Post(postDto: CreatePostService1ADto, tg_id: string) {
     try {
+      const { description, category, notify_option, ...createPostService1ADto } = postDto;
       const postData = await this.createPost(
         {
-          description: postDto.description,
-          category: postDto.category,
+          description,
+          category,
+          notify_option,
         },
         tg_id,
       );
@@ -104,7 +106,6 @@ class QuestionService {
           message: postData.message,
         };
 
-      const { description, category, ...createPostService1ADto } = postDto;
       const post = await prisma.service1A.create({
         data: {
           post_id: postData.post.id,
@@ -140,6 +141,21 @@ class QuestionService {
       return false;
     }
   }
+
+  // static async getAllPost() {
+  //   const postsWithCategories = await prisma.post.findMany({
+  //     include: {
+  //       Service1A: true, // Include data from Service1A category
+  //       Service1B: true, // Include data from Service1B category
+  //       Service1C: true, // Include data from Service1C category
+  //       Service2: true, // Include data from Service2 category
+  //       Service3: true, // Include data from Service3 category
+  //       // Include other categories if necessary
+  //     },
+  //   });
+
+  //   console.log(postsWithCategories);
+  // }
 }
 
 export default QuestionService;

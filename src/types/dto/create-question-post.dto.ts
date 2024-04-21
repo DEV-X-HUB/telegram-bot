@@ -1,3 +1,5 @@
+import { NotifyOption } from '../params';
+
 enum PostStatus {
   open = 'open',
   closed = 'close',
@@ -15,9 +17,11 @@ export interface CreatePostService1ADto {
 
   description: string;
   category: string;
+  notify_option: NotifyOption;
 }
 
 export interface CreatePostDto {
   description: string;
   category: string;
+  notify_option: NotifyOption;
 }

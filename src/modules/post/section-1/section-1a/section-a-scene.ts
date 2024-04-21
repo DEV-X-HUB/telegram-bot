@@ -16,6 +16,7 @@ const QuestionPostSectionAScene = new Scenes.WizardScene(
   questionPostSectionAController.editData,
   questionPostSectionAController.editPhoto,
   questionPostSectionAController.postedReview,
+  questionPostSectionAController.adjustNotifySetting,
 );
 
 export default QuestionPostSectionAScene;

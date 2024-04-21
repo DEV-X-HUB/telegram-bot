@@ -163,7 +163,7 @@ class QuestionPostSectionAController {
       }
       ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.status = 'previewing';
-
+      ctx.wizard.state.notify_option = 'none';
       // empty the images array
       imagesUploaded = [];
       ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
@@ -200,6 +200,8 @@ class QuestionPostSectionAController {
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
             woreda: ctx.wizard.state.woreda,
+            notify_option: ctx.wizard.state.notify_option,
+
             category: 'Section 1A',
           };
           const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
@@ -229,6 +231,50 @@ class QuestionPostSectionAController {
               : 1);
           }
         }
+        case 'cancel': {
+          const postDto: CreatePostService1ADto = {
+            id_first_option: ctx.wizard.state.bi_di as string,
+            arbr_value: ctx.wizard.state.ar_br as string,
+            description: ctx.wizard.state.description as string,
+            last_digit: ctx.wizard.state.last_digit as string,
+            location: ctx.wizard.state.location as string,
+            photo: ctx.wizard.state.photo,
+            woreda: ctx.wizard.state.woreda,
+            notify_option: ctx.wizard.state.notify_option,
+            category: 'Section 1A',
+          };
+          const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
+
+          if (response?.success) {
+            ctx.wizard.state.status = 'Pending';
+            ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
+            ctx.reply(...section1AFormatter.postingSuccessful());
+            await deleteMessageWithCallback(ctx);
+            await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
+              parse_mode: 'HTML',
+            });
+            await displayDialog(ctx, 'Posted succesfully');
+            return ctx.wizard.selectStep(11);
+          } else {
+            ctx.reply(...section1AFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
+            }
+
+            // increment the registration attempt
+            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+              ? parseInt(ctx.wizard.state.postingAttempt) + 1
+              : 1);
+          }
+        }
+        case 'notify_settings': {
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...section1AFormatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
+          return ctx.wizard.selectStep(12);
+        }
         default: {
           await ctx.reply('DEFAULT');
         }
@@ -247,7 +293,7 @@ class QuestionPostSectionAController {
 
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
-      return ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
@@ -258,9 +304,14 @@ class QuestionPostSectionAController {
     };
     const callbackMessage = callbackQuery.data;
 
+    if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
+      await deleteMessageWithCallback(ctx);
+      await ctx.replyWithHTML(...section1AFormatter.preview(state));
+      return ctx.wizard.back();
+    }
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
-      await ctx.reply(...section1AFormatter.preview(state));
+      await ctx.replyWithHTML(...section1AFormatter.preview(state));
       return ctx.wizard.back();
     }
 
@@ -282,7 +333,7 @@ class QuestionPostSectionAController {
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
       ctx.wizard.state.editField = null;
-      return ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
   }
   async editPhoto(ctx: any) {
@@ -326,6 +377,7 @@ class QuestionPostSectionAController {
           description: ctx.wizard.state.description as string,
           last_digit: ctx.wizard.state.last_digit as string,
           location: ctx.wizard.state.location as string,
+          notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,
           woreda: ctx.wizard.state.woreda,
           category: 'Section 1A',
@@ -361,6 +413,30 @@ class QuestionPostSectionAController {
         deleteMessageWithCallback(ctx);
         ctx.scene.leave();
         return MainMenuController.onStart(ctx);
+      }
+    }
+  }
+  async adjustNotifySetting(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 'notify_none': {
+        ctx.wizard.state.notify_option = 'none';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(8);
+      }
+      case 'notify_friend': {
+        ctx.wizard.state.notify_option = 'friend';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(8);
+      }
+      case 'notify_follower': {
+        await deleteMessageWithCallback(ctx);
+        ctx.wizard.state.notify_option = 'follower';
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(8);
       }
     }
   }
