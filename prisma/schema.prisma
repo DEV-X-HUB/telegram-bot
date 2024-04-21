@@ -30,8 +30,6 @@ model User {
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
-  questions  Question[]
-  answers    Answer[]
   created_at  DateTime   @default(now())
 }
 
@@ -45,40 +43,100 @@ model Follows {
   @@unique([follower_id, following_id])
 }
 
-model Question {
-  id          String   @id @default(uuid()) // UUID type for id
-  ar_br       String // Required enum field
-  bi_di       String // Required enum field
-  location    String // Required location field
-  woreda      String // Required woreda field
-  last_digit  String // Required last_digit field
-  description String // Optional description field
+
+model Post {
+  id          String   @id @default(uuid()) 
+  description String
+  status      PostStatus   @default(pending)
   category    String
-  photo       String[] // Required array of photo URLs
-  
 
-  // status with enum ("approved, "pending", "rejected")
-  status      QuestionStatus   @default(pending)
-
-
-  user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
-  user_id      String // Foreign key to the User model
-  Answer      Answer[]
-  created_at  DateTime @default(now())
+  // Define relation with subcategory models
+  Service1A   Service1A?
+  Service1B   Service1B?
+  Service3    Service3?
+  Service4ChickenFarm Service4ChickenFarm?
+  Service4Manufacture Service4Manufacture?
+  Service4Construction Service4Construction?
+  // Add other categories as needed
 }
 
-enum QuestionStatus {
-  approved
+
+
+
+model Service1A {
+  id             String   @id @default(uuid())
+  post_id        String   @unique
+  arbr           Float
+  height         Float
+  depth          Float
+
+  post   Post @relation(fields: [post_id], references: [id])
+}
+model Service1B {
+  id             String   @id @default(uuid())
+  post_id        String   @unique
+  arbr           Float
+  height         Float
+  depth          Float
+
+  post   Post @relation(fields: [post_id], references: [id])
+}
+
+
+model Service3 {
+  id             String   @id @default(uuid())
+  post_id        String   @unique
+  birth_or_marital String
+  title      String
+  photo      String[] // Required array of photo URLs
+
+  post   Post @relation(fields: [post_id], references: [id])
+}
+
+
+model Service4ChickenFarm {
+  id             String   @id @default(uuid()) 
+  post_id        String   @unique
+  sector         String
+  estimated_capital String
+  enterprise_name   String
+
+  post   Post @relation(fields: [post_id], references: [id])
+
+}
+
+
+model Service4Manufacture {
+  id             String   @id @default(uuid()) 
+  post_id        String   @unique
+  sector         String
+  number_of_workers Float
+  estimated_capital String
+  enterprise_name   String
+  photo      String[] // Required array of photo URLs
+
+  post   Post @relation(fields: [post_id], references: [id])
+}
+
+
+model Service4Construction {
+  id             String   @id @default(uuid())
+  post_id        String   @unique
+  construction_size String?
+  company_experience String?
+  document_request_type String?
+  land_size String?
+  land_status String?
+  location String
+  photo      String[] // Required array of photo URLs
+  post   Post @relation(fields: [post_id], references: [id])
+}
+
+
+enum PostStatus {
   pending
+  open
+  closed
   rejected
 }
 
-model Answer {
-  id         String   @id @default(uuid()) // UUID type for id
-  answer_text String // Text of the answer
-  question   Question @relation(fields: [question_id], references: [id]) // Reference to the Question model
-  question_id String // Foreign key to the Question model
-  user       User     @relation(fields: [user_id], references: [id]) // Reference to the User model
-  user_id     String // Foreign key to the User model
-  created_at DateTime @default(now())
-}
