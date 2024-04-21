@@ -20,11 +20,11 @@ class MainMenuController {
     switch (option) {
       case 'Service 1': {
         ctx?.scene?.leave();
-        return ctx.scene.enter('Post-Question-Section-1');
+        return ctx.scene.enter('Post-Section-1');
       }
       case 'Service 2': {
         ctx.scene.leave();
-        return ctx.scene.enter('Post-Question-Section-2');
+        return ctx.scene.enter('Post-Section-2');
       }
       case 'Service 3': {
         ctx.scene.leave();
