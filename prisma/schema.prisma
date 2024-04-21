@@ -63,7 +63,8 @@ model Post {
   user_id     String
 
   // Define relation with categories and sub categories models
-  Service1A   Service1A? 
+ service1A   Service1A? @relation(fields: [service1AId], references: [id], onDelete: CASCADE)
+
   Service1B   Service1B?
   Service1C   Service1C?
   Service2    Service2?
@@ -85,7 +86,7 @@ model Service1A {
   woreda            String 
   last_digit        String
   photo             String[] 
-  post              Post @relation(fields: [post_id], references: [id])
+  post              Post @relation(fields: [post_id], references: [id] onDelete: CASCADE,)
 }
 
 model Service1B {
