@@ -263,26 +263,56 @@ class QustionPostSectionBFormatter {
   editPreview(state: any) {
     return [
       this.getPreviewData(state),
-      InlineKeyboardButtons([
-        [
-          { text: 'AR/BR', cbString: 'ar_br' },
-          { text: 'BI/DI', cbString: 'bi_di' },
-        ],
+      areEqaul(state.main_category, 'main_10', true)
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Title', cbString: 'title' },
+              { text: 'BI/DI', cbString: 'bi_di' },
+            ],
 
-        [
-          { text: 'Location', cbString: 'location' },
-          { text: 'Woreda', cbString: 'woreda' },
-        ],
-        [
-          { text: 'Last Digit', cbString: 'last_digit' },
-          { text: 'Description', cbString: 'description' },
-        ],
-        [
-          { text: 'photo', cbString: 'photo' },
-          { text: 'Cancel', cbString: 'cancel' },
-        ],
-        [{ text: 'Done', cbString: 'editing_done' }],
-      ]),
+            areEqaul(state.main_category, 'main_4', true)
+              ? [
+                  { text: 'Date of issue', cbString: 'issue_date' },
+                  { text: 'Date of expire', cbString: 'expire_date' },
+                ]
+              : [],
+
+            [
+              { text: 'Condition', cbString: 'condition' },
+              { text: 'Woreda', cbString: 'woreda' },
+            ],
+
+            [
+              { text: 'Last Digit', cbString: 'last_digit' },
+              { text: 'Description', cbString: 'description' },
+            ],
+            [
+              { text: 'photo', cbString: 'photo' },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+            [{ text: 'Done', cbString: 'editing_done' }],
+          ])
+        : InlineKeyboardButtons([
+            [
+              { text: 'Title', cbString: 'title' },
+              { text: 'BI/DI', cbString: 'bi_di' },
+            ],
+
+            [
+              { text: 'Condition', cbString: 'condition' },
+              { text: 'Woreda', cbString: 'woreda' },
+            ],
+
+            [
+              { text: 'Last Digit', cbString: 'last_digit' },
+              { text: 'Description', cbString: 'description' },
+            ],
+            [
+              { text: 'photo', cbString: 'photo' },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+            [{ text: 'Done', cbString: 'editing_done' }],
+          ]),
     ];
   }
 

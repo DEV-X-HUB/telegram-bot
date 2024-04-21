@@ -162,7 +162,7 @@ class QuestionPostSectionBController {
 
     const validationMessage = questionPostValidator('issue_date', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.date_of_issue = message;
+    ctx.wizard.state.issue_date = message;
     await ctx.reply(...postSectionBFormatter.dateOfExpire());
     return ctx.wizard.next();
   }
@@ -176,7 +176,7 @@ class QuestionPostSectionBController {
     // assign the location to the state
     const validationMessage = questionPostValidator('issue_date', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.date_of_expire = message;
+    ctx.wizard.state.expire_date = message;
     await ctx.reply(...postSectionBFormatter.originalLocation());
     return ctx.wizard.next();
   }
@@ -299,8 +299,8 @@ class QuestionPostSectionBController {
             sub_category: ctx.wizard.state.sub_catagory as string,
             condition: ctx.wizard.state.condition as string,
             id_first_option: ctx.wizard.state.bi_di as string,
-            issue_date: ctx.wizard.state.date_of_issue ? parseDateString(ctx.wizard.state.date_of_issue) : undefined,
-            expire_date: ctx.wizard.state.date_of_expire ? parseDateString(ctx.wizard.state.date_of_expire) : undefined,
+            issue_date: ctx.wizard.state.issue_date ? parseDateString(ctx.wizard.state.issue_date) : undefined,
+            expire_date: ctx.wizard.state.expire_date ? parseDateString(ctx.wizard.state.expire_date) : undefined,
             description: ctx.wizard.state.description as string,
             last_digit: ctx.wizard.state.last_digit as string,
             location: ctx.wizard.state.location as string,
@@ -429,7 +429,7 @@ class QuestionPostSectionBController {
 
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
-      if (areEqaul(editField, 'main_category', true) && areEqaul(callbackMessage, 'main_10', true)) {
+      if (areEqaul(editField, 'main_category', true) && !areEqaul(callbackMessage, 'main_10', true)) {
         ctx.wizard.state.editField = 'sub_category';
         return ctx.reply(...postSectionBFormatter.subCategoryOption(callbackMessage));
       }
@@ -478,8 +478,8 @@ class QuestionPostSectionBController {
           sub_category: ctx.wizard.state.sub_catagory as string,
           condition: ctx.wizard.state.condition as string,
           id_first_option: ctx.wizard.state.bi_di as string,
-          issue_date: ctx.wizard.state.date_of_issue ? parseDateString(ctx.wizard.state.date_of_issue) : undefined,
-          expire_date: ctx.wizard.state.date_of_expire ? parseDateString(ctx.wizard.state.date_of_expire) : undefined,
+          issue_date: ctx.wizard.state.issue_date ? parseDateString(ctx.wizard.state.issue_date) : undefined,
+          expire_date: ctx.wizard.state.expire_date ? parseDateString(ctx.wizard.state.expire_date) : undefined,
           description: ctx.wizard.state.description as string,
           last_digit: ctx.wizard.state.last_digit as string,
           location: ctx.wizard.state.location as string,
