@@ -15,7 +15,8 @@ datasource db {
 
 
 enum PostStatus {
-  approved
+  open 
+  closed 
   pending
   rejected
 }
@@ -37,8 +38,7 @@ model User {
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
-  questions  Question[]
-  answers    Answer[]
+  posts      Post[]
   created_at  DateTime   @default(now())
 }
 
@@ -54,15 +54,19 @@ model Follows {
 
 
 model Post {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(uuid()) 
   description String
   status      PostStatus
   category    String
 
-  // Define relation with subcategory models
+  user        User     @relation(fields: [user_id], references: [id]) 
+  user_id      String
+
+  // Define relation with categories and sub categories models
   Service1A   Service1A?
   Service1B   Service1B?
   Service1C   Service1C?
+  Service2    Service2?
   // Add other categories as needed
 }
 
@@ -70,7 +74,7 @@ model Post {
 
 
 model Service1A {
-  id                String   @id @default(uuid()) @db.Uuid
+  id                String   @id @default(uuid()) 
   post_id           String   @unique
   arbr_value        String 
   id_first_option   String 
@@ -82,7 +86,7 @@ model Service1A {
 }
 
 model Service1B {
-  id                          String   @id @default(uuid()) @db.Uuid
+  id                          String   @id @default(uuid()) 
   post_id                     String   @unique
   title                       String 
   main_category               String 
@@ -99,7 +103,7 @@ model Service1B {
 }
 
 model Service1C {
-  id                          String   @id @default(uuid()) @db.Uuid
+  id                          String   @id @default(uuid()) 
   post_id                     String   @unique
   arbr_value                  String
   paper_stamp                 String 
@@ -112,42 +116,12 @@ model Service1C {
   photo                       String[] 
   post                        Post @relation(fields: [post_id], references: [id])
 }
-
-
-model Question {
-  id          String   @id @default(uuid()) // UUID type for id
-  post_id      String   @unique
-  ar_br       String // Required enum field
-  bi_di       String // Required enum field
-  location    String // Required location field
-  woreda      String // Required woreda field
-  last_digit  String // Required last_digit field
-  description String // Optional description field
-  category    String
-  photo       String[] // Required array of photo URLs
-  
-
-  // status with enum ("approved, "pending", "rejected")
-  status      PostStatus   @default(pending)
-
-
-  user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
-  user_id      String // Foreign key to the User model
-  Answer      Answer[]
-  created_at  DateTime @default(now())
+model Service2 {
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  service_type                String
+  title                       String 
+  photo                       String[] @default([])
+  post                        Post @relation(fields: [post_id], references: [id])
 }
 
-
-
-
-
-
-model Answer {
-  id         String   @id @default(uuid()) // UUID type for id
-  answer_text String // Text of the answer
-  question   Question @relation(fields: [question_id], references: [id]) // Reference to the Question model
-  question_id String // Foreign key to the Question model
-  user       User     @relation(fields: [user_id], references: [id]) // Reference to the User model
-  user_id     String // Foreign key to the User model
-  created_at DateTime @default(now())
-}
