@@ -5,7 +5,7 @@ import dbConnecion from './db-connecion';
 import RegistrationScene from '../modules/registration/registration.scene';
 import { checkAndRedirectToScene } from '../middleware/check-command';
 import { checkUserInChannelandPromtJoin } from '../middleware/auth';
-import QuestionPostScene from '../modules/post/question-post.scene';
+import QuestionPostScene from '../modules/question-post/question-post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
 import { setCommands } from '../utils/helper/commands';
 import SearchQuestionController from '../modules/question/question.controller';
