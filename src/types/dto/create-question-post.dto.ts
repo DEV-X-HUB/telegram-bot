@@ -1,4 +1,4 @@
-interface CreateQuestionPostDto {
+export interface CreateQuestionPostDto {
   ar_br: string;
   bi_di: string;
   location: string;
@@ -10,4 +10,41 @@ interface CreateQuestionPostDto {
   category: string;
   user_id: string;
 }
-export default CreateQuestionPostDto;
+
+export interface CreatePostDto {
+  description: string;
+  category: string;
+  user_id: string;
+}
+export interface CreatePostService4ManufactureDto {
+  sector: string;
+  number_of_workers: number;
+  estimated_capital: string;
+  enterprise_name: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+}
+
+export interface CreatePostService4ConstructionDto {
+  construction_size?: string;
+  company_experience?: string;
+  document_request_type?: string;
+  land_size?: string;
+  land_status?: string;
+  location: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+}
+
+export interface CreatePostService4ChickenFarmDto {
+  sector: string;
+  estimated_capital: string;
+  enterprise_name: string;
+
+  description: string;
+  category: string;
+}
