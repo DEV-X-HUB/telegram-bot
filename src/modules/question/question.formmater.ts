@@ -1,4 +1,4 @@
-import { Question, User } from '@prisma/client';
+import { Post, User } from '@prisma/client';
 import config from '../../config/config';
 import { TableInlineKeyboardButtons } from '../../types/components';
 import { InlineKeyboardButtons } from '../../ui/button';

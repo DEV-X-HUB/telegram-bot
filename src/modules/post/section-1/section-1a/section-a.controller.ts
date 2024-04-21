@@ -1,11 +1,19 @@
 import config from '../../../../config/config';
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
+import {
+  deleteKeyboardMarkup,
+  deleteMessage,
+  deleteMessageWithCallback,
+  findSender,
+  sendMediaGroup,
+} from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
 
 import Section1AFormatter from './section-a.formatter';
-import QuestionService from '../../question-post.service';
+import QuestionService from '../../post.service';
 import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
+import ProfileService from '../../../profile/profile.service';
+import { displayDialog } from '../../../../ui/dialog';
 const section1AFormatter = new Section1AFormatter();
 
 let imagesUploaded: any[] = [];
@@ -126,6 +134,7 @@ class QuestionPostSectionAController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section1AFormatter.bIDIOptionDisplay());
@@ -142,31 +151,27 @@ class QuestionPostSectionAController {
     if (imagesUploaded.length == imagesNumber) {
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
+      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
-      const mediaGroup = imagesUploaded.map((image: any) => ({
-        media: image,
-        type: 'photo',
-        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
-      }));
-
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-
-      // Save the images to the state
+      const user = await new ProfileService().getProfileByTgId(sender.id);
+      if (user) {
+        ctx.wizard.state.user = {
+          user_id: user.id,
+          display_name: user.display_name,
+        };
+      }
       ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.status = 'previewing';
 
       // empty the images array
       imagesUploaded = [];
-      ctx.reply(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...section1AFormatter.previewCallToAction());
       return ctx.wizard.next();
     }
   }
-  async editPost(ctx: any) {
+  async editPreview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log('here is the callback');
-
-    console.log(callbackQuery);
 
     if (!callbackQuery) {
       const message = ctx.message.text;
@@ -179,30 +184,24 @@ class QuestionPostSectionAController {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'preview_edit': {
-          console.log('preview edit');
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
           ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
-        // case 'editing_done': {
-        //   // await deleteMessageWithCallback(ctx);
-        //   await ctx.reply(section1AFormatter.preview(state));
-        //   return ctx.wizard.back();
-        // }
-
         case 'post_data': {
-          console.log('here you are');
-          // api request to post the data
           const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
-          console.log(response);
 
           if (response?.success) {
-            await deleteMessageWithCallback(ctx);
+            ctx.wizard.state.post_id = response?.data?.id;
             ctx.reply(...section1AFormatter.postingSuccessful());
-            ctx.scene.leave();
-            return MainMenuController.onStart(ctx);
+            await deleteMessageWithCallback(ctx);
+            await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
+              parse_mode: 'HTML',
+            });
+            await displayDialog(ctx, 'Posted succesfully');
+            return ctx.wizard.selectStep(11);
           } else {
             ctx.reply(...section1AFormatter.postingError());
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
@@ -223,7 +222,6 @@ class QuestionPostSectionAController {
       }
     }
   }
-
   async editData(ctx: any) {
     const state = ctx.wizard.state;
     const fileds = ['ar_br', 'bi_di', 'woreda', 'last_digit', 'location', 'description', 'photo', 'cancel'];
@@ -236,7 +234,6 @@ class QuestionPostSectionAController {
 
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
-
       return ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
@@ -248,32 +245,8 @@ class QuestionPostSectionAController {
     };
     const callbackMessage = callbackQuery.data;
 
-    if (callbackMessage == 'post_data') {
-      // registration
-      // api call for registration
-      const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
-
-      if (response.success) {
-        ctx.wizard.state.status = 'pending';
-        await deleteMessageWithCallback(ctx);
-        await ctx.reply(...section1AFormatter.postingSuccessful());
-
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
-
-      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
-
-      // ctx.reply(...section1AFormatter.postingError());
-      if (registrationAttempt >= 2) {
-        await deleteMessageWithCallback(ctx);
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
-      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
-    } else if (callbackMessage == 'editing_done') {
-      // await deleteMessageWithCallback(ctx);
-
+    if (callbackMessage == 'editing_done') {
+      await deleteMessageWithCallback(ctx);
       await ctx.reply(...section1AFormatter.preview(state));
       return ctx.wizard.back();
     }
@@ -336,6 +309,23 @@ class QuestionPostSectionAController {
       ctx.reply(...section1AFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
+  }
+  async postedReview(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case "'re_submit_post": {
+      }
+      case 'cancel_post': {
+        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_id);
+
+        return ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
+          parse_mode: 'HTML',
+        });
+      }
+    }
+    ctx.scene.leave();
+    return MainMenuController.onStart(ctx);
   }
 }
 

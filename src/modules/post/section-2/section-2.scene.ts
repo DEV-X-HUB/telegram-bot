@@ -3,7 +3,7 @@ import QuestionPostSectionBController from './section-2.controller';
 
 const questionPostSectionBController = new QuestionPostSectionBController();
 const QuestionPostSection2Scene = new Scenes.WizardScene(
-  'Post-Question-Section-2',
+  'Post-Section-2',
   questionPostSectionBController.start,
   questionPostSectionBController.chooseType,
   questionPostSectionBController.enterTitle,

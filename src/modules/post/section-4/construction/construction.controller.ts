@@ -2,7 +2,7 @@ import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '
 import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
 
 import QuestionPostSectionConstructionFormmater from './construction.formatter';
-import QuestionService from '../../question-post.service';
+import QuestionService from '../../post.service';
 import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
 import { displayDialog } from '../../../../ui/dialog';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';

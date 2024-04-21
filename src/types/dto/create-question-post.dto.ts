@@ -1,13 +1,25 @@
-interface CreateQuestionPostDto {
-  ar_br: string;
-  bi_di: string;
+enum PostStatus {
+  open = 'open',
+  closed = 'close',
+  pending = 'pending',
+  rejected = 'rejected',
+}
+
+export interface CreatePostService1ADto {
+  arbr_value: string;
+  id_first_option: string;
   location: string;
   woreda: string;
   last_digit: string;
-  description: string;
   photo: string[];
-  status: string;
+
+  description: string;
+  status: PostStatus;
   category: string;
-  user_id: string;
 }
-export default CreateQuestionPostDto;
+
+export interface CreatePostDto {
+  description: string;
+  status: PostStatus;
+  category: string;
+}

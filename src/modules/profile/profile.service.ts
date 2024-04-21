@@ -38,10 +38,9 @@ class ProfileService {
           tg_id: tgId.toString(),
         },
         include: {
-          questions: true,
+          posts: true,
           followers: true,
           followings: true,
-          answers: true,
         },
       });
       return user;
@@ -57,10 +56,9 @@ class ProfileService {
           id: userId.toString(),
         },
         include: {
-          questions: true,
+          posts: true,
           followers: true,
           followings: true,
-          answers: true,
         },
       });
       return user;
@@ -87,10 +85,9 @@ class ProfileService {
           id: userId,
         },
         include: {
-          questions: true,
+          posts: true,
           followers: true,
           followings: true,
-          answers: true,
         },
       });
     } catch (error: any) {
@@ -173,7 +170,7 @@ class ProfileService {
 
   async getQuestionsOfUser(user_id: string) {
     try {
-      const questions = await prisma.question.findMany({
+      const questions = await prisma.post.findMany({
         where: {
           user_id,
         },
