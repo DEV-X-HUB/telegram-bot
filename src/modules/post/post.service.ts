@@ -114,7 +114,7 @@ class QuestionService {
 
       return {
         success: true,
-        data: post,
+        data: { ...post, post_id: postData.post.id },
         message: 'Post created successfully',
       };
     } catch (error) {
@@ -131,7 +131,7 @@ class QuestionService {
     try {
       switch (category) {
         case 'Section 1A':
-          await prisma.service1A.delete({ where: { id: postId } });
+          await prisma.post.delete({ where: { id: postId } });
           break;
       }
       return true;

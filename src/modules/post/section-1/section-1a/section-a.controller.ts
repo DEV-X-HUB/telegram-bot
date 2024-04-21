@@ -138,7 +138,7 @@ class QuestionPostSectionAController {
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...section1AFormatter.bIDIOptionDisplay());
+      ctx.reply(...section1AFormatter.descriptionDisplay());
       return ctx.wizard.back();
     }
 
@@ -205,7 +205,9 @@ class QuestionPostSectionAController {
           const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
 
           if (response?.success) {
+            console.log(response.data);
             ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.reply(...section1AFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
             await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
@@ -332,6 +334,7 @@ class QuestionPostSectionAController {
         if (!response?.success) await ctx.reply('Unable to resubmite');
 
         ctx.wizard.state.post_id = response?.data?.id;
+        ctx.wizard.state.post_main_id = response?.data?.post_id;
         await ctx.reply('Resubmiited');
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
@@ -342,7 +345,7 @@ class QuestionPostSectionAController {
       }
       case 'cancel_post': {
         console.log(ctx.wizard.state);
-        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_id, 'Section 1A');
+        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 

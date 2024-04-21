@@ -118,7 +118,7 @@ model Service2 {
   service_type                String
   title                       String 
   photo                       String[] @default([])
-  post                                Post @relation(fields: [post_id], references: [id])
+  post                        Post @relation(fields: [post_id], references: [id])
 }
 
 
