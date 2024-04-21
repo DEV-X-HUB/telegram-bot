@@ -6,7 +6,7 @@ import QuestionPostSectionCScene from './section-1c/section1c.scene';
 
 const questionPostController = new QuestionPostController();
 const QuestionPostScene1 = new Scenes.WizardScene(
-  'Post-Question-Section-1',
+  'Post-Section-1',
   questionPostController.start,
   questionPostController.chooseOption,
 );

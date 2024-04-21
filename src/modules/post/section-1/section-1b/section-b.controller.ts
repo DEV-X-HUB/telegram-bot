@@ -2,7 +2,7 @@ import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '
 import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
 
 import QuestionPostSectionBFormatter from './section-b.formatter';
-import QuestionService from '../../question-post.service';
+import QuestionService from '../../post.service';
 import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 const questionPostSectionBFormatter = new QuestionPostSectionBFormatter();

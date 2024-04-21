@@ -3,9 +3,9 @@ import prisma from '../../loaders/db-connecion';
 class QuestionService {
   constructor() {}
 
-  async getQuestionsByDescription(searchText: string) {
+  async getPostsByDescription(searchText: string) {
     try {
-      const questions = await prisma.question.findMany({
+      const questions = await prisma.post.findMany({
         where: {
           description: {
             contains: searchText,
@@ -17,7 +17,6 @@ class QuestionService {
           },
         },
         include: {
-          Answer: true,
           user: true,
         },
       });
@@ -31,11 +30,10 @@ class QuestionService {
     }
   }
 
-  async geAlltQuestions() {
+  async geAlltPosts() {
     try {
-      const questions = await prisma.question.findMany({
+      const questions = await prisma.post.findMany({
         include: {
-          Answer: true,
           user: true,
         },
       });
@@ -49,12 +47,11 @@ class QuestionService {
       return { status: 'fail', questions: [] };
     }
   }
-  async getQuestionById(questionId: string) {
+  async getPostById(questionId: string) {
     try {
-      const question = await prisma.question.findFirst({
+      const question = await prisma.post.findFirst({
         where: { id: questionId },
         include: {
-          Answer: true,
           user: true,
         },
       });

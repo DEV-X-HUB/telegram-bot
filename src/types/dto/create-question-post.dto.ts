@@ -1,21 +1,29 @@
-export interface CreateQuestionPostDto {
-  ar_br: string;
-  bi_di: string;
-  location: string;
-  woreda: string;
-  last_digit: string;
-  description: string;
-  photo: string[];
-  status: string;
-  category: string;
-  user_id: string;
+enum PostStatus {
+  open = 'open',
+  closed = 'close',
+  pending = 'pending',
+  rejected = 'rejected',
 }
 
 export interface CreatePostDto {
   description: string;
+  status: PostStatus;
   category: string;
-  user_id: string;
 }
+
+export interface CreatePostService1ADto {
+  arbr_value: string;
+  id_first_option: string;
+  location: string;
+  woreda: string;
+  last_digit: string;
+  photo: string[];
+
+  description: string;
+  status: PostStatus;
+  category: string;
+}
+
 export interface CreatePostService4ManufactureDto {
   sector: string;
   number_of_workers: number;
