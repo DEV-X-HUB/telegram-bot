@@ -112,7 +112,7 @@ class QustionPostFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>n\nStatus : ${state.status}`;
+    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
@@ -130,16 +130,20 @@ class QustionPostFormatter {
               { text: 'Cancel', cbString: 'cancel' },
             ],
           ])
-        : submitState == 'submitted'
-          ? InlineKeyboardButtons([
-              [{ text: 'Cancel', cbString: 'cancel_post' }],
-              [{ text: 'Main menu', cbString: 'main_menu' }],
-            ])
-          : InlineKeyboardButtons([
-              [{ text: 'Resubmit', cbString: 're_submit_post' }],
-              [{ text: 'Main menu', cbString: 'main_menu' }],
-            ]),
+        : this.getPostSubmitButtons(submitState),
     ];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
   }
 
   editPreview(state: any) {

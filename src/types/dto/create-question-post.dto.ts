@@ -14,12 +14,10 @@ export interface CreatePostService1ADto {
   photo: string[];
 
   description: string;
-  status: PostStatus;
   category: string;
 }
 
 export interface CreatePostDto {
   description: string;
-  status: PostStatus;
   category: string;
 }

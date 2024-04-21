@@ -14,6 +14,7 @@ import { questionPostValidator } from '../../../../utils/validator/question-post
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
+import { CreatePostService1ADto } from '../../../../types/dto/create-question-post.dto';
 const section1AFormatter = new Section1AFormatter();
 
 let imagesUploaded: any[] = [];
@@ -23,7 +24,7 @@ class QuestionPostSectionAController {
   constructor() {}
 
   async start(ctx: any) {
-    deleteKeyboardMarkup(ctx, section1AFormatter.messages.arBrPromt);
+    await deleteKeyboardMarkup(ctx, section1AFormatter.messages.arBrPromt);
     await ctx.reply(...section1AFormatter.arBrOptionDisplay());
     return ctx.wizard.next();
   }
@@ -34,14 +35,14 @@ class QuestionPostSectionAController {
     if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
 
     if (areEqaul(callbackQuery.data, 'back', true)) {
-      deleteMessageWithCallback(ctx);
+      await deleteMessageWithCallback(ctx);
       return ctx.scene.enter('Post-Question-Section-1');
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
       ctx.wizard.state.ar_br = callbackQuery.data;
       ctx.wizard.state.category = 'Section 1A';
-      deleteMessageWithCallback(ctx);
+      await deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.woredaListDisplay());
       return ctx.wizard.next();
     }
@@ -156,7 +157,7 @@ class QuestionPostSectionAController {
       const user = await new ProfileService().getProfileByTgId(sender.id);
       if (user) {
         ctx.wizard.state.user = {
-          user_id: user.id,
+          id: user.id,
           display_name: user.display_name,
         };
       }
@@ -191,7 +192,17 @@ class QuestionPostSectionAController {
         }
 
         case 'post_data': {
-          const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+          const postDto: CreatePostService1ADto = {
+            id_first_option: ctx.wizard.state.bi_di as string,
+            arbr_value: ctx.wizard.state.ar_br as string,
+            description: ctx.wizard.state.description as string,
+            last_digit: ctx.wizard.state.last_digit as string,
+            location: ctx.wizard.state.location as string,
+            photo: ctx.wizard.state.photo,
+            woreda: ctx.wizard.state.woreda,
+            category: 'Section 1A',
+          };
+          const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
 
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
@@ -291,15 +302,7 @@ class QuestionPostSectionAController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
-      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-
-      const mediaGroup = imagesUploaded.map((image: any) => ({
-        media: image,
-        type: 'photo',
-        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
-      }));
-
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+      await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
@@ -314,18 +317,49 @@ class QuestionPostSectionAController {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
-      case "'re_submit_post": {
-      }
-      case 'cancel_post': {
-        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_id);
+      case 're_submit_post': {
+        const postDto: CreatePostService1ADto = {
+          id_first_option: ctx.wizard.state.bi_di as string,
+          arbr_value: ctx.wizard.state.ar_br as string,
+          description: ctx.wizard.state.description as string,
+          last_digit: ctx.wizard.state.last_digit as string,
+          location: ctx.wizard.state.location as string,
+          photo: ctx.wizard.state.photo,
+          woreda: ctx.wizard.state.woreda,
+          category: 'Section 1A',
+        };
+        const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
+        if (!response?.success) await ctx.reply('Unable to resubmite');
 
-        return ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
-          parse_mode: 'HTML',
+        ctx.wizard.state.post_id = response?.data?.id;
+        await ctx.reply('Resubmiited');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Cancel', callback_data: `cancel_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
         });
       }
+      case 'cancel_post': {
+        console.log(ctx.wizard.state);
+        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_id, 'Section 1A');
+
+        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+
+        await ctx.reply('Cancelled');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Resubmit', callback_data: `re_submit_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'main_menu': {
+        deleteMessageWithCallback(ctx);
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
     }
-    ctx.scene.leave();
-    return MainMenuController.onStart(ctx);
   }
 }
 

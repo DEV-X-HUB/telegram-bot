@@ -78,7 +78,7 @@ model Service1A {
   woreda            String 
   last_digit        String
   photo             String[] 
-  post              Post @relation(fields: [post_id], references: [id])
+  post              Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
 model Service1B {

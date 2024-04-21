@@ -2,6 +2,7 @@ import prisma from '../../loaders/db-connecion';
 import { v4 as UUID } from 'uuid';
 import { CreatePostDto, CreatePostService1ADto } from '../../types/dto/create-question-post.dto';
 
+type PostCategory = 'Section 1A';
 class QuestionService {
   constructor() {}
 
@@ -86,13 +87,12 @@ class QuestionService {
       };
     }
   }
-  static async createServie1Post(createPostService1ADto: CreatePostService1ADto, tg_id: string) {
+  static async createServie1Post(postDto: CreatePostService1ADto, tg_id: string) {
     try {
       const postData = await this.createPost(
         {
-          status: createPostService1ADto.status,
-          description: createPostService1ADto.description,
-          category: createPostService1ADto.category,
+          description: postDto.description,
+          category: postDto.category,
         },
         tg_id,
       );
@@ -104,6 +104,7 @@ class QuestionService {
           message: postData.message,
         };
 
+      const { description, category, ...createPostService1ADto } = postDto;
       const post = await prisma.service1A.create({
         data: {
           post_id: postData.post.id,
@@ -126,14 +127,13 @@ class QuestionService {
     }
   }
 
-  static async deletePostById(postId: string): Promise<boolean> {
+  static async deletePostById(postId: string, category: PostCategory): Promise<boolean> {
     try {
-      await prisma.post.delete({
-        where: {
-          id: postId,
-        },
-      });
-
+      switch (category) {
+        case 'Section 1A':
+          await prisma.service1A.delete({ where: { id: postId } });
+          break;
+      }
       return true;
     } catch (error) {
       console.log(error);
