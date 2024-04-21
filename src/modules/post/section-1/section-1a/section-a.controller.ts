@@ -36,7 +36,7 @@ class QuestionPostSectionAController {
 
     if (areEqaul(callbackQuery.data, 'back', true)) {
       await deleteMessageWithCallback(ctx);
-      return ctx.scene.enter('Post-Question-Section-1');
+      return ctx.scene.enter('Post-Section-1');
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
@@ -232,43 +232,12 @@ class QuestionPostSectionAController {
           }
         }
         case 'cancel': {
-          const postDto: CreatePostService1ADto = {
-            id_first_option: ctx.wizard.state.bi_di as string,
-            arbr_value: ctx.wizard.state.ar_br as string,
-            description: ctx.wizard.state.description as string,
-            last_digit: ctx.wizard.state.last_digit as string,
-            location: ctx.wizard.state.location as string,
-            photo: ctx.wizard.state.photo,
-            woreda: ctx.wizard.state.woreda,
-            notify_option: ctx.wizard.state.notify_option,
-            category: 'Section 1A',
-          };
-          const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
-
-          if (response?.success) {
-            ctx.wizard.state.status = 'Pending';
-            ctx.wizard.state.post_id = response?.data?.id;
-            ctx.wizard.state.post_main_id = response?.data?.post_id;
-            ctx.reply(...section1AFormatter.postingSuccessful());
-            await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
-            return ctx.wizard.selectStep(11);
-          } else {
-            ctx.reply(...section1AFormatter.postingError());
-            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
-              await deleteMessageWithCallback(ctx);
-              ctx.scene.leave();
-              return MainMenuController.onStart(ctx);
-            }
-
-            // increment the registration attempt
-            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
-              ? parseInt(ctx.wizard.state.postingAttempt) + 1
-              : 1);
-          }
+          ctx.wizard.state.status = 'Cancelled';
+          await deleteMessageWithCallback(ctx);
+          await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'Cancelled'), {
+            parse_mode: 'HTML',
+          });
+          return ctx.wizard.selectStep(18);
         }
         case 'notify_settings': {
           await deleteMessageWithCallback(ctx);

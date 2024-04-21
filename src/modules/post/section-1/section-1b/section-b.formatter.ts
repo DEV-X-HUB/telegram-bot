@@ -2,6 +2,7 @@ import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
 import { areEqaul } from '../../../../utils/constants/string';
 import config from '../../../../config/config';
+import { NotifyOption } from '@prisma/client';
 
 class QustionPostSectionBFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -14,6 +15,7 @@ class QustionPostSectionBFormatter {
   messages = {
     dateOfIssuePrompt: 'Date of Issue mm/yyyy',
     dateOfExpirePrompt: 'Date of Expire mm/yyyy',
+    notifyOptionPrompt: 'Select who can be notified this question',
     biDiPrompt: 'Please Choose ID first Icon',
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     chooseWoredaPrompt: 'Please Choose Your Woreda',
@@ -201,30 +203,63 @@ class QustionPostSectionBFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
-  getPreviewData(state: any) {
-    console.log(state);
-    if (areEqaul(state.mainCategory, 'main_4'))
-      return `${state.subCatagory}\n________________\n\n${state.title} \n\nCondtition: ${state.condition}  \n\nDate of Issue: ${state.date_of_issue} \n\nDate of Expire: ${state.date_of_expire} \n\nOriginal Location: ${state.location}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
-    return `${state.subCatagory}\n________________\n\n${state.title}  \n\nCondition: ${state.condition} \n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
-  }
-
-  preview(state: any) {
+  notifyOptionDisplay(notifyOption: NotifyOption) {
     return [
-      this.getPreviewData(state),
+      this.messages.notifyOptionPrompt,
       InlineKeyboardButtons([
         [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Notify settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
         ],
         [
-          { text: 'Mention previous post', cbString: 'mention_previous_post' },
-          { text: 'Cancel', cbString: 'cancel' },
+          {
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
+          },
         ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
       ]),
     ];
   }
+  getPreviewData(state: any) {
+    console.log(state);
+    if (areEqaul(state.main_category, 'main_4'))
+      return `${state.sub_catagory}\n________________\n\n${state.title} \n\nCondtition: ${state.condition}  \n\nDate of Issue: ${state.date_of_issue} \n\nDate of Expire: ${state.date_of_expire} \n\nOriginal Location: ${state.location}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `${state.sub_catagory}\n________________\n\n${state.title}  \n\nCondition: ${state.condition} \n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+  }
 
+  preview(state: any, submitState: string = 'preview') {
+    return [
+      this.getPreviewData(state),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              { text: 'Mention previous post', cbString: 'mention_previous_post' },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
+    ];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
+  }
   editPreview(state: any) {
     return [
       this.getPreviewData(state),
@@ -251,10 +286,16 @@ class QustionPostSectionBFormatter {
     ];
   }
 
-  async editFieldDispay(editFiled: string) {
+  async editFieldDispay(editFiled: string, extra?: string) {
     switch (editFiled) {
-      case 'ar_br':
-        return this.OpSeCondtionOptionDisplay();
+      case 'condition': {
+        if (extra && extra == 'opse') return this.urgencyOptionDisplay();
+        if (extra && extra == 'urgency') return this.urgencyOptionDisplay();
+      }
+      case 'main_category':
+        return this.mainCategoryOption();
+      case 'sub_category':
+        return this.generateSubCatagory(extra as string);
       case 'bi_di':
         return this.bIDIOptionDisplay();
       case 'woreda':
@@ -265,6 +306,10 @@ class QustionPostSectionBFormatter {
         return this.locationDisplay();
       case 'description':
         return this.descriptionDisplay();
+      case 'issue_date':
+        return this.dateOfExpire();
+      case 'expire_date':
+        return this.dateOfExpire();
 
       case 'photo':
         return this.photoDisplay();

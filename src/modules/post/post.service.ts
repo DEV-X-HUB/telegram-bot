@@ -1,8 +1,13 @@
 import prisma from '../../loaders/db-connecion';
 import { v4 as UUID } from 'uuid';
-import { CreatePostDto, CreatePostService1ADto } from '../../types/dto/create-question-post.dto';
+import {
+  CreateCategoryPostDto,
+  CreatePostDto,
+  CreatePostService1ADto,
+  CreatePostService1BDto,
+} from '../../types/dto/create-question-post.dto';
+import { PostCategory } from '../../types/params';
 
-type PostCategory = 'Section 1A';
 class QuestionService {
   constructor() {}
 
@@ -112,6 +117,62 @@ class QuestionService {
           ...createPostService1ADto,
         },
       });
+
+      return {
+        success: true,
+        data: { ...post, post_id: postData.post.id },
+        message: 'Post created successfully',
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        data: null,
+        message: 'An error occurred while creating the post',
+      };
+    }
+  }
+  static async createCategoryPost(postDto: CreateCategoryPostDto, tg_id: string) {
+    try {
+      const { description, category, notify_option } = postDto;
+      const postData = await this.createPost(
+        {
+          description,
+          category,
+          notify_option,
+        },
+        tg_id,
+      );
+
+      if (!postData.success || !postData.post)
+        return {
+          success: false,
+          data: null,
+          message: postData.message,
+        };
+
+      let post = null;
+
+      switch (category) {
+        case 'Section 1A': {
+          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1ADto;
+          post = await prisma.service1A.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+        case 'Section 1B': {
+          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1BDto;
+          post = await prisma.service1B.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+      }
 
       return {
         success: true,
