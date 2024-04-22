@@ -122,7 +122,8 @@ class ChickenFarmController {
               estimated_capital: state.estimated_capital,
               enterprise_name: state.enterprise_name,
               description: state.description,
-              category: 'Section4ChickenFarm',
+              category: state.category,
+              notify_option: state.notify_option,
             },
             callbackQuery.from.id,
           );

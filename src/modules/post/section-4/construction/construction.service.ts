@@ -29,6 +29,7 @@ class Section4ConstructionService {
         data: {
           ...postDto,
           user_id: user.id,
+          notify_option: postDto.notify_option,
           status: 'pending',
         },
       });
@@ -54,6 +55,7 @@ class Section4ConstructionService {
         {
           description: postData.description,
           category: postData.category,
+          notify_option: postData.notify_option,
         },
         tg_id,
       );

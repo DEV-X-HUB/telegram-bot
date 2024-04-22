@@ -90,6 +90,7 @@ class Section4ChickenFarmService {
         {
           description: postData.description,
           category: postData.category,
+          notify_option: postData.notify_option,
         },
         tg_id,
       );
@@ -101,7 +102,7 @@ class Section4ChickenFarmService {
           message: newPost.message,
         };
 
-      const { description, category, ...chickenFarmData } = postData;
+      const { description, category, notify_option, ...chickenFarmData } = postData;
 
       // Create chicken farm post and store it
       const newChickenFarm = await prisma.service4ChickenFarm.create({

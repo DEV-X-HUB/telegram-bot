@@ -229,6 +229,7 @@ class QuestionPostSectionConstructionController {
               photo: state?.photo,
               description: state.description,
               category: 'Section4Construction',
+              notify_option: state.notify_option,
             },
             callbackQuery.from.id,
           );
