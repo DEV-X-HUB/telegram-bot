@@ -61,11 +61,9 @@ class ProfileController {
         }
 
         case 'my_posts': {
-          let tg_id;
-          if (ctx.callbackQuery) tg_id = ctx.callbackQuery.from.id;
-          else tg_id = ctx.message.from.id;
+          const user = findSender(ctx);
 
-          const { posts, success, message } = await profileService.getUserPosts(userData.id);
+          const { posts, success, message } = await profileService.getUserPostsTgId(user.id);
 
           if (!success || !posts) return ctx.reply(profileFormatter.messages.postFetchError);
 

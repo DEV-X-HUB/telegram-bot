@@ -1,11 +1,18 @@
 import config from '../../../../config/config';
 import { displayDialog } from '../../../../ui/dialog';
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
+import {
+  deleteKeyboardMarkup,
+  deleteMessage,
+  deleteMessageWithCallback,
+  findSender,
+} from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
+import PostService from '../../post.service';
 
 import ChickenFarmFormatter from './chicken-farm.formatter';
 import Section4ChickenFarmService from './chicken-farm.service';
+const postService = new PostService();
 const chickenFarmFormatter = new ChickenFarmFormatter();
 
 let imagesUploaded: any[] = [];
@@ -88,6 +95,7 @@ class ChickenFarmController {
   }
 
   async preview(ctx: any) {
+    const user = findSender(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       const message = ctx.message.text;
@@ -125,7 +133,7 @@ class ChickenFarmController {
               category: state.category,
               notify_option: state.notify_option,
             },
-            callbackQuery.from.id,
+            user.id,
           );
           console.log(response);
 
@@ -159,21 +167,23 @@ class ChickenFarmController {
           console.log('mention_previous_post1');
           await ctx.reply('mention_previous_post');
           // fetch previous posts of the user
-          const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id);
-
-          if (!posts.posts || posts.posts.length == 0) {
+          const { posts, success, message } = await postService.getUserPostsByTgId(user.id);
+          if (!success || !posts) {
             // remove past post
             await deleteMessageWithCallback(ctx);
-
+            return await ctx.reply(message);
+          }
+          if (posts.length == 0) {
+            await deleteMessageWithCallback(ctx);
             return await ctx.reply(...chickenFarmFormatter.noPostsErrorMessage());
           }
 
+          await deleteMessageWithCallback(ctx);
           await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
-          for (const post of posts.posts as any) {
+          for (const post of posts as any) {
             await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(post));
           }
 
-          await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(posts.posts));
           return ctx.wizard.next();
         }
 
@@ -181,10 +191,11 @@ class ChickenFarmController {
           state.mention_post_data = '';
           state.mention_post_id = '';
           await deleteMessageWithCallback(ctx);
-          return ctx.replyWithHTMLs(...chickenFarmFormatter.preview(state));
+          return ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         }
         case 'back': {
           await deleteMessageWithCallback(ctx);
+          ctx.wizard.back();
           return await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         }
       }
@@ -194,7 +205,6 @@ class ChickenFarmController {
   async mentionPreviousPost(ctx: any) {
     const state = ctx.wizard.state;
     const callbackQuery = ctx.callbackQuery;
-
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
         await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
@@ -202,31 +212,11 @@ class ChickenFarmController {
       }
 
       if (callbackQuery.data.startsWith('select_post_')) {
-        console.log(ctx);
-
         const post_id = callbackQuery.data.split('_')[2];
 
-        // get the telegram message id of the post
-        const messageTgId = callbackQuery.message.message_id;
-
-        console.log(ctx);
-        console.log(`the message ${ctx.message}`);
-
         state.mention_post_id = post_id;
-
-        // obtain the message using the tg message id
-
-        // const messageData = await ctx.telegram.getMessage(ctx.chat.id, messageTgId);
-        state.mention_post_data = 'messageData';
-
-        // send message in reply to the post
-        // await ctx.telegram.sendMessage(ctx.chat.id, ...chickenFarmFormatter.preview(state), {
-        //   reply_to_message_id: messageTgId,
-        // });
-        // await ctx.telegram.sendMessage(ctx.chat.id, "Reply....", {
-        //   reply_to_message_id: messageTgId,
-        // });
-
+        state.mention_post_data = ctx.callbackQuery.message.text;
+        await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         return ctx.wizard.back();
       }

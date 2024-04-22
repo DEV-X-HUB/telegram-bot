@@ -60,7 +60,7 @@ class ChickenFarmFormatter {
   }
 
   getPreviewData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n\n________________\n\n` : ''}#${state.category}\n\n________________\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\n\  
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n_______\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\n\  
     \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
 
@@ -75,7 +75,7 @@ class ChickenFarmFormatter {
     const description =
       post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
 
-    const message = `#${post.category}\n\n________________\n\nDescription : ${description} \n\n\nStatus : ${post.status}`;
+    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
 
     const buttons = InlineKeyboardButtons([
       [
