@@ -11,6 +11,7 @@ export interface CreatePostDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 
 export interface CreatePostService1ADto {
@@ -24,6 +25,7 @@ export interface CreatePostService1ADto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 export interface CreatePostService1BDto {
   title: string;
@@ -41,6 +43,7 @@ export interface CreatePostService1BDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 
 export interface CreatePostService1CDto {
@@ -58,6 +61,7 @@ export interface CreatePostService1CDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 
 export interface CreatePostService4ManufactureDto {
@@ -70,6 +74,7 @@ export interface CreatePostService4ManufactureDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 
 export interface CreatePostService4ConstructionDto {
@@ -84,6 +89,7 @@ export interface CreatePostService4ConstructionDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 
 export interface CreatePostService4ChickenFarmDto {
@@ -94,6 +100,7 @@ export interface CreatePostService4ChickenFarmDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
+  previous_post_id?: string;
 }
 
 export type CreateCategoryPostDto = CreatePostService1BDto | CreatePostService1ADto | CreatePostService1CDto;

@@ -95,12 +95,13 @@ class PostService {
   }
   static async createServie1Post(postDto: CreatePostService1ADto, tg_id: string) {
     try {
-      const { description, category, notify_option, ...createPostService1ADto } = postDto;
+      const { description, category, notify_option, previous_post_id, ...createPostService1ADto } = postDto;
       const postData = await this.createPost(
         {
           description,
           category,
           notify_option,
+          previous_post_id,
         },
         tg_id,
       );
