@@ -73,13 +73,17 @@ class ChickenFarmController {
     }
 
     const user = await Section4ChickenFarmService.findUserWithTgId(ctx.from.id);
-    if (!user) return await ctx.reply('User not found');
+    if (!user) return await ctx.reply(...chickenFarmFormatter.somethingWentWrongError());
 
-    ctx.wizard.state.display_name = user.user?.display_name;
+    ctx.wizard.state.user = {
+      id: user.user?.id,
+      display_name: user.user?.display_name,
+    };
+
     ctx.wizard.state.description = message;
     ctx.wizard.state.status = 'preview';
 
-    await ctx.reply(...chickenFarmFormatter.preview(ctx.wizard.state));
+    await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
     return ctx.wizard.next();
   }
 
@@ -105,7 +109,7 @@ class ChickenFarmController {
 
         case 'editing_done': {
           // await deleteMessageWithCallback(ctx);
-          await ctx.reply(chickenFarmFormatter.preview(state));
+          await ctx.replyWithHTML(chickenFarmFormatter.preview(state));
           return ctx.wizard.back();
         }
 
@@ -156,8 +160,11 @@ class ChickenFarmController {
           // fetch previous posts of the user
           const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id);
 
-          if (!posts) {
-            return await ctx.reply(chickenFarmFormatter.noPostsErrorMessage);
+          if (!posts.posts || posts.posts.length == 0) {
+            // remove past post
+            await deleteMessageWithCallback(ctx);
+
+            return await ctx.reply(...chickenFarmFormatter.noPostsErrorMessage());
           }
 
           await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
@@ -173,7 +180,11 @@ class ChickenFarmController {
           state.mention_post_data = '';
           state.mention_post_id = '';
           await deleteMessageWithCallback(ctx);
-          return ctx.reply(...chickenFarmFormatter.preview(state));
+          return ctx.replyWithHTMLs(...chickenFarmFormatter.preview(state));
+        }
+        case 'back': {
+          await deleteMessageWithCallback(ctx);
+          return await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         }
       }
     }
@@ -185,11 +196,13 @@ class ChickenFarmController {
 
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
-        await ctx.reply(...chickenFarmFormatter.preview(ctx.wizard.state));
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
         return ctx.wizard.back();
       }
 
       if (callbackQuery.data.startsWith('select_post_')) {
+        console.log(ctx);
+
         const post_id = callbackQuery.data.split('_')[2];
 
         // get the telegram message id of the post
@@ -202,8 +215,6 @@ class ChickenFarmController {
 
         // obtain the message using the tg message id
 
-        console.log(ctx);
-
         // const messageData = await ctx.telegram.getMessage(ctx.chat.id, messageTgId);
         state.mention_post_data = 'messageData';
 
@@ -215,7 +226,7 @@ class ChickenFarmController {
         //   reply_to_message_id: messageTgId,
         // });
 
-        await ctx.reply(...chickenFarmFormatter.preview(state));
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         return ctx.wizard.back();
       }
     }
@@ -240,7 +251,7 @@ class ChickenFarmController {
       //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
       //   chat_id: ctx.message.chat.id,
       // });
-      return ctx.reply(...chickenFarmFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...chickenFarmFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
@@ -281,7 +292,7 @@ class ChickenFarmController {
     } else if (callbackMessage == 'editing_done') {
       // await deleteMessageWithCallback(ctx);
 
-      await ctx.reply(...chickenFarmFormatter.preview(state));
+      await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
 
       return ctx.wizard.back();
     }
@@ -313,7 +324,7 @@ class ChickenFarmController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      await ctx.reply(...((await chickenFarmFormatter.editFieldDisplay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await chickenFarmFormatter.editFieldDisplay(callbackMessage)) as any));
       return;
     }
   }

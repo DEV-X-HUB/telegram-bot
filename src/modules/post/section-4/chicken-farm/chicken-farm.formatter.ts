@@ -1,9 +1,11 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import config from '../../../../config/config';
 
 class ChickenFarmFormatter {
   estimatedCapitalOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
+  inlineBackButton: TableInlineKeyboardButtons;
   messages = {
     sectorPrompt: 'Specific sector for chicken farm?',
     estimatedCapitalPrompt: 'What is the estimated capital?',
@@ -14,6 +16,7 @@ class ChickenFarmFormatter {
     postingError: 'Posting failed',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
+    somethingWentWrong: 'Something went wrong, please try again',
   };
   constructor() {
     this.estimatedCapitalOption = [
@@ -32,6 +35,8 @@ class ChickenFarmFormatter {
     ];
 
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
+
+    this.inlineBackButton = [[{ text: 'Back', cbString: 'back' }]];
   }
 
   sectorPrompt() {
@@ -55,11 +60,12 @@ class ChickenFarmFormatter {
   }
 
   getPreviewData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n\n________________\n\n` : ''}#${state.category}\n\n________________\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\n\By: ${state.display_name}\n\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n\n________________\n\n` : ''}#${state.category}\n\n________________\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\n\  
+    \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
 
   noPostsErrorMessage() {
-    return [this.messages.noPreviousPosts, this.goBackButton()];
+    return [this.messages.noPreviousPosts, InlineKeyboardButtons(this.inlineBackButton)];
   }
   mentionPostMessage() {
     return [this.messages.mentionPost, this.goBackButton()];
@@ -147,6 +153,10 @@ class ChickenFarmFormatter {
 
   postingError() {
     return [this.messages.postingError];
+  }
+
+  somethingWentWrongError() {
+    return [this.messages.somethingWentWrong];
   }
 }
 
