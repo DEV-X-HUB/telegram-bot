@@ -3,7 +3,7 @@ import QuestionPostSectionBController from './section-b.controller';
 
 const questionPostSectionBController = new QuestionPostSectionBController();
 const QuestionPostSectionBScene = new Scenes.WizardScene(
-  'Post-Question-SectionB',
+  'Post-SectionB',
   questionPostSectionBController.start,
   questionPostSectionBController.enterTitle,
   questionPostSectionBController.chooseMainCategory,
@@ -18,9 +18,11 @@ const QuestionPostSectionBScene = new Scenes.WizardScene(
   questionPostSectionBController.choooseWoreda,
   questionPostSectionBController.enterDescription,
   questionPostSectionBController.attachPhoto,
-  questionPostSectionBController.editPost,
+  questionPostSectionBController.editPreview,
   questionPostSectionBController.editData,
   questionPostSectionBController.editPhoto,
+  questionPostSectionBController.postedReview,
+  questionPostSectionBController.adjustNotifySetting,
 );
 
 export default QuestionPostSectionBScene;

@@ -14,6 +14,11 @@ enum PostStatus {
   pending
   rejected
 }
+enum NotifyOption {
+  none 
+  follower 
+  friend
+}
 
 model User {
   id           String  @id @default(uuid()) // UUID type for user_id
@@ -47,10 +52,11 @@ model Follows {
 
 
 model Post {
-  id          String   @id @default(uuid()) 
-  description String
-  status      PostStatus   @default(pending)
-  category    String
+  id           String   @id @default(uuid()) 
+  description  String
+  status       PostStatus   @default(pending)
+  category     String
+  notify_option NotifyOption   @default(none)
 
   user        User     @relation(fields: [user_id], references: [id]) 
   user_id     String
@@ -78,7 +84,7 @@ model Service1A {
   woreda            String 
   last_digit        String
   photo             String[] 
-  post              Post @relation(fields: [post_id], references: [id])
+  post              Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
 model Service1B {
@@ -105,10 +111,11 @@ model Service1C {
   paper_stamp                 String 
   id_first_option             String 
   woreda                      String 
-  service_type1               String 
-  service_type2               String 
-  service_type3               String 
+  service_type_1              String 
+  service_type_2              String 
+  service_type_3              String 
   last_digit                  String
+  confirmation_year           String
   photo                       String[] 
   post                        Post @relation(fields: [post_id], references: [id])
 }
@@ -118,7 +125,7 @@ model Service2 {
   service_type                String
   title                       String 
   photo                       String[] @default([])
-  post                                Post @relation(fields: [post_id], references: [id])
+  post                        Post @relation(fields: [post_id], references: [id])
 }
 
 

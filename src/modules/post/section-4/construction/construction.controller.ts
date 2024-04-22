@@ -3,7 +3,7 @@ import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
 
 import QuestionPostSectionConstructionFormmater from './construction.formatter';
 import QuestionService from '../../post.service';
-import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import { displayDialog } from '../../../../ui/dialog';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import Section4ConstructionService from './construction.service';
@@ -138,7 +138,7 @@ class QuestionPostSectionConstructionController {
       ctx.reply(...constructionFormatter.locationDisplay());
       return ctx.wizard.back();
     }
-    const validationMessage = questionPostValidator('description', message);
+    const validationMessage = postValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
     ctx.wizard.state.status = 'Previewing';

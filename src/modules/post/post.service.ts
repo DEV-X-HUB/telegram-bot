@@ -1,6 +1,13 @@
 import prisma from '../../loaders/db-connecion';
 import { v4 as UUID } from 'uuid';
-import { CreatePostDto, CreatePostService1ADto } from '../../types/dto/create-question-post.dto';
+import {
+  CreateCategoryPostDto,
+  CreatePostDto,
+  CreatePostService1ADto,
+  CreatePostService1BDto,
+  CreatePostService1CDto,
+} from '../../types/dto/create-question-post.dto';
+import { PostCategory } from '../../types/params';
 
 class QuestionService {
   constructor() {}
@@ -86,12 +93,14 @@ class QuestionService {
       };
     }
   }
-  static async createServie1Post(createPostService1ADto: CreatePostService1ADto, tg_id: string) {
+  static async createServie1Post(postDto: CreatePostService1ADto, tg_id: string) {
     try {
+      const { description, category, notify_option, ...createPostService1ADto } = postDto;
       const postData = await this.createPost(
         {
-          description: createPostService1ADto.description,
-          category: createPostService1ADto.category,
+          description,
+          category,
+          notify_option,
         },
         tg_id,
       );
@@ -112,7 +121,72 @@ class QuestionService {
 
       return {
         success: true,
-        data: post,
+        data: { ...post, post_id: postData.post.id },
+        message: 'Post created successfully',
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        data: null,
+        message: 'An error occurred while creating the post',
+      };
+    }
+  }
+  static async createCategoryPost(postDto: CreateCategoryPostDto, tg_id: string) {
+    try {
+      const { description, category, notify_option } = postDto;
+      const postData = await this.createPost(
+        {
+          description,
+          category,
+          notify_option,
+        },
+        tg_id,
+      );
+
+      if (!postData.success || !postData.post)
+        return {
+          success: false,
+          data: null,
+          message: postData.message,
+        };
+
+      let post = null;
+
+      switch (category as PostCategory) {
+        case 'Section 1A': {
+          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1ADto;
+          post = await prisma.service1A.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+        case 'Section 1B': {
+          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1BDto;
+          post = await prisma.service1B.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+        case 'Section 1C': {
+          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1CDto;
+          post = await prisma.service1C.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+      }
+
+      return {
+        success: true,
+        data: { ...post, post_id: postData.post.id },
         message: 'Post created successfully',
       };
     } catch (error) {
@@ -125,20 +199,34 @@ class QuestionService {
     }
   }
 
-  static async deletePostById(postId: string): Promise<boolean> {
+  static async deletePostById(postId: string, category: PostCategory): Promise<boolean> {
     try {
-      await prisma.post.delete({
-        where: {
-          id: postId,
-        },
-      });
-
+      switch (category) {
+        case 'Section 1A':
+          await prisma.post.delete({ where: { id: postId } });
+          break;
+      }
       return true;
     } catch (error) {
       console.log(error);
       return false;
     }
   }
+
+  // static async getAllPost() {
+  //   const postsWithCategories = await prisma.post.findMany({
+  //     include: {
+  //       Service1A: true, // Include data from Service1A category
+  //       Service1B: true, // Include data from Service1B category
+  //       Service1C: true, // Include data from Service1C category
+  //       Service2: true, // Include data from Service2 category
+  //       Service3: true, // Include data from Service3 category
+  //       // Include other categories if necessary
+  //     },
+  //   });
+
+  //   console.log(postsWithCategories);
+  // }
 }
 
 export default QuestionService;
