@@ -29,6 +29,7 @@ class Section4ConstructionService {
         data: {
           ...postDto,
           user_id: user.id,
+          status: 'pending',
         },
       });
 
@@ -49,26 +50,10 @@ class Section4ConstructionService {
 
   static async createConstructionPost(postData: CreatePostService4ConstructionDto, tg_id: string) {
     try {
-      // Find user with tg_id
-      const user = await prisma.user.findUnique({
-        where: {
-          tg_id: tg_id.toString(),
-        },
-      });
-
-      if (!user) {
-        return {
-          success: false,
-          data: null,
-          message: 'User not found',
-        };
-      }
-
       const newPost = await this.createPost(
         {
           description: postData.description,
-          category: 'Service4Construction',
-          user_id: user.id,
+          category: postData.category,
         },
         tg_id,
       );
@@ -80,12 +65,14 @@ class Section4ConstructionService {
           message: newPost.message,
         };
 
+      const { description, category, ...constructionData } = postData;
+
       // Create constuction post and store it
       const newConstructionePost = await prisma.service4Construction.create({
         data: {
           id: UUID(),
           post_id: newPost.post.id,
-          ...postData,
+          ...constructionData,
         },
       });
 

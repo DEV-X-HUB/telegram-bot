@@ -153,8 +153,8 @@ model Service4Manufacture {
   number_of_workers         Int
   estimated_capital         String
   enterprise_name           String
-  photo                     String[] // Required array of photo URLs
-  post                     Post @relation(fields: [post_id], references: [id])
+  photo                     String[] @default([])
+  post                      Post     @relation(fields: [post_id], references: [id])
 }
 
 

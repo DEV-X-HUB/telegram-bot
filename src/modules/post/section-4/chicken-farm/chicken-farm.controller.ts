@@ -72,8 +72,13 @@ class ChickenFarmController {
       return ctx.wizard.back();
     }
 
+    const user = await Section4ChickenFarmService.findUserWithTgId(ctx.from.id);
+    if (!user) return await ctx.reply('User not found');
+
+    ctx.wizard.state.display_name = user.user?.display_name;
     ctx.wizard.state.description = message;
     ctx.wizard.state.status = 'preview';
+
     await ctx.reply(...chickenFarmFormatter.preview(ctx.wizard.state));
     return ctx.wizard.next();
   }
@@ -108,7 +113,13 @@ class ChickenFarmController {
           console.log('here you are');
           // api request to post the data
           const response = await Section4ChickenFarmService.createChickenFarmPost(
-            ctx.wizard.state,
+            {
+              sector: state.sector,
+              estimated_capital: state.estimated_capital,
+              enterprise_name: state.enterprise_name,
+              description: state.description,
+              category: 'Section4ChickenFarm',
+            },
             callbackQuery.from.id,
           );
           console.log(response);
@@ -138,6 +149,74 @@ class ChickenFarmController {
         // default: {
         //   await ctx.reply('DEFAULT');
         // }
+
+        case 'mention_previous_post': {
+          console.log('mention_previous_post1');
+          await ctx.reply('mention_previous_post');
+          // fetch previous posts of the user
+          const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id);
+
+          if (!posts) {
+            return await ctx.reply(chickenFarmFormatter.noPostsErrorMessage);
+          }
+
+          await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
+          for (const post of posts.posts as any) {
+            await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(post));
+          }
+
+          await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(posts.posts));
+          return ctx.wizard.next();
+        }
+
+        case 'remove_mention_previous_post': {
+          state.mention_post_data = '';
+          state.mention_post_id = '';
+          await deleteMessageWithCallback(ctx);
+          return ctx.reply(...chickenFarmFormatter.preview(state));
+        }
+      }
+    }
+  }
+
+  async mentionPreviousPost(ctx: any) {
+    const state = ctx.wizard.state;
+    const callbackQuery = ctx.callbackQuery;
+
+    if (callbackQuery) {
+      if (areEqaul(callbackQuery.data, 'back', true)) {
+        await ctx.reply(...chickenFarmFormatter.preview(ctx.wizard.state));
+        return ctx.wizard.back();
+      }
+
+      if (callbackQuery.data.startsWith('select_post_')) {
+        const post_id = callbackQuery.data.split('_')[2];
+
+        // get the telegram message id of the post
+        const messageTgId = callbackQuery.message.message_id;
+
+        console.log(ctx);
+        console.log(`the message ${ctx.message}`);
+
+        state.mention_post_id = post_id;
+
+        // obtain the message using the tg message id
+
+        console.log(ctx);
+
+        // const messageData = await ctx.telegram.getMessage(ctx.chat.id, messageTgId);
+        state.mention_post_data = 'messageData';
+
+        // send message in reply to the post
+        // await ctx.telegram.sendMessage(ctx.chat.id, ...chickenFarmFormatter.preview(state), {
+        //   reply_to_message_id: messageTgId,
+        // });
+        // await ctx.telegram.sendMessage(ctx.chat.id, "Reply....", {
+        //   reply_to_message_id: messageTgId,
+        // });
+
+        await ctx.reply(...chickenFarmFormatter.preview(state));
+        return ctx.wizard.back();
       }
     }
   }
@@ -205,6 +284,25 @@ class ChickenFarmController {
       await ctx.reply(...chickenFarmFormatter.preview(state));
 
       return ctx.wizard.back();
+    }
+
+    // else if (callbackMessage =='mention_previous_post'){
+    //   // fetch previous posts
+    //   const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id)
+    // }
+    else if (callbackMessage == 'mention_previous_post') {
+      console.log('mention_previous_post2');
+      await ctx.reply('mention_previous_post');
+      // fetch previous posts of the user
+      const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id);
+      console.log(posts.posts);
+
+      // if (!posts) {
+      //   return await ctx.reply(chickenFarmFormatter.noPostsErrorMessage);
+      // }
+
+      // await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
+      // return await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(posts.posts));
     }
 
     // if user chooses a field to edit

@@ -90,7 +90,6 @@ class QuestionService {
     try {
       const postData = await this.createPost(
         {
-          status: createPostService1ADto.status,
           description: createPostService1ADto.description,
           category: createPostService1ADto.category,
         },
