@@ -1,6 +1,7 @@
 import CreateUserDto from '../../types/dto/create-user.dto';
 import prisma from '../../loaders/db-connecion';
 import { v4 as UID } from 'uuid';
+import { NotifyOption } from '../../types/params';
 class ProfileService {
   constructor() {}
 
@@ -65,6 +66,22 @@ class ProfileService {
     } catch (error) {
       console.error(error);
       return null;
+    }
+  }
+  async updateNotifySettingByTgId(tg_id: string, notify_option: NotifyOption) {
+    try {
+      await prisma.user.update({
+        where: {
+          tg_id: tg_id as string,
+        },
+        data: {
+          notify_option,
+        },
+      });
+      return { success: true, message: 'success' };
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: 'unable to update notify setting ' };
     }
   }
 
@@ -168,17 +185,26 @@ class ProfileService {
     }
   }
 
-  async getQuestionsOfUser(user_id: string) {
+  async getUserPosts(user_id: string) {
     try {
-      const questions = await prisma.post.findMany({
+      const posts = await prisma.post.findMany({
         where: {
           user_id,
         },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+        },
       });
-      return questions;
+
+      return { success: true, posts: posts, message: 'success' };
     } catch (error: any) {
       console.log(error);
-      return { success: false, data: null, message: error?.message };
+      return { success: false, posts: null, message: error?.message };
     }
   }
 
