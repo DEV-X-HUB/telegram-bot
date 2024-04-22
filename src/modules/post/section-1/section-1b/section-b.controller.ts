@@ -263,7 +263,7 @@ class QuestionPostSectionBController {
       }
       ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.status = 'previewing';
-      ctx.wizard.state.notify_option = 'none';
+      ctx.wizard.state.notify_option = user?.notify_option || 'none';
       // empty the images array
       imagesUploaded = [];
 
