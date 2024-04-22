@@ -164,16 +164,15 @@ class ChickenFarmController {
           if (!posts.posts || posts.posts.length == 0) {
             // remove past post
             await deleteMessageWithCallback(ctx);
-
             return await ctx.reply(...chickenFarmFormatter.noPostsErrorMessage());
           }
 
+          await deleteMessageWithCallback(ctx);
           await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
           for (const post of posts.posts as any) {
             await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(post));
           }
 
-          await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(posts.posts));
           return ctx.wizard.next();
         }
 
