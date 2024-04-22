@@ -16,6 +16,7 @@ import QuestionService from '../../post.service';
 import QuestionPostSection1CFormatter from './section1c.formatter';
 // import QuestionService from './question.service';
 const section1cFormatter = new QuestionPostSection1CFormatter();
+const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
@@ -245,7 +246,7 @@ class QuestionPostSection1CController {
 
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
-      const user = await new ProfileService().getProfileByTgId(sender.id);
+      const user = await profileService.getProfileByTgId(sender.id);
       if (user) {
         ctx.wizard.state.user = {
           id: user.id,

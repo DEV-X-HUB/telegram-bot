@@ -15,8 +15,9 @@ import { CreatePostService1ADto, CreatePostService1BDto } from '../../../../type
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
 import { parseDateString } from '../../../../utils/constants/date';
-const postSectionBFormatter = new PostSectionBFormatter();
 
+const postSectionBFormatter = new PostSectionBFormatter();
+const profileService = new ProfileService();
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
@@ -253,7 +254,7 @@ class QuestionPostSectionBController {
       // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
-      const user = await new ProfileService().getProfileByTgId(sender.id);
+      const user = await profileService.getProfileByTgId(sender.id);
       if (user) {
         ctx.wizard.state.user = {
           id: user.id,

@@ -15,8 +15,9 @@ import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
 import { CreatePostService1ADto } from '../../../../types/dto/create-question-post.dto';
-const section1AFormatter = new Section1AFormatter();
 
+const section1AFormatter = new Section1AFormatter();
+const profileService = new ProfileService();
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
@@ -154,7 +155,7 @@ class QuestionPostSectionAController {
       // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
-      const user = await new ProfileService().getProfileByTgId(sender.id);
+      const user = await profileService.getProfileByTgId(sender.id);
       if (user) {
         ctx.wizard.state.user = {
           id: user.id,
