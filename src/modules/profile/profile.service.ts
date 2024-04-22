@@ -2,6 +2,9 @@ import CreateUserDto from '../../types/dto/create-user.dto';
 import prisma from '../../loaders/db-connecion';
 import { v4 as UID } from 'uuid';
 import { NotifyOption } from '../../types/params';
+import PostService from '../post/post.service';
+
+const postService = new PostService();
 class ProfileService {
   constructor() {}
 
@@ -186,26 +189,10 @@ class ProfileService {
   }
 
   async getUserPosts(user_id: string) {
-    try {
-      const posts = await prisma.post.findMany({
-        where: {
-          user_id,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              display_name: true,
-            },
-          },
-        },
-      });
-
-      return { success: true, posts: posts, message: 'success' };
-    } catch (error: any) {
-      console.log(error);
-      return { success: false, posts: null, message: error?.message };
-    }
+    return postService.getUserPosts(user_id);
+  }
+  async getUserPostsTgId(tg_id: string) {
+    return postService.getUserPosts(tg_id);
   }
 
   async followUser(followerId: string, followingId: string) {
