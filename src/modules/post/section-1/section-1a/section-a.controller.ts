@@ -9,7 +9,6 @@ import {
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
 
 import Section1AFormatter from './section-a.formatter';
-import QuestionService from '../../post.service';
 import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
@@ -19,7 +18,7 @@ import PostService from '../../post.service';
 
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
-const postService = new PostService();
+
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
@@ -209,7 +208,7 @@ class QuestionPostSectionAController {
             category: 'Section 1A',
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
           };
-          const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
+          const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
           if (response?.success) {
             console.log(response.data);
@@ -251,7 +250,7 @@ class QuestionPostSectionAController {
         }
         case 'mention_previous_post': {
           // fetch previous posts of the user
-          const { posts, success, message } = await postService.getUserPostsByTgId(user.id);
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
           if (!success || !posts) {
             // remove past post
             await deleteMessageWithCallback(ctx);
@@ -394,7 +393,7 @@ class QuestionPostSectionAController {
           category: 'Section 1A',
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
-        const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
+        const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');
 
         ctx.wizard.state.post_id = response?.data?.id;
@@ -409,7 +408,7 @@ class QuestionPostSectionAController {
       }
       case 'cancel_post': {
         console.log(ctx.wizard.state);
-        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 

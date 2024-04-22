@@ -8,13 +8,13 @@ import {
 import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
 
 import PostSectionBFormatter from './section-b.formatter';
-import QuestionService from '../../post.service';
 import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
-import { CreatePostService1ADto, CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
+import { CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
 import { parseDateString } from '../../../../utils/constants/date';
+import PostService from '../../post.service';
 
 const postSectionBFormatter = new PostSectionBFormatter();
 const profileService = new ProfileService();
@@ -272,9 +272,9 @@ class QuestionPostSectionBController {
       return ctx.wizard.next();
     }
   }
-  async editPreview(ctx: any) {
+  async preview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-
+    const user = findSender(ctx);
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
@@ -309,7 +309,7 @@ class QuestionPostSectionBController {
             notify_option: ctx.wizard.state.notify_option,
             category: 'Section 1B',
           };
-          const response = await QuestionService.createCategoryPost(postDto, callbackQuery.from.id);
+          const response = await PostService.createCategoryPost(postDto, user.id);
 
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
@@ -348,6 +348,39 @@ class QuestionPostSectionBController {
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...postSectionBFormatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
           return ctx.wizard.selectStep(18);
+        }
+        case 'mention_previous_post': {
+          // fetch previous posts of the user
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
+          if (!success || !posts) {
+            // remove past post
+            await deleteMessageWithCallback(ctx);
+            return await ctx.reply(message);
+          }
+          if (posts.length == 0) {
+            await deleteMessageWithCallback(ctx);
+            return await ctx.reply(...postSectionBFormatter.noPostsErrorMessage());
+          }
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...postSectionBFormatter.mentionPostMessage());
+          for (const post of posts as any) {
+            await ctx.reply(...postSectionBFormatter.displayPreviousPostsList(post));
+          }
+          return ctx.wizard.selectStep(19);
+        }
+
+        case 'remove_mention_previous_post': {
+          state.mention_post_data = '';
+          state.mention_post_id = '';
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.replyWithHTML(...postSectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        }
+        case 'back': {
+          await deleteMessageWithCallback(ctx);
+          ctx.wizard.back();
+          return await ctx.replyWithHTML(...postSectionBFormatter.preview(state));
         }
         default: {
           await ctx.reply('DEFAULT');
@@ -492,7 +525,7 @@ class QuestionPostSectionBController {
           notify_option: ctx.wizard.state.notify_option,
           category: 'Section 1B',
         };
-        const response = await QuestionService.createCategoryPost(postDto, callbackQuery.from.id);
+        const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');
 
         ctx.wizard.state.post_id = response?.data?.id;
@@ -507,7 +540,7 @@ class QuestionPostSectionBController {
         });
       }
       case 'cancel_post': {
-        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1B');
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1B');
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
         await ctx.reply('Cancelled');
         return ctx.editMessageReplyMarkup({
@@ -543,6 +576,27 @@ class QuestionPostSectionBController {
       case 'notify_follower': {
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
+        await ctx.replyWithHTML(...postSectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(14);
+      }
+    }
+  }
+  async mentionPreviousPost(ctx: any) {
+    const state = ctx.wizard.state;
+    const callbackQuery = ctx.callbackQuery;
+    if (callbackQuery) {
+      if (areEqaul(callbackQuery.data, 'back', true)) {
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...postSectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(14);
+      }
+
+      if (callbackQuery.data.startsWith('select_post_')) {
+        const post_id = callbackQuery.data.split('_')[2];
+
+        state.mention_post_id = post_id;
+        state.mention_post_data = ctx.callbackQuery.message.text;
+        await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...postSectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(14);
       }

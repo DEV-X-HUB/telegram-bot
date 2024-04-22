@@ -61,7 +61,6 @@ model Post {
   
   previous_post       Post?       @relation(name: "PreviousPost", fields: [previous_post_id], references: [id]) 
   previous_post_id    String?     @unique
-
   next_post           Post?       @relation(name: "PreviousPost")
 
   user        User     @relation(fields: [user_id], references: [id]) 

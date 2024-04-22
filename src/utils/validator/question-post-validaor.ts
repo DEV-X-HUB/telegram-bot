@@ -38,7 +38,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
 
   try {
     // if (!schema) return 'No schema found';
-    if (!schema) return value;
+    if (!schema) return true;
     schema.parse(value);
 
     return 'valid';

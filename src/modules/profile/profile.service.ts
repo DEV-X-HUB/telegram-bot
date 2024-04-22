@@ -189,10 +189,10 @@ class ProfileService {
   }
 
   async getUserPosts(user_id: string) {
-    return postService.getUserPosts(user_id);
+    return PostService.getUserPosts(user_id);
   }
   async getUserPostsTgId(tg_id: string) {
-    return postService.getUserPosts(tg_id);
+    return PostService.getUserPosts(tg_id);
   }
 
   async followUser(followerId: string, followingId: string) {

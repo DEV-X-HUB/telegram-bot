@@ -167,7 +167,7 @@ class ChickenFarmController {
           console.log('mention_previous_post1');
           await ctx.reply('mention_previous_post');
           // fetch previous posts of the user
-          const { posts, success, message } = await postService.getUserPostsByTgId(user.id);
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
           if (!success || !posts) {
             // remove past post
             await deleteMessageWithCallback(ctx);

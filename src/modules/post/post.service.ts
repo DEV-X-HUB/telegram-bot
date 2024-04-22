@@ -93,9 +93,10 @@ class PostService {
       };
     }
   }
-  static async createServie1Post(postDto: CreatePostService1ADto, tg_id: string) {
+
+  static async createCategoryPost(postDto: CreateCategoryPostDto, tg_id: string) {
     try {
-      const { description, category, notify_option, previous_post_id, ...createPostService1ADto } = postDto;
+      const { description, category, notify_option, previous_post_id } = postDto;
       const postData = await this.createPost(
         {
           description,
@@ -113,75 +114,40 @@ class PostService {
           message: postData.message,
         };
 
-      const post = await prisma.service1A.create({
-        data: {
-          post_id: postData.post.id,
-          ...createPostService1ADto,
-        },
-      });
-
-      return {
-        success: true,
-        data: { ...post, post_id: postData.post.id },
-        message: 'Post created successfully',
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        success: false,
-        data: null,
-        message: 'An error occurred while creating the post',
-      };
-    }
-  }
-  static async createCategoryPost(postDto: CreateCategoryPostDto, tg_id: string) {
-    try {
-      const { description, category, notify_option } = postDto;
-      const postData = await this.createPost(
-        {
-          description,
-          category,
-          notify_option,
-        },
-        tg_id,
-      );
-
-      if (!postData.success || !postData.post)
-        return {
-          success: false,
-          data: null,
-          message: postData.message,
-        };
-
       let post = null;
-
       switch (category as PostCategory) {
         case 'Section 1A': {
-          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1ADto;
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService1ADto;
           post = await prisma.service1A.create({
             data: {
               post_id: postData.post.id,
               ...createCategoryPostDto,
             },
           });
+          break;
         }
         case 'Section 1B': {
-          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1BDto;
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService1BDto;
           post = await prisma.service1B.create({
             data: {
               post_id: postData.post.id,
               ...createCategoryPostDto,
             },
           });
+          break;
         }
         case 'Section 1C': {
-          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1CDto;
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService1CDto;
           post = await prisma.service1C.create({
             data: {
               post_id: postData.post.id,
               ...createCategoryPostDto,
             },
           });
+          break;
         }
       }
 
@@ -213,7 +179,7 @@ class PostService {
       return false;
     }
   }
-  async getUserPosts(user_id: string) {
+  static async getUserPosts(user_id: string) {
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -235,7 +201,7 @@ class PostService {
       return { success: false, posts: null, message: error?.message };
     }
   }
-  async getUserPostsByTgId(tg_id: string) {
+  static async getUserPostsByTgId(tg_id: string) {
     const user = await prisma.user.findUnique({
       where: {
         tg_id: tg_id.toString(),
