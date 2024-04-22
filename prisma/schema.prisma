@@ -111,10 +111,11 @@ model Service1C {
   paper_stamp                 String 
   id_first_option             String 
   woreda                      String 
-  service_type1               String 
-  service_type2               String 
-  service_type3               String 
+  service_type_1              String 
+  service_type_2              String 
+  service_type_3              String 
   last_digit                  String
+  confirmation_year           DateTime
   photo                       String[] 
   post                        Post @relation(fields: [post_id], references: [id])
 }

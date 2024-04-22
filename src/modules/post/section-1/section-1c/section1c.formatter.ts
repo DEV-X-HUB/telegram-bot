@@ -1,6 +1,8 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
 import config from '../../../../config/config';
+import { NotifyOption } from '../../../../types/params';
+import { areEqaul } from '../../../../utils/constants/string';
 
 class Section1CFormatter {
   arBrOption: TableInlineKeyboardButtons;
@@ -13,6 +15,7 @@ class Section1CFormatter {
   bIDiOption: TableInlineKeyboardButtons;
 
   messages = {
+    notifyOptionPrompt: 'Select who can be notified this question',
     useButtonError: 'Please use Buttons to select options',
     categoryPrompt: 'Please Choose on category from the options',
     optionPrompt: 'Please Choose on category from the options',
@@ -167,20 +170,20 @@ class Section1CFormatter {
     return ['Please Choose Service Type 3', InlineKeyboardButtons(this.serviceType3)];
   }
 
-  yearOfConfirmationPrompt() {
+  yearOfConfirmationDisplay() {
     return ['Enter Year of Confirmation ', this.goBackButton(false)];
   }
   bIDIOptionDisplay() {
     return ['Please Choose ID first Icon', InlineKeyboardButtons(this.bIDiOption), this.goBackButton(false)];
   }
 
-  lastDigitPrompt() {
+  lastDigitDisplay() {
     return ['Enter Last Digit ', this.goBackButton(false)];
   }
-  descriptionPrompt() {
+  descriptionDisplay() {
     return ['Enter Description maximum 45 words ', this.goBackButton(false)];
   }
-  photoPrompt() {
+  photoDisplay() {
     return ['Attach four photos ', this.goBackButton(false)];
   }
 
@@ -188,25 +191,23 @@ class Section1CFormatter {
     return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
   }
 
-  preview(state: any) {
+  preview(state: any, submitState: string = 'preview') {
     return [
       this.getPreviewData(state),
-      InlineKeyboardButtons([
-        [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Notify settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
-        ],
-        [
-          { text: 'Mention previous post', cbString: 'mention_previous_post' },
-          { text: 'Cancel', cbString: 'cancel' },
-        ],
-      ]),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              { text: 'Mention previous post', cbString: 'mention_previous_post' },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
     ];
-  }
-
-  postingSuccessful() {
-    return ['Posted Successfully'];
   }
 
   editPreview(state: any) {
@@ -258,17 +259,17 @@ class Section1CFormatter {
       case 'service_type_3':
         return this.serviceType3Display();
       case 'year_of_confirmation':
-        return this.yearOfConfirmationPrompt();
+        return this.yearOfConfirmationDisplay();
       case 'bi_di':
         return this.bIDIOptionDisplay();
       case 'last_digit':
-        return this.lastDigitPrompt();
+        return this.lastDigitDisplay();
 
       case 'description':
-        return this.descriptionPrompt();
+        return this.descriptionDisplay();
 
       case 'photo':
-        return this.photoPrompt();
+        return this.photoDisplay();
       case 'cancel':
         return await this.goBackButton();
 
@@ -279,16 +280,48 @@ class Section1CFormatter {
     }
   }
 
-  //   previewCallToAction() {
-  //     return ['Preview your post and press once you are done'];
-  //   }
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
+  }
 
-  //   postingSuccessful() {
-  //     return ['Posted Successfully'];
-  //   }
-  //   postingError() {
-  //     return ['Post Error'];
-  //   }
+  notifyOptionDisplay(notifyOption: NotifyOption) {
+    return [
+      this.messages.notifyOptionPrompt,
+      InlineKeyboardButtons([
+        [
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
+        ],
+        [
+          {
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
+          },
+        ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
+      ]),
+    ];
+  }
+  previewCallToAction() {
+    return ['Preview your post and press once you are done'];
+  }
+
+  postingSuccessful() {
+    return ['Posted Successfully'];
+  }
+  postingError() {
+    return ['Post Error'];
+  }
   paperTimestampError() {
     return ['Please Choose Paper Stamp'];
   }

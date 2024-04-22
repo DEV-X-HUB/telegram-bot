@@ -16,9 +16,11 @@ const QuestionPostSectionCScene = new Scenes.WizardScene(
   section1cController.enterLastDigit,
   section1cController.enterDescription,
   section1cController.attachPhoto,
-  section1cController.editPost,
+  section1cController.editPreview,
   section1cController.editData,
   section1cController.editPhoto,
+  section1cController.postedReview,
+  section1cController.adjustNotifySetting,
 );
 
 export default QuestionPostSectionCScene;

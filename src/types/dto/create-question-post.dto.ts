@@ -37,10 +37,26 @@ export interface CreatePostService1BDto {
   notify_option: NotifyOption;
 }
 
+export interface CreatePostService1CDto {
+  arbr_value: string;
+  id_first_option: string;
+  paper_stamp: string;
+  woreda: string;
+  last_digit: string;
+  service_type_1: string;
+  service_type_2: string;
+  service_type_3: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+}
+
 export interface CreatePostDto {
   description: string;
   category: string;
   notify_option: NotifyOption;
 }
 
-export type CreateCategoryPostDto = CreatePostService1BDto | CreatePostService1ADto;
+export type CreateCategoryPostDto = CreatePostService1BDto | CreatePostService1ADto | CreatePostService1CDto;

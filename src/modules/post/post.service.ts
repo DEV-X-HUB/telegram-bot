@@ -5,6 +5,7 @@ import {
   CreatePostDto,
   CreatePostService1ADto,
   CreatePostService1BDto,
+  CreatePostService1CDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
 
@@ -166,6 +167,15 @@ class QuestionService {
         case 'Section 1B': {
           const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1BDto;
           post = await prisma.service1B.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+        case 'Section 1C': {
+          const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1CDto;
+          post = await prisma.service1C.create({
             data: {
               post_id: postData.post.id,
               ...createCategoryPostDto,
