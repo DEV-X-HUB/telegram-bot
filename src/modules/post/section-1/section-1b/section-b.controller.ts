@@ -267,7 +267,6 @@ class QuestionPostSectionBController {
       // empty the images array
       imagesUploaded = [];
 
-      console.log(ctx.wizard.state);
       ctx.replyWithHTML(...postSectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...postSectionBFormatter.previewCallToAction());
       return ctx.wizard.next();

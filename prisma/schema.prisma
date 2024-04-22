@@ -34,6 +34,7 @@ model User {
   gender       String? // Optional gender
   display_name String? // Optional display name
   bio          String? // Optional bio
+  notify_option NotifyOption   @default(none)
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
