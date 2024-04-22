@@ -181,7 +181,7 @@ class ChickenFarmController {
           state.mention_post_data = '';
           state.mention_post_id = '';
           await deleteMessageWithCallback(ctx);
-          return ctx.replyWithHTMLs(...chickenFarmFormatter.preview(state));
+          return ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         }
         case 'back': {
           await deleteMessageWithCallback(ctx);

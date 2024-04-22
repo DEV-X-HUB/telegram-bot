@@ -293,7 +293,7 @@ class QuestionPostSectionConstructionController {
       // changing field value
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
-      return ctx.reply(...constructionFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...constructionFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
