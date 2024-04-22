@@ -188,7 +188,7 @@ class Section1CFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
+    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
@@ -229,7 +229,7 @@ class Section1CFormatter {
         ],
         [
           { text: 'Service Type 3', cbString: 'service_type_3' },
-          { text: 'Year of Confirmation', cbString: 'year_of_confirmation' },
+          { text: 'Year of Confirmation', cbString: 'confirmation_year' },
         ],
         [
           { text: 'Last Digit', cbString: 'last_digit' },
@@ -258,23 +258,19 @@ class Section1CFormatter {
         return this.serviceType2Display();
       case 'service_type_3':
         return this.serviceType3Display();
-      case 'year_of_confirmation':
+      case 'confirmation_year':
         return this.yearOfConfirmationDisplay();
       case 'bi_di':
         return this.bIDIOptionDisplay();
       case 'last_digit':
         return this.lastDigitDisplay();
-
       case 'description':
         return this.descriptionDisplay();
-
       case 'photo':
         return this.photoDisplay();
       case 'cancel':
         return await this.goBackButton();
 
-      case 'done':
-        return this.postingSuccessful();
       default:
         return ['none'];
     }

@@ -8,6 +8,7 @@ import {
   sendMediaGroup,
 } from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import QuestionService from '../../post.service';
@@ -166,8 +167,8 @@ class QuestionPostSection1CController {
       return ctx.wizard.back();
     }
 
-    // const validationMessage = questionPostValidator('confirmation_year', message);
-    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    const validationMessage = postValidator('confirmation_year', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.confirmation_year = message;
     await ctx.reply(...section1cFormatter.bIDIOptionDisplay());
     return ctx.wizard.next();
@@ -204,9 +205,8 @@ class QuestionPostSection1CController {
       ctx.reply(...section1cFormatter.bIDIOptionDisplay());
       return ctx.wizard.back();
     }
-
-    // const validationMessage = questionPostValidator('last_digit', message);
-    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    const validationMessage = postValidator('last_digit', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
     ctx.reply(...section1cFormatter.descriptionDisplay());
     return ctx.wizard.next();
@@ -241,8 +241,8 @@ class QuestionPostSection1CController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
-      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
+      //   const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
+
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       const user = await new ProfileService().getProfileByTgId(sender.id);
@@ -258,7 +258,6 @@ class QuestionPostSection1CController {
       // empty the images array
       imagesUploaded = [];
 
-      console.log(ctx.wizard.state);
       ctx.replyWithHTML(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...section1cFormatter.previewCallToAction());
       return ctx.wizard.next();
@@ -280,7 +279,7 @@ class QuestionPostSection1CController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...section1cFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...section1cFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
@@ -294,10 +293,11 @@ class QuestionPostSection1CController {
             service_type_2: ctx.wizard.state.service_type_2 as string,
             service_type_3: ctx.wizard.state.service_type_3 as string,
             paper_stamp: ctx.wizard.state.paper_stamp as string,
+            confirmation_year: ctx.wizard.state.confirmation_year as string,
             photo: ctx.wizard.state.photo,
             woreda: ctx.wizard.state.woreda,
             notify_option: ctx.wizard.state.notify_option,
-            category: 'Section 1B',
+            category: 'Section 1C',
           };
           const response = await QuestionService.createCategoryPost(postDto, callbackQuery.from.id);
 
@@ -354,7 +354,7 @@ class QuestionPostSection1CController {
       'service_type_1',
       'service_type_2',
       'service_type_3',
-      'year_of_confirmation',
+      'confirmation_year',
       'bi_di',
       'last_digit',
       'description',
@@ -367,6 +367,9 @@ class QuestionPostSection1CController {
       // changing field value
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
+
+      const validationMessage = postValidator(editField, messageText);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
@@ -394,20 +397,13 @@ class QuestionPostSection1CController {
 
     if (fileds.some((filed) => filed == callbackQuery.data)) {
       // selecting field to change
-      let extra = '';
+
       ctx.wizard.state.editField = callbackMessage;
       await ctx.telegram.deleteMessage(
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      switch (callbackQuery.data) {
-        case 'condition':
-          extra = ctx.wizard.state.condition;
-          break;
-        case 'sub_category':
-          extra = ctx.wizard.state.condition;
-          break;
-      }
+
       await ctx.reply(...((await section1cFormatter.editFieldDispay(callbackMessage)) as any));
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
@@ -418,10 +414,6 @@ class QuestionPostSection1CController {
 
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
-      if (areEqaul(editField, 'main_category', true) && !areEqaul(callbackMessage, 'main_10', true)) {
-        ctx.wizard.state.editField = 'sub_category';
-        return ctx.reply(...section1cFormatter.subCategoryOption(callbackMessage));
-      }
       return ctx.replyWithHTML(...section1cFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
   }
@@ -469,11 +461,12 @@ class QuestionPostSection1CController {
           service_type_1: ctx.wizard.state.service_type_1 as string,
           service_type_2: ctx.wizard.state.service_type_2 as string,
           service_type_3: ctx.wizard.state.service_type_3 as string,
+          confirmation_year: ctx.wizard.state.confirmation_year as string,
           paper_stamp: ctx.wizard.state.paper_stamp as string,
           photo: ctx.wizard.state.photo,
           woreda: ctx.wizard.state.woreda,
           notify_option: ctx.wizard.state.notify_option,
-          category: 'Section 1B',
+          category: 'Section 1C',
         };
         const response = await QuestionService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');
@@ -490,7 +483,7 @@ class QuestionPostSection1CController {
         });
       }
       case 'cancel_post': {
-        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1B');
+        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1C');
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
         await ctx.reply('Cancelled');
         return ctx.editMessageReplyMarkup({

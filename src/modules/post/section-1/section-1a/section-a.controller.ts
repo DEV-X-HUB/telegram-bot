@@ -10,7 +10,7 @@ import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/
 
 import Section1AFormatter from './section-a.formatter';
 import QuestionService from '../../post.service';
-import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
@@ -103,7 +103,7 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
 
-    // const validationMessage = questionPostValidator('last_digit', message);
+    // const validationMessage = postValidator('last_digit', message);
     // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
     ctx.reply(...section1AFormatter.locationDisplay());
@@ -128,7 +128,7 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('description', message);
+    const validationMessage = postValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
     ctx.reply(...section1AFormatter.photoDisplay());
@@ -259,6 +259,10 @@ class QuestionPostSectionAController {
       // changing field value
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
+
+      // validate data
+      const validationMessage = postValidator(editField, messageText);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);

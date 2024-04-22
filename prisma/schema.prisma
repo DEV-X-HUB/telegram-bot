@@ -115,7 +115,7 @@ model Service1C {
   service_type_2              String 
   service_type_3              String 
   last_digit                  String
-  confirmation_year           DateTime
+  confirmation_year           String
   photo                       String[] 
   post                        Post @relation(fields: [post_id], references: [id])
 }

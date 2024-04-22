@@ -1,10 +1,19 @@
-import { DescriptionSchema, IssueDateSchema, lastDititSchema } from '../../types/schemas/question-post-schema';
+import DateSchema, {
+  DescriptionSchema,
+  IssueDateSchema,
+  ConfirmationYearSchema,
+  lastDititSchema,
+} from '../../types/schemas/question-post-schema';
 
 type RegistrationValue = string | number | Date;
 
-export const questionPostValidator = (fieldName: string, value: RegistrationValue) => {
+export const postValidator = (fieldName: string, value: RegistrationValue) => {
   let schema = null;
   switch (fieldName) {
+    case 'issue_date': {
+      schema = DateSchema;
+      break;
+    }
     case 'issue_date': {
       schema = IssueDateSchema;
       break;
@@ -19,15 +28,19 @@ export const questionPostValidator = (fieldName: string, value: RegistrationValu
     }
     case 'location':
       schema = DescriptionSchema;
+    case 'confirmation_year':
+      schema = ConfirmationYearSchema;
       break;
-    case 'photo':
-      schema = Array;
+      // case 'photo':
+      //   schema = Array;
       break;
   }
 
   try {
-    if (!schema) return 'No schema found';
-    // schema.parse(value);
+    // if (!schema) return 'No schema found';
+    if (!schema) return value;
+    schema.parse(value);
+
     return 'valid';
   } catch (error: any) {
     return error.errors[0].message;

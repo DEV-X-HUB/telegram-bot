@@ -154,7 +154,7 @@ class QuestionService {
 
       let post = null;
 
-      switch (category) {
+      switch (category as PostCategory) {
         case 'Section 1A': {
           const { description, category, notify_option, ...createCategoryPostDto } = postDto as CreatePostService1ADto;
           post = await prisma.service1A.create({

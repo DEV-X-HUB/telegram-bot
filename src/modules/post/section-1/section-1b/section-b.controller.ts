@@ -9,7 +9,7 @@ import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
 
 import PostSectionBFormatter from './section-b.formatter';
 import QuestionService from '../../post.service';
-import { questionPostValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import { CreatePostService1ADto, CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
@@ -106,7 +106,7 @@ class QuestionPostSectionBController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('last_digit', message);
+    const validationMessage = postValidator('last_digit', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
     const mainCategory = ctx.wizard.state.main_category;
@@ -160,7 +160,7 @@ class QuestionPostSectionBController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('issue_date', message);
+    const validationMessage = postValidator('issue_date', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.issue_date = message;
     await ctx.reply(...postSectionBFormatter.dateOfExpire());
@@ -174,7 +174,7 @@ class QuestionPostSectionBController {
     }
 
     // assign the location to the state
-    const validationMessage = questionPostValidator('issue_date', message);
+    const validationMessage = postValidator('expire_date', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.expire_date = message;
     await ctx.reply(...postSectionBFormatter.originalLocation());
@@ -227,7 +227,7 @@ class QuestionPostSectionBController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('description', message);
+    const validationMessage = postValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
     ctx.reply(...postSectionBFormatter.photoDisplay());
@@ -378,6 +378,10 @@ class QuestionPostSectionBController {
       // changing field value
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
+
+      // validate data
+      const validationMessage = postValidator(editField, messageText);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);

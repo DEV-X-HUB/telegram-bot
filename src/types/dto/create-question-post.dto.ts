@@ -46,6 +46,7 @@ export interface CreatePostService1CDto {
   service_type_1: string;
   service_type_2: string;
   service_type_3: string;
+  confirmation_year: string;
   photo: string[];
 
   description: string;
