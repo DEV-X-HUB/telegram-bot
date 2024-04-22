@@ -7,7 +7,6 @@ enum PostStatus {
 
 export interface CreatePostDto {
   description: string;
-  status: PostStatus;
   category: string;
 }
 
