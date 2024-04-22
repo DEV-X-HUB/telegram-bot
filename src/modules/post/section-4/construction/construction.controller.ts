@@ -6,6 +6,7 @@ import QuestionService from '../../post.service';
 import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import { displayDialog } from '../../../../ui/dialog';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
+import Section4ConstructionService from './construction.service';
 const constructionFormatter = new QuestionPostSectionConstructionFormmater();
 
 let imagesUploaded: any[] = [];
@@ -217,15 +218,38 @@ class QuestionPostSectionConstructionController {
         case 'post_data': {
           console.log('here you are');
           // api request to post the data
-          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+          const response = await Section4ConstructionService.createConstructionPost(
+            {
+              construction_size: state?.size,
+              company_experience: state?.company_experience,
+              document_request_type: state?.document_request_type,
+              land_size: state?.land_size,
+              land_status: state?.land_status,
+              location: state.location,
+              photo: state?.photo,
+              description: state.description,
+              category: 'Section4Construction',
+              notify_option: state.notify_option,
+            },
+            callbackQuery.from.id,
+          );
           // console.log(response);
           // ctx.reply(...constructionFormatter.postingSuccessful());
-          await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
-          ctx.scene.leave();
-          return MainMenuController.onStart(ctx);
 
-          // if (response?.success) {
-          //   await deleteMessageWithCallback(ctx);
+          if (response?.success) {
+            console.log('Posting successful');
+            await deleteMessageWithCallback(ctx);
+            await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
+            ctx.scene.leave();
+            return MainMenuController.onStart(ctx);
+          } else {
+            ctx.reply(...constructionFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
+            }
+          }
           //   ctx.reply(...constructionFormatter.postingSuccessful());
           // ctx.scene.leave();
           // return MainMenuController.onStart(ctx);

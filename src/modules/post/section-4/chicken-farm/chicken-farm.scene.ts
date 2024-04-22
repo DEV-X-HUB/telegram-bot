@@ -10,6 +10,7 @@ const chickenFarmScene = new Scenes.WizardScene(
   chickenFarmController.enterEnterpriseName,
   chickenFarmController.enterDescription,
   chickenFarmController.preview,
+  chickenFarmController.mentionPreviousPost,
   chickenFarmController.editData,
 );
 

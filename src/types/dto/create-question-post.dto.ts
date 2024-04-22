@@ -7,6 +7,12 @@ enum PostStatus {
   rejected = 'rejected',
 }
 
+export interface CreatePostDto {
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+}
+
 export interface CreatePostService1ADto {
   arbr_value: string;
   id_first_option: string;
@@ -54,7 +60,37 @@ export interface CreatePostService1CDto {
   notify_option: NotifyOption;
 }
 
-export interface CreatePostDto {
+export interface CreatePostService4ManufactureDto {
+  sector: string;
+  number_of_workers: number;
+  estimated_capital: string;
+  enterprise_name: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+}
+
+export interface CreatePostService4ConstructionDto {
+  construction_size?: string;
+  company_experience?: string;
+  document_request_type?: string;
+  land_size?: string;
+  land_status?: string;
+  location: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+}
+
+export interface CreatePostService4ChickenFarmDto {
+  sector: string;
+  estimated_capital: string;
+  enterprise_name: string;
+
   description: string;
   category: string;
   notify_option: NotifyOption;

@@ -34,6 +34,7 @@ model User {
   gender       String? // Optional gender
   display_name String? // Optional display name
   bio          String? // Optional bio
+  notify_option NotifyOption   @default(none)
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
@@ -160,8 +161,8 @@ model Service4Manufacture {
   number_of_workers         Int
   estimated_capital         String
   enterprise_name           String
-  photo                     String[] // Required array of photo URLs
-  post                     Post @relation(fields: [post_id], references: [id])
+  photo                     String[] @default([])
+  post                      Post     @relation(fields: [post_id], references: [id])
 }
 
 

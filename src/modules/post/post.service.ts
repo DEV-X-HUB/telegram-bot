@@ -9,7 +9,7 @@ import {
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
 
-class QuestionService {
+class PostService {
   constructor() {}
 
   static async createQuestionPost(questionPost: any, tg_id: string) {
@@ -212,6 +212,56 @@ class QuestionService {
       return false;
     }
   }
+  async getUserPosts(user_id: string) {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          user_id,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+        },
+      });
+
+      return { success: true, posts: posts, message: 'success' };
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, posts: null, message: error?.message };
+    }
+  }
+  async getUserPostsByTgId(tg_id: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        tg_id: tg_id.toString(),
+      },
+    });
+    if (!user) return { success: false, posts: null, message: `No user found with telegram Id ${tg_id}` };
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          user_id: user.id,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+        },
+      });
+
+      return { success: true, posts: posts, message: 'success' };
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, posts: null, message: error?.message };
+    }
+  }
 
   // static async getAllPost() {
   //   const postsWithCategories = await prisma.post.findMany({
@@ -229,4 +279,4 @@ class QuestionService {
   // }
 }
 
-export default QuestionService;
+export default PostService;

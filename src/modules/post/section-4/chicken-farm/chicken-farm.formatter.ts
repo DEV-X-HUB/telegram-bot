@@ -1,17 +1,22 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import config from '../../../../config/config';
 
 class ChickenFarmFormatter {
   estimatedCapitalOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
+  inlineBackButton: TableInlineKeyboardButtons;
   messages = {
     sectorPrompt: 'Specific sector for chicken farm?',
     estimatedCapitalPrompt: 'What is the estimated capital?',
     enterpriseNamePrompt: 'Name for the small scale enterprise?',
     descriptionPrompt: 'Enter description maximimum 45 words',
-    postingSuccessful: 'Posted Successfully',
     displayError: 'Invalid input, please try again',
+    postingSuccessful: 'Posted Successfully',
     postingError: 'Posting failed',
+    mentionPost: 'Select post to mention',
+    noPreviousPosts: "You don't have any approved question before.",
+    somethingWentWrong: 'Something went wrong, please try again',
   };
   constructor() {
     this.estimatedCapitalOption = [
@@ -30,6 +35,8 @@ class ChickenFarmFormatter {
     ];
 
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
+
+    this.inlineBackButton = [[{ text: 'Back', cbString: 'back' }]];
   }
 
   sectorPrompt() {
@@ -53,7 +60,30 @@ class ChickenFarmFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n_______\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\n\  
+    \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+  }
+
+  noPostsErrorMessage() {
+    return [this.messages.noPreviousPosts, InlineKeyboardButtons(this.inlineBackButton)];
+  }
+  mentionPostMessage() {
+    return [this.messages.mentionPost, this.goBackButton()];
+  }
+  displayPreviousPostsList(post: any) {
+    // Check if post.description is defined before accessing its length
+    const description =
+      post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
+
+    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+
+    const buttons = InlineKeyboardButtons([
+      [
+        { text: 'Select post', cbString: `select_post_${post.id}` },
+        { text: 'Back', cbString: 'back' },
+      ],
+    ]);
+    return [message, buttons];
   }
 
   preview(state: any) {
@@ -66,7 +96,12 @@ class ChickenFarmFormatter {
           { text: 'Post', cbString: 'post_data' },
         ],
         [
-          { text: 'Mention previous post', cbString: 'mention_previous_post' },
+          {
+            text: `${state.mention_post_data ? 'Remove mention post' : 'Mention previous post'}`,
+            // cbString : 'Mention previous post'
+
+            cbString: `${state.mention_post_data ? 'remove_mention_previous_post' : 'mention_previous_post'}`,
+          },
           { text: 'Cancel', cbString: 'cancel' },
         ],
       ]),
@@ -109,15 +144,19 @@ class ChickenFarmFormatter {
   }
 
   inputError() {
-    return ['Invalid input, please try again'];
+    return [this.messages.displayError];
   }
 
   postingSuccessful() {
-    return ['Posted Successfully'];
+    return [this.messages.postingSuccessful];
   }
 
   postingError() {
-    return ['Posting failed'];
+    return [this.messages.postingError];
+  }
+
+  somethingWentWrongError() {
+    return [this.messages.somethingWentWrong];
   }
 }
 

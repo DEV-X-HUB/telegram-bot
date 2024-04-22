@@ -23,11 +23,12 @@ const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
       return profileController.followersList(ctx);
     case 'followings_list_view':
       return profileController.followersList(ctx);
-    case 'questions_list_view':
-      return profileController.questionsList(ctx);
-
-    case 'answers_list_view':
-      return profileController.answersList(ctx);
+    case 'post_list_view':
+      return profileController.postList(ctx);
+    case 'profile_setting':
+      return profileController.settingPreview(ctx);
+    case 'notify_setting':
+      return profileController.changeNotifSetting(ctx);
   }
 });
 
