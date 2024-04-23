@@ -3,9 +3,17 @@ import config from '../../config/config';
 import { TableInlineKeyboardButtons } from '../../types/components';
 import { InlineKeyboardButtons } from '../../ui/button';
 import { formatDateFromIsoString } from '../../utils/constants/date';
-import { capitalize, areEqaul } from '../../utils/constants/string';
+import { capitalize, areEqaul, getSectionName } from '../../utils/constants/string';
+import Post1AFormatter from './section-1/section-1a/section-a.formatter';
+import Post1BFormatter from './section-1/section-1b/section-b.formatter';
+import Post1CFormatter from './section-1/section-1c/section1c.formatter';
+import { PostCategory } from '../../types/params';
 
-class QuestionFormmatter {
+const post1AFormatter = new Post1AFormatter();
+const post1BFormatter = new Post1BFormatter();
+const post1CFormatter = new Post1CFormatter();
+
+class PostFormatter {
   answerOptions: TableInlineKeyboardButtons = [
     [
       { text: '✏️ Edit', cbString: 'edit_answer' },
@@ -46,13 +54,13 @@ class QuestionFormmatter {
       ]);
   }
 
-  formatSearchQuestions(questions: any[]) {
-    return questions.map((question, index) => ({
+  formatSearchQuestions(posts: any[]) {
+    return posts.map((post, index) => ({
       type: 'article',
-      id: `${question.id}_${index}`,
-      title: question.description,
+      id: `${post.id}_${index}`,
+      title: post.description,
       input_message_content: {
-        message_text: `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,
+        message_text: `#${post.category}\n\n${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name}</a>\n${formatDateFromIsoString(post.created_at)}`,
         parse_mode: 'HTML',
         entities: [
           {
@@ -63,9 +71,9 @@ class QuestionFormmatter {
         ],
       },
       reply_markup: {
-        inline_keyboard: [this.questionOptionsButtons(question.id.toString(), true)],
+        inline_keyboard: [this.questionOptionsButtons(post.id.toString(), true)],
       },
-      description: `Posted ${formatDateFromIsoString(question?.created_at)},  ${capitalize(question.status)}`,
+      description: `Posted ${formatDateFromIsoString(post?.created_at)},  ${capitalize(post.status)}`,
     }));
   }
   formatNoQuestionsErrorMessage() {
@@ -124,14 +132,49 @@ class QuestionFormmatter {
     ];
   }
 
-  getformattedQuestionDetail(question: any) {
+  getformattedQuestionDetail(post: any) {
+    const sectionName = getSectionName(post.category as PostCategory);
+    switch (post.category) {
+      case 'Section 1A':
+        return post1AFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1B':
+        return post1BFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1C':
+        return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1A':
+        return 'Service1A';
+      case 'Section 1A':
+        return 'Service1A';
+    }
+
     switch (true) {
-      case areEqaul(question.category, 'Section 1A', true): {
-        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit} ${question.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${question.location} \n\nDescription: ${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name != null ? question.user.display_name : 'Anonymous '}</a>\n\nStatus : ${question.status}`;
+      case areEqaul(post.category, 'Section 1A', true): {
+        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
         ``;
       }
     }
   }
 }
 
-export default QuestionFormmatter;
+export default PostFormatter;

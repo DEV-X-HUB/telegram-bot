@@ -8,9 +8,8 @@ import { checkUserInChannelandPromtJoin } from '../middleware/auth';
 import QuestionPostScene from '../modules/post/post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
 import { setCommands } from '../utils/helper/commands';
-import SearchQuestionController from '../modules/question/question.controller';
+import SearchQuestionController from '../modules/post/post.controller';
 import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
-import { AnswerQuestionScene } from '../modules/question/question.scene';
 
 let bot: Telegraf<Context> | null = null;
 
@@ -18,7 +17,7 @@ export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
-  const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, AnswerQuestionScene, RegistrationScene]);
+  const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene]);
 
   stage.use(checkAndRedirectToScene());
 

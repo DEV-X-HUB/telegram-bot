@@ -49,7 +49,7 @@ class QuestionPostSectionBController {
     ctx.wizard.state.main_category = callbackQuery.data;
 
     if (areEqaul(callbackQuery.data, 'main_10', true)) {
-      ctx.wizard.state.sub_catagory = callbackQuery.data;
+      ctx.wizard.state.sub_category = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...sectionBFormatter.bIDIOptionDisplay());
       return ctx.wizard.selectStep(4); // jumping to step with step index(bi di selector(id first))
@@ -66,7 +66,7 @@ class QuestionPostSectionBController {
       await ctx.reply(...sectionBFormatter.mainCategoryOption());
       return ctx.wizard.back();
     }
-    ctx.wizard.state.sub_catagory = callbackQuery.data;
+    ctx.wizard.state.sub_category = callbackQuery.data;
     deleteMessageWithCallback(ctx);
     ctx.reply(...sectionBFormatter.bIDIOptionDisplay());
     return ctx.wizard.next();
@@ -92,7 +92,7 @@ class QuestionPostSectionBController {
     }
 
     if (isInInlineOption(callbackQuery.data, sectionBFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
+      ctx.wizard.state.id_first_option = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...sectionBFormatter.lastDidtitDisplay());
       return ctx.wizard.next();
@@ -296,9 +296,9 @@ class QuestionPostSectionBController {
           const postDto: CreatePostService1BDto = {
             title: ctx.wizard.state.title as string,
             main_category: ctx.wizard.state.main_category as string,
-            sub_category: ctx.wizard.state.sub_catagory as string,
+            sub_category: ctx.wizard.state.sub_category as string,
             condition: ctx.wizard.state.condition as string,
-            id_first_option: ctx.wizard.state.bi_di as string,
+            id_first_option: ctx.wizard.state.id_first_option as string,
             issue_date: ctx.wizard.state.issue_date ? parseDateString(ctx.wizard.state.issue_date) : undefined,
             expire_date: ctx.wizard.state.expire_date ? parseDateString(ctx.wizard.state.expire_date) : undefined,
             description: ctx.wizard.state.description as string,
@@ -390,7 +390,7 @@ class QuestionPostSectionBController {
       'main_category',
       'sub_category',
       'condition',
-      'bi_di',
+      'id_first_option',
       'woreda',
       'last_digit',
       'location',
@@ -507,9 +507,9 @@ class QuestionPostSectionBController {
         const postDto: CreatePostService1BDto = {
           title: ctx.wizard.state.title as string,
           main_category: ctx.wizard.state.main_category as string,
-          sub_category: ctx.wizard.state.sub_catagory as string,
+          sub_category: ctx.wizard.state.sub_category as string,
           condition: ctx.wizard.state.condition as string,
-          id_first_option: ctx.wizard.state.bi_di as string,
+          id_first_option: ctx.wizard.state.id_first_option as string,
           issue_date: ctx.wizard.state.issue_date ? parseDateString(ctx.wizard.state.issue_date) : undefined,
           expire_date: ctx.wizard.state.expire_date ? parseDateString(ctx.wizard.state.expire_date) : undefined,
           description: ctx.wizard.state.description as string,

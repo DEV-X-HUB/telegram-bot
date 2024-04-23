@@ -230,20 +230,96 @@ class PostService {
     }
   }
 
-  // static async getAllPost() {
-  //   const postsWithCategories = await prisma.post.findMany({
-  //     include: {
-  //       Service1A: true, // Include data from Service1A category
-  //       Service1B: true, // Include data from Service1B category
-  //       Service1C: true, // Include data from Service1C category
-  //       Service2: true, // Include data from Service2 category
-  //       Service3: true, // Include data from Service3 category
-  //       // Include other categories if necessary
-  //     },
-  //   });
+  async getPostsByDescription(searchText: string) {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          description: {
+            contains: searchText,
+          },
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+        },
+      });
+      return {
+        success: true,
+        posts: posts,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: false, posts: [] };
+    }
+  }
 
-  //   console.log(postsWithCategories);
-  // }
+  async geAlltPosts() {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: true,
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        posts: posts,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [] };
+    }
+  }
+  async getPostById(questionId: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: { id: questionId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        post,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, post: null };
+    }
+  }
 }
 
 export default PostService;

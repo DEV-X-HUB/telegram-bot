@@ -42,7 +42,7 @@ class QuestionPostSectionAController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
-      ctx.wizard.state.ar_br = callbackQuery.data;
+      ctx.wizard.state.arbr_value = callbackQuery.data;
       ctx.wizard.state.category = 'Section 1A';
       await deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.woredaListDisplay());
@@ -92,7 +92,7 @@ class QuestionPostSectionAController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
+      ctx.wizard.state.id_first_option = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.lastDidtitDisplay());
       return ctx.wizard.next();
@@ -196,8 +196,8 @@ class QuestionPostSectionAController {
 
         case 'post_data': {
           const postDto: CreatePostService1ADto = {
-            id_first_option: ctx.wizard.state.bi_di as string,
-            arbr_value: ctx.wizard.state.ar_br as string,
+            id_first_option: ctx.wizard.state.id_first_option as string,
+            arbr_value: ctx.wizard.state.arbr_value as string,
             description: ctx.wizard.state.description as string,
             last_digit: ctx.wizard.state.last_digit as string,
             location: ctx.wizard.state.location as string,
@@ -283,7 +283,16 @@ class QuestionPostSectionAController {
   }
   async editData(ctx: any) {
     const state = ctx.wizard.state;
-    const fileds = ['ar_br', 'bi_di', 'woreda', 'last_digit', 'location', 'description', 'photo', 'cancel'];
+    const fileds = [
+      'arbr_value',
+      'id_first_option',
+      'woreda',
+      'last_digit',
+      'location',
+      'description',
+      'photo',
+      'cancel',
+    ];
     const callbackQuery = ctx?.callbackQuery;
     const editField = ctx.wizard.state?.editField;
     if (!callbackQuery) {
@@ -376,8 +385,8 @@ class QuestionPostSectionAController {
     switch (callbackQuery.data) {
       case 're_submit_post': {
         const postDto: CreatePostService1ADto = {
-          id_first_option: ctx.wizard.state.bi_di as string,
-          arbr_value: ctx.wizard.state.ar_br as string,
+          id_first_option: ctx.wizard.state.id_first_option as string,
+          arbr_value: ctx.wizard.state.arbr_value as string,
           description: ctx.wizard.state.description as string,
           last_digit: ctx.wizard.state.last_digit as string,
           location: ctx.wizard.state.location as string,

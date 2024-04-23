@@ -56,11 +56,6 @@
   },
   "author": "",
   "license": "ISC",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run  lint"
-    }
-  },
   "directories": {
     "test": "test"
   },
