@@ -118,7 +118,7 @@ class PostService {
         };
 
       let post = null;
-      switch (category as PostCategory) {
+      switch (category) {
         case 'Section 1A': {
           const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService1ADto;
@@ -153,7 +153,7 @@ class PostService {
           break;
         }
         case 'Chicken Farm': {
-          const { description, category, notify_option, ...createCategoryPostDto } =
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService4ChickenFarmDto;
           post = await prisma.service4ChickenFarm.create({
             data: {
@@ -163,8 +163,8 @@ class PostService {
           });
           break;
         }
-        case 'Service4Construction': {
-          const { description, category, notify_option, ...createCategoryPostDto } =
+        case 'Construction': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService4ConstructionDto;
           post = await prisma.service4Construction.create({
             data: {
@@ -174,9 +174,9 @@ class PostService {
           });
           break;
         }
-        case 'Service4Manufacture':
+        case 'Manufacture':
           {
-            const { description, category, notify_option, ...createCategoryPostDto } =
+            const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
               postDto as CreatePostService4ManufactureDto;
             post = await prisma.service4Manufacture.create({
               data: {

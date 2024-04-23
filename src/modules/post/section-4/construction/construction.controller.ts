@@ -246,6 +246,7 @@ class QuestionPostSectionConstructionController {
 
         case 'post_data': {
           console.log('here you are');
+
           // api request to post the data
           const postDto: CreatePostService4ConstructionDto = {
             construction_size: ctx.wizard.state.size,
@@ -256,22 +257,29 @@ class QuestionPostSectionConstructionController {
             location: ctx.wizard.state.location,
             photo: ctx.wizard.state.photo,
             description: ctx.wizard.state.description,
-            category: 'Section4Construction',
+            category: ctx.wizard.state.category,
             notify_option: ctx.wizard.state.notify_option,
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
           };
           const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
+          console.log(response);
           // console.log(response);
           // ctx.reply(...constructionFormatter.postingSuccessful());
 
           if (response?.success) {
             console.log('Posting successful');
+            await ctx.reply(...constructionFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
+            await ctx.replyWithHTML(...constructionFormatter.preview(ctx.wizard.state, 'submitted'), {
+              parse_mode: 'HTML',
+            });
             await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
-            ctx.scene.leave();
-            return MainMenuController.onStart(ctx);
+
+            // jump to posted review
+            return ctx.wizard.selectStep(12);
           } else {
             ctx.reply(...constructionFormatter.postingError());
+            return MainMenuController.onStart(ctx);
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
               await deleteMessageWithCallback(ctx);
               ctx.scene.leave();

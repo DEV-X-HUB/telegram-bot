@@ -219,11 +219,15 @@ class ManufactureController {
           // ctx.reply(...constructionFormatter.postingSuccessful());
 
           if (response?.success) {
-            console.log('Posting successful');
+            await ctx.reply(...manufactureFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
+            await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
+              parse_mode: 'HTML',
+            });
             await displayDialog(ctx, manufactureFormatter.messages.postingSuccess);
-            ctx.scene.leave();
-            return MainMenuController.onStart(ctx);
+
+            // jump to posted review
+            return ctx.wizard.selectStep(10);
           } else {
             ctx.reply(...manufactureFormatter.postingError());
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {

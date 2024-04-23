@@ -143,7 +143,7 @@ class PostFormatter {
 
   getformattedQuestionDetail(post: any) {
     console.log(post.category);
-    const sectionName = getSectionName(post.category as PostCategory);
+    const sectionName = getSectionName(post.category) as PostCategory;
     switch (post.category) {
       case 'Section 1A':
         return post1AFormatter.getPreviewData({

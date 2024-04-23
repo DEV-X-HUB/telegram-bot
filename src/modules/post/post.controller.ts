@@ -195,7 +195,8 @@ class QuestionController {
     // return;
 
     for (const post of posts as any[]) {
-      const sectionName = getSectionName(post.category as PostCategory);
+      const sectionName = getSectionName(post.category) as PostCategory;
+      console.log(sectionName);
 
       if (post[sectionName].photo && post[sectionName].photo[0])
         await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {

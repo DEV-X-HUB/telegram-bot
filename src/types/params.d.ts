@@ -6,5 +6,4 @@ export type PostCategory =
   | 'Section 1C'
   | 'Service4ChickenFarm'
   | 'Service4Construction'
-  | 'Service4Manufacture'
-  | 'Chicken Farm';
+  | 'Service4Manufacture';

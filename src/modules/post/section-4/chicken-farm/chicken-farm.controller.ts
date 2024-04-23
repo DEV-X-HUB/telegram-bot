@@ -146,13 +146,20 @@ class ChickenFarmController {
 
           if (response?.success) {
             // await deleteMessageWithCallback(ctx);
-            await deleteMessageWithCallback(ctx);
 
             await ctx.reply(...chickenFarmFormatter.postingSuccessful());
-            await ctx.scene.leave();
+            await deleteMessageWithCallback(ctx);
+            await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state, 'submitted'), {
+              parse_mode: 'HTML',
+            });
+            await displayDialog(ctx, 'Posted succesfully');
 
-            return MainMenuController.onStart(ctx);
-          } else {
+            return ctx.wizard.selectStep(8);
+
+            // return MainMenuController.onStart(ctx);
+          }
+          
+          else {
             ctx.reply(...chickenFarmFormatter.postingError());
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
               await deleteMessageWithCallback(ctx);
@@ -270,7 +277,7 @@ class ChickenFarmController {
     if (callbackMessage == 'post_data') {
       // console.log('Posted Successfully');
       // await displayDialog(ctx, 'Posted successfully');
-      ctx.scene.leave();
+      // ctx.scene.leave();
       // return MainMenuController.onStart(ctx);
       // return ctx.reply(...chickenFarmFormatter.postingSuccessful());
       // registration
@@ -279,10 +286,16 @@ class ChickenFarmController {
 
       if (response.success) {
         ctx.wizard.state.status = 'pending';
-        await deleteMessageWithCallback(ctx);
+
         await ctx.reply(...chickenFarmFormatter.postingSuccessful());
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state, 'submitted'), {
+          parse_mode: 'HTML',
+        });
+        await displayDialog(ctx, 'Posted succesfully');
+
+        // jump to posted review
+        return ctx.wizard.selectStep(8);
       }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
