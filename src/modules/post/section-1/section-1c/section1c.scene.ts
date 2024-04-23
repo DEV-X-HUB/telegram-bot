@@ -3,7 +3,7 @@ import QuestionPostSection1cController from './section1c.controller';
 
 const section1cController = new QuestionPostSection1cController();
 const QuestionPostSectionCScene = new Scenes.WizardScene(
-  'Post-Question-SectionC',
+  'Post-SectionC',
   section1cController.start,
   section1cController.choosePaperTimeStamp,
   section1cController.arBrOption,
@@ -16,9 +16,12 @@ const QuestionPostSectionCScene = new Scenes.WizardScene(
   section1cController.enterLastDigit,
   section1cController.enterDescription,
   section1cController.attachPhoto,
-  section1cController.editPost,
+  section1cController.preview,
   section1cController.editData,
   section1cController.editPhoto,
+  section1cController.postedReview,
+  section1cController.adjustNotifySetting,
+  section1cController.mentionPreviousPost,
 );
 
 export default QuestionPostSectionCScene;

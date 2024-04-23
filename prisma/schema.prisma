@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -11,6 +6,18 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DB_URL")
+}
+
+enum PostStatus {
+  open 
+  closed 
+  pending
+  rejected
+}
+enum NotifyOption {
+  none 
+  follower 
+  friend
 }
 
 model User {
@@ -27,11 +34,11 @@ model User {
   gender       String? // Optional gender
   display_name String? // Optional display name
   bio          String? // Optional bio
+  notify_option NotifyOption   @default(none)
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
-  questions  Question[]
-  answers    Answer[]
+  posts      Post[]
   created_at  DateTime   @default(now())
 }
 
@@ -41,44 +48,140 @@ model Follows {
   following_id String
   follower     User   @relation("Follower", fields: [follower_id], references: [id])
   following    User   @relation("Following", fields: [following_id], references: [id])
-
   @@unique([follower_id, following_id])
 }
 
-model Question {
-  id          String   @id @default(uuid()) // UUID type for id
-  ar_br       String // Required enum field
-  bi_di       String // Required enum field
-  location    String // Required location field
-  woreda      String // Required woreda field
-  last_digit  String // Required last_digit field
-  description String // Optional description field
-  category    String
-  photo       String[] // Required array of photo URLs
+
+model Post {
+  id           String   @id @default(uuid()) 
+  description  String
+  status       PostStatus   @default(pending)
+  category     String
+  notify_option NotifyOption   @default(none)
   
+  previous_post       Post?       @relation(name: "PreviousPost", fields: [previous_post_id], references: [id]) 
+  previous_post_id    String?     @unique
+  next_post           Post?       @relation(name: "PreviousPost")
 
-  // status with enum ("approved, "pending", "rejected")
-  status      QuestionStatus   @default(pending)
+  user        User     @relation(fields: [user_id], references: [id]) 
+  user_id     String
 
-
-  user        User     @relation(fields: [user_id], references: [id]) // Reference to the User model
-  user_id      String // Foreign key to the User model
-  Answer      Answer[]
-  created_at  DateTime @default(now())
+  // Define relation with categories and sub categories models
+  Service1A   Service1A? 
+  Service1B   Service1B?
+  Service1C   Service1C?
+  Service2    Service2?
+  Service3    Service3?
+  Service4ChickenFarm Service4ChickenFarm?
+  Service4Manufacture Service4Manufacture?
+  Service4Construction Service4Construction?
 }
 
-enum QuestionStatus {
-  approved
-  pending
-  rejected
+
+
+
+model Service1A {
+  id                String   @id @default(uuid()) 
+  post_id           String   @unique
+  arbr_value        String 
+  id_first_option   String 
+  location          String 
+  woreda            String 
+  last_digit        String
+  photo             String[] 
+  post              Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
-model Answer {
-  id         String   @id @default(uuid()) // UUID type for id
-  answer_text String // Text of the answer
-  question   Question @relation(fields: [question_id], references: [id]) // Reference to the Question model
-  question_id String // Foreign key to the Question model
-  user       User     @relation(fields: [user_id], references: [id]) // Reference to the User model
-  user_id     String // Foreign key to the User model
-  created_at DateTime @default(now())
+model Service1B {
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  title                       String 
+  main_category               String 
+  sub_category                String 
+  id_first_option             String 
+  last_digit                  String
+  condition                   String 
+  issue_date                  DateTime? 
+  expire_date                 DateTime? 
+  location                    String? 
+  woreda                      String 
+  photo                       String[] 
+  post                        Post @relation(fields: [post_id], references: [id])
 }
+
+model Service1C {
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  arbr_value                  String
+  paper_stamp                 String 
+  id_first_option             String 
+  woreda                      String 
+  service_type_1              String 
+  service_type_2              String 
+  service_type_3              String 
+  last_digit                  String
+  confirmation_year           String
+  photo                       String[] 
+  post                        Post @relation(fields: [post_id], references: [id])
+}
+model Service2 {
+  id                          String   @id @default(uuid()) 
+  post_id                     String   @unique
+  service_type                String
+  title                       String 
+  photo                       String[] @default([])
+  post                        Post @relation(fields: [post_id], references: [id])
+}
+
+
+
+model Service3 {
+  id                     String   @id @default(uuid())
+  post_id                String   @unique
+  birth_or_marital       String
+  title                  String
+  photo                  String[] // Required array of photo URLs
+
+  post                  Post @relation(fields: [post_id], references: [id])
+}
+
+
+model Service4ChickenFarm {
+
+  id                      String   @id @default(uuid()) 
+  post_id                 String   @unique
+  sector                  String
+  estimated_capital       String
+  enterprise_name         String
+  post                    Post @relation(fields: [post_id], references: [id])
+
+}
+
+
+model Service4Manufacture {
+  id                        String   @id @default(uuid()) 
+  post_id                   String   @unique
+  sector                    String
+  number_of_workers         Int
+  estimated_capital         String
+  enterprise_name           String
+  photo                     String[] @default([])
+  post                      Post     @relation(fields: [post_id], references: [id])
+}
+
+
+model Service4Construction {
+  id                        String   @id @default(uuid())
+  post_id                   String   @unique
+  construction_size         String?
+  company_experience        String?
+  document_request_type     String?
+  land_size                 String?
+  land_status               String?
+  location                  String
+  photo                     String[] // Required array of photo URLs
+  post                      Post @relation(fields: [post_id], references: [id])
+}
+
+
+

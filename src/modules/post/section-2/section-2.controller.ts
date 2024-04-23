@@ -2,8 +2,8 @@ import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '
 import { areEqaul, isInInlineOption } from '../../../utils/constants/string';
 
 import QuestionPostSectionBFormatter from './section-2.formatter';
-import QuestionService from '../question-post.service';
-import { questionPostValidator } from '../../../utils/validator/question-post-validaor';
+import QuestionService from '../post.service';
+import { postValidator } from '../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
 const questionPostSectionBFormatter = new QuestionPostSectionBFormatter();
 
@@ -59,7 +59,7 @@ class QuestionPostSectionBController {
       return ctx.wizard.back();
     }
 
-    const validationMessage = questionPostValidator('description', message);
+    const validationMessage = postValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.description = message;
     ctx.reply(...questionPostSectionBFormatter.photoPrompt());
@@ -175,7 +175,7 @@ class QuestionPostSectionBController {
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
 
-      // const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
+      // const validationMessage = postValidator(ctx.wizard.state.editField, ctx.message.text);
       // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;

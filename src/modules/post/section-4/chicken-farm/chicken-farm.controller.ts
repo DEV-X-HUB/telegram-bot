@@ -1,10 +1,18 @@
 import config from '../../../../config/config';
 import { displayDialog } from '../../../../ui/dialog';
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
+import {
+  deleteKeyboardMarkup,
+  deleteMessage,
+  deleteMessageWithCallback,
+  findSender,
+} from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
+import PostService from '../../post.service';
 
 import ChickenFarmFormatter from './chicken-farm.formatter';
+import Section4ChickenFarmService from './chicken-farm.service';
+const postService = new PostService();
 const chickenFarmFormatter = new ChickenFarmFormatter();
 
 let imagesUploaded: any[] = [];
@@ -71,13 +79,23 @@ class ChickenFarmController {
       return ctx.wizard.back();
     }
 
+    const user = await Section4ChickenFarmService.findUserWithTgId(ctx.from.id);
+    if (!user) return await ctx.reply(...chickenFarmFormatter.somethingWentWrongError());
+
+    ctx.wizard.state.user = {
+      id: user.user?.id,
+      display_name: user.user?.display_name,
+    };
+
     ctx.wizard.state.description = message;
     ctx.wizard.state.status = 'preview';
-    await ctx.reply(...chickenFarmFormatter.preview(ctx.wizard.state));
+
+    await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
     return ctx.wizard.next();
   }
 
   async preview(ctx: any) {
+    const user = findSender(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       const message = ctx.message.text;
@@ -99,41 +117,109 @@ class ChickenFarmController {
 
         case 'editing_done': {
           // await deleteMessageWithCallback(ctx);
-          await ctx.reply(chickenFarmFormatter.preview(state));
+          await ctx.replyWithHTML(chickenFarmFormatter.preview(state));
           return ctx.wizard.back();
         }
 
         case 'post_data': {
           console.log('here you are');
           // api request to post the data
-          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
-          // console.log(response);
+          const response = await Section4ChickenFarmService.createChickenFarmPost(
+            {
+              sector: state.sector,
+              estimated_capital: state.estimated_capital,
+              enterprise_name: state.enterprise_name,
+              description: state.description,
+              category: state.category,
+              notify_option: state.notify_option,
+            },
+            user.id,
+          );
+          console.log(response);
 
-          // if (response?.success) {
-          //   await deleteMessageWithCallback(ctx);
+          if (response?.success) {
+            // await deleteMessageWithCallback(ctx);
+            await deleteMessageWithCallback(ctx);
+
+            await ctx.reply(...chickenFarmFormatter.postingSuccessful());
+            await ctx.scene.leave();
+
+            return MainMenuController.onStart(ctx);
+          } else {
+            ctx.reply(...chickenFarmFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
+            }
+
+            // increment the registration attempt
+            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+              ? parseInt(ctx.wizard.state.postingAttempt) + 1
+              : 1);
+          }
+        }
+        // default: {
+        //   await ctx.reply('DEFAULT');
+        // }
+
+        case 'mention_previous_post': {
+          console.log('mention_previous_post1');
+          await ctx.reply('mention_previous_post');
+          // fetch previous posts of the user
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
+          if (!success || !posts) {
+            // remove past post
+            await deleteMessageWithCallback(ctx);
+            return await ctx.reply(message);
+          }
+          if (posts.length == 0) {
+            await deleteMessageWithCallback(ctx);
+            return await ctx.reply(...chickenFarmFormatter.noPostsErrorMessage());
+          }
+
           await deleteMessageWithCallback(ctx);
-          await displayDialog(ctx, 'Posted successfully');
-          // await ctx.reply(...chickenFarmFormatter.postingSuccessful());
-          await ctx.scene.leave();
-          ctx.scene.leave();
-          return MainMenuController.onStart(ctx);
-          // } else {
-          //   ctx.reply(...postingFormatter.postingError());
-          //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
-          //     await deleteMessageWithCallback(ctx);
-          //    ctx.scene.leave();
-          // return MainMenuController.onStart(ctx);
-          //   }
+          await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
+          for (const post of posts as any) {
+            await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(post));
+          }
 
-          // increment the registration attempt
-          // return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
-          //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
-          //   : 1);
+          return ctx.wizard.next();
+        }
+
+        case 'remove_mention_previous_post': {
+          state.mention_post_data = '';
+          state.mention_post_id = '';
+          await deleteMessageWithCallback(ctx);
+          return ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
+        }
+        case 'back': {
+          await deleteMessageWithCallback(ctx);
+          ctx.wizard.back();
+          return await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         }
       }
-      // default: {
-      //   await ctx.reply('DEFAULT');
-      // }
+    }
+  }
+
+  async mentionPreviousPost(ctx: any) {
+    const state = ctx.wizard.state;
+    const callbackQuery = ctx.callbackQuery;
+    if (callbackQuery) {
+      if (areEqaul(callbackQuery.data, 'back', true)) {
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
+        return ctx.wizard.back();
+      }
+
+      if (callbackQuery.data.startsWith('select_post_')) {
+        const post_id = callbackQuery.data.split('_')[2];
+
+        state.mention_post_id = post_id;
+        state.mention_post_data = ctx.callbackQuery.message.text;
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
+        return ctx.wizard.back();
+      }
     }
   }
 
@@ -156,7 +242,7 @@ class ChickenFarmController {
       //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
       //   chat_id: ctx.message.chat.id,
       // });
-      return ctx.reply(...chickenFarmFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...chickenFarmFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
@@ -169,21 +255,21 @@ class ChickenFarmController {
 
     if (callbackMessage == 'post_data') {
       // console.log('Posted Successfully');
-      await displayDialog(ctx, 'Posted successfully');
+      // await displayDialog(ctx, 'Posted successfully');
       ctx.scene.leave();
-      return MainMenuController.onStart(ctx);
+      // return MainMenuController.onStart(ctx);
       // return ctx.reply(...chickenFarmFormatter.postingSuccessful());
       // registration
       // api call for registration
-      // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+      const response = await Section4ChickenFarmService.createChickenFarmPost(ctx.wizard.state, callbackQuery.from.id);
 
-      // if (response.success) {
-      //   ctx.wizard.state.status = 'pending';
-      //   await deleteMessageWithCallback(ctx);
-      //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //  ctx.scene.leave();
-      // return MainMenuController.onStart(ctx);
-      // }
+      if (response.success) {
+        ctx.wizard.state.status = 'pending';
+        await deleteMessageWithCallback(ctx);
+        await ctx.reply(...chickenFarmFormatter.postingSuccessful());
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
 
@@ -197,9 +283,28 @@ class ChickenFarmController {
     } else if (callbackMessage == 'editing_done') {
       // await deleteMessageWithCallback(ctx);
 
-      await ctx.reply(...chickenFarmFormatter.preview(state));
+      await ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
 
       return ctx.wizard.back();
+    }
+
+    // else if (callbackMessage =='mention_previous_post'){
+    //   // fetch previous posts
+    //   const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id)
+    // }
+    else if (callbackMessage == 'mention_previous_post') {
+      console.log('mention_previous_post2');
+      await ctx.reply('mention_previous_post');
+      // fetch previous posts of the user
+      const posts = await Section4ChickenFarmService.getPostsOfUser(callbackQuery.from.id);
+      console.log(posts.posts);
+
+      // if (!posts) {
+      //   return await ctx.reply(chickenFarmFormatter.noPostsErrorMessage);
+      // }
+
+      // await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
+      // return await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(posts.posts));
     }
 
     // if user chooses a field to edit
@@ -210,7 +315,7 @@ class ChickenFarmController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      await ctx.reply(...((await chickenFarmFormatter.editFieldDisplay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await chickenFarmFormatter.editFieldDisplay(callbackMessage)) as any));
       return;
     }
   }
