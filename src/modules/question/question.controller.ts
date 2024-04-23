@@ -18,7 +18,7 @@ class QuestionController {
 
     console.log(query, 'qury ');
     if (!query || query.trim() == '') return;
-    const { status, questions } = await questionService.getQuestionsByDescription(query);
+    const { status, questions } = await questionService.getPostsByDescription(query);
     if (status == 'fail') return await ctx.reply('unable to make search');
 
     if (questions.length == 0)
@@ -33,11 +33,11 @@ class QuestionController {
   }
   static async handleAnswerBrowseQuery(ctx: any, query: string) {
     if (query.startsWith('answer')) {
-      const [_, questionId] = query.split('_');
+      const [_, postId] = query.split('_');
 
       // get question data from the answerinlinequery
       const questionData = {
-        questionId: '0',
+        postId: '0',
         question: 'Hello guys here is my question 3',
         questionText: '#tech\n\nWhat is the best programming language for beginners? \n\nBy: @username',
         description: 'Asked 1 month ago, 2 Answers',
@@ -70,8 +70,8 @@ class QuestionController {
   }
   static async handleAnswerQuery(ctx: any, query: string) {
     const sender = findSender(ctx);
-    const [_, questionId] = query.split('_');
-    const { status, question } = await questionService.getQuestionById(questionId);
+    const [_, postId] = query.split('_');
+    const { status, question } = await questionService.getPostById(postId);
     if (!question || status == 'fail') return ctx.reply('error while');
 
     // const mediaGroup = question.photo.map((image) => ({
@@ -96,7 +96,7 @@ class QuestionController {
     ctx.replyWithMarkdown(' selected ');
     ctx.scene.enter('answer_scene');
     ctx.session.usersSession = {
-      [sender.id]: { questionId },
+      [sender.id]: { postId },
     };
   }
   static async AnswerQuestion(ctx: any) {
@@ -107,8 +107,8 @@ class QuestionController {
       ctx.scene.leave();
       return MainMenuController.onStart(ctx);
     }
-    const questionId = userSesion.questionId;
-    if (!questionId) {
+    const postId = userSesion.postId;
+    if (!postId) {
       ctx.replyWithMarkdown('No question selected ');
       ctx.replyWithMarkdown('No question selected ');
       ctx.scene.leave();
@@ -159,11 +159,11 @@ class QuestionController {
   static async handleBrowseQuery(ctx: any, query: string) {
     if (query) {
       if (query.startsWith('answer')) {
-        const [_, questionId] = query.split('_');
-        console.log(questionId, 'iddd');
+        const [_, postId] = query.split('_');
+        console.log(postId, 'iddd');
         // get question data from the answerinlinequery
         const questionData = {
-          questionId: '0',
+          postId: '0',
           question: 'Hello guys here is my question 3',
           questionText: '#tech\n\nWhat is the best programming language for beginners? \n\nBy: @username',
           description: 'Asked 1 month ago, 2 Answers',
@@ -189,45 +189,32 @@ class QuestionController {
   static async handleSubscribeQuery(ctx: any, query: string) {
     console.log(query);
   }
-  // static async listAllQuestionsOld(ctx: any, round: number = 1) {
-  //   const { status, questions } = await questionService.geAlltQuestions();
-  //   if (status == 'fail') return ctx.reply('error while');
 
-  //   for (const question of questions) {
-  //     const mediaGroup = question.photo.map((image) => ({
-  //       media: image,
-  //       type: 'photo',
-  //       caption: 'Images uploaded with the Question',
-  //     }));
-  //     await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-  //     await ctx.replyWithHTML(...questionFormmatter.formatSingleQuestion(question));
-  //   }
-  // }
   static async listAllQuestions(ctx: any, round: number = 1) {
-    const { status, questions } = await questionService.geAlltQuestions();
+    const { status, questions } = await questionService.geAlltPosts();
     if (status == 'fail') return ctx.reply('error while');
 
-    for (const question of questions) {
-      return ctx.replyWithPhoto(question.photo[0] as any, {
-        caption: questionFormmatter.getFormattedQuestionPreview(question),
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [[{ text: 'View Detail', callback_data: `question_detail:${question.id}` }]],
-        },
-      });
-    }
+    // for (const question of questions) {
+    //   return ctx.replyWithPhoto(question.photo[0] as any, {
+    //     caption: questionFormmatter.getFormattedQuestionPreview(question),
+    //     parse_mode: 'HTML',
+    //     reply_markup: {
+    //       inline_keyboard: [[{ text: 'View Detail', callback_data: `question_detail:${question.id}` }]],
+    //     },
+    //   });
+    // }
   }
-  static async getQuestionDetail(ctx: any, questionId: string) {
-    const { status, question } = await questionService.getQuestionById(questionId);
+  static async getQuestionDetail(ctx: any, postId: string) {
+    const { status, question } = await questionService.getPostById(postId);
     if (status == 'fail' || !question) return ctx.reply('error while');
 
-    const mediaGroup = question.photo.map((image) => ({
-      media: image,
-      type: 'photo',
-      caption: 'Images uploaded with the Question',
-    }));
+    // const mediaGroup = question.photo.map((image: any) => ({
+    //   media: image,
+    //   type: 'photo',
+    //   caption: 'Images uploaded with the Question',
+    // }));
 
-    await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+    // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
     await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(question));
   }
   static displayAllPromptFomatter = (ctx: any, questionsNumber: any, searchString: string) => {
@@ -236,7 +223,7 @@ class QuestionController {
     });
   };
   static async searchByTitle() {
-    const { status, questions } = await questionService.geAlltQuestions();
+    const { status, questions } = await questionService.geAlltPosts();
   }
 }
 

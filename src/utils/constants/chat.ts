@@ -32,3 +32,12 @@ export const findSender = (ctx: any) => {
   if (ctx?.update.inline_query) sender = ctx?.update.inline_query?.from;
   return sender;
 };
+
+export const sendMediaGroup = async (ctx: any, phtos: any[], caption: string = 'Here are the images you uploaded') => {
+  const mediaGroup = phtos.map((image: any) => ({
+    media: image,
+    type: 'photo',
+    caption: caption,
+  }));
+  await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+};

@@ -10,21 +10,23 @@ import {
 import { ICity } from 'country-state-city';
 import { areEqaul, capitalizeFirstLetter } from '../../utils/constants/string';
 import { formatDateFromIsoString } from '../../utils/constants/date';
+import config from '../../config/config';
+import { NotifyOption } from '../../types/params';
 
-class RegistrationFormatter {
+class ProfileFormatter {
   countries: any[] = [];
   countryCodes: any[] = ['et'];
   previewButtons = [
     [{ text: '✏️ Edit Profile', cbString: `edit_profile` }],
-    [
-      { text: 'My Question', cbString: `my_questions` },
-      { text: 'My Answers', cbString: `my_answers` },
-    ],
+    [{ text: 'My Question', cbString: `my_posts` }],
     [
       { text: 'Followers', cbString: `my_followers` },
       { text: 'Following', cbString: `my_followings` },
     ],
-    [{ text: 'Setting', cbString: `profile_setting` }],
+    [
+      { text: 'Setting', cbString: `profile_setting` },
+      { text: 'Back', cbString: `back` },
+    ],
   ];
   editOptionsButtons = [
     [{ text: ' Edit Name', cbString: `display_name` }],
@@ -32,8 +34,13 @@ class RegistrationFormatter {
     [{ text: 'Edit Gender', cbString: `gender` }],
     [{ text: 'Back', cbString: `back` }],
   ];
+  settingButtons = [
+    [{ text: 'Post Notify Setting', cbString: `notify_setting` }],
+    [{ text: 'Back', cbString: `back` }],
+  ];
 
   messages = {
+    notifyOptionPrompt: 'Select who can be notified this question',
     useButtonError: 'Please use the buttons above to choose ',
     dbError: 'Unable to process your request please try again ',
     userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
@@ -50,7 +57,15 @@ class RegistrationFormatter {
     emailPrompt: ' Please enter your personal Email ',
     countryPrompt: ' Please choose your country ',
     cityPrompt: ' Please choose your City ',
+    settingPrompt: ' Customize your experience',
+
+    postFetchError: 'Unable to fetch your posts',
+    noPostMsg: 'Your have not posted any thing yet !',
+    updateNotifyOptionError: 'Unable to change notify setting!',
   };
+  constructor() {
+    this.countries = getSelectedCoutryList();
+  }
 
   questionActions() {
     return [
@@ -70,17 +85,14 @@ class RegistrationFormatter {
     ];
   }
 
-  questionPreview(questionData: any) {
-    if (!questionData) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
+  postPreview(post: any) {
+    if (!post) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
     return [
-      `#${questionData.category} \n\n${questionData.description} \n\nBy: ${questionData?.display_name || 'Anonymous'} \n\n${questionData.created_at}) \n\nStatus: ${questionData.status}`,
+      `#${post.category} \n\n${post.description} \n\n\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a> \n\n${post.created_at}) \n\nStatus: ${post.status}`,
       InlineKeyboardButtons(this.questionActions()),
     ];
   }
 
-  constructor() {
-    this.countries = getSelectedCoutryList();
-  }
   useButtonError(optionName: string) {
     return this.messages.useButtonError + optionName;
   }
@@ -106,15 +118,14 @@ class RegistrationFormatter {
   formatePreview(userData: any) {
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers} Followers | ${userData.followings} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Asked ${userData.questions} Questions, Answered ${userData.answers} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Posted ${userData.posts} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
-    console.log(userData);
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Asked ${userData.questions.length} Questions, Answered ${userData.answers.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Asked ${userData.posts.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
@@ -145,22 +156,38 @@ class RegistrationFormatter {
   }
 
   formateFollowersList(followers: any[]) {
+    let followerList = '';
     const header = `${followers.length} Followers  \n`;
     const gap = '\n-----------------------------------\n';
-    // if (followers.length == 0)
-    return [
-      header + gap + "You don't have any followers yet." + gap,
-      InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
-    ];
+
+    if (followers.length == 0)
+      return [
+        header + gap + "You don't have any followers yet." + gap,
+        InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
+      ];
+
+    followers.forEach((follower, index) => {
+      followerList += ` <a href="${config.bot_url}?start=userProfile_${follower.id}">${follower.display_name != null ? follower.display_name : 'Anonymous '}</a> ${followers.length == index + 1 ? '' : '\n'}`;
+    });
+
+    return [header + gap + followerList + gap, InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]])];
   }
   formateFollowingsList(followings: any[]) {
+    let followingList = '';
     const header = `${followings.length} followings \n`;
     const gap = '\n-----------------------------------\n';
-    // if (followings.length == 0)
-    return [
-      header + gap + 'You are not following anynone' + gap,
-      InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
-    ];
+
+    if (followings.length == 0)
+      return [
+        header + gap + 'You are not following anynone' + gap,
+        InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]]),
+      ];
+
+    followings.forEach((following, index) => {
+      followingList += ` <a href="${config.bot_url}?start=userProfile_${following.id}">${following.display_name != null ? following.display_name : 'Anonymous '}</a> ${followings.length == index + 1 ? '' : '\n'}`;
+    });
+
+    return [header + gap + followingList + gap, InlineKeyboardButtons([[{ text: '🔙back', cbString: 'back' }]])];
   }
 
   termsAndConditionsDisplay() {
@@ -352,6 +379,48 @@ class RegistrationFormatter {
   registrationSuccess() {
     return [`Your have registered successfully!`];
   }
+  settingDisplay() {
+    return [this.messages.settingPrompt, InlineKeyboardButtons(this.settingButtons)];
+  }
+  notifyOptionDisplay(notifyOption: NotifyOption, first?: boolean) {
+    console.log(notifyOption, 'notiy setting');
+    return first
+      ? [
+          this.messages.notifyOptionPrompt,
+          InlineKeyboardButtons([
+            [
+              {
+                text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+                cbString: `notify_follower`,
+              },
+            ],
+            [
+              {
+                text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+                cbString: `notify_friend`,
+              },
+            ],
+            [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
+            [{ text: 'Back', cbString: 'back' }],
+          ]),
+        ]
+      : [
+          [
+            {
+              text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+              callback_data: `notify_follower`,
+            },
+          ],
+          [
+            {
+              text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+              callback_data: `notify_friend`,
+            },
+          ],
+          [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, callback_data: `notify_none` }],
+          [{ text: 'Back', callback_data: 'back' }],
+        ];
+  }
 }
 
-export default RegistrationFormatter;
+export default ProfileFormatter;

@@ -25,15 +25,15 @@ class QuestionPostController {
       switch (option) {
         case 'Section 1A': {
           ctx.scene.leave();
-          return ctx.scene.enter('Post-Question-SectionA');
+          return ctx.scene.enter('Post-SectionA');
         }
         case 'Section 1B': {
           ctx.scene.leave();
-          return ctx.scene.enter('Post-Question-SectionB');
+          return ctx.scene.enter('Post-SectionB');
         }
         case 'Section 1C': {
           ctx.scene.leave();
-          return ctx.scene.enter('Post-Question-SectionC');
+          return ctx.scene.enter('Post-SectionC');
         }
         default:
           return ctx.reply('Unknown option. Please choose a valid option.');

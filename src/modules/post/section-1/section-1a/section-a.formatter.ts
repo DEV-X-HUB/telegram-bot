@@ -1,6 +1,8 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
 import config from '../../../../config/config';
+import { areEqaul } from '../../../../utils/constants/string';
+import { NotifyOption } from '../../../../types/params';
 
 class QustionPostFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -11,6 +13,7 @@ class QustionPostFormatter {
   messages = {
     useButtonError: 'Please use Buttons to select options',
     categoryPrompt: 'Please Choose on category from the options',
+    notifyOptionPrompt: 'Select who can be notified this question',
     optionPrompt: 'Please Choose on category from the options',
     arBrPromt: 'Please Choose from two',
     chosseWoredaPrompt: 'Please Choose Your Woreda',
@@ -22,7 +25,11 @@ class QustionPostFormatter {
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg: 'Posted Successfully',
     postErroMsg: 'Post Error',
+    mentionPost: 'Select post to mention',
+    noPreviousPosts: "You don't have any approved question before.",
+    somethingWentWrong: 'Something went wrong, please try again',
   };
+
   constructor() {
     this.categories = [
       [
@@ -111,25 +118,82 @@ class QustionPostFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
-  getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
-  }
-
-  preview(state: any) {
+  notifyOptionDisplay(notifyOption: NotifyOption) {
     return [
-      this.getPreviewData(state),
+      this.messages.notifyOptionPrompt,
       InlineKeyboardButtons([
         [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Notify settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
         ],
         [
-          { text: 'Mention previous post', cbString: 'mention_previous_post' },
-          { text: 'Cancel', cbString: 'cancel' },
+          {
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
+          },
         ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
       ]),
     ];
+  }
+
+  getPreviewData(state: any) {
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+  }
+
+  noPostsErrorMessage() {
+    return [this.messages.noPreviousPosts];
+  }
+  mentionPostMessage() {
+    return [this.messages.mentionPost, this.goBackButton()];
+  }
+  displayPreviousPostsList(post: any) {
+    // Check if post.description is defined before accessing its length
+    const description =
+      post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
+
+    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+
+    const buttons = InlineKeyboardButtons([
+      [
+        { text: 'Select post', cbString: `select_post_${post.id}` },
+        { text: 'Back', cbString: 'back' },
+      ],
+    ]);
+    return [message, buttons];
+  }
+
+  preview(state: any, submitState: string = 'preview') {
+    return [
+      this.getPreviewData(state),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              { text: 'Mention previous post', cbString: 'mention_previous_post' },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
+    ];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
   }
 
   editPreview(state: any) {
@@ -151,7 +215,7 @@ class QustionPostFormatter {
         ],
         [
           { text: 'photo', cbString: 'photo' },
-          { text: 'Cancel', cbString: 'cancel' },
+          { text: 'Cancel', cbString: 'cancel_edit' },
         ],
         [{ text: 'Done', cbString: 'editing_done' }],
       ]),
