@@ -28,6 +28,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
     }
     case 'location':
       schema = DescriptionSchema;
+      break;
     case 'confirmation_year':
       schema = ConfirmationYearSchema;
       break;

@@ -29,6 +29,9 @@ class Section1CFormatter {
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg: 'Posted Successfully',
     postErroMsg: 'Post Error',
+    mentionPost: 'Select post to mention',
+    noPreviousPosts: "You don't have any approved question before.",
+    somethingWentWrong: 'Something went wrong, please try again',
   };
 
   constructor() {
@@ -188,7 +191,28 @@ class Section1CFormatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+  }
+  noPostsErrorMessage() {
+    return [this.messages.noPreviousPosts];
+  }
+  mentionPostMessage() {
+    return [this.messages.mentionPost, this.goBackButton()];
+  }
+  displayPreviousPostsList(post: any) {
+    // Check if post.description is defined before accessing its length
+    const description =
+      post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
+
+    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+
+    const buttons = InlineKeyboardButtons([
+      [
+        { text: 'Select post', cbString: `select_post_${post.id}` },
+        { text: 'Back', cbString: 'back' },
+      ],
+    ]);
+    return [message, buttons];
   }
 
   preview(state: any, submitState: string = 'preview') {

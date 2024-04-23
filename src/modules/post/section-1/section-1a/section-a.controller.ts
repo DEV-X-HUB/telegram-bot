@@ -251,15 +251,9 @@ class QuestionPostSectionAController {
         case 'mention_previous_post': {
           // fetch previous posts of the user
           const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
-          if (!success || !posts) {
-            // remove past post
-            await deleteMessageWithCallback(ctx);
-            return await ctx.reply(message);
-          }
-          if (posts.length == 0) {
-            await deleteMessageWithCallback(ctx);
-            return await ctx.reply(...section1AFormatter.noPostsErrorMessage());
-          }
+          if (!success || !posts) return await ctx.reply(message);
+
+          if (posts.length == 0) return await ctx.reply(...section1AFormatter.noPostsErrorMessage());
 
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section1AFormatter.mentionPostMessage());
@@ -452,8 +446,9 @@ class QuestionPostSectionAController {
     }
   }
   async mentionPreviousPost(ctx: any) {
-    const state = ctx.wizard.state;
     const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    console.log(ctx.wizard.state, 'sdfdsafasdf');
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
         await deleteMessageWithCallback(ctx);
@@ -464,9 +459,8 @@ class QuestionPostSectionAController {
       if (callbackQuery.data.startsWith('select_post_')) {
         const post_id = callbackQuery.data.split('_')[2];
 
-        state.mention_post_id = post_id;
-        state.mention_post_data = ctx.callbackQuery.message.text;
-        await deleteMessageWithCallback(ctx);
+        ctx.wizard.state.mention_post_id = post_id;
+        ctx.wizard.state.mention_post_data = ctx.callbackQuery.message.text;
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(8);
       }

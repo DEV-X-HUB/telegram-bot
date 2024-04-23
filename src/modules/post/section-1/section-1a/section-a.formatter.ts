@@ -144,7 +144,7 @@ class QustionPostFormatter {
   }
 
   noPostsErrorMessage() {
-    return [this.messages.noPreviousPosts, InlineKeyboardButtons(this.backOption)];
+    return [this.messages.noPreviousPosts];
   }
   mentionPostMessage() {
     return [this.messages.mentionPost, this.goBackButton()];
