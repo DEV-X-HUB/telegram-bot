@@ -142,6 +142,7 @@ class PostFormatter {
   }
 
   getformattedQuestionDetail(post: any) {
+    console.log(post.category);
     const sectionName = getSectionName(post.category as PostCategory);
     switch (post.category) {
       case 'Section 1A':
@@ -172,8 +173,8 @@ class PostFormatter {
           ...post[sectionName],
         });
 
-      case 'Section4ChickenFarm':
-        return post1CFormatter.getPreviewData({
+      case 'Chicken Farm':
+        return chickenFarmFormatter.getPreviewData({
           description: post.description,
           status: post.status,
           category: post.category,
@@ -182,7 +183,7 @@ class PostFormatter {
           ...post[sectionName],
         });
       case 'Section4Manufacture':
-        return post1CFormatter.getPreviewData({
+        return manufactureFormatter.getPreviewData({
           description: post.description,
           status: post.status,
           category: post.category,
@@ -191,7 +192,7 @@ class PostFormatter {
           ...post[sectionName],
         });
       case 'Section4Construction':
-        return post1CFormatter.getPreviewData({
+        return constructionFormatter.getPreviewData({
           description: post.description,
           status: post.status,
           category: post.category,

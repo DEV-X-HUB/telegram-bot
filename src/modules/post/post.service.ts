@@ -161,6 +161,7 @@ class PostService {
               ...createCategoryPostDto,
             },
           });
+          break;
         }
         case 'Service4Construction': {
           const { description, category, notify_option, ...createCategoryPostDto } =
@@ -171,24 +172,27 @@ class PostService {
               ...createCategoryPostDto,
             },
           });
+          break;
         }
-        case 'Service4Manufacture': {
-          const { description, category, notify_option, ...createCategoryPostDto } =
-            postDto as CreatePostService4ManufactureDto;
-          post = await prisma.service4Manufacture.create({
-            data: {
-              post_id: postData.post.id,
-              ...createCategoryPostDto,
-            },
-          });
-        }
+        case 'Service4Manufacture':
+          {
+            const { description, category, notify_option, ...createCategoryPostDto } =
+              postDto as CreatePostService4ManufactureDto;
+            post = await prisma.service4Manufacture.create({
+              data: {
+                post_id: postData.post.id,
+                ...createCategoryPostDto,
+              },
+            });
+          }
+          break;
       }
-
-      return {
-        success: true,
-        data: { ...post, post_id: postData.post.id },
-        message: 'Post created successfully',
-      };
+      if (post)
+        return {
+          success: true,
+          data: { ...post, post_id: postData.post.id },
+          message: 'Post created successfully',
+        };
     } catch (error) {
       console.error(error);
       return {

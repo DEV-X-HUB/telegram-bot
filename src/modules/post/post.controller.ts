@@ -196,11 +196,16 @@ class QuestionController {
 
     for (const post of posts as any[]) {
       const sectionName = getSectionName(post.category as PostCategory);
-      console.log(post.category);
-      console.log(`sectionName ${sectionName}`);
-      console.log(post);
-      await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
-        caption: questionFormmatter.getformattedQuestionDetail(post),
+
+      if (post[sectionName].photo && post[sectionName].photo[0])
+        await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
+          caption: questionFormmatter.getformattedQuestionDetail(post),
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
+          },
+        });
+      await ctx.replyWithHTML(questionFormmatter.getformattedQuestionDetail(post), {
         parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
