@@ -203,18 +203,30 @@ class PostService {
     }
   }
 
-  static async deletePostById(postId: string, category: PostCategory): Promise<boolean> {
+  static async deletePostById(postId: string, category?: PostCategory): Promise<Boolean> {
     try {
-      switch (category) {
-        case 'Section 1A':
-          await prisma.post.delete({ where: { id: postId } });
-          break;
-      }
+      await prisma.post.delete({ where: { id: postId } });
       return true;
     } catch (error) {
-      console.log(error);
       return false;
     }
+    // try {
+    //   switch (category) {
+    //     case 'Section 1A':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //       break;
+    //     case 'Service4ChickenFarm':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //     case 'Service4Construction':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //     case 'Service4Manufacture':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //   }
+    //   return true;
+    // } catch (error) {
+    //   console.log(error);
+    //   return false;
+    // }
   }
   static async getUserPosts(user_id: string) {
     try {

@@ -219,6 +219,8 @@ class ManufactureController {
           // ctx.reply(...constructionFormatter.postingSuccessful());
 
           if (response?.success) {
+            ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
             await ctx.reply(...manufactureFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
             await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
@@ -488,7 +490,7 @@ class ManufactureController {
       }
       case 'cancel_post': {
         console.log(ctx.wizard.state);
-        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
