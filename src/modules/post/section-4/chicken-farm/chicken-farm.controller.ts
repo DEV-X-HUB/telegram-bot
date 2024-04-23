@@ -145,6 +145,8 @@ class ChickenFarmController {
           const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
           if (response?.success) {
+            ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
             // await deleteMessageWithCallback(ctx);
 
             await ctx.reply(...chickenFarmFormatter.postingSuccessful());
@@ -157,9 +159,7 @@ class ChickenFarmController {
             return ctx.wizard.selectStep(8);
 
             // return MainMenuController.onStart(ctx);
-          }
-          
-          else {
+          } else {
             ctx.reply(...chickenFarmFormatter.postingError());
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
               await deleteMessageWithCallback(ctx);
@@ -376,7 +376,8 @@ class ChickenFarmController {
       }
       case 'cancel_post': {
         console.log(ctx.wizard.state);
-        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
+        console.log(`deleted  ${deleted}`);
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 

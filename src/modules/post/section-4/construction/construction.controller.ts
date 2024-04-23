@@ -267,6 +267,8 @@ class QuestionPostSectionConstructionController {
           // ctx.reply(...constructionFormatter.postingSuccessful());
 
           if (response?.success) {
+            ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
             console.log('Posting successful');
             await ctx.reply(...constructionFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
@@ -515,7 +517,7 @@ class QuestionPostSectionConstructionController {
       }
       case 'cancel_post': {
         console.log(ctx.wizard.state);
-        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
