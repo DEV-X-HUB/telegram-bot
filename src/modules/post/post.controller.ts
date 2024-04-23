@@ -196,6 +196,9 @@ class QuestionController {
 
     for (const post of posts as any[]) {
       const sectionName = getSectionName(post.category as PostCategory);
+      console.log(post.category);
+      console.log(`sectionName ${sectionName}`);
+      console.log(post);
       await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
         caption: questionFormmatter.getformattedQuestionDetail(post),
         parse_mode: 'HTML',

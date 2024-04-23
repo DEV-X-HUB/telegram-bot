@@ -247,21 +247,20 @@ class QuestionPostSectionConstructionController {
         case 'post_data': {
           console.log('here you are');
           // api request to post the data
-          const response = await Section4ConstructionService.createConstructionPost(
-            {
-              construction_size: state?.size,
-              company_experience: state?.company_experience,
-              document_request_type: state?.document_request_type,
-              land_size: state?.land_size,
-              land_status: state?.land_status,
-              location: state.location,
-              photo: state?.photo,
-              description: state.description,
-              category: 'Section4Construction',
-              notify_option: state.notify_option,
-            },
-            callbackQuery.from.id,
-          );
+          const postDto: CreatePostService4ConstructionDto = {
+            construction_size: ctx.wizard.state.size,
+            company_experience: ctx.wizard.state.company_experience,
+            document_request_type: ctx.wizard.state.document_request_type,
+            land_size: ctx.wizard.state.land_size,
+            land_status: ctx.wizard.state.land_status,
+            location: ctx.wizard.state.location,
+            photo: ctx.wizard.state.photo,
+            description: ctx.wizard.state.description,
+            category: 'Section4Construction',
+            notify_option: ctx.wizard.state.notify_option,
+            previous_post_id: ctx.wizard.state.mention_post_id || undefined,
+          };
+          const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
           // console.log(response);
           // ctx.reply(...constructionFormatter.postingSuccessful());
 
@@ -491,6 +490,7 @@ class QuestionPostSectionConstructionController {
           description: ctx.wizard.state.description,
           category: 'Section4Construction',
           notify_option: ctx.wizard.state.notify_option,
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');

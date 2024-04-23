@@ -47,5 +47,13 @@ export const getSectionName = (category: PostCategory) => {
       return 'Service1A';
     case 'Section 1A':
       return 'Service1A';
+    case 'Service4ChickenFarm':
+      return 'Service4ChickenFarm';
+    case 'Chicken Farm':
+      return 'Service4ChickenFarm';
+    case 'Service4Construction':
+      return 'Service4Construction';
+    case 'Service4Manufacture':
+      return 'Service4Manufacture';
   }
 };

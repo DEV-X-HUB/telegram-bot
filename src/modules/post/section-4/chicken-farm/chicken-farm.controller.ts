@@ -133,20 +133,16 @@ class ChickenFarmController {
         }
 
         case 'post_data': {
-          console.log('here you are');
-          // api request to post the data
-          const response = await Section4ChickenFarmService.createChickenFarmPost(
-            {
-              sector: state.sector,
-              estimated_capital: state.estimated_capital,
-              enterprise_name: state.enterprise_name,
-              description: state.description,
-              category: state.category,
-              notify_option: state.notify_option,
-            },
-            user.id,
-          );
-          console.log(response);
+          const postDto: CreatePostService4ChickenFarmDto = {
+            category: ctx.wizard.state.category as string,
+            sector: ctx.wizard.state.sector as string,
+            estimated_capital: ctx.wizard.state.estimated_capital as string,
+            enterprise_name: ctx.wizard.state.enterprise_name as string,
+            description: ctx.wizard.state.description as string,
+            notify_option: ctx.wizard.state.notify_option,
+            previous_post_id: ctx.wizard.state.mention_post_id || undefined,
+          };
+          const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
           if (response?.success) {
             // await deleteMessageWithCallback(ctx);
@@ -350,6 +346,7 @@ class ChickenFarmController {
           enterprise_name: ctx.wizard.state.enterprise_name as string,
           description: ctx.wizard.state.description as string,
           notify_option: ctx.wizard.state.notify_option,
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');

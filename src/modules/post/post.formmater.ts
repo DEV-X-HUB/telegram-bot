@@ -7,11 +7,20 @@ import { capitalize, areEqaul, getSectionName } from '../../utils/constants/stri
 import Post1AFormatter from './section-1/section-1a/section-a.formatter';
 import Post1BFormatter from './section-1/section-1b/section-b.formatter';
 import Post1CFormatter from './section-1/section-1c/section1c.formatter';
+
 import { PostCategory } from '../../types/params';
+import Section4Formatter from './section-4/section-4.formatter';
+import ManufactureFormatter from './section-4/manufacture/manufacture.formatter';
+import ChickenFarmFormatter from './section-4/chicken-farm/chicken-farm.formatter';
+import ConstructionFormatter from './section-4/construction/construction.formatter';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
 const post1CFormatter = new Post1CFormatter();
+
+const manufactureFormatter = new ManufactureFormatter();
+const chickenFarmFormatter = new ChickenFarmFormatter();
+const constructionFormatter = new ConstructionFormatter();
 
 class PostFormatter {
   answerOptions: TableInlineKeyboardButtons = [
@@ -162,10 +171,34 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section 1A':
-        return 'Service1A';
-      case 'Section 1A':
-        return 'Service1A';
+
+      case 'Section4ChickenFarm':
+        return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section4Manufacture':
+        return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section4Construction':
+        return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
     }
 
     switch (true) {

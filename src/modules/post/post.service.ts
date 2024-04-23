@@ -152,7 +152,7 @@ class PostService {
           });
           break;
         }
-        case 'Section4ChickenFarm': {
+        case 'Chicken Farm': {
           const { description, category, notify_option, ...createCategoryPostDto } =
             postDto as CreatePostService4ChickenFarmDto;
           post = await prisma.service4ChickenFarm.create({
@@ -162,7 +162,7 @@ class PostService {
             },
           });
         }
-        case 'Section4Construction': {
+        case 'Service4Construction': {
           const { description, category, notify_option, ...createCategoryPostDto } =
             postDto as CreatePostService4ConstructionDto;
           post = await prisma.service4Construction.create({
@@ -172,7 +172,7 @@ class PostService {
             },
           });
         }
-        case 'Section4Manufacture': {
+        case 'Service4Manufacture': {
           const { description, category, notify_option, ...createCategoryPostDto } =
             postDto as CreatePostService4ManufactureDto;
           post = await prisma.service4Manufacture.create({

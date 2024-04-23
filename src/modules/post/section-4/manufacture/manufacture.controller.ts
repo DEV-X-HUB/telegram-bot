@@ -201,19 +201,20 @@ class ManufactureController {
         case 'post_data': {
           console.log('here you are');
           // api request to post the data
-          const response = await ManufactureService.createManufacturePost(
-            {
-              sector: state.sector as string,
-              number_of_workers: state.number_of_worker,
-              estimated_capital: state.estimated_capital as string,
-              enterprise_name: state.enterprise_name as string,
-              description: state.description as string,
-              photo: state.photo,
-              category: state.category as string,
-              notify_option: state.notify_option,
-            },
-            callbackQuery.from.id,
-          );
+
+          const postDto: CreatePostService4ManufactureDto = {
+            sector: ctx.wizard.state.sector,
+            number_of_workers: ctx.wizard.state.number_of_worker,
+            estimated_capital: ctx.wizard.state.estimated_capital,
+            enterprise_name: ctx.wizard.state.enterprise_name,
+            description: ctx.wizard.state.description,
+            photo: ctx.wizard.state.photo,
+            category: ctx.wizard.state.category,
+            notify_option: ctx.wizard.state.notify_option,
+            previous_post_id: ctx.wizard.state.mention_post_id || undefined,
+          };
+
+          const response = await ManufactureService.createManufacturePost(postDto, callbackQuery.from.id);
           // console.log(response);
           // ctx.reply(...constructionFormatter.postingSuccessful());
 
@@ -466,6 +467,7 @@ class ManufactureController {
           photo: ctx.wizard.state.photo,
           category: ctx.wizard.state.category,
           notify_option: ctx.wizard.state.notify_option,
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');
