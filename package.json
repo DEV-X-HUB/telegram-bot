@@ -51,17 +51,11 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix --ext .ts",
     "build": "tsc",
-    "prepare": "husky install",
     "test": "jest",
     "test:watch": "jest --watch"
   },
   "author": "",
   "license": "ISC",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run  lint"
-    }
-  },
   "directories": {
     "test": "test"
   },

@@ -4,7 +4,7 @@ import { areEqaul } from '../../../../utils/constants/string';
 import config from '../../../../config/config';
 import { NotifyOption } from '@prisma/client';
 
-class QustionPostSectionBFormatter {
+class Post1BFormatter {
   categories: TableMarkupKeyboardButtons;
   urgency: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
@@ -228,8 +228,8 @@ class QustionPostSectionBFormatter {
   }
   getPreviewData(state: any) {
     if (areEqaul(state.main_category, 'main_4'))
-      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_catagory}\n________________\n\n${state.title} \n\nCondtition: ${state.condition}  \n\nDate of Issue: ${state.date_of_issue} \n\nDate of Expire: ${state.date_of_expire} \n\nOriginal Location: ${state.location}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_catagory}\n________________\n\n${state.title}  \n\nCondition: ${state.condition} \n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_category}\n________________\n\n${state.title} \n\nCondtition: ${state.condition}  \n\nDate of Issue: ${state.date_of_issue} \n\nDate of Expire: ${state.date_of_expire} \n\nOriginal Location: ${state.location}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_category}\n________________\n\n${state.title}  \n\nCondition: ${state.condition} \n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
   noPostsErrorMessage() {
     return [this.messages.noPreviousPosts];
@@ -290,7 +290,7 @@ class QustionPostSectionBFormatter {
         ? InlineKeyboardButtons([
             [
               { text: 'Title', cbString: 'title' },
-              { text: 'BI/DI', cbString: 'bi_di' },
+              { text: 'BI/DI', cbString: 'id_first_option' },
             ],
 
             areEqaul(state.main_category, 'main_4', true)
@@ -318,7 +318,7 @@ class QustionPostSectionBFormatter {
         : InlineKeyboardButtons([
             [
               { text: 'Title', cbString: 'title' },
-              { text: 'BI/DI', cbString: 'bi_di' },
+              { text: 'BI/DI', cbString: 'id_first_option' },
             ],
 
             [
@@ -349,7 +349,7 @@ class QustionPostSectionBFormatter {
         return this.mainCategoryOption();
       case 'sub_category':
         return this.generateSubCatagory(extra as string);
-      case 'bi_di':
+      case 'id_first_option':
         return this.bIDIOptionDisplay();
       case 'woreda':
         return this.woredaListDisplay();
@@ -385,4 +385,4 @@ class QustionPostSectionBFormatter {
   }
 }
 
-export default QustionPostSectionBFormatter;
+export default Post1BFormatter;

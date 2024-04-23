@@ -77,7 +77,7 @@ class QuestionPostSection1CController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1cFormatter.arBrOption)) {
-      ctx.wizard.state.ar_br = callbackQuery.data;
+      ctx.wizard.state.arbr_value = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       // await deleteMessage(ctx, {
       //   message_id: (parseInt(callbackQuery.message.message_id) - 1).toString(),
@@ -194,7 +194,7 @@ class QuestionPostSection1CController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1cFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
+      ctx.wizard.state.id_first_option = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...section1cFormatter.lastDigitDisplay());
       return ctx.wizard.next();
@@ -286,8 +286,8 @@ class QuestionPostSection1CController {
 
         case 'post_data': {
           const postDto: CreatePostService1CDto = {
-            arbr_value: ctx.wizard.state.ar_br as string,
-            id_first_option: ctx.wizard.state.bi_di as string,
+            arbr_value: ctx.wizard.state.arbr_value as string,
+            id_first_option: ctx.wizard.state.id_first_option as string,
             description: ctx.wizard.state.description as string,
             last_digit: ctx.wizard.state.last_digit as string,
             service_type_1: ctx.wizard.state.service_type_1 as string,
@@ -344,15 +344,9 @@ class QuestionPostSection1CController {
         case 'mention_previous_post': {
           // fetch previous posts of the user
           const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
-          if (!success || !posts) {
-            // remove past post
-            await deleteMessageWithCallback(ctx);
-            return await ctx.reply(message);
-          }
-          if (posts.length == 0) {
-            await deleteMessageWithCallback(ctx);
-            return await ctx.reply(...section1cFormatter.noPostsErrorMessage());
-          }
+          if (!success || !posts) return await ctx.reply(message);
+
+          if (posts.length == 0) return await ctx.reply(...section1cFormatter.noPostsErrorMessage());
 
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section1cFormatter.mentionPostMessage());
@@ -384,13 +378,13 @@ class QuestionPostSection1CController {
     const state = ctx.wizard.state;
     const fileds = [
       'paper_stamp',
-      'ar_br',
+      'arbr_value',
       'woreda',
       'service_type_1',
       'service_type_2',
       'service_type_3',
       'confirmation_year',
-      'bi_di',
+      'id_first_option',
       'last_digit',
       'description',
       'photo',
@@ -489,8 +483,8 @@ class QuestionPostSection1CController {
     switch (callbackQuery.data) {
       case 're_submit_post': {
         const postDto: CreatePostService1CDto = {
-          arbr_value: ctx.wizard.state.ar_br as string,
-          id_first_option: ctx.wizard.state.bi_di as string,
+          arbr_value: ctx.wizard.state.arbr_value as string,
+          id_first_option: ctx.wizard.state.id_first_option as string,
           description: ctx.wizard.state.description as string,
           last_digit: ctx.wizard.state.last_digit as string,
           service_type_1: ctx.wizard.state.service_type_1 as string,

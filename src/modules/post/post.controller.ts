@@ -1,10 +1,10 @@
+import { PostCategory } from '../../types/params';
 import { deleteMessageWithCallback, findSender } from '../../utils/constants/chat';
-import { areEqaul } from '../../utils/constants/string';
+import { areEqaul, getSectionName } from '../../utils/constants/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
-import QuestionFormmatter from './question.formmater';
-import { AnswerQuestionScene } from './question.scene';
-import QuestionService from './question.service';
+import QuestionFormmatter from './post.formmater';
+import QuestionService from './post.service';
 import { Context, Markup } from 'telegraf';
 const questionService = new QuestionService();
 const profileService = new ProfileService();
@@ -16,18 +16,16 @@ class QuestionController {
   static async handleSearch(ctx: any) {
     const query = ctx?.update?.inline_query?.query;
 
-    console.log(query, 'qury ');
     if (!query || query.trim() == '') return;
-    const { status, questions } = await questionService.getPostsByDescription(query);
-    if (status == 'fail') return await ctx.reply('unable to make search');
-
-    if (questions.length == 0)
+    const { success, posts } = await questionService.getPostsByDescription(query);
+    if (!success) return await ctx.reply('unable to make search');
+    if (posts.length == 0)
       return await ctx.answerInlineQuery([...questionFormmatter.formatNoQuestionsErrorMessage()], {
         button: questionFormmatter.seachQuestionTopBar(0, query),
       });
 
-    return await ctx.answerInlineQuery([...questionFormmatter.formatSearchQuestions(questions)], {
-      button: questionFormmatter.seachQuestionTopBar(questions.length, query),
+    return await ctx.answerInlineQuery([...questionFormmatter.formatSearchQuestions(posts)], {
+      button: questionFormmatter.seachQuestionTopBar(posts.length, query),
       cache_time: 0,
     });
   }
@@ -71,8 +69,8 @@ class QuestionController {
   static async handleAnswerQuery(ctx: any, query: string) {
     const sender = findSender(ctx);
     const [_, postId] = query.split('_');
-    const { status, question } = await questionService.getPostById(postId);
-    if (!question || status == 'fail') return ctx.reply('error while');
+    const { success, post } = await questionService.getPostById(postId);
+    if (!success || !post) return ctx.reply('error while');
 
     // const mediaGroup = question.photo.map((image) => ({
     //   media: image,
@@ -191,22 +189,25 @@ class QuestionController {
   }
 
   static async listAllQuestions(ctx: any, round: number = 1) {
-    const { status, questions } = await questionService.geAlltPosts();
-    if (status == 'fail') return ctx.reply('error while');
+    const { success, posts } = await questionService.geAlltPosts();
+    if (!success) return ctx.reply('error while');
+    console.log(posts.length, 'll');
+    // return;
 
-    // for (const question of questions) {
-    //   return ctx.replyWithPhoto(question.photo[0] as any, {
-    //     caption: questionFormmatter.getFormattedQuestionPreview(question),
-    //     parse_mode: 'HTML',
-    //     reply_markup: {
-    //       inline_keyboard: [[{ text: 'View Detail', callback_data: `question_detail:${question.id}` }]],
-    //     },
-    //   });
-    // }
+    for (const post of posts as any[]) {
+      const sectionName = getSectionName(post.category as PostCategory);
+      await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
+        caption: questionFormmatter.getformattedQuestionDetail(post),
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
+        },
+      });
+    }
   }
   static async getQuestionDetail(ctx: any, postId: string) {
-    const { status, question } = await questionService.getPostById(postId);
-    if (status == 'fail' || !question) return ctx.reply('error while');
+    const { success, post } = await questionService.getPostById(postId);
+    if (!success || !post) return ctx.reply('error while');
 
     // const mediaGroup = question.photo.map((image: any) => ({
     //   media: image,
@@ -215,7 +216,7 @@ class QuestionController {
     // }));
 
     // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-    await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(question));
+    await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(post));
   }
   static displayAllPromptFomatter = (ctx: any, questionsNumber: any, searchString: string) => {
     return ctx.reply(...questionFormmatter.displayAllPromptFomatter(questionsNumber, searchString), {
@@ -223,7 +224,7 @@ class QuestionController {
     });
   };
   static async searchByTitle() {
-    const { status, questions } = await questionService.geAlltPosts();
+    const { success, posts } = await questionService.geAlltPosts();
   }
 }
 
