@@ -28,6 +28,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
     }
     case 'location':
       schema = DescriptionSchema;
+      break;
     case 'confirmation_year':
       schema = ConfirmationYearSchema;
       break;
@@ -38,7 +39,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
 
   try {
     // if (!schema) return 'No schema found';
-    if (!schema) return value;
+    if (!schema) return true;
     schema.parse(value);
 
     return 'valid';

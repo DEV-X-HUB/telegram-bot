@@ -18,11 +18,12 @@ const QuestionPostSectionBScene = new Scenes.WizardScene(
   questionPostSectionBController.choooseWoreda,
   questionPostSectionBController.enterDescription,
   questionPostSectionBController.attachPhoto,
-  questionPostSectionBController.editPreview,
+  questionPostSectionBController.preview,
   questionPostSectionBController.editData,
   questionPostSectionBController.editPhoto,
   questionPostSectionBController.postedReview,
   questionPostSectionBController.adjustNotifySetting,
+  questionPostSectionBController.mentionPreviousPost,
 );
 
 export default QuestionPostSectionBScene;

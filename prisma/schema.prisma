@@ -58,10 +58,15 @@ model Post {
   status       PostStatus   @default(pending)
   category     String
   notify_option NotifyOption   @default(none)
+  
+  previous_post       Post?       @relation(name: "PreviousPost", fields: [previous_post_id], references: [id]) 
+  previous_post_id    String?     @unique
+  next_post           Post?       @relation(name: "PreviousPost")
 
   user        User     @relation(fields: [user_id], references: [id]) 
   user_id     String
-
+  created_at  DateTime   @default(now())
+  
   // Define relation with categories and sub categories models
   Service1A   Service1A? 
   Service1B   Service1B?

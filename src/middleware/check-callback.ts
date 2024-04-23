@@ -1,6 +1,6 @@
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import ProfileController from '../modules/profile/profile.controller';
-import QuestionController from '../modules/question/question.controller';
+import PostController from '../modules/post/post.controller';
 const profileController = new ProfileController();
 // Middleware to check if user entered command and redirect to its scene
 export function checkCallBacks() {
@@ -14,18 +14,18 @@ export function checkCallBacks() {
     switch (true) {
       case query.startsWith('show_all_questions'): {
         const [_, round] = query.split(':');
-        return QuestionController.listAllQuestions(ctx, round);
+        return PostController.listAllQuestions(ctx, round);
       }
       case query.startsWith('question_detail'): {
         const [_, questionId] = query.split(':');
-        return QuestionController.getQuestionDetail(ctx, questionId);
+        return PostController.getQuestionDetail(ctx, questionId);
       }
 
       case query.startsWith('answer'):
-        return QuestionController.handleAnswerQuery(ctx, query);
+        return PostController.handleAnswerQuery(ctx, query);
 
       case query.startsWith('browse'):
-        return QuestionController.handleBrowseQuery(ctx, query);
+        return PostController.handleBrowseQuery(ctx, query);
 
       case query.startsWith('follow'):
         return profileController.handleFollow(ctx, query);
@@ -49,14 +49,14 @@ export function checkQueries(ctx: any, query: string, next: any) {
   switch (true) {
     case query.startsWith('all_questions'): {
       const [_, _s, searachText, round] = query.split(':');
-      return QuestionController.listAllQuestions(ctx, parseInt(round));
+      return PostController.listAllQuestions(ctx, parseInt(round));
     }
     case query.startsWith('answer'): {
-      return QuestionController.handleAnswerQuery(ctx, query);
+      return PostController.handleAnswerQuery(ctx, query);
     }
 
     case query.startsWith('browse'): {
-      return QuestionController.handleBrowseQuery(ctx, query);
+      return PostController.handleBrowseQuery(ctx, query);
     }
 
     case query.startsWith('userProfile'):

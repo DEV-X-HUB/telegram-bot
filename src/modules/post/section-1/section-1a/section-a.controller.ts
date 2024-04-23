@@ -9,15 +9,16 @@ import {
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
 
 import Section1AFormatter from './section-a.formatter';
-import QuestionService from '../../post.service';
 import { postValidator } from '../../../../utils/validator/question-post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
 import { CreatePostService1ADto } from '../../../../types/dto/create-question-post.dto';
+import PostService from '../../post.service';
 
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
+
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
@@ -41,7 +42,7 @@ class QuestionPostSectionAController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
-      ctx.wizard.state.ar_br = callbackQuery.data;
+      ctx.wizard.state.arbr_value = callbackQuery.data;
       ctx.wizard.state.category = 'Section 1A';
       await deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.woredaListDisplay());
@@ -91,7 +92,7 @@ class QuestionPostSectionAController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
+      ctx.wizard.state.id_first_option = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.lastDidtitDisplay());
       return ctx.wizard.next();
@@ -104,8 +105,8 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
 
-    // const validationMessage = postValidator('last_digit', message);
-    // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    const validationMessage = postValidator('last_digit', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.last_digit = message;
     ctx.reply(...section1AFormatter.locationDisplay());
     return ctx.wizard.next();
@@ -116,7 +117,8 @@ class QuestionPostSectionAController {
       ctx.reply(...section1AFormatter.lastDidtitDisplay());
       return ctx.wizard.back();
     }
-
+    const validationMessage = postValidator('location', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     // assign the location to the state
     ctx.wizard.state.location = message;
     await ctx.reply(...section1AFormatter.descriptionDisplay());
@@ -172,9 +174,9 @@ class QuestionPostSectionAController {
       return ctx.wizard.next();
     }
   }
-  async editPreview(ctx: any) {
+  async preview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-
+    const user = findSender(ctx);
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
@@ -194,8 +196,8 @@ class QuestionPostSectionAController {
 
         case 'post_data': {
           const postDto: CreatePostService1ADto = {
-            id_first_option: ctx.wizard.state.bi_di as string,
-            arbr_value: ctx.wizard.state.ar_br as string,
+            id_first_option: ctx.wizard.state.id_first_option as string,
+            arbr_value: ctx.wizard.state.arbr_value as string,
             description: ctx.wizard.state.description as string,
             last_digit: ctx.wizard.state.last_digit as string,
             location: ctx.wizard.state.location as string,
@@ -204,8 +206,9 @@ class QuestionPostSectionAController {
             notify_option: ctx.wizard.state.notify_option,
 
             category: 'Section 1A',
+            previous_post_id: ctx.wizard.state.mention_post_id || undefined,
           };
-          const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
+          const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
           if (response?.success) {
             console.log(response.data);
@@ -245,6 +248,33 @@ class QuestionPostSectionAController {
           await ctx.reply(...section1AFormatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
           return ctx.wizard.selectStep(12);
         }
+        case 'mention_previous_post': {
+          // fetch previous posts of the user
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
+          if (!success || !posts) return await ctx.reply(message);
+
+          if (posts.length == 0) return await ctx.reply(...section1AFormatter.noPostsErrorMessage());
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...section1AFormatter.mentionPostMessage());
+          for (const post of posts as any) {
+            await ctx.reply(...section1AFormatter.displayPreviousPostsList(post));
+          }
+          return ctx.wizard.selectStep(13);
+        }
+
+        case 'remove_mention_previous_post': {
+          state.mention_post_data = '';
+          state.mention_post_id = '';
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        }
+        case 'back': {
+          await deleteMessageWithCallback(ctx);
+          ctx.wizard.back();
+          return await ctx.replyWithHTML(...section1AFormatter.preview(state));
+        }
         default: {
           await ctx.reply('DEFAULT');
         }
@@ -253,7 +283,16 @@ class QuestionPostSectionAController {
   }
   async editData(ctx: any) {
     const state = ctx.wizard.state;
-    const fileds = ['ar_br', 'bi_di', 'woreda', 'last_digit', 'location', 'description', 'photo', 'cancel'];
+    const fileds = [
+      'arbr_value',
+      'id_first_option',
+      'woreda',
+      'last_digit',
+      'location',
+      'description',
+      'photo',
+      'cancel',
+    ];
     const callbackQuery = ctx?.callbackQuery;
     const editField = ctx.wizard.state?.editField;
     if (!callbackQuery) {
@@ -340,14 +379,14 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
   }
-  async postedReview(ctx: any) {
+  async postReview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 're_submit_post': {
         const postDto: CreatePostService1ADto = {
-          id_first_option: ctx.wizard.state.bi_di as string,
-          arbr_value: ctx.wizard.state.ar_br as string,
+          id_first_option: ctx.wizard.state.id_first_option as string,
+          arbr_value: ctx.wizard.state.arbr_value as string,
           description: ctx.wizard.state.description as string,
           last_digit: ctx.wizard.state.last_digit as string,
           location: ctx.wizard.state.location as string,
@@ -355,8 +394,9 @@ class QuestionPostSectionAController {
           photo: ctx.wizard.state.photo,
           woreda: ctx.wizard.state.woreda,
           category: 'Section 1A',
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
-        const response = await QuestionService.createServie1Post(postDto, callbackQuery.from.id);
+        const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) await ctx.reply('Unable to resubmite');
 
         ctx.wizard.state.post_id = response?.data?.id;
@@ -371,7 +411,7 @@ class QuestionPostSectionAController {
       }
       case 'cancel_post': {
         console.log(ctx.wizard.state);
-        const deleted = await QuestionService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
@@ -409,6 +449,27 @@ class QuestionPostSectionAController {
       case 'notify_follower': {
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(8);
+      }
+    }
+  }
+  async mentionPreviousPost(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    console.log(ctx.wizard.state, 'sdfdsafasdf');
+    if (callbackQuery) {
+      if (areEqaul(callbackQuery.data, 'back', true)) {
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(8);
+      }
+
+      if (callbackQuery.data.startsWith('select_post_')) {
+        const post_id = callbackQuery.data.split('_')[2];
+
+        ctx.wizard.state.mention_post_id = post_id;
+        ctx.wizard.state.mention_post_data = ctx.callbackQuery.message.text;
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(8);
       }

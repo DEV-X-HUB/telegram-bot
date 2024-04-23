@@ -1,4 +1,5 @@
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/components';
+import { PostCategory } from '../../types/params';
 
 export const areEqaul = (text1: string, text2: string, ignoreCase?: boolean) => {
   if (ignoreCase) return text1.toLocaleLowerCase().trim() == text2.toLocaleLowerCase().trim();
@@ -32,4 +33,19 @@ export const capitalizeFirstLetter = (word: string) => {
 
 export const capitalize = (word: string) => {
   return word.charAt(0).toLocaleUpperCase() + word.slice(1);
+};
+
+export const getSectionName = (category: PostCategory) => {
+  switch (category) {
+    case 'Section 1A':
+      return 'Service1A';
+    case 'Section 1B':
+      return 'Service1B';
+    case 'Section 1C':
+      return 'Service1C';
+    case 'Section 1A':
+      return 'Service1A';
+    case 'Section 1A':
+      return 'Service1A';
+  }
 };
