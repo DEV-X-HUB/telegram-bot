@@ -1,4 +1,5 @@
 import config from '../../../../config/config';
+import { CreatePostService4ChickenFarmDto } from '../../../../types/dto/create-question-post.dto';
 import { displayDialog } from '../../../../ui/dialog';
 import {
   deleteKeyboardMarkup,
@@ -8,12 +9,14 @@ import {
 } from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
+import ProfileService from '../../../profile/profile.service';
 import PostService from '../../post.service';
 
 import ChickenFarmFormatter from './chicken-farm.formatter';
 import Section4ChickenFarmService from './chicken-farm.service';
 const postService = new PostService();
 const chickenFarmFormatter = new ChickenFarmFormatter();
+const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
 const imagesNumber = 1;
@@ -73,22 +76,30 @@ class ChickenFarmController {
   }
 
   async enterDescription(ctx: any) {
+    const sender = findSender(ctx);
     const message = ctx.message.text;
     if (message && areEqaul(message, 'back', true)) {
       await ctx.reply(...chickenFarmFormatter.enterpriseNamePrompt());
       return ctx.wizard.back();
     }
 
-    const user = await Section4ChickenFarmService.findUserWithTgId(ctx.from.id);
+    const user = await profileService.getProfileByTgId(sender.id);
+    if (user) {
+      ctx.wizard.state.user = {
+        id: user.id,
+        display_name: user.display_name,
+      };
+    }
     if (!user) return await ctx.reply(...chickenFarmFormatter.somethingWentWrongError());
 
     ctx.wizard.state.user = {
-      id: user.user?.id,
-      display_name: user.user?.display_name,
+      id: user?.id,
+      display_name: user?.display_name,
     };
 
     ctx.wizard.state.description = message;
     ctx.wizard.state.status = 'preview';
+    ctx.wizard.state.notify_option = user?.notify_option || 'none';
 
     await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
     return ctx.wizard.next();
@@ -167,7 +178,7 @@ class ChickenFarmController {
           console.log('mention_previous_post1');
           await ctx.reply('mention_previous_post');
           // fetch previous posts of the user
-          const { posts, success, message } = await postService.getUserPostsByTgId(user.id);
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
           if (!success || !posts) {
             // remove past post
             await deleteMessageWithCallback(ctx);
@@ -193,6 +204,13 @@ class ChickenFarmController {
           await deleteMessageWithCallback(ctx);
           return ctx.replyWithHTML(...chickenFarmFormatter.preview(state));
         }
+
+        case 'notify_settings': {
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...chickenFarmFormatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
+          return ctx.wizard.selectStep(9);
+        }
+
         case 'back': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.back();
@@ -317,6 +335,78 @@ class ChickenFarmController {
       );
       await ctx.replyWithHTML(...((await chickenFarmFormatter.editFieldDisplay(callbackMessage)) as any));
       return;
+    }
+  }
+
+  async postedReview(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 're_submit_post': {
+        const postDto: CreatePostService4ChickenFarmDto = {
+          category: ctx.wizard.state.category as string,
+          sector: ctx.wizard.state.sector as string,
+          estimated_capital: ctx.wizard.state.estimated_capital as string,
+          enterprise_name: ctx.wizard.state.enterprise_name as string,
+          description: ctx.wizard.state.description as string,
+          notify_option: ctx.wizard.state.notify_option,
+        };
+        const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
+        if (!response?.success) await ctx.reply('Unable to resubmite');
+
+        ctx.wizard.state.post_id = response?.data?.id;
+        ctx.wizard.state.post_main_id = response?.data?.post_id;
+        await ctx.reply('Resubmiited');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Cancel', callback_data: `cancel_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'cancel_post': {
+        console.log(ctx.wizard.state);
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+
+        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+
+        await ctx.reply('Cancelled');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Resubmit', callback_data: `re_submit_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'main_menu': {
+        deleteMessageWithCallback(ctx);
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
+    }
+  }
+  async adjustNotifySetting(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 'notify_none': {
+        ctx.wizard.state.notify_option = 'none';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(5);
+      }
+      case 'notify_friend': {
+        ctx.wizard.state.notify_option = 'friend';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(5);
+      }
+      case 'notify_follower': {
+        await deleteMessageWithCallback(ctx);
+        ctx.wizard.state.notify_option = 'follower';
+        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.selectStep(5);
+      }
     }
   }
 }

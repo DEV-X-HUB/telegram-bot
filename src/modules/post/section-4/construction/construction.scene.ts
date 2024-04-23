@@ -16,6 +16,9 @@ const QuestionPostSectionConstructionScene = new Scenes.WizardScene(
   constructionController.preview,
   constructionController.editData,
   constructionController.editPhoto,
+  constructionController.postedReview,
+  constructionController.adjustNotifySetting,
+  constructionController.mentionPreviousPost,
 );
 
 export default QuestionPostSectionConstructionScene;

@@ -1,6 +1,8 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
 import config from '../../../../config/config';
+import { NotifyOption } from '../../../../types/params';
+import { areEqaul } from '../../../../utils/constants/string';
 
 class ChickenFarmFormatter {
   estimatedCapitalOption: TableInlineKeyboardButtons;
@@ -11,6 +13,7 @@ class ChickenFarmFormatter {
     estimatedCapitalPrompt: 'What is the estimated capital?',
     enterpriseNamePrompt: 'Name for the small scale enterprise?',
     descriptionPrompt: 'Enter description maximimum 45 words',
+    notifyOptionPrompt: 'Select who can be notified this question',
     displayError: 'Invalid input, please try again',
     postingSuccessful: 'Posted Successfully',
     postingError: 'Posting failed',
@@ -86,24 +89,59 @@ class ChickenFarmFormatter {
     return [message, buttons];
   }
 
-  preview(state: any) {
+  preview(state: any, submitState: string = 'preview') {
     return [
       this.getPreviewData(state),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify Settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              {
+                text: `${state.mention_post_data ? 'Remove mention post' : 'Mention previous post'}`,
+                // cbString : 'Mention previous post'
+
+                cbString: `${state.mention_post_data ? 'remove_mention_previous_post' : 'mention_previous_post'}`,
+              },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
+    ];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
+  }
+
+  notifyOptionDisplay(notifyOption: NotifyOption) {
+    return [
+      this.messages.notifyOptionPrompt,
       InlineKeyboardButtons([
         [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Notify Settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
         ],
         [
           {
-            text: `${state.mention_post_data ? 'Remove mention post' : 'Mention previous post'}`,
-            // cbString : 'Mention previous post'
-
-            cbString: `${state.mention_post_data ? 'remove_mention_previous_post' : 'mention_previous_post'}`,
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
           },
-          { text: 'Cancel', cbString: 'cancel' },
         ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
       ]),
     ];
   }

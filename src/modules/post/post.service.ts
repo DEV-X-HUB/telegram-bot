@@ -6,6 +6,9 @@ import {
   CreatePostService1ADto,
   CreatePostService1BDto,
   CreatePostService1CDto,
+  CreatePostService4ChickenFarmDto,
+  CreatePostService4ConstructionDto,
+  CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
 
@@ -182,6 +185,36 @@ class PostService {
             },
           });
         }
+        case 'Section4ChickenFarm': {
+          const { description, category, notify_option, ...createCategoryPostDto } =
+            postDto as CreatePostService4ChickenFarmDto;
+          post = await prisma.service4ChickenFarm.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+        case 'Section4Construction': {
+          const { description, category, notify_option, ...createCategoryPostDto } =
+            postDto as CreatePostService4ConstructionDto;
+          post = await prisma.service4Construction.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
+        case 'Section4Manufacture': {
+          const { description, category, notify_option, ...createCategoryPostDto } =
+            postDto as CreatePostService4ManufactureDto;
+          post = await prisma.service4Manufacture.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+        }
       }
 
       return {
@@ -212,7 +245,7 @@ class PostService {
       return false;
     }
   }
-  async getUserPosts(user_id: string) {
+  static async getUserPosts(user_id: string) {
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -234,7 +267,7 @@ class PostService {
       return { success: false, posts: null, message: error?.message };
     }
   }
-  async getUserPostsByTgId(tg_id: string) {
+  static async getUserPostsByTgId(tg_id: string) {
     const user = await prisma.user.findUnique({
       where: {
         tg_id: tg_id.toString(),

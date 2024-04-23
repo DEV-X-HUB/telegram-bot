@@ -12,6 +12,8 @@ const chickenFarmScene = new Scenes.WizardScene(
   chickenFarmController.preview,
   chickenFarmController.mentionPreviousPost,
   chickenFarmController.editData,
+  chickenFarmController.postedReview,
+  chickenFarmController.adjustNotifySetting,
 );
 
 export default chickenFarmScene;

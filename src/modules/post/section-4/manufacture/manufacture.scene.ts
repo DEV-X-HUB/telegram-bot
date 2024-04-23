@@ -14,6 +14,9 @@ const ManufactureScene = new Scenes.WizardScene(
   manufactureController.preview,
   manufactureController.editData,
   manufactureController.editPhoto,
+  manufactureController.postedReview,
+  manufactureController.adjustNotifySetting,
+  manufactureController.mentionPreviousPost,
 );
 
 export default ManufactureScene;

@@ -96,4 +96,10 @@ export interface CreatePostService4ChickenFarmDto {
   notify_option: NotifyOption;
 }
 
-export type CreateCategoryPostDto = CreatePostService1BDto | CreatePostService1ADto | CreatePostService1CDto;
+export type CreateCategoryPostDto =
+  | CreatePostService1BDto
+  | CreatePostService1ADto
+  | CreatePostService1CDto
+  | CreatePostService4ChickenFarmDto
+  | CreatePostService4ManufactureDto
+  | CreatePostService4ConstructionDto;

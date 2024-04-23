@@ -4,8 +4,40 @@ import { CreatePostDto, CreatePostService4ManufactureDto } from '../../../../typ
 
 import { v4 as UUID } from 'uuid';
 
-class Section4ManufactureService {
+class ManufactureService {
   constructor() {}
+
+  static async findUserWithTgId(tg_id: string) {
+    try {
+      // Find user with tg_id
+      const user = await prisma.user.findUnique({
+        where: {
+          tg_id: tg_id.toString(),
+        },
+      });
+
+      if (!user) {
+        return {
+          success: false,
+          user: null,
+          message: 'User not found',
+        };
+      }
+
+      return {
+        success: true,
+        user: user,
+        message: 'User found',
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        user: null,
+        message: 'An error occurred while finding the user',
+      };
+    }
+  }
 
   static async createPost(postDto: CreatePostDto, tg_id: string) {
     try {
@@ -50,11 +82,7 @@ class Section4ManufactureService {
   static async createManufacturePost(postData: CreatePostService4ManufactureDto, tg_id: string) {
     try {
       // Find user with tg_id
-      const user = await prisma.user.findUnique({
-        where: {
-          tg_id: tg_id.toString(),
-        },
-      });
+      const user = await this.findUserWithTgId(tg_id);
 
       if (!user) {
         return {
@@ -68,7 +96,7 @@ class Section4ManufactureService {
         {
           description: postData.description,
           category: 'Service4Manufacture',
-          user_id: user.id,
+          notify_option: postData.notify_option,
         },
         tg_id,
       );
@@ -80,12 +108,14 @@ class Section4ManufactureService {
           message: newPost.message,
         };
 
+      const { description, category, notify_option, ...manufacturePostData } = postData;
+
       // Create manufacture post and store it
       const newManufacturePost = await prisma.service4Manufacture.create({
         data: {
           id: UUID(),
           post_id: newPost.post.id,
-          ...postData,
+          ...manufacturePostData,
         },
       });
 
@@ -105,4 +135,4 @@ class Section4ManufactureService {
   }
 }
 
-export default Section4ManufactureService;
+export default ManufactureService;
