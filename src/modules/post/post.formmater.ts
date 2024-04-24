@@ -14,11 +14,13 @@ import ManufactureFormatter from './section-4/manufacture/manufacture.formatter'
 import ChickenFarmFormatter from './section-4/chicken-farm/chicken-farm.formatter';
 import ConstructionFormatter from './section-4/construction/construction.formatter';
 import Post2Formatter from './section-2/section-2.formatter';
+import Section3Formatter from './section-3/section-3.formatter';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
 const post1CFormatter = new Post1CFormatter();
 const post2Formatter = new Post2Formatter();
+const section3Formatter = new Section3Formatter();
 
 const manufactureFormatter = new ManufactureFormatter();
 const chickenFarmFormatter = new ChickenFarmFormatter();
@@ -177,7 +179,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section 2':
+      case 'Section 2': {
         return post2Formatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -186,6 +188,18 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
+      }
+
+      case 'Section 3': {
+        return section3Formatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created,
+          user: post.user,
+          ...post[sectionName],
+        });
+      }
 
       case 'Chicken Farm':
         return chickenFarmFormatter.getPreviewData({
