@@ -6,6 +6,7 @@ import {
   CreatePostService1ADto,
   CreatePostService1BDto,
   CreatePostService1CDto,
+  CreatePostService2Dto,
   CreatePostService4ChickenFarmDto,
   CreatePostService4ConstructionDto,
   CreatePostService4ManufactureDto,
@@ -152,6 +153,17 @@ class PostService {
           });
           break;
         }
+        case 'Section 2': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService2Dto;
+          post = await prisma.service2.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
         case 'Chicken Farm': {
           const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService4ChickenFarmDto;
@@ -208,6 +220,7 @@ class PostService {
       await prisma.post.delete({ where: { id: postId } });
       return true;
     } catch (error) {
+      console.log(error);
       return false;
     }
     // try {

@@ -13,10 +13,12 @@ import Section4Formatter from './section-4/section-4.formatter';
 import ManufactureFormatter from './section-4/manufacture/manufacture.formatter';
 import ChickenFarmFormatter from './section-4/chicken-farm/chicken-farm.formatter';
 import ConstructionFormatter from './section-4/construction/construction.formatter';
+import Post2Formatter from './section-2/section-2.formatter';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
 const post1CFormatter = new Post1CFormatter();
+const post2Formatter = new Post2Formatter();
 
 const manufactureFormatter = new ManufactureFormatter();
 const chickenFarmFormatter = new ChickenFarmFormatter();
@@ -165,6 +167,15 @@ class PostFormatter {
         });
       case 'Section 1C':
         return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 2':
+        return post2Formatter.getPreviewData({
           description: post.description,
           status: post.status,
           category: post.category,
