@@ -113,6 +113,16 @@ export interface CreatePostService4ChickenFarmDto {
   notify_option: NotifyOption;
   previous_post_id?: string;
 }
+export interface CreatePostService2Dto {
+  service_type: string;
+  title: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+  previous_post_id?: string;
+}
 
 export type CreateCategoryPostDto =
   | CreatePostService1BDto
@@ -121,4 +131,5 @@ export type CreateCategoryPostDto =
   | CreatePostService4ChickenFarmDto
   | CreatePostService4ManufactureDto
   | CreatePostService4ConstructionDto
-  | CreatePostService3Dto;
+  | CreatePostService3Dto
+  | CreatePostService2Dto;

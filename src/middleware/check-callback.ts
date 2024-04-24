@@ -9,16 +9,16 @@ export function checkCallBacks() {
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
 
-    console.log(query);
+    console.log(query, 'query from call back');
 
     switch (true) {
       case query.startsWith('show_all_questions'): {
         const [_, round] = query.split(':');
-        return PostController.listAllQuestions(ctx, round);
+        return PostController.listAllPosts(ctx, round);
       }
-      case query.startsWith('question_detail'): {
-        const [_, questionId] = query.split(':');
-        return PostController.getQuestionDetail(ctx, questionId);
+      case query.startsWith('post_detail'): {
+        const [_, postId] = query.split(':');
+        return PostController.getPostnDetail(ctx, postId);
       }
 
       case query.startsWith('answer'):
@@ -46,10 +46,11 @@ export function checkMenuOptions() {
 }
 
 export function checkQueries(ctx: any, query: string, next: any) {
+  console.log(query, 'query from string');
   switch (true) {
-    case query.startsWith('all_questions'): {
-      const [_, _s, searachText, round] = query.split(':');
-      return PostController.listAllQuestions(ctx, parseInt(round));
+    case query.startsWith('searchedPosts'): {
+      const [_, searachText, round] = query.split('_');
+      return PostController.listAllPosts(ctx, parseInt(round), searachText);
     }
     case query.startsWith('answer'): {
       return PostController.handleAnswerQuery(ctx, query);

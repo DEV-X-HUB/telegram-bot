@@ -1,17 +1,20 @@
 import { Scenes } from 'telegraf';
-import QuestionPostSectionBController from './section-2.controller';
+import PostSection2Controller from './section-2.controller';
 
-const questionPostSectionBController = new QuestionPostSectionBController();
-const QuestionPostSection2Scene = new Scenes.WizardScene(
+const postSection2Controller = new PostSection2Controller();
+const PostSection2Scene = new Scenes.WizardScene(
   'Post-Section-2',
-  questionPostSectionBController.start,
-  questionPostSectionBController.chooseType,
-  questionPostSectionBController.enterTitle,
-  questionPostSectionBController.enterDescription,
-  questionPostSectionBController.attachPhoto,
-  questionPostSectionBController.editPost,
-  questionPostSectionBController.editData,
-  questionPostSectionBController.editPhoto,
+  postSection2Controller.start,
+  postSection2Controller.chooseType,
+  postSection2Controller.enterTitle,
+  postSection2Controller.enterDescription,
+  postSection2Controller.attachPhoto,
+  postSection2Controller.preview,
+  postSection2Controller.editData,
+  postSection2Controller.editPhoto,
+  postSection2Controller.postReview,
+  postSection2Controller.adjustNotifySetting,
+  postSection2Controller.mentionPreviousPost,
 );
 
-export default QuestionPostSection2Scene;
+export default PostSection2Scene;

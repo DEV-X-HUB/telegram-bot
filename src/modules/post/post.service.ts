@@ -1,17 +1,20 @@
 import prisma from '../../loaders/db-connecion';
 import { v4 as UUID } from 'uuid';
+
 import {
   CreateCategoryPostDto,
   CreatePostDto,
   CreatePostService1ADto,
   CreatePostService1BDto,
   CreatePostService1CDto,
+  CreatePostService2Dto,
   CreatePostService3Dto,
   CreatePostService4ChickenFarmDto,
   CreatePostService4ConstructionDto,
   CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
+import config from '../../config/config';
 
 class PostService {
   constructor() {}
@@ -153,6 +156,17 @@ class PostService {
           });
           break;
         }
+        case 'Section 2': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService2Dto;
+          post = await prisma.service2.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
 
         case 'Section 3': {
           const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
@@ -222,6 +236,7 @@ class PostService {
       await prisma.post.delete({ where: { id: postId } });
       return true;
     } catch (error) {
+      console.log(error);
       return false;
     }
     // try {
@@ -322,7 +337,9 @@ class PostService {
     }
   }
 
-  async geAlltPosts() {
+  async geAlltPosts(round: number) {
+    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
+    const postCount = await prisma.post.count();
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -333,7 +350,9 @@ class PostService {
           },
         },
         include: {
-          user: true,
+          user: {
+            select: { id: true, display_name: true },
+          },
           Service1A: true,
           Service1B: true,
           Service1C: true,
@@ -343,14 +362,60 @@ class PostService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
+        skip,
+        take: parseInt(config.number_of_result || '5'),
       });
       return {
         success: true,
         posts: posts,
+        nextRound: posts.length == postCount ? round : round + 1,
+        total: postCount,
       };
     } catch (error) {
       console.error('Error searching questions:', error);
-      return { success: true, posts: [] };
+      return { success: true, posts: [], nextRound: round, total: 0 };
+    }
+  }
+  async geAlltPostsByDescription(searchText: string, round: number) {
+    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
+    try {
+      const postCount = await prisma.post.count();
+      const posts = await prisma.post.findMany({
+        where: {
+          description: {
+            contains: searchText,
+          },
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+        skip,
+        take: parseInt(config.number_of_result || '5'),
+      });
+      return {
+        success: true,
+        posts: posts,
+        nextRound: posts.length == postCount ? round : round + 1,
+        total: postCount,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
   async getPostById(questionId: string) {

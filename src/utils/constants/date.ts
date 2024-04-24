@@ -41,12 +41,3 @@ export const parseDateString = (dateString: string) => {
   const date = new Date(year, month, day);
   return date;
 };
-
-// Example usage:
-const dateString = '12/12/21';
-const date = parseDateString(dateString);
-if (date !== null) {
-  console.log(date); // Output: Sun Dec 12 2021 00:00:00 GMT+0000 (Coordinated Universal Time)
-} else {
-  console.log('Invalid date string');
-}
