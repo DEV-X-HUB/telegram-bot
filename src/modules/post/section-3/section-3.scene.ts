@@ -12,6 +12,9 @@ const Section3Scene = new Scenes.WizardScene(
   section3Controller.preview,
   section3Controller.editData,
   section3Controller.editPhoto,
+  section3Controller.postReview,
+  section3Controller.adjustNotifySetting,
+  section3Controller.mentionPreviousPost,
 );
 
 export default Section3Scene;
