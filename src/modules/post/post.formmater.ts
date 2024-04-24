@@ -13,10 +13,12 @@ import Section4Formatter from './section-4/section-4.formatter';
 import ManufactureFormatter from './section-4/manufacture/manufacture.formatter';
 import ChickenFarmFormatter from './section-4/chicken-farm/chicken-farm.formatter';
 import ConstructionFormatter from './section-4/construction/construction.formatter';
+import Post2Formatter from './section-2/section-2.formatter';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
 const post1CFormatter = new Post1CFormatter();
+const post2Formatter = new Post2Formatter();
 
 const manufactureFormatter = new ManufactureFormatter();
 const chickenFarmFormatter = new ChickenFarmFormatter();
@@ -43,7 +45,7 @@ class PostFormatter {
   seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
       text: `${questionsNumber} Questions: Show All`,
-      start_parameter: `all_questions_${searchString}_${questionsNumber}`,
+      start_parameter: `searchedPosts_${searchString}_${1}`,
     };
   }
 
@@ -112,10 +114,14 @@ class PostFormatter {
       },
     ];
   }
-  displayAllPromptFomatter = (questionsNumber: number, searchString: string) => {
+
+  nextRoundSeachedPostsPrompDisplay = (round: number, totalCount: number, searchString?: string) => {
+    const resultPerPage = parseInt(config.number_of_result || '5');
     return [
-      `Found ${questionsNumber} Questions matching word "${searchString}"\n${this.messages.allQuestionsMsg}`,
-      InlineKeyboardButtons([[{ text: 'Show All Question', cbString: 'show_all_questions:1' }]]),
+      `Showed ${round * resultPerPage} of ${totalCount} `,
+      searchString
+        ? InlineKeyboardButtons([[{ text: 'Show More', cbString: `searchedPosts_${searchString}_${round}` }]])
+        : InlineKeyboardButtons([[{ text: 'Show More', cbString: `showAllPosts$_${round}` }]]),
     ];
   };
   formatSingleQuestion(question: any, forAnswer?: boolean) {
@@ -131,8 +137,8 @@ class PostFormatter {
       }
     }
   }
-  formatQuestionDetail(question: any, forAnswer?: boolean) {
-    return [this.getformattedQuestionDetail(question)];
+  formatQuestionDetail(post: any, forAnswer?: boolean) {
+    return [this.getformattedQuestionDetail(post)];
   }
   formatAnswerPreview(answer: string, sender: User) {
     return [
@@ -142,7 +148,6 @@ class PostFormatter {
   }
 
   getformattedQuestionDetail(post: any) {
-    console.log(post.category);
     const sectionName = getSectionName(post.category) as PostCategory;
     switch (post.category) {
       case 'Section 1A':
@@ -165,6 +170,15 @@ class PostFormatter {
         });
       case 'Section 1C':
         return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 2':
+        return post2Formatter.getPreviewData({
           description: post.description,
           status: post.status,
           category: post.category,
