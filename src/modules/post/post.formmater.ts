@@ -45,7 +45,7 @@ class PostFormatter {
   seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
       text: `${questionsNumber} Questions: Show All`,
-      start_parameter: `searchedQuestions_${searchString}_${questionsNumber}`,
+      start_parameter: `searchedPosts_${searchString}_${1}`,
     };
   }
 
@@ -115,6 +115,15 @@ class PostFormatter {
     ];
   }
 
+  nextRoundSeachedPostsPrompDisplay = (round: number, totalCount: number, searchString?: string) => {
+    const resultPerPage = parseInt(config.number_of_result || '5');
+    return [
+      `Showed ${round * resultPerPage} of ${totalCount} `,
+      searchString
+        ? InlineKeyboardButtons([[{ text: 'Show More', cbString: `searchedPosts_${searchString}_${round}` }]])
+        : InlineKeyboardButtons([[{ text: 'Show More', cbString: `showAllPosts$_${round}` }]]),
+    ];
+  };
   formatSingleQuestion(question: any, forAnswer?: boolean) {
     return [
       `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,
@@ -128,8 +137,8 @@ class PostFormatter {
       }
     }
   }
-  formatQuestionDetail(question: any, forAnswer?: boolean) {
-    return [this.getformattedQuestionDetail(question)];
+  formatQuestionDetail(post: any, forAnswer?: boolean) {
+    return [this.getformattedQuestionDetail(post)];
   }
   formatAnswerPreview(answer: string, sender: User) {
     return [
@@ -139,7 +148,6 @@ class PostFormatter {
   }
 
   getformattedQuestionDetail(post: any) {
-    console.log(post.category);
     const sectionName = getSectionName(post.category) as PostCategory;
     switch (post.category) {
       case 'Section 1A':

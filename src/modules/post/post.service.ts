@@ -1,5 +1,6 @@
 import prisma from '../../loaders/db-connecion';
 import { v4 as UUID } from 'uuid';
+
 import {
   CreateCategoryPostDto,
   CreatePostDto,
@@ -12,6 +13,7 @@ import {
   CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
+import config from '../../config/config';
 
 class PostService {
   constructor() {}
@@ -321,7 +323,9 @@ class PostService {
     }
   }
 
-  async geAlltPosts() {
+  async geAlltPosts(round: number) {
+    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
+    const postCount = await prisma.post.count();
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -344,18 +348,24 @@ class PostService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
+        skip,
+        take: parseInt(config.number_of_result || '5'),
       });
       return {
         success: true,
         posts: posts,
+        nextRound: posts.length == postCount ? round : round + 1,
+        total: postCount,
       };
     } catch (error) {
       console.error('Error searching questions:', error);
-      return { success: true, posts: [] };
+      return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
-  async geAlltPostsByDescription(searchText: string) {
+  async geAlltPostsByDescription(searchText: string, round: number) {
+    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
     try {
+      const postCount = await prisma.post.count();
       const posts = await prisma.post.findMany({
         where: {
           description: {
@@ -380,14 +390,18 @@ class PostService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
+        skip,
+        take: parseInt(config.number_of_result || '5'),
       });
       return {
         success: true,
         posts: posts,
+        nextRound: posts.length == postCount ? round : round + 1,
+        total: postCount,
       };
     } catch (error) {
       console.error('Error searching questions:', error);
-      return { success: true, posts: [] };
+      return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
   async getPostById(questionId: string) {

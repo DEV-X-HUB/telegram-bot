@@ -1,5 +1,5 @@
 import { PostCategory } from '../../types/params';
-import { deleteMessageWithCallback, findSender } from '../../utils/constants/chat';
+import { deleteMessageWithCallback, findSender, sendMediaGroup } from '../../utils/constants/chat';
 import { areEqaul, getSectionName } from '../../utils/constants/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
@@ -188,14 +188,14 @@ class QuestionController {
     console.log(query);
   }
 
-  static async listAllQuestions(ctx: any, round: number = 1, searchString?: string) {
-    const { success, posts } = searchString
-      ? await questionService.geAlltPostsByDescription(searchString)
-      : await questionService.geAlltPosts();
-    console.log(posts);
+  static async listAllPosts(ctx: any, round: number = 1, searchString?: string) {
+    const { success, posts, nextRound, total } = searchString
+      ? await questionService.geAlltPostsByDescription(searchString, round)
+      : await questionService.geAlltPosts(round);
     if (!success) return ctx.reply('error while');
     for (const post of posts as any[]) {
       const sectionName = getSectionName(post.category) as PostCategory;
+
       if (post[sectionName].photo && post[sectionName].photo[0])
         await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
           caption: questionFormmatter.getformattedQuestionDetail(post),
@@ -212,23 +212,24 @@ class QuestionController {
         },
       });
     }
+    if (nextRound != round) {
+      await ctx.reply(...questionFormmatter.nextRoundSeachedPostsPrompDisplay(round, total, searchString));
+    }
   }
-  static async getQuestionDetail(ctx: any, postId: string) {
+  static async getPostnDetail(ctx: any, postId: string) {
     const { success, post } = await questionService.getPostById(postId);
     if (!success || !post) return ctx.reply('error while');
+    const sectionName = getSectionName(post.category) as PostCategory;
 
-    // const mediaGroup = question.photo.map((image: any) => ({
-    //   media: image,
-    //   type: 'photo',
-    //   caption: 'Images uploaded with the Question',
-    // }));
+    if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+      sendMediaGroup(ctx, (post as any)[sectionName].photo, 'Images Uploaded with post');
+    }
 
-    // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-    await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(post));
+    return await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(post));
   }
 
   static async searchByTitle() {
-    const { success, posts } = await questionService.geAlltPosts();
+    const { success, posts } = await questionService.geAlltPosts(1);
   }
 }
 
