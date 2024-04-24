@@ -8,6 +8,7 @@ import {
   CreatePostService1BDto,
   CreatePostService1CDto,
   CreatePostService2Dto,
+  CreatePostService3Dto,
   CreatePostService4ChickenFarmDto,
   CreatePostService4ConstructionDto,
   CreatePostService4ManufactureDto,
@@ -166,6 +167,19 @@ class PostService {
           });
           break;
         }
+
+        case 'Section 3': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService3Dto;
+          post = await prisma.service3.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
+
         case 'Chicken Farm': {
           const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService4ChickenFarmDto;

@@ -64,6 +64,17 @@ export interface CreatePostService1CDto {
   previous_post_id?: string;
 }
 
+export interface CreatePostService3Dto {
+  birth_or_marital: string;
+  title: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+  previous_post_id?: string;
+}
+
 export interface CreatePostService4ManufactureDto {
   sector: string;
   number_of_workers: number;
@@ -120,4 +131,5 @@ export type CreateCategoryPostDto =
   | CreatePostService4ChickenFarmDto
   | CreatePostService4ManufactureDto
   | CreatePostService4ConstructionDto
+  | CreatePostService3Dto
   | CreatePostService2Dto;
