@@ -33,7 +33,7 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'dont_agree_terms': {
-          return ctx.reply(...registrationFormatter.messages.termsAndConditionsDisagreeWarning);
+          return ctx.reply(registrationFormatter.messages.termsAndConditionsDisagreeWarning);
         }
         case 'back_from_terms': {
           await deleteMessageWithCallback(ctx);
