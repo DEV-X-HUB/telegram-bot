@@ -9,7 +9,7 @@ export function checkCallBacks() {
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
 
-    console.log(query);
+    console.log(query, 'query from call back');
 
     switch (true) {
       case query.startsWith('show_all_questions'): {
@@ -46,10 +46,11 @@ export function checkMenuOptions() {
 }
 
 export function checkQueries(ctx: any, query: string, next: any) {
+  console.log(query, 'query from string');
   switch (true) {
-    case query.startsWith('all_questions'): {
-      const [_, _s, searachText, round] = query.split(':');
-      return PostController.listAllQuestions(ctx, parseInt(round));
+    case query.startsWith('searchedQuestions'): {
+      const [_, searachText, round] = query.split('_');
+      return PostController.listAllQuestions(ctx, parseInt(round), searachText);
     }
     case query.startsWith('answer'): {
       return PostController.handleAnswerQuery(ctx, query);

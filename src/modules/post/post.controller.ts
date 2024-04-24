@@ -188,16 +188,14 @@ class QuestionController {
     console.log(query);
   }
 
-  static async listAllQuestions(ctx: any, round: number = 1) {
-    const { success, posts } = await questionService.geAlltPosts();
+  static async listAllQuestions(ctx: any, round: number = 1, searchString?: string) {
+    const { success, posts } = searchString
+      ? await questionService.geAlltPostsByDescription(searchString)
+      : await questionService.geAlltPosts();
+    console.log(posts);
     if (!success) return ctx.reply('error while');
-    console.log(posts.length, 'll');
-    // return;
-
     for (const post of posts as any[]) {
       const sectionName = getSectionName(post.category) as PostCategory;
-      console.log(sectionName);
-
       if (post[sectionName].photo && post[sectionName].photo[0])
         await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
           caption: questionFormmatter.getformattedQuestionDetail(post),
@@ -206,6 +204,7 @@ class QuestionController {
             inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
           },
         });
+
       await ctx.replyWithHTML(questionFormmatter.getformattedQuestionDetail(post), {
         parse_mode: 'HTML',
         reply_markup: {
@@ -227,11 +226,7 @@ class QuestionController {
     // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
     await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(post));
   }
-  static displayAllPromptFomatter = (ctx: any, questionsNumber: any, searchString: string) => {
-    return ctx.reply(...questionFormmatter.displayAllPromptFomatter(questionsNumber, searchString), {
-      parse_mode: 'HTML',
-    });
-  };
+
   static async searchByTitle() {
     const { success, posts } = await questionService.geAlltPosts();
   }

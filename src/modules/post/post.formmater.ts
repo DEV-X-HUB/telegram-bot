@@ -45,7 +45,7 @@ class PostFormatter {
   seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
       text: `${questionsNumber} Questions: Show All`,
-      start_parameter: `all_questions_${searchString}_${questionsNumber}`,
+      start_parameter: `searchedQuestions_${searchString}_${questionsNumber}`,
     };
   }
 
@@ -114,12 +114,7 @@ class PostFormatter {
       },
     ];
   }
-  displayAllPromptFomatter = (questionsNumber: number, searchString: string) => {
-    return [
-      `Found ${questionsNumber} Questions matching word "${searchString}"\n${this.messages.allQuestionsMsg}`,
-      InlineKeyboardButtons([[{ text: 'Show All Question', cbString: 'show_all_questions:1' }]]),
-    ];
-  };
+
   formatSingleQuestion(question: any, forAnswer?: boolean) {
     return [
       `#${question.category}\n\n${question.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name}</a>\n${formatDateFromIsoString(question.created_at)}`,

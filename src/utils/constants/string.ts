@@ -45,8 +45,8 @@ export const getSectionName = (category: string) => {
       return 'Service1C';
     case 'Section 1A':
       return 'Service1A';
-    case 'Section 1A':
-      return 'Service1A';
+    case 'Section 2':
+      return 'Service2';
 
     case 'Chicken Farm':
       return 'Service4ChickenFarm';

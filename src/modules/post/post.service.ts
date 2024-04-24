@@ -332,7 +332,45 @@ class PostService {
           },
         },
         include: {
-          user: true,
+          user: {
+            select: { id: true, display_name: true },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        posts: posts,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [] };
+    }
+  }
+  async geAlltPostsByDescription(searchText: string) {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          description: {
+            contains: searchText,
+          },
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
           Service1A: true,
           Service1B: true,
           Service1C: true,
