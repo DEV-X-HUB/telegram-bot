@@ -17,13 +17,14 @@ export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
+  bot.use(checkUserInChannelandPromtJoin());
+
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene]);
 
   stage.use(checkAndRedirectToScene());
 
   bot.use(checkCallBacks());
   bot.use(session());
-  bot.use(checkUserInChannelandPromtJoin());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
   bot.use(checkMenuOptions());
