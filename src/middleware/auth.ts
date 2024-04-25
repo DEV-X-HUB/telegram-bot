@@ -29,10 +29,10 @@ export function checkUserInChannelandPromtJoin() {
     const sender = findSender(ctx);
     const isUserJoined = await checkUserInChannel(sender.id);
     if (isUserJoined) {
+      return next();
     } else {
       return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
     }
-    return next();
   };
 }
 

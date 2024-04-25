@@ -38,6 +38,7 @@ class ProfileFormatter {
     [{ text: 'Post Notify Setting', cbString: `notify_setting` }],
     [{ text: 'Back', cbString: `back` }],
   ];
+  clearDisplayNameButton = [[{ text: 'Or Be Anonymous', cbString: `clear_display_name` }]];
 
   messages = {
     notifyOptionPrompt: 'Select who can be notified this question',
@@ -62,6 +63,7 @@ class ProfileFormatter {
     postFetchError: 'Unable to fetch your posts',
     noPostMsg: 'Your have not posted any thing yet !',
     updateNotifyOptionError: 'Unable to change notify setting!',
+    displayNameTakenMsg: 'The name is reserved!, Please try another.',
   };
   constructor() {
     this.countries = getSelectedCoutryList();
@@ -116,16 +118,16 @@ class ProfileFormatter {
   }
 
   formatePreview(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers} Followers | ${userData.followings} Followings\n`;
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : ' 👧'}`}   | ${userData.followers} Followers | ${userData.followings} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Posted ${userData.posts} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Posted ${userData.posts} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? ' 👨‍🦱' : ' 👧'}`}  | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Asked ${userData.posts.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Asked ${userData.posts.length} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
@@ -142,9 +144,10 @@ class ProfileFormatter {
     ];
   }
 
-  editPrompt(editFiled: string, gender: string) {
+  editPrompt(editFiled: string, gender: string, display_name?: string) {
     switch (editFiled) {
-      case 'name':
+      case 'display_name':
+        if (display_name) return [this.messages.namePrompt, InlineKeyboardButtons(this.clearDisplayNameButton)];
         return [this.messages.namePrompt];
       case 'bio':
         return [this.messages.bioPrompt];

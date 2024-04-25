@@ -377,10 +377,20 @@ class PostService {
     }
   }
   async geAlltPostsByDescription(searchText: string, round: number) {
-    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
+    const postPerRound = parseInt(config.number_of_result || '5');
+    const skip = (round - 1) * postPerRound;
+
     try {
-      const postCount = await prisma.post.count();
+      const postCount = await prisma.post.count({
+        where: {
+          description: {
+            contains: searchText,
+          },
+        },
+      });
       const posts = await prisma.post.findMany({
+        skip: skip,
+        take: postPerRound,
         where: {
           description: {
             contains: searchText,
@@ -404,8 +414,6 @@ class PostService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
-        skip,
-        take: parseInt(config.number_of_result || '5'),
       });
       return {
         success: true,

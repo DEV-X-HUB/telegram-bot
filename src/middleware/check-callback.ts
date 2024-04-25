@@ -12,7 +12,7 @@ export function checkCallBacks() {
     console.log(query, 'query from call back');
 
     switch (true) {
-      case query.startsWith('show_all_questions'): {
+      case query.startsWith('searchedPosts'): {
         const [_, round] = query.split(':');
         return PostController.listAllPosts(ctx, round);
       }
