@@ -31,9 +31,12 @@ class ProfileController {
 
   async preview(ctx: any) {
     const sender = findSender(ctx);
+
     const userData = await profileService.getProfileDataWithTgId(sender.id);
     this.saveToState(ctx, userData);
     ctx.wizard.state.activity = 'preview';
+
+    await deleteKeyboardMarkup(ctx, profileFormatter.formatePreview(ctx.wizard.state.userData));
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
   async previewHandler(ctx: any) {
@@ -153,39 +156,27 @@ class ProfileController {
     if (areEqaul(callbackQuery.data, 'back', true)) return this.preview(ctx);
     ctx.wizard.state.activity = 'profile_edit_editing';
     ctx.wizard.state.editField = callbackQuery.data;
-    return ctx.reply(
-      ...profileFormatter.editPrompt(
-        callbackQuery.data,
-        ctx.wizard.state.userData.gender,
-        ctx.wizard.state.userData.display_name,
-      ),
-    );
+    return ctx.reply(...profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender));
   }
   async editProfileEditField(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     const message = ctx.message;
     const state = ctx.wizard.state;
     if (callbackQuery) {
-      if (callbackQuery.data == 'clear_display_name') {
-        state.userData.display_name = null;
-        const newData = await profileService.updateProfile(state.userData.id, {
-          bio: state.userData.bio,
-          gender: state.userData.gender,
-          display_name: state.userData.display_name,
-        });
-        deleteMessageWithCallback(ctx);
-        this.saveToState(ctx, newData);
-      } else {
-        state.userData.gender = callbackQuery.data;
-        const newData = await profileService.updateProfile(state.userData.id, {
-          bio: state.userData.bio,
-          gender: state.userData.gender,
-          display_name: state.userData.display_name,
-        });
-        deleteMessageWithCallback(ctx);
-        this.saveToState(ctx, newData);
-        ctx.wizard.state.activity = 'preview';
-      }
+      state.userData.gender = callbackQuery.data;
+      const newData = await profileService.updateProfile(state.userData.id, {
+        bio: state.userData.bio,
+        gender: state.userData.gender,
+        display_name: state.userData.display_name,
+      });
+      deleteMessageWithCallback(ctx);
+      this.saveToState(ctx, newData);
+      ctx.wizard.state.activity = 'preview';
+
+      return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    }
+
+    if (areEqaul(message.text, 'back', true)) {
       return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
     }
     if (state.editField == 'display_name') {

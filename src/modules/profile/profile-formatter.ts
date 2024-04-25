@@ -28,6 +28,7 @@ class ProfileFormatter {
       { text: 'Back', cbString: `back` },
     ],
   ];
+  backButtonCallback = [[{ text: 'Back', cbString: `back` }]];
   editOptionsButtons = [
     [{ text: ' Edit Name', cbString: `display_name` }],
     [{ text: 'Edit Bio', cbString: `bio` }],
@@ -144,17 +145,16 @@ class ProfileFormatter {
     ];
   }
 
-  editPrompt(editFiled: string, gender: string, display_name?: string) {
+  editPrompt(editFiled: string, gender: string) {
     switch (editFiled) {
       case 'display_name':
-        if (display_name) return [this.messages.namePrompt, InlineKeyboardButtons(this.clearDisplayNameButton)];
-        return [this.messages.namePrompt];
+        return [this.messages.namePrompt, this.goBackButton()];
       case 'bio':
-        return [this.messages.bioPrompt];
+        return [this.messages.bioPrompt, this.goBackButton()];
       case 'gender':
         return [this.messages.genderPrompt, InlineKeyboardButtons(this.genderOpton(gender))];
       default:
-        return [this.messages.namePrompt];
+        return [this.messages.namePrompt, this.goBackButton()];
     }
   }
 

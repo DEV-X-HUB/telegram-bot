@@ -16,6 +16,7 @@ export const deleteKeyboardMarkup = async (ctx: any, message?: string) => {
       remove_keyboard: true,
     },
   };
+  console.log(message);
   const text = '\u200C' + '.' + '\u200C';
   await ctx.reply(message || text, messageOptions);
   await deleteMessage(ctx, {
