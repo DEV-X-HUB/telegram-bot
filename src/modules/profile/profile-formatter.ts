@@ -116,16 +116,16 @@ class ProfileFormatter {
   }
 
   formatePreview(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers} Followers | ${userData.followings} Followings\n`;
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}   | ${userData.followers} Followers | ${userData.followings} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Posted ${userData.posts} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Posted ${userData.posts} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Asked ${userData.posts.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Asked ${userData.posts.length} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
