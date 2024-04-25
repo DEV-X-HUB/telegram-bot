@@ -1,4 +1,4 @@
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/constants/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
 import { calculateAge } from '../../utils/constants/date';
 import config from '../../config/config';
@@ -9,6 +9,7 @@ import { areEqaul } from '../../utils/constants/string';
 import RegistrationFormatter from './registration-formatter';
 import RegistrationService from './restgration.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
+import CreateUserDto from '../../types/dto/create-user.dto';
 const registrationService = new RegistrationService();
 const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {
@@ -56,16 +57,19 @@ class RegistrationController {
   }
 
   async shareContact(ctx: any) {
-    console.log('ccccccccccccccccc', ctx.message.from);
     const contact = ctx?.message?.contact;
     const text = ctx.message.text;
+    const chat_id = ctx.message.chat.id;
     const username = ctx.message.from.username;
 
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.wizard.state.phone_number = contact.phone_number;
-      if (username) ctx.wizard.state.username = `https://t.me/${username}`;
+      if (username) {
+        ctx.wizard.state.username = `https://t.me/${username}`;
+        ctx.wizard.state.chat_id = chat_id;
+      }
       ctx.reply(...registrationFormatter.firstNameformatter());
       return ctx.wizard.next();
     } else return ctx.reply(...registrationFormatter.shareContactWarning());
@@ -207,6 +211,7 @@ class RegistrationController {
 
   async editRegister(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    const sender = findSender(ctx);
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
@@ -224,7 +229,22 @@ class RegistrationController {
           return ctx.wizard.next();
         }
         case 'register_data': {
-          const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
+          const createUserDto: CreateUserDto = {
+            tg_id: sender.id,
+            username: state.username,
+            first_name: state.first_name,
+            last_name: state.last_name,
+            phone_number: state.phone_number,
+            email: state.email,
+            country: state.country,
+            city: state.city,
+            gender: state.gender,
+            age: parseInt(state.age),
+            chat_id: state.chat_id,
+            display_name: null,
+          };
+
+          const response = await registrationService.registerUser(createUserDto);
 
           if (response.success) {
             await deleteMessageWithCallback(ctx);
@@ -279,25 +299,10 @@ class RegistrationController {
     };
     const callbackMessage = callbackQuery.data;
 
-    if (callbackMessage == 'register_data') {
-      // registration
-      const response = await registrationService.registerUser(ctx.wizard.state, callbackQuery.from.id);
-
-      if (response.success) {
-        await deleteMessageWithCallback(ctx);
-        ctx.reply(...registrationFormatter.registrationSuccess());
-        ctx.scene.leave();
-            return MainMenuController.onStart(ctx);
-      }
-
-      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
-      ctx.reply(...registrationFormatter.registrationError());
-      if (registrationAttempt >= 2) {
-        await deleteMessageWithCallback(ctx);
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
-      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
+    if (callbackMessage == 'editing_done') {
+      await deleteMessageWithCallback(ctx);
+      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return MainMenuController.onStart(ctx);
     }
     if (areEqaul(callbackMessage, 'back', true)) {
       deleteMessageWithCallback(ctx);

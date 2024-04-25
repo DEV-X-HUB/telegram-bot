@@ -20,26 +20,43 @@ enum NotifyOption {
   friend
 }
 
+
+
 model User {
-  id           String  @id @default(uuid()) // UUID type for user_id
-  username     String?  @unique
-  first_name   String // Required first name
-  last_name    String // Required last name
-  age          Int // Required age
-  phone_number String  @unique // Unique phone number
-  tg_id        String  @unique // Unique tg_id
-  email        String? // Optional email
-  country      String? // Optional country
-  city         String? // Optional city
-  gender       String? // Optional gender
-  display_name String? // Optional display name
-  bio          String? // Optional bio
+  id            String  @id @default(uuid()) // UUID type for user_id
+  username      String?  @unique
+  first_name    String // Required first name
+  last_name     String // Required last name
+  age           Int // Required age
+  phone_number  String  @unique // Unique phone number
+  tg_id         String  @unique // Unique tg_id
+  email         String? // Optional email
+  country       String? // Optional country
+  city          String? // Optional city
+  gender        String? // Optional gender
+  display_name  String? // Optional display name
+  bio           String? // Optional bio
   notify_option NotifyOption   @default(none)
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
   posts      Post[]
   created_at  DateTime   @default(now())
+
+  chat_id            String // Optional bio
+  sender_messages    Message[] @relation("MessageSender")
+  receiver_messages  Message[] @relation("MessageReceiver")
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  sender_id   String
+  receiver_id String
+  content    String
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("MessageSender", fields: [sender_id], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiver_id], references: [id])
 }
 
 model Follows {
@@ -50,6 +67,7 @@ model Follows {
   following    User   @relation("Following", fields: [following_id], references: [id])
   @@unique([follower_id, following_id])
 }
+
 
 
 model Post {

@@ -149,24 +149,10 @@ class ProfileService {
     }
   }
 
-  async registerUser(state: any, tgId: string) {
+  async registerUser(createUserDto: CreateUserDto) {
     try {
-      const doesUserExist = await this.isUserRegisteredWithPhone(state.phone_number);
+      const doesUserExist = await this.isUserRegisteredWithPhone(createUserDto.phone_number);
       if (doesUserExist) return { success: false, message: 'user exists', data: null };
-
-      const createUserDto: CreateUserDto = {
-        tg_id: tgId.toString(),
-        username: state.username,
-        first_name: state.first_name,
-        last_name: state.last_name,
-        phone_number: state.phone_number,
-        email: state.email,
-        country: state.country,
-        city: state.city,
-        gender: state.gender,
-        age: parseInt(state.age),
-        display_name: null,
-      };
 
       const createUserResult = await this.createUser(createUserDto);
       return createUserResult;
@@ -251,6 +237,78 @@ class ProfileService {
     } catch (error) {
       console.error('Error checking if user is following:', error);
       return { status: 'fail', message: `unable to make operation`, isDisplayNameTaken: false };
+    }
+  }
+
+  static async fetchReceivedMessage(user_id: string) {
+    try {
+      const messages = await prisma.message.findMany({
+        where: {
+          receiver_id: user_id,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+        },
+      });
+
+      return { status: 'success', messages };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, messages: [] };
+    }
+  }
+  static async fetchSendMessage(user_id: string) {
+    try {
+      const messages = await prisma.message.findMany({
+        where: {
+          sender_id: user_id,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+        },
+      });
+
+      return { status: 'success', messages };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, messages: [] };
+    }
+  }
+  static async createMessage(user_id: string, receiver_id: string, message: string) {
+    try {
+      const newUser = await prisma.message.create({
+        data: { id: UID(), content: message, sender_id: user_id, receiver_id },
+      });
+      return { success: true, data: newUser, message: 'user created' };
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, data: null, message: error?.message };
     }
   }
 }
