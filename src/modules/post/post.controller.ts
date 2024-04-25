@@ -204,13 +204,13 @@ class QuestionController {
             inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
           },
         });
-
-      await ctx.replyWithHTML(questionFormmatter.getformattedQuestionDetail(post), {
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
-        },
-      });
+      else
+        await ctx.replyWithHTML(questionFormmatter.getformattedQuestionDetail(post), {
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
+          },
+        });
     }
     if (nextRound != round) {
       await ctx.reply(...questionFormmatter.nextRoundSeachedPostsPrompDisplay(round, total, searchString));

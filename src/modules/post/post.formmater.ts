@@ -122,8 +122,8 @@ class PostFormatter {
     return [
       `Showed ${round * resultPerPage} of ${totalCount} `,
       searchString
-        ? InlineKeyboardButtons([[{ text: 'Show More', cbString: `searchedPosts_${searchString}_${round}` }]])
-        : InlineKeyboardButtons([[{ text: 'Show More', cbString: `showAllPosts$_${round}` }]]),
+        ? InlineKeyboardButtons([[{ text: 'Show More', cbString: `searchedPosts_${searchString}_${round + 1}` }]])
+        : InlineKeyboardButtons([[{ text: 'Show More', cbString: `showAllPosts_${round + 1}` }]]),
     ];
   };
   formatSingleQuestion(question: any, forAnswer?: boolean) {
