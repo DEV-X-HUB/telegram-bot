@@ -13,7 +13,7 @@ import { formatDateFromIsoString } from '../../utils/constants/date';
 import config from '../../config/config';
 import { NotifyOption } from '../../types/params';
 
-class ProfileFormatter {
+class ChatFormatter {
   countries: any[] = [];
   countryCodes: any[] = ['et'];
   previewButtons = [
@@ -432,4 +432,4 @@ class ProfileFormatter {
   }
 }
 
-export default ProfileFormatter;
+export default ChatFormatter;

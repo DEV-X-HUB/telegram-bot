@@ -21,12 +21,6 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
-    const chatId = ctx.message.chat.id;
-
-    const r = await sendMessage(ctx, chatId, ' 💬 new message \n **From: Natty** \n\nmessage: my message \n\n now');
-    console.log(r);
-
-    return;
     if (!text) return next();
 
     if (!text) return next();

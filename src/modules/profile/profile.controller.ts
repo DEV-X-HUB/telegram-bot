@@ -128,7 +128,15 @@ class ProfileController {
     const userData = await profileService.getProfileDataWithId(userId);
     if (userData)
       return ctx.editMessageReplyMarkup({
-        inline_keyboard: [[{ text: 'Unfollow', callback_data: `unfollow_${userData.id}` }]],
+        inline_keyboard: [
+          [{ text: 'Unfollow', callback_data: `unfollow_${userData.id}` }],
+          [
+            {
+              text: `💬 Message`,
+              cbString: `sendMessage_${userData.id}`,
+            },
+          ],
+        ],
       });
   }
   async handlUnfollow(ctx: any, query: string) {
@@ -144,7 +152,15 @@ class ProfileController {
 
     if (userData)
       return ctx.editMessageReplyMarkup({
-        inline_keyboard: [[{ text: 'Follow', callback_data: `follow1_${userData?.id}` }]],
+        inline_keyboard: [
+          [{ text: 'Follow', callback_data: `follow1_${userData?.id}` }],
+          [
+            {
+              text: `💬 Message`,
+              cbString: `sendMessage_${userData.id}`,
+            },
+          ],
+        ],
       });
   }
 
@@ -265,6 +281,34 @@ class ProfileController {
     return ctx.editMessageReplyMarkup({
       inline_keyboard: profileFormatter.notifyOptionDisplay(message),
     });
+  }
+
+  async sendMessage(ctx: any, receiver_id: string, message: string) {
+    const sender = findSender(ctx);
+    const userData = await profileService.getProfileDataWithTgId(sender.id);
+
+    if (userData?.display_name == null) {
+      ctx.wizard.state.activity = 'update_display_name';
+      return await ctx.reply(...profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender));
+    }
+  }
+  async replyToMessage(ctx: any, receiver_id: string, message: string) {
+    const sender = findSender(ctx);
+    const userData = await profileService.getProfileDataWithTgId(sender.id);
+
+    if (userData?.display_name == null) {
+      ctx.wizard.state.activity = 'update_display_name';
+      return await ctx.reply(...profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender));
+    }
+  }
+
+  async updateDisplayName(ctx: any) {
+    const message = ctx.message;
+    if (!message) return await ctx.reply('Enter string for name');
+    const { status, isDisplayNameTaken, message: errorMsg } = await profileService.isDisplayNameTaken(message.text);
+
+    if (status == 'fail') return ctx.reply(errorMsg);
+    if (isDisplayNameTaken) return ctx.reply(profileFormatter.messages.displayNameTakenMsg);
   }
 }
 

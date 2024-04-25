@@ -3,7 +3,6 @@ import ProfileController from './profile.controller';
 import ProfileFormatter from './profile-formatter';
 
 const profileController = new ProfileController();
-const profileFormatter = new ProfileFormatter();
 
 const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
   let tg_id;
