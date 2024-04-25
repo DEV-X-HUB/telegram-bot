@@ -153,23 +153,46 @@ class ProfileController {
     if (areEqaul(callbackQuery.data, 'back', true)) return this.preview(ctx);
     ctx.wizard.state.activity = 'profile_edit_editing';
     ctx.wizard.state.editField = callbackQuery.data;
-    return ctx.reply(...profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender));
+    return ctx.reply(
+      ...profileFormatter.editPrompt(
+        callbackQuery.data,
+        ctx.wizard.state.userData.gender,
+        ctx.wizard.state.userData.display_name,
+      ),
+    );
   }
   async editProfileEditField(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     const message = ctx.message;
     const state = ctx.wizard.state;
     if (callbackQuery) {
-      state.userData.gender = callbackQuery.data;
-      const newData = await profileService.updateProfile(state.userData.id, {
-        bio: state.userData.bio,
-        gender: state.userData.gender,
-        display_name: state.userData.display_name,
-      });
-      deleteMessageWithCallback(ctx);
-      this.saveToState(ctx, newData);
-      ctx.wizard.state.activity = 'preview';
+      if (callbackQuery.data == 'clear_display_name') {
+        state.userData.display_name = null;
+        const newData = await profileService.updateProfile(state.userData.id, {
+          bio: state.userData.bio,
+          gender: state.userData.gender,
+          display_name: state.userData.display_name,
+        });
+        deleteMessageWithCallback(ctx);
+        this.saveToState(ctx, newData);
+      } else {
+        state.userData.gender = callbackQuery.data;
+        const newData = await profileService.updateProfile(state.userData.id, {
+          bio: state.userData.bio,
+          gender: state.userData.gender,
+          display_name: state.userData.display_name,
+        });
+        deleteMessageWithCallback(ctx);
+        this.saveToState(ctx, newData);
+        ctx.wizard.state.activity = 'preview';
+      }
       return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    }
+    if (state.editField == 'display_name') {
+      const { status, isDisplayNameTaken, message: errorMsg } = await profileService.isDisplayNameTaken(message.text);
+
+      if (status == 'fail') return ctx.reply(errorMsg);
+      if (isDisplayNameTaken) return ctx.reply(profileFormatter.messages.displayNameTakenMsg);
     }
     state.userData[state.editField] = message.text;
     const newData = await profileService.updateProfile(state.userData.id, {

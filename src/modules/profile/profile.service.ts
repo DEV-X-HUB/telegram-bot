@@ -240,6 +240,19 @@ class ProfileService {
       return { status: 'fail', message: `unable to make operation`, isFollowing: false };
     }
   }
+  async isDisplayNameTaken(display_name: string) {
+    try {
+      const follow = await prisma.user.findFirst({
+        where: {
+          display_name,
+        },
+      });
+      return { status: 'success', isDisplayNameTaken: !!follow };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, isDisplayNameTaken: false };
+    }
+  }
 }
 
 export default ProfileService;
