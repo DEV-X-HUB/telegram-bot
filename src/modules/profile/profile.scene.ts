@@ -1,6 +1,7 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
 import ProfileController from './profile.controller';
 import ProfileFormatter from './profile-formatter';
+import { restartScene } from '../../middleware/check-command';
 
 const profileController = new ProfileController();
 
@@ -30,6 +31,8 @@ const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
       return profileController.changeNotifSetting(ctx);
   }
 });
+
+ProfileScene.use(restartScene('Profile'));
 
 export default ProfileScene;
 

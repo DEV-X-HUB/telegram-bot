@@ -34,11 +34,11 @@ export default () => {
 
   const commands = [
     { name: 'start', description: 'Start the bot' },
-    { name: 'search', description: 'Start the bot' },
-    { name: 'help', description: 'Display help' },
-    { name: 'menu', description: 'Display main menu' },
+    { name: 'register', description: 'Register to the bot' },
+    { name: 'search', description: 'search questions' },
     { name: 'register', description: 'Register to the bot' },
     { name: 'profile', description: 'View your profile' },
+    { name: 'restart', description: 'Restart the service' },
   ];
   setCommands(commands);
   dbConnecion;

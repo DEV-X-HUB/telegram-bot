@@ -36,7 +36,7 @@ class ProfileController {
     this.saveToState(ctx, userData);
     ctx.wizard.state.activity = 'preview';
 
-    await deleteKeyboardMarkup(ctx, profileFormatter.formatePreview(ctx.wizard.state.userData));
+    await deleteKeyboardMarkup(ctx);
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
   async previewHandler(ctx: any) {
@@ -195,7 +195,7 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
-    console.log(userData);
+
     const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
     deleteMessageWithCallback(ctx);
     return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));

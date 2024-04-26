@@ -175,7 +175,7 @@ class ProfileFormatter {
   formatePreviewByThirdParty(userData: any) {
     const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? ' 👨‍🦱' : ' 👧'}`}  | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Asked ${userData.posts.length} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Posted ${userData.posts.length} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
@@ -433,7 +433,6 @@ class ProfileFormatter {
     return [this.messages.settingPrompt, InlineKeyboardButtons(this.settingButtons)];
   }
   notifyOptionDisplay(notifyOption: NotifyOption, first?: boolean) {
-    console.log(notifyOption, 'notiy setting');
     return first
       ? [
           this.messages.notifyOptionPrompt,
