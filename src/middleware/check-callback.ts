@@ -63,6 +63,12 @@ export function checkQueries(ctx: any, query: string, next: any) {
     case query.startsWith('userProfile'):
       const [_, userId] = query.split('_');
       return profileController.viewProfileByThirdParty(ctx, userId);
+
+    case query.startsWith('postDetail'): {
+      const [_, postId] = query.split('_');
+      return PostController.getPostnDetail(ctx, postId);
+    }
+
     default:
       return next();
   }
