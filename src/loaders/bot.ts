@@ -4,7 +4,7 @@ import dbConnecion from './db-connecion';
 
 import RegistrationScene from '../modules/registration/registration.scene';
 import { checkAndRedirectToScene } from '../middleware/check-command';
-import { checkUserInChannelandPromtJoin } from '../middleware/auth';
+import { checkRegistration, checkUserInChannelandPromtJoin } from '../middleware/auth';
 import QuestionPostScene from '../modules/post/post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
 import { setCommands } from '../utils/helper/commands';
@@ -20,6 +20,7 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene]);
 
+  bot.use(checkRegistration());
   stage.use(checkCallBacks());
 
   stage.use(checkAndRedirectToScene());

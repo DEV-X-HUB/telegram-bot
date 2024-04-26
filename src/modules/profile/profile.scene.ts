@@ -1,6 +1,5 @@
-import { Telegraf, Context, Scenes, Markup } from 'telegraf';
+import { Scenes } from 'telegraf';
 import ProfileController from './profile.controller';
-import ProfileFormatter from './profile-formatter';
 import { restartScene } from '../../middleware/check-command';
 import { checkRegistration } from '../../middleware/auth';
 

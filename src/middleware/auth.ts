@@ -5,7 +5,6 @@ import { findSender } from '../utils/constants/chat';
 import RegistrationService from '../modules/registration/restgration.service';
 const mainMenuFormmater = new MainMenuFormmater();
 
-// Define the base URL
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
 
 export const checkUserInChannel = async (user_id: string | number): Promise<boolean> => {
@@ -37,9 +36,24 @@ export function checkUserInChannelandPromtJoin() {
   };
 }
 
+export const registerationSkips = (ctx: any) => {
+  const skipQueries = ['searchedPosts', 'browse', 'post_detail'];
+  const message = ctx.message?.text;
+  const query = ctx.callbackQuery?.data;
+  if (query) {
+    return skipQueries.some((skipQuery) => query.toString().startsWith(skipQuery));
+  }
+  if (message) {
+    return skipQueries.some((skipQuery) => message.toString().startsWith(skipQuery));
+  }
+  return false;
+};
+
 export function checkRegistration() {
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
+    const isRegisteredSkiped = registerationSkips(ctx);
+    if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
     if (!isUserRegistered) {
       ctx.reply('Please register to use the service');

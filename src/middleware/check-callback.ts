@@ -1,17 +1,13 @@
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import ProfileController from '../modules/profile/profile.controller';
 import PostController from '../modules/post/post.controller';
-import ChatController from '../modules/chat/chat.controller';
 const profileController = new ProfileController();
-const chatController = new ChatController();
 // Middleware to check if user entered command and redirect to its scene
 export function checkCallBacks() {
   return async (ctx: any, next: any) => {
     const callbackQuery = ctx?.callbackQuery;
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
-
-    console.log(query, 'query from call back');
 
     switch (true) {
       case query.startsWith('searchedPosts'): {
@@ -65,7 +61,6 @@ export function checkMenuOptions() {
 }
 
 export function checkQueries(ctx: any, query: string, next: any) {
-  console.log(query, 'query from string');
   switch (true) {
     case query.startsWith('searchedPosts'): {
       const [_, searachText, round] = query.split('_');
