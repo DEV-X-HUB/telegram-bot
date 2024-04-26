@@ -28,7 +28,7 @@ const ChatScene = new Scenes.WizardScene('chat', async (ctx: any) => {
     case 'replay_message':
       return chatController.replyToMessage(ctx);
     case 'enter_message_replay':
-      return chatController.enterReplyaMessage(ctx);
+      return chatController.enterReplyMessage(ctx);
     case 'update_display_name':
       return chatController.updateDisplayName(ctx);
   }

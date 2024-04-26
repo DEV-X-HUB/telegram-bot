@@ -252,7 +252,6 @@ class ProfileService {
           blocked_users: true,
         },
       });
-      console.log(user);
       if (!user) return { status: 'success', isBlocked: false };
       const isBlocked = user?.blocked_users.find((blocked_user) => blocked_user == userId);
 
