@@ -69,7 +69,7 @@ class Post2Formatter {
   }
 
   getPreviewData(state: any) {
-    return `#${state.category}\n________________\n\n${state.service_type} \n\Title: ${state.title}  \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `#${state.category}\n________________\n\n${state.service_type} \n\n\Title: ${state.title}  \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
   }
   noPostsErrorMessage() {
     return [this.messages.noPreviousPosts];

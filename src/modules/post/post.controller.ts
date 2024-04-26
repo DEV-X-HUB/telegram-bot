@@ -1,5 +1,11 @@
+import config from '../../config/config';
 import { PostCategory } from '../../types/params';
-import { deleteMessageWithCallback, findSender, sendMediaGroup } from '../../utils/constants/chat';
+import {
+  deleteMessageWithCallback,
+  findSender,
+  sendMediaGroup,
+  sendMediaGroupToChannel,
+} from '../../utils/constants/chat';
 import { areEqaul, getSectionName } from '../../utils/constants/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
@@ -10,7 +16,7 @@ const questionService = new QuestionService();
 const profileService = new ProfileService();
 const questionFormmatter = new QuestionFormmatter();
 const roundSize = 10;
-class QuestionController {
+class PostController {
   constructor() {}
 
   static async handleSearch(ctx: any) {
@@ -231,6 +237,42 @@ class QuestionController {
   static async searchByTitle() {
     const { success, posts } = await questionService.geAlltPosts(1);
   }
+
+  static async postToChannel(ctx: any, channelId: any, postId: any) {
+    const { success, post } = await questionService.getPostById(postId);
+
+    console.log('Success:', success);
+    console.log('Post:', post);
+
+    if (!success || !post) {
+      return ctx.reply('Failed to find the post');
+    }
+
+    const sectionName = getSectionName(post.category) as PostCategory;
+    console.log('Section Name:', sectionName);
+
+    const caption = questionFormmatter.getFormattedQuestionPreview(post);
+    console.log('Caption:', caption);
+
+    if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+      sendMediaGroupToChannel(ctx, (post as any)[sectionName].photo, caption);
+    }
+
+    await ctx.telegram.sendMessage(channelId, questionFormmatter.getformattedQuestionDetail(post), {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [[{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post.id}` }]],
+      },
+    });
+
+    // await ctx.telegram.sendMessage(channelId, questionFormmatter.getformattedQuestionDetail(post), {
+    //   parse_mode: 'HTML',
+    //   reply_markup: {
+    //     inline_keyboard: [[{ text: 'View Detail',
+    //      callback_data: `post_detail:${post.id}` }]],
+    //   },
+    // });
+  }
 }
 
-export default QuestionController;
+export default PostController;

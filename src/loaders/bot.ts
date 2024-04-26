@@ -26,7 +26,6 @@ export default () => {
   stage.use(checkAndRedirectToScene());
 
   bot.use(session());
-  bot.use(checkUserInChannelandPromtJoin());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
   bot.use(checkMenuOptions());

@@ -14,6 +14,8 @@ import MainMenuController from '../../mainmenu/mainmenu.controller';
 import ProfileService from '../../profile/profile.service';
 import { displayDialog } from '../../../ui/dialog';
 import { CreatePostService2Dto } from '../../../types/dto/create-question-post.dto';
+import PostController from '../post.controller';
+import config from '../../../config/config';
 const section2Formatter = new Section2Formatter();
 const profileService = new ProfileService();
 
@@ -176,6 +178,10 @@ class PostSection2Controller {
               parse_mode: 'HTML',
             });
             await displayDialog(ctx, 'Posted succesfully');
+
+            // post it to the channel
+            await PostController.postToChannel(ctx, config.channel_id, response?.data?.post_id);
+
             return ctx.wizard.selectStep(8);
           } else {
             ctx.reply(...section2Formatter.postingError());

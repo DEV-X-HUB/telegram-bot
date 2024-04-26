@@ -1,3 +1,5 @@
+import config from '../../config/config';
+
 export const deleteMessage = async (ctx: any, messageData: { message_id: string; chat_id: string }) => {
   await ctx.telegram.deleteMessage(messageData.chat_id, messageData.message_id);
 };
@@ -56,4 +58,17 @@ export const sendMessage = async (ctx: any, chatId: number, message: string, sen
       inline_keyboard: [[{ text: '✍️ Reply', callback_data: `replyMessage_${sender_id}_${message_id}` }]],
     },
   });
+};
+
+export const sendMediaGroupToChannel = async (
+  ctx: any,
+  photos: any[],
+  caption: string = 'Images associated with the post',
+) => {
+  const mediaGroup = photos.map((image: any) => ({
+    media: image,
+    type: 'photo',
+    caption: caption,
+  }));
+  await ctx.telegram.sendMediaGroup(config.channel_id, mediaGroup);
 };

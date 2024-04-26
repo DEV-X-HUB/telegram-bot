@@ -7,31 +7,53 @@ const mainMenuFormmater = new MainMenuFormmater();
 
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
 
-export const checkUserInChannel = async (user_id: string | number): Promise<boolean> => {
-  const params = {
-    chat_id: config.channel_id,
-    user_id: user_id,
-  };
-
+//
+async function checkUserInChannel(userId: number): Promise<any> {
   try {
-    const {
-      data: { ok, result },
-    } = await axios.get(`${baseUrl}/getChatMember`, { params });
-    return result.status != 'left';
+    const response = await axios.get(`${baseUrl}/getChatMember`, {
+      params: {
+        chat_id: config.channel_id,
+        user_id: userId,
+      },
+    });
+
+    console.log(response.data.result.status);
+
+    const isUserJoined =
+      response.data.result.status === 'member' ||
+      response.data.result.status === 'administrator' ||
+      response.data.result.status === 'creator';
+
+    const responseData = {
+      status: 'success',
+      joined: isUserJoined,
+    };
+
+    console.log(isUserJoined);
+
+    return responseData;
   } catch (error) {
-    console.log(error);
-    return false;
+    // throw new Error('Failed to check user in channel');
+    return {
+      status: 'fail',
+    };
   }
-};
+}
 
 export function checkUserInChannelandPromtJoin() {
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
-    const isUserJoined = await checkUserInChannel(sender.id);
-    if (isUserJoined) {
-      return next();
-    } else {
-      return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
+
+    try {
+      const isUserJoined = await checkUserInChannel(sender.id);
+
+      if (isUserJoined?.joined == false) {
+        return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
+      } else if (isUserJoined?.joined == true) {
+        return next();
+      }
+    } catch (error) {
+      return ctx.reply('Unable to check user in channel. Please try again later');
     }
   };
 }
