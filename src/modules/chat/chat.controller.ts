@@ -69,6 +69,7 @@ class ChatController {
       return await ctx.reply(...profileFormatter.enterDisplayNameDisplay());
     }
 
+    deleteMessageWithCallback(ctx);
     ctx.wizard.state.activity = 'enter_message_text';
     return ctx.replyWithHTML(
       ...profileFormatter.enterMessageDisplay(receiver.display_name || 'Anonymous', haveYouBlocked),
@@ -149,7 +150,7 @@ class ChatController {
       return await ctx.reply(...profileFormatter.enterDisplayNameDisplay());
     }
     ctx.wizard.state.activity = 'enter_message_replay';
-    deleteMessageWithCallback(ctx);
+
     return ctx.replyWithHTML(
       ...profileFormatter.enterMessageDisplay(receiver.display_name || 'Anonymous', haveYouBlocked),
     );

@@ -82,8 +82,8 @@ export function restartScene(sceneId: string) {
     const command = getCommand(ctx);
     if (command && command == 'restart') {
       ctx.message.text = 'none';
-      ctx?.scene?.leave();
-      ctx.scene.enter(sceneId);
+      await ctx?.scene?.leave();
+      return await ctx.scene.enter(sceneId);
     }
     return next();
   };
