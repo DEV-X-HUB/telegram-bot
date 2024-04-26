@@ -16,66 +16,46 @@ export const lastNameSchema = z
 
 export const ageOrDateSchema = z.string().refine(
   (value) => {
-    // Check if the string represents a date in the format "dd/mm/yyyy"
+    // Check if the value is a number (age)
+    const number = Number(value);
+    if (!isNaN(number)) {
+      return number >= 14 && number <= 100;
+    }
+
+    // Check if the value is a date(dd/mm/yyyy)
     const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
     if (dateRegex.test(value)) {
-      // If it's a date, calculate age
-      const [day, month, year] = value.split('/').map(Number);
-      const today = new Date();
-      const birthDate = new Date(year, month - 1, day);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
+      const [day, month, year] = value.split('/');
+      const dayNumber = parseInt(day);
+      const monthNumber = parseInt(month);
+      const yearNumber = parseInt(year);
+
+      if (
+        dayNumber < 1 ||
+        dayNumber > 31 ||
+        monthNumber < 1 ||
+        monthNumber > 12 ||
+        year.length !== 4 ||
+        yearNumber > new Date().getFullYear()
+      ) {
+        return false;
       }
 
-      if (age >= 14 && age <= 100) return true;
-      throw new ZodError([
-        {
-          code: 'too_small',
-          minimum: 2,
-          type: 'string',
-          inclusive: true,
-          exact: false,
-          message: 'Age must be a number between 14 and 100',
-          path: [],
-        },
-      ]);
-    } else {
-      // If it's not a date, check if it's a number and within the age range
-      const number = Number(value);
-      if (isNaN(number)) {
-        // Invalid format (not a date or a number)
-        throw new ZodError([
-          {
-            code: 'too_small',
-            minimum: 2,
-            type: 'string',
-            inclusive: true,
-            exact: false,
-            message: 'Invalid format. Age must be a valid date in the format "dd/mm/yyyy" or a number.',
-            path: [],
-          },
-        ]);
-      } else if (number < 14 || number > 100) {
-        // Age out of range
-        throw new ZodError([
-          {
-            code: 'too_small',
-            minimum: 14,
-            type: 'string',
-            inclusive: true,
-            exact: false,
-            message: 'Age must be a number between 14 and 100.',
-            path: [],
-          },
-        ]);
-      } else {
-        return true; // Valid number within range
-      }
+      // Calculate age from the entered date
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const age = currentYear - yearNumber;
+
+      // Check if the calculated age is between 14 and 100
+      return age >= 14 && age <= 100;
     }
+
+    // If it's not a date or a number, return false
+    return false;
   },
-  { message: 'Age must be a valid date in the format dd/mm/yyyy or a number between 14 and 100' }, // Removed - replaced with specific errors
+  {
+    message: 'Invalid input. Please enter a valid age (14-100) or a valid date (dd/mm/yyyy).',
+  },
 );
 
 export const emailSchema = z.string().email({ message: 'Invalid email address' });
