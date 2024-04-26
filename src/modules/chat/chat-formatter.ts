@@ -53,8 +53,10 @@ class ChatFormatter {
     shareContactPrompt: 'lets start your first registration. Please share your contact.',
     shareContactWarning:
       'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
-    namePrompt: 'Please enter your name ',
+    namePrompt: 'Anonymous user cannot send message\n\nPlease enter your name',
     bioPrompt: 'Please enter your Bio ',
+    enterMessagePrompt: 'Enter your message to ',
+    enterReplayPrompt: 'Enter your replay message to ',
     genderPrompt: ' Please select your gender ',
     emailPrompt: ' Please enter your personal Email ',
     countryPrompt: ' Please choose your country ',
@@ -65,6 +67,12 @@ class ChatFormatter {
     noPostMsg: 'Your have not posted any thing yet !',
     updateNotifyOptionError: 'Unable to change notify setting!',
     displayNameTakenMsg: 'The name is reserved!, Please try another.',
+    ivalidInput: 'Invalid Input',
+    noReciverErrorMsg: 'unable to find reciever information',
+    nouserErrorMsg: 'unable to find user information',
+    sendMessageError: 'Unable to send Message',
+    sendMessagesuccess: 'Message sent to ',
+    userBlockPrompt: 'Are you sure you want to block? ',
   };
   constructor() {
     this.countries = getSelectedCoutryList();
@@ -151,17 +159,41 @@ class ChatFormatter {
     ];
   }
 
-  editPrompt(editFiled: string, gender: string) {
-    switch (editFiled) {
-      case 'display_name':
-        return [this.messages.namePrompt, this.goBackButton()];
-      case 'bio':
-        return [this.messages.bioPrompt, this.goBackButton()];
-      case 'gender':
-        return [this.messages.genderPrompt, InlineKeyboardButtons(this.genderOpton(gender))];
-      default:
-        return [this.messages.namePrompt, this.goBackButton()];
-    }
+  enterDisplayNameDisplay() {
+    return [this.messages.namePrompt, this.goBackButton()];
+  }
+  blockUserDisplay(user: any) {
+    const blockBriefication = 'Blocking means no interaction with user';
+    return [
+      `**${this.messages.userBlockPrompt} ${user.display_name}**\n\n` + blockBriefication,
+      InlineKeyboardButtons([
+        [
+          { text: ' Yes, Block ', cbString: `block` },
+          { text: 'No, Cancel', cbString: 'cancel' },
+        ],
+      ]),
+    ];
+  }
+  enterMessageDisplay(receiverName: string) {
+    return [this.messages.enterMessagePrompt + receiverName, this.goBackButton()];
+  }
+  messageSentDisplay(receiver: any) {
+    return [
+      this.messages.sendMessagesuccess +
+        `<a href="${config.bot_url}?start=userProfile_${receiver.id}">${receiver.display_name}</a>`,
+      ,
+      this.goBackButton(),
+    ];
+  }
+  enterReplyDisplay(receiverName: string) {
+    return [this.messages.enterMessagePrompt + receiverName, this.goBackButton()];
+  }
+  replaySentDisplay(receiver: any) {
+    return [
+      this.messages.sendMessagesuccess +
+        `<a href="${config.bot_url}?start=userProfile_${receiver.id}">${receiver.display_name}</a>`,
+      this.goBackButton(),
+    ];
   }
 
   formateFollowersList(followers: any[]) {
@@ -243,10 +275,8 @@ class ChatFormatter {
       .persistent(false);
   }
 
-  shareContactWarning() {
-    return [
-      'You have to share your contact to proceed. Please use the "Share Contact" button below to share your contact.',
-    ];
+  formatMessageSent(message: string, sender_id: string, sender_name: string) {
+    return `Your Message from <a href="${config.bot_url}?start=userProfile_${sender_id}">${sender_name}</a> \n\n${message}`;
   }
 
   firstNameformatter() {

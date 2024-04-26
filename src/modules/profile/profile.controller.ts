@@ -102,14 +102,14 @@ class ProfileController {
   }
   async viewProfileByThirdParty(ctx: any, userId: string) {
     const currentUserData = findSender(ctx);
-    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
-    if (!currentUser) return;
 
-    if (currentUser?.id == userId) {
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+
+    if (currentUser && currentUser?.id == userId) {
       return ctx.scene.enter('Profile');
     }
 
-    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id, userId);
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
@@ -118,6 +118,7 @@ class ProfileController {
   }
   async handleFollow(ctx: any, query: string) {
     const [_, userId] = query.split('_');
+    console.log(userId);
     const currentUserData = findSender(ctx);
     const currentUser = await profileService.getProfileByTgId(currentUserData.id);
     if (!currentUser) return;
@@ -129,11 +130,15 @@ class ProfileController {
     if (userData)
       return ctx.editMessageReplyMarkup({
         inline_keyboard: [
-          [{ text: 'Unfollow', callback_data: `unfollow_${userData.id}` }],
           [
+            { text: 'Unfollow', callback_data: `unfollow_${userData.id}` },
             {
               text: `💬 Message`,
-              cbString: `sendMessage_${userData.id}`,
+              callback_data: `sendMessage_${userData.id}`,
+            },
+            {
+              text: `🚫 Block`,
+              callback_data: `blockUser_${userData.id}`,
             },
           ],
         ],
@@ -153,11 +158,15 @@ class ProfileController {
     if (userData)
       return ctx.editMessageReplyMarkup({
         inline_keyboard: [
-          [{ text: 'Follow', callback_data: `follow1_${userData?.id}` }],
           [
+            { text: 'Follow', callback_data: `follow1_${userData?.id}` },
             {
               text: `💬 Message`,
-              cbString: `sendMessage_${userData.id}`,
+              callback_data: `sendMessage_${userData.id}`,
+            },
+            {
+              text: `🚫 Block`,
+              callback_data: `blockUser_${userData.id}`,
             },
           ],
         ],

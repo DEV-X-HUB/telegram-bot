@@ -35,6 +35,19 @@ class ProfileService {
       return null;
     }
   }
+  async getProfileById(user_id: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: user_id.toString(),
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
   async getProfileDataWithTgId(tgId: string) {
     try {
       const user = await prisma.user.findUnique({
@@ -113,6 +126,23 @@ class ProfileService {
     } catch (error: any) {
       return null;
       throw new Error(`Error updating profile: ${error.message}`);
+    }
+  }
+  async updateDiplayNameByTgId(tg_id: string, display_name: string) {
+    try {
+      await prisma.user.update({
+        where: {
+          tg_id: tg_id,
+        },
+        data: {
+          display_name: display_name,
+        },
+      });
+
+      return { status: 'success', message: 'success' };
+    } catch (error: any) {
+      console.log(`: ${error.message}`);
+      return { status: 'success', message: 'Error while updating display name' };
     }
   }
 

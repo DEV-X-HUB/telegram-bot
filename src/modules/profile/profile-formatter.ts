@@ -113,11 +113,14 @@ class ProfileFormatter {
             text: `${followed ? 'Unfollow' : 'Follow'}`,
             cbString: `${followed ? 'unfollow' : 'follow'}_${userData.id}`,
           },
-        ],
-        [
+
           {
             text: `💬 Message`,
             cbString: `sendMessage_${userData.id}`,
+          },
+          {
+            text: `🚫 Block`,
+            cbString: `blockUser_${userData.id}`,
           },
         ],
       ]),

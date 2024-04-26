@@ -43,6 +43,8 @@ model User {
   posts      Post[]
   created_at  DateTime   @default(now())
 
+
+  blocked_users      String[] 
   chat_id            String // Optional bio
   sender_messages    Message[] @relation("MessageSender")
   receiver_messages  Message[] @relation("MessageReceiver")
@@ -53,6 +55,7 @@ model Message {
   sender_id   String
   receiver_id String
   content    String
+  type       String     @default("message")
   createdAt  DateTime @default(now())
 
   sender   User @relation("MessageSender", fields: [sender_id], references: [id])

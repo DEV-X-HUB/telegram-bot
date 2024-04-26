@@ -230,7 +230,7 @@ class RegistrationController {
         }
         case 'register_data': {
           const createUserDto: CreateUserDto = {
-            tg_id: sender.id,
+            tg_id: sender.id.toString(),
             username: state.username,
             first_name: state.first_name,
             last_name: state.last_name,
@@ -240,7 +240,7 @@ class RegistrationController {
             city: state.city,
             gender: state.gender,
             age: parseInt(state.age),
-            chat_id: state.chat_id,
+            chat_id: state.chat_id.toString(),
             display_name: null,
           };
 
