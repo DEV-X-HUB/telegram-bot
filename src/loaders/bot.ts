@@ -20,7 +20,7 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene]);
 
-  bot.use(checkRegistration());
+  stage.use(checkRegistration());
   stage.use(checkCallBacks());
 
   stage.use(checkAndRedirectToScene());
