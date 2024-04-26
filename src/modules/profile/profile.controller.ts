@@ -195,9 +195,9 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
+    console.log(userData);
     const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
     deleteMessageWithCallback(ctx);
-    await ctx.reply(profileFormatter.messages.blockSuccess);
     return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
 
@@ -210,15 +210,14 @@ class ProfileController {
     const { status } = await profileService.unblockUser(currentUser?.id, userId);
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
-    await ctx.reply(profileFormatter.messages.unBlockSuccess);
-
     const { status: followStatus, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
     if (followStatus == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
     const userData = await profileService.getProfileDataWithId(userId);
     deleteMessageWithCallback(ctx);
-    await ctx.reply(profileFormatter.messages.blockSuccess);
-    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, false));
+    await ctx.reply(profileFormatter.messages.unBlockSuccess);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
 
   async editProfileOption(ctx: any) {

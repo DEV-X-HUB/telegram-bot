@@ -275,10 +275,12 @@ class ProfileService {
       });
 
       if (!user) return { status: 'fail', message: `success` };
+
       const filteredBlocks = user?.blocked_users.filter((blocked_user) => blocked_user != userId);
+
       await prisma.user.update({
         where: {
-          id: userId,
+          id: currentUserId,
         },
         data: {
           blocked_users: filteredBlocks,

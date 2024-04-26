@@ -115,11 +115,11 @@ class ProfileFormatter {
   blockUserDisplay(user: any) {
     const blockBriefication = 'Blocking means no interaction with user';
     return [
-      `**${this.messages.userBlockPrompt} ${user.display_name}**\n\n` + blockBriefication,
+      `${this.messages.userBlockPrompt} ${user.display_name}\n\n` + blockBriefication,
       InlineKeyboardButtons([
         [
           { text: ' Yes, Block ', cbString: `blockUser'_${user.id}` },
-          { text: 'No, Cancel', cbString: 'cancelBlock' },
+          { text: 'No, Cancel', cbString: `cancelBlock'_${user.id}` },
         ],
       ]),
     ];
