@@ -31,13 +31,24 @@ export function checkCallBacks() {
 
       case query.startsWith('follow'):
         return profileController.handleFollow(ctx, query);
+
       case query.startsWith('unfollow'):
         return profileController.handlUnfollow(ctx, query);
+
+      case query.startsWith('unblock'):
+        return profileController.handlUnblock(ctx, query);
+
+      case query.startsWith('asktoBlock'):
+        return profileController.askToBlock(ctx, query);
+
+      case query.startsWith('blockUser'):
+        return profileController.handleBlock(ctx, query);
+      case query.startsWith('cancelBlock'):
+        return profileController.cancelBlock(ctx, query);
+
       case query.startsWith('sendMessage_'):
         return console.log(ctx.scene.enter('chat'));
       case query.startsWith('replyMessage_'):
-        return console.log(ctx.scene.enter('chat'));
-      case query.startsWith('blockUser_'):
         return console.log(ctx.scene.enter('chat'));
     }
 

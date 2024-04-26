@@ -113,12 +113,12 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
 
-    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing));
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
   async handleFollow(ctx: any, query: string) {
     const [_, userId] = query.split('_');
-    console.log(userId);
     const currentUserData = findSender(ctx);
     const currentUser = await profileService.getProfileByTgId(currentUserData.id);
     if (!currentUser) return;
@@ -127,21 +127,12 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
+
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+
     if (userData)
       return ctx.editMessageReplyMarkup({
-        inline_keyboard: [
-          [
-            { text: 'Unfollow', callback_data: `unfollow_${userData.id}` },
-            {
-              text: `💬 Message`,
-              callback_data: `sendMessage_${userData.id}`,
-            },
-            {
-              text: `🚫 Block`,
-              callback_data: `blockUser_${userData.id}`,
-            },
-          ],
-        ],
+        inline_keyboard: [profileFormatter.getProfileButtons(userData.id, false, isBlocked)],
       });
   }
   async handlUnfollow(ctx: any, query: string) {
@@ -155,22 +146,79 @@ class ProfileController {
     const { status } = await profileService.unfollowUser(currentUser?.id, userId);
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
-    if (userData)
-      return ctx.editMessageReplyMarkup({
-        inline_keyboard: [
-          [
-            { text: 'Follow', callback_data: `follow1_${userData?.id}` },
-            {
-              text: `💬 Message`,
-              callback_data: `sendMessage_${userData.id}`,
-            },
-            {
-              text: `🚫 Block`,
-              callback_data: `blockUser_${userData.id}`,
-            },
-          ],
-        ],
-      });
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    return ctx.editMessageReplyMarkup({
+      inline_keyboard: [profileFormatter.getProfileButtons(userId, false, isBlocked)],
+    });
+  }
+  async askToBlock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const userData = await profileService.getProfileDataWithId(userId);
+
+    if (!userData) return ctx.reply(profileFormatter.messages.dbError);
+    await deleteMessageWithCallback(ctx);
+    return ctx.replyWithHTML(
+      ...profileFormatter.blockUserDisplay({ id: userData.id, display_name: userData.display_name || 'Anoynmous' }),
+      { parse_mode: 'HTML' },
+    );
+  }
+  async handleBlock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status: blockStatus } = await profileService.blockUser(currentUser?.id, userId);
+    if (blockStatus == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+
+    deleteMessageWithCallback(ctx);
+    await ctx.reply(profileFormatter.messages.blockSuccess);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
+  }
+  async cancelBlock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    deleteMessageWithCallback(ctx);
+    await ctx.reply(profileFormatter.messages.blockSuccess);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
+  }
+
+  async handlUnblock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status } = await profileService.unblockUser(currentUser?.id, userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    await ctx.reply(profileFormatter.messages.unBlockSuccess);
+
+    const { status: followStatus, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
+    if (followStatus == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+    deleteMessageWithCallback(ctx);
+    await ctx.reply(profileFormatter.messages.blockSuccess);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, false));
   }
 
   async editProfileOption(ctx: any) {

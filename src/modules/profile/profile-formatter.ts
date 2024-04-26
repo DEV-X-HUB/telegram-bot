@@ -65,6 +65,9 @@ class ProfileFormatter {
     noPostMsg: 'Your have not posted any thing yet !',
     updateNotifyOptionError: 'Unable to change notify setting!',
     displayNameTakenMsg: 'The name is reserved!, Please try another.',
+    userBlockPrompt: 'Are you sure you want to block? ',
+    blockSuccess: 'You have blocked  this user',
+    unBlockSuccess: 'You have unblocked this user',
   };
   constructor() {
     this.countries = getSelectedCoutryList();
@@ -100,10 +103,28 @@ class ProfileFormatter {
     return this.messages.useButtonError + optionName;
   }
 
+  blockSuccess(user_displayname: any) {
+    return [...(this.messages.blockSuccess + user_displayname)];
+  }
+  unBlockSuccess(user_displayname: any) {
+    return [...(this.messages.unBlockSuccess + user_displayname)];
+  }
   preview(userData: any) {
     return [this.formatePreview(userData), InlineKeyboardButtons(this.previewButtons)];
   }
-  profilePreviwByThirdParty(userData: any, followed: boolean) {
+  blockUserDisplay(user: any) {
+    const blockBriefication = 'Blocking means no interaction with user';
+    return [
+      `**${this.messages.userBlockPrompt} ${user.display_name}**\n\n` + blockBriefication,
+      InlineKeyboardButtons([
+        [
+          { text: ' Yes, Block ', cbString: `blockUser'_${user.id}` },
+          { text: 'No, Cancel', cbString: 'cancelBlock' },
+        ],
+      ]),
+    ];
+  }
+  profilePreviwByThirdParty(userData: any, followed: boolean, bloked: boolean) {
     // -------------
     return [
       this.formatePreviewByThirdParty(userData),
@@ -119,11 +140,28 @@ class ProfileFormatter {
             cbString: `sendMessage_${userData.id}`,
           },
           {
-            text: `🚫 Block`,
-            cbString: `blockUser_${userData.id}`,
+            text: `${bloked ? '⭕️ Unblock' : '🚫 Block'}`,
+            cbString: `${bloked ? 'unblock' : 'asktoBlock'}_${userData.id}`,
           },
         ],
       ]),
+    ];
+  }
+  getProfileButtons(user_id: any, followed: boolean, bloked: boolean) {
+    return [
+      {
+        text: `${followed ? 'Unfollow' : 'Follow'}`,
+        callback_data: `${followed ? 'unfollow' : 'follow'}_${user_id}`,
+      },
+
+      {
+        text: `💬 Message`,
+        callback_data: `sendMessage_${user_id}`,
+      },
+      {
+        text: `${bloked ? '⭕️ Unblock' : '🚫 Block'}`,
+        callback_data: `${bloked ? 'unblock' : 'asktoBlock'}_${user_id}`,
+      },
     ];
   }
 

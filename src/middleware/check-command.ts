@@ -3,7 +3,6 @@ import RegistrationService from '../modules/registration/restgration.service';
 import { Context } from 'telegraf';
 import { checkQueries } from './check-callback';
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
-import { sendMessage } from '../utils/constants/post-to-channel';
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t

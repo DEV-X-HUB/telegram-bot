@@ -242,6 +242,81 @@ class ProfileService {
     }
   }
 
+  async isBlockedBy(currentUserId: string, userId: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: currentUserId,
+        },
+        select: {
+          blocked_users: true,
+        },
+      });
+      console.log(user);
+      if (!user) return { status: 'success', isBlocked: false };
+      const isBlocked = user?.blocked_users.find((blocked_user) => blocked_user == userId);
+
+      return { status: 'success', isBlocked: isBlocked ? true : false };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, isBlocked: false };
+    }
+  }
+
+  async unblockUser(currentUserId: string, userId: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: currentUserId,
+        },
+        select: {
+          blocked_users: true,
+        },
+      });
+
+      if (!user) return { status: 'fail', message: `success` };
+      const filteredBlocks = user?.blocked_users.filter((blocked_user) => blocked_user != userId);
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          blocked_users: filteredBlocks,
+        },
+      });
+      return { status: 'success', message: `success` };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation` };
+    }
+  }
+
+  async blockUser(currentUserId: string, userId: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: currentUserId,
+        },
+        select: {
+          blocked_users: true,
+        },
+      });
+      if (!user) return { status: 'fail', message: `success` };
+      const filteredBlocks = user?.blocked_users;
+      await prisma.user.update({
+        where: {
+          id: currentUserId,
+        },
+        data: {
+          blocked_users: [...filteredBlocks, userId],
+        },
+      });
+      return { status: 'success', message: `success` };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation` };
+    }
+  }
   async isFollowing(currentUserId: string, userId: string) {
     try {
       const follow = await prisma.follows.findFirst({
