@@ -2,6 +2,7 @@ import { Telegraf, Context, Scenes, Markup } from 'telegraf';
 import ProfileController from './profile.controller';
 import ProfileFormatter from './profile-formatter';
 import { restartScene } from '../../middleware/check-command';
+import { checkRegistration } from '../../middleware/auth';
 
 const profileController = new ProfileController();
 
@@ -32,6 +33,7 @@ const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
   }
 });
 
+ProfileScene.use(checkRegistration());
 ProfileScene.use(restartScene('Profile'));
 
 export default ProfileScene;

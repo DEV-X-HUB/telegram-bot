@@ -2,6 +2,7 @@ import { Telegraf, Context, Scenes, Markup } from 'telegraf';
 import ProfileFormatter from './chat-formatter';
 import ChatController from './chat.controller';
 import { findSender, hasCallbackQuery } from '../../utils/constants/chat';
+import { checkRegistration } from '../../middleware/auth';
 
 const chatController = new ChatController();
 
@@ -34,6 +35,7 @@ const ChatScene = new Scenes.WizardScene('chat', async (ctx: any) => {
   }
 });
 
+ChatScene.use(checkRegistration());
 export default ChatScene;
 
 // Handle errors gracefully (optional)
