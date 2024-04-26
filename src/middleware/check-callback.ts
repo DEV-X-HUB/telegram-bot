@@ -1,6 +1,7 @@
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import ProfileController from '../modules/profile/profile.controller';
 import PostController from '../modules/post/post.controller';
+
 const profileController = new ProfileController();
 // Middleware to check if user entered command and redirect to its scene
 export function checkCallBacks() {

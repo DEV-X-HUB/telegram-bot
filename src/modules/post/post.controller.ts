@@ -222,7 +222,7 @@ class QuestionController {
     const sectionName = getSectionName(post.category) as PostCategory;
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      sendMediaGroup(ctx, (post as any)[sectionName].photo, 'Images Uploaded with post');
+      await sendMediaGroup(ctx, (post as any)[sectionName].photo, 'Images Uploaded with post');
     }
 
     return await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(post));
