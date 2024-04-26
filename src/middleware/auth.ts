@@ -37,7 +37,7 @@ export function checkUserInChannelandPromtJoin() {
 }
 
 export const registerationSkips = (ctx: any) => {
-  const skipQueries = ['searchedPosts', 'browse', 'post_detail'];
+  const skipQueries = ['searchedPosts', 'browse', 'post_detail', '/start', '/restart'];
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
   if (query) {
