@@ -1,23 +1,25 @@
 import { Scenes } from 'telegraf';
-import QuestionPostSectionAController from './section-a.controller';
+import PostSectionAController from './section-a.controller';
+import { restartScene } from '../../../../middleware/check-command';
 
-const questionPostSectionAController = new QuestionPostSectionAController();
-const QuestionPostSectionAScene = new Scenes.WizardScene(
+const postSectionAController = new PostSectionAController();
+const PostSectionAScene = new Scenes.WizardScene(
   'Post-SectionA',
-  questionPostSectionAController.start,
-  questionPostSectionAController.arBrOption,
-  questionPostSectionAController.choooseWoreda,
-  questionPostSectionAController.IDFirstOption,
-  questionPostSectionAController.enterLastDigit,
-  questionPostSectionAController.enterLocation,
-  questionPostSectionAController.enterDescription,
-  questionPostSectionAController.attachPhoto,
-  questionPostSectionAController.preview,
-  questionPostSectionAController.editData,
-  questionPostSectionAController.editPhoto,
-  questionPostSectionAController.postReview,
-  questionPostSectionAController.adjustNotifySetting,
-  questionPostSectionAController.mentionPreviousPost,
+  postSectionAController.start,
+  postSectionAController.arBrOption,
+  postSectionAController.choooseWoreda,
+  postSectionAController.IDFirstOption,
+  postSectionAController.enterLastDigit,
+  postSectionAController.enterLocation,
+  postSectionAController.enterDescription,
+  postSectionAController.attachPhoto,
+  postSectionAController.preview,
+  postSectionAController.editData,
+  postSectionAController.editPhoto,
+  postSectionAController.postReview,
+  postSectionAController.adjustNotifySetting,
+  postSectionAController.mentionPreviousPost,
 );
+PostSectionAScene.use(restartScene('Post-Section-1'));
 
-export default QuestionPostSectionAScene;
+export default PostSectionAScene;

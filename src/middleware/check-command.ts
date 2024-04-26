@@ -1,8 +1,9 @@
 import RegistrationFormatter from '../modules/registration/registration-formatter';
 import RegistrationService from '../modules/registration/restgration.service';
-
+import { Context } from 'telegraf';
 import { checkQueries } from './check-callback';
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
+import { capitalize } from '../utils/constants/string';
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
@@ -20,7 +21,6 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
-    console.log(text, 'message text ');
     if (!text) return next();
 
     if (!text) return next();
@@ -54,6 +54,11 @@ export function checkAndRedirectToScene() {
         ctx?.scene?.leave();
         return ctx.scene.enter(commandText);
       } else {
+        if (ctx.scene.scenes.has(capitalize(commandText))) {
+          ctx?.scene?.leave();
+          return ctx.scene.enter(capitalize(commandText));
+        }
+        if (commandText == 'restart') return next();
         return ctx.reply('Unknown option. Please choose a valid option.');
       }
     }
@@ -61,24 +66,25 @@ export function checkAndRedirectToScene() {
     return next();
   };
 }
-export function checkAndRedirectToSceneInRegistration() {
+
+export const getCommand = (ctx: any): boolean | string => {
+  const text = ctx?.message?.text;
+  if (text && text.startsWith('/')) {
+    const [command, query] = ctx.message.text.split(' ');
+    const commandText = command.slice(1);
+    return commandText as string;
+  }
+  return false;
+};
+
+export function restartScene(sceneId: string) {
   return async (ctx: any, next: any) => {
-    const text = ctx?.message?.text;
-    if (!text) return next();
-
-    if (text && text.startsWith('/')) {
-      const commandText = text.slice(1);
-
-      if (commandText == 'register') {
-        ctx?.scene?.leave();
-        return ctx.scene.enter('register');
-      }
-      if (commandText == 'restart') {
-        ctx?.scene?.leave();
-        return ctx.scene.enter('register');
-      }
+    const command = getCommand(ctx);
+    if (command && command == 'restart') {
+      ctx.message.text = 'none';
+      await ctx?.scene?.leave();
+      return await ctx.scene.enter(sceneId);
     }
-
     return next();
   };
 }

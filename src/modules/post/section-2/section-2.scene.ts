@@ -1,5 +1,6 @@
 import { Scenes } from 'telegraf';
 import PostSection2Controller from './section-2.controller';
+import { restartScene } from '../../../middleware/check-command';
 
 const postSection2Controller = new PostSection2Controller();
 const PostSection2Scene = new Scenes.WizardScene(
@@ -17,4 +18,5 @@ const PostSection2Scene = new Scenes.WizardScene(
   postSection2Controller.mentionPreviousPost,
 );
 
+PostSection2Scene.use(restartScene('Post-Section-2'));
 export default PostSection2Scene;

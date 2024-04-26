@@ -9,7 +9,7 @@ import { areEqaul, isInInlineOption } from '../../utils/constants/string';
 import ProfileFormatter from './profile-formatter';
 import ProfileService from './profile.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
-import { NotifyOption } from '../../types/params';
+import CreateUserDto from '../../types/dto/create-user.dto';
 const profileService = new ProfileService();
 const profileFormatter = new ProfileFormatter();
 class ProfileController {
@@ -31,9 +31,12 @@ class ProfileController {
 
   async preview(ctx: any) {
     const sender = findSender(ctx);
+
     const userData = await profileService.getProfileDataWithTgId(sender.id);
     this.saveToState(ctx, userData);
     ctx.wizard.state.activity = 'preview';
+
+    await deleteKeyboardMarkup(ctx);
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
   async previewHandler(ctx: any) {
@@ -99,19 +102,20 @@ class ProfileController {
   }
   async viewProfileByThirdParty(ctx: any, userId: string) {
     const currentUserData = findSender(ctx);
-    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
-    if (!currentUser) return;
 
-    if (currentUser?.id == userId) {
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+
+    if (currentUser && currentUser?.id == userId) {
       return ctx.scene.enter('Profile');
     }
 
-    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id, userId);
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
 
-    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing));
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
   async handleFollow(ctx: any, query: string) {
     const [_, userId] = query.split('_');
@@ -123,9 +127,12 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
     const userData = await profileService.getProfileDataWithId(userId);
+
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+
     if (userData)
       return ctx.editMessageReplyMarkup({
-        inline_keyboard: [[{ text: 'Unfollow', callback_data: `unfollow_${userData.id}` }]],
+        inline_keyboard: [profileFormatter.getProfileButtons(userData.id, false, isBlocked)],
       });
   }
   async handlUnfollow(ctx: any, query: string) {
@@ -139,10 +146,78 @@ class ProfileController {
     const { status } = await profileService.unfollowUser(currentUser?.id, userId);
     if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
 
-    if (userData)
-      return ctx.editMessageReplyMarkup({
-        inline_keyboard: [[{ text: 'Follow', callback_data: `follow1_${userData?.id}` }]],
-      });
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    return ctx.editMessageReplyMarkup({
+      inline_keyboard: [profileFormatter.getProfileButtons(userId, false, isBlocked)],
+    });
+  }
+  async askToBlock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const userData = await profileService.getProfileDataWithId(userId);
+
+    if (!userData) return ctx.reply(profileFormatter.messages.dbError);
+    await deleteMessageWithCallback(ctx);
+    return ctx.replyWithHTML(
+      ...profileFormatter.blockUserDisplay({ id: userData.id, display_name: userData.display_name || 'Anoynmous' }),
+      { parse_mode: 'HTML' },
+    );
+  }
+  async handleBlock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status: blockStatus } = await profileService.blockUser(currentUser?.id, userId);
+    if (blockStatus == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+
+    deleteMessageWithCallback(ctx);
+    await ctx.reply(profileFormatter.messages.blockSuccess);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
+  }
+  async cancelBlock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const userData = await profileService.getProfileDataWithId(userId);
+
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    deleteMessageWithCallback(ctx);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
+  }
+
+  async handlUnblock(ctx: any, query: string) {
+    const [_, userId] = query.split('_');
+    const currentUserData = findSender(ctx);
+    const currentUser = await profileService.getProfileByTgId(currentUserData.id);
+    if (!currentUser) return;
+
+    const { status } = await profileService.unblockUser(currentUser?.id, userId);
+    if (status == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const { status: followStatus, isFollowing } = await profileService.isFollowing(currentUser?.id || '', userId);
+    if (followStatus == 'fail') return ctx.reply(profileFormatter.messages.dbError);
+
+    const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    const userData = await profileService.getProfileDataWithId(userId);
+    deleteMessageWithCallback(ctx);
+    await ctx.reply(profileFormatter.messages.unBlockSuccess);
+    return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
 
   async editProfileOption(ctx: any) {
@@ -153,39 +228,27 @@ class ProfileController {
     if (areEqaul(callbackQuery.data, 'back', true)) return this.preview(ctx);
     ctx.wizard.state.activity = 'profile_edit_editing';
     ctx.wizard.state.editField = callbackQuery.data;
-    return ctx.reply(
-      ...profileFormatter.editPrompt(
-        callbackQuery.data,
-        ctx.wizard.state.userData.gender,
-        ctx.wizard.state.userData.display_name,
-      ),
-    );
+    return ctx.reply(...profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender));
   }
   async editProfileEditField(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     const message = ctx.message;
     const state = ctx.wizard.state;
     if (callbackQuery) {
-      if (callbackQuery.data == 'clear_display_name') {
-        state.userData.display_name = null;
-        const newData = await profileService.updateProfile(state.userData.id, {
-          bio: state.userData.bio,
-          gender: state.userData.gender,
-          display_name: state.userData.display_name,
-        });
-        deleteMessageWithCallback(ctx);
-        this.saveToState(ctx, newData);
-      } else {
-        state.userData.gender = callbackQuery.data;
-        const newData = await profileService.updateProfile(state.userData.id, {
-          bio: state.userData.bio,
-          gender: state.userData.gender,
-          display_name: state.userData.display_name,
-        });
-        deleteMessageWithCallback(ctx);
-        this.saveToState(ctx, newData);
-        ctx.wizard.state.activity = 'preview';
-      }
+      state.userData.gender = callbackQuery.data;
+      const newData = await profileService.updateProfile(state.userData.id, {
+        bio: state.userData.bio,
+        gender: state.userData.gender,
+        display_name: state.userData.display_name,
+      });
+      deleteMessageWithCallback(ctx);
+      this.saveToState(ctx, newData);
+      ctx.wizard.state.activity = 'preview';
+
+      return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    }
+
+    if (areEqaul(message.text, 'back', true)) {
       return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
     }
     if (state.editField == 'display_name') {
@@ -238,254 +301,6 @@ class ProfileController {
     }
   }
 
-  async chooseGender(ctx: any) {
-    const callbackQuery = ctx.callbackQuery;
-    if (!callbackQuery) return await ctx.reply(profileFormatter.messages.useButtonError);
-
-    const callbackMessage = callbackQuery.data;
-    switch (callbackMessage) {
-      case 'Back': {
-        await deleteMessageWithCallback(ctx);
-        ctx.reply(...profileFormatter.ageFormatter());
-        return ctx.wizard.back();
-      }
-      default: {
-        ctx.wizard.state.gender = callbackMessage;
-        await deleteMessageWithCallback(ctx);
-        ctx.reply(...profileFormatter.emailFormatter());
-        return ctx.wizard.next();
-      }
-    }
-  }
-
-  async enterEmail(ctx: any) {
-    const message = ctx.message.text;
-    if (message == 'Back') {
-      ctx.reply(...profileFormatter.chooseGenderFormatter());
-      return ctx.wizard.back();
-    }
-    if (message == 'Skip') {
-      ctx.wizard.state.email = null;
-      await deleteKeyboardMarkup(ctx, profileFormatter.messages.countryPrompt);
-      ctx.reply(...(await profileFormatter.chooseCountryFormatter()));
-      return ctx.wizard.next();
-    }
-    const validationMessage = registrationValidator('email', message);
-    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-    ctx.wizard.state.email = ctx.message.text;
-    await deleteKeyboardMarkup(ctx, profileFormatter.messages.countryPrompt);
-    ctx.reply(...(await profileFormatter.chooseCountryFormatter()));
-    return ctx.wizard.next();
-  }
-
-  async chooseCountry(ctx: any) {
-    const callbackQuery = ctx.callbackQuery;
-
-    if (!callbackQuery) return await ctx.reply(profileFormatter.messages.useButtonError);
-
-    if (areEqaul(callbackQuery.data, 'back', true)) {
-      await deleteMessageWithCallback(ctx);
-      ctx.reply(...profileFormatter.emailFormatter());
-      return ctx.wizard.back();
-    }
-    const [countryCode, country] = callbackQuery.data.split(':');
-    ctx.wizard.state.country = country;
-    ctx.wizard.state.countryCode = countryCode;
-    ctx.wizard.state.currentRound = 0;
-    await deleteMessageWithCallback(ctx);
-    ctx.reply(...(await profileFormatter.chooseCityFormatter(countryCode, 0)));
-    return ctx.wizard.next();
-  }
-
-  async chooseCity(ctx: any) {
-    const callbackQuery = ctx.callbackQuery;
-
-    if (!callbackQuery) return ctx.reply(profileFormatter.messages.useButtonError);
-
-    deleteMessageWithCallback(ctx);
-    switch (callbackQuery.data) {
-      case 'back': {
-        if (ctx.wizard.state.currentRound == 0) {
-          ctx.reply(...(await profileFormatter.chooseCountryFormatter()));
-          return ctx.wizard.back();
-        }
-        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
-        return ctx.reply(...(await profileFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
-      }
-      case 'next': {
-        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
-        return ctx.reply(
-          ...(await profileFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound)),
-        );
-      }
-      default:
-        ctx.wizard.state.city = callbackQuery.data;
-        ctx.wizard.state.currentRound = 0;
-        ctx.reply(...profileFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.next();
-    }
-  }
-
-  async editRegister(ctx: any) {
-    const callbackQuery = ctx.callbackQuery;
-    if (!callbackQuery) {
-      const message = ctx.message.text;
-      if (message == 'Back') {
-        await ctx.reply(...profileFormatter.chooseGenderFormatter());
-        return ctx.wizard.back();
-      }
-      await ctx.reply('some thing');
-    } else {
-      const state = ctx.wizard.state;
-      switch (callbackQuery.data) {
-        case 'preview_edit': {
-          ctx.wizard.state.editField = null;
-          await deleteMessageWithCallback(ctx);
-          ctx.reply(...profileFormatter.editPreview(state), { parse_mode: 'HTML' });
-          return ctx.wizard.next();
-        }
-        case 'register_data': {
-          const response = await profileService.registerUser(ctx.wizard.state, callbackQuery.from.id);
-
-          if (response.success) {
-            await deleteMessageWithCallback(ctx);
-            ctx.reply(...profileFormatter.registrationSuccess());
-            ctx.scene.leave();
-            return MainMenuController.onStart(ctx);
-          } else {
-            ctx.reply(...profileFormatter.registrationError());
-            if (parseInt(ctx.wizard.state.registrationAttempt) >= 2) {
-              await deleteMessageWithCallback(ctx);
-              ctx.scene.leave();
-              return MainMenuController.onStart(ctx);
-            }
-            return (ctx.wizard.state.registrationAttempt = ctx.wizard.state.registrationAttempt
-              ? parseInt(ctx.wizard.state.registrationAttempt) + 1
-              : 1);
-          }
-        }
-        default: {
-          await ctx.reply('aggain body');
-        }
-      }
-    }
-  }
-  async editData(ctx: any) {
-    const state = ctx.wizard.state;
-    const fileds = ['first_name', 'last_name', 'age', 'gender', 'city', 'country', 'email'];
-    const callbackQuery = ctx?.callbackQuery;
-    const editField = ctx.wizard.state?.editField;
-    if (!callbackQuery) {
-      // changing field value
-      const messageText = ctx.message.text;
-      if (areEqaul(messageText, 'back', true))
-        return ctx.reply(...profileFormatter.editPreview(state), { parse_mode: 'HTML' });
-      if (!editField) return await ctx.reply('invalid input ');
-
-      const validationMessage = registrationValidator(ctx.wizard.state.editField, ctx.message.text);
-      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
-
-      ctx.wizard.state[editField] =
-        editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
-      ctx.wizard.state.editField = null;
-      deleteKeyboardMarkup(ctx);
-      return ctx.reply(...profileFormatter.editPreview(state), { parse_mode: 'HTML' });
-    }
-
-    // if callback exists
-    // save the mesage id for later deleting
-    ctx.wizard.state.previousMessageData = {
-      message_id: ctx.callbackQuery.message.message_id,
-      chat_id: ctx.callbackQuery.message.chat.id,
-    };
-    const callbackMessage = callbackQuery.data;
-
-    if (callbackMessage == 'register_data') {
-      // registration
-      const response = await profileService.registerUser(ctx.wizard.state, callbackQuery.from.id);
-
-      if (response.success) {
-        await deleteMessageWithCallback(ctx);
-        ctx.reply(...profileFormatter.registrationSuccess());
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
-
-      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
-      ctx.reply(...profileFormatter.registrationError());
-      if (registrationAttempt >= 2) {
-        await deleteMessageWithCallback(ctx);
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
-      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
-    }
-    if (areEqaul(callbackMessage, 'back', true)) {
-      deleteMessageWithCallback(ctx);
-      return ctx.reply(...profileFormatter.editPreview(state), { parse_mode: 'HTML' });
-    }
-    if (editField) {
-      //  if edit filed is selected
-      if (callbackMessage.includes(':')) {
-        const [countryCode, country] = callbackMessage.split(':');
-        ctx.wizard.state.country = country;
-        ctx.wizard.state.countryCode = countryCode;
-        ctx.wizard.state.currentRound = 0;
-        await deleteMessageWithCallback(ctx);
-        ctx.reply(...(await profileFormatter.chooseCityFormatter(countryCode, ctx.wizard.state.currentRound)));
-        return ctx.wizard.next();
-      }
-      ctx.wizard.state[editField] = callbackMessage;
-      await deleteMessageWithCallback(ctx);
-      ctx.wizard.state.editField = null;
-      return ctx.reply(...profileFormatter.editPreview(state), { parse_mode: 'HTML' });
-    }
-    if (fileds.some((filed) => filed == callbackMessage)) {
-      // selecting field to change
-      ctx.wizard.state.editField = callbackMessage;
-      await ctx.telegram.deleteMessage(
-        ctx.wizard.state.previousMessageData.chat_id,
-        ctx.wizard.state.previousMessageData.message_id,
-      );
-      await ctx.reply(
-        ...(await profileFormatter.editFiledDispay(
-          callbackMessage,
-          callbackMessage == 'city' ? ctx.wizard.state.countryCode : null,
-        )),
-        profileFormatter.goBackButton(),
-      );
-      ctx.wizard.state.currentRound = 0;
-      if (areEqaul(callbackMessage, 'city', true)) return ctx.wizard.next();
-      return;
-    }
-  }
-  async editCity(ctx: any) {
-    const callbackQuery = ctx.callbackQuery;
-
-    if (!callbackQuery) return ctx.reply(profileFormatter.messages.useButtonError);
-
-    deleteMessageWithCallback(ctx);
-    switch (callbackQuery.data) {
-      case 'back': {
-        if (ctx.wizard.state.currentRound == 0) {
-          ctx.reply(...profileFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
-          return ctx.wizard.back();
-        }
-        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
-        return ctx.reply(...(await profileFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
-      }
-      case 'next': {
-        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
-        return ctx.reply(
-          ...(await profileFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound)),
-        );
-      }
-      default:
-        ctx.wizard.state.city = callbackQuery.data;
-        ctx.reply(...profileFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.back();
-    }
-  }
   async settingPreview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return ctx.reply(profileFormatter.messages.useButtonError);
@@ -522,6 +337,34 @@ class ProfileController {
     return ctx.editMessageReplyMarkup({
       inline_keyboard: profileFormatter.notifyOptionDisplay(message),
     });
+  }
+
+  async sendMessage(ctx: any, receiver_id: string, message: string) {
+    const sender = findSender(ctx);
+    const userData = await profileService.getProfileDataWithTgId(sender.id);
+
+    if (userData?.display_name == null) {
+      ctx.wizard.state.activity = 'update_display_name';
+      return await ctx.reply(...profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender));
+    }
+  }
+  async replyToMessage(ctx: any, receiver_id: string, message: string) {
+    const sender = findSender(ctx);
+    const userData = await profileService.getProfileDataWithTgId(sender.id);
+
+    if (userData?.display_name == null) {
+      ctx.wizard.state.activity = 'update_display_name';
+      return await ctx.reply(...profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender));
+    }
+  }
+
+  async updateDisplayName(ctx: any) {
+    const message = ctx.message;
+    if (!message) return await ctx.reply('Enter string for name');
+    const { status, isDisplayNameTaken, message: errorMsg } = await profileService.isDisplayNameTaken(message.text);
+
+    if (status == 'fail') return ctx.reply(errorMsg);
+    if (isDisplayNameTaken) return ctx.reply(profileFormatter.messages.displayNameTakenMsg);
   }
 }
 

@@ -9,6 +9,7 @@ interface CreateUserDto {
   age: number;
   gender: string;
   country: string;
+  chat_id: string;
   display_name: null;
 }
 

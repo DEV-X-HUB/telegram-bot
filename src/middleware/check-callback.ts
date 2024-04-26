@@ -1,7 +1,9 @@
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import ProfileController from '../modules/profile/profile.controller';
 import PostController from '../modules/post/post.controller';
+import ChatController from '../modules/chat/chat.controller';
 const profileController = new ProfileController();
+const chatController = new ChatController();
 // Middleware to check if user entered command and redirect to its scene
 export function checkCallBacks() {
   return async (ctx: any, next: any) => {
@@ -29,8 +31,25 @@ export function checkCallBacks() {
 
       case query.startsWith('follow'):
         return profileController.handleFollow(ctx, query);
+
       case query.startsWith('unfollow'):
         return profileController.handlUnfollow(ctx, query);
+
+      case query.startsWith('unblock'):
+        return profileController.handlUnblock(ctx, query);
+
+      case query.startsWith('asktoBlock'):
+        return profileController.askToBlock(ctx, query);
+
+      case query.startsWith('blockUser'):
+        return profileController.handleBlock(ctx, query);
+      case query.startsWith('cancelBlock'):
+        return profileController.cancelBlock(ctx, query);
+
+      case query.startsWith('sendMessage_'):
+        return console.log(ctx.scene.enter('chat'));
+      case query.startsWith('replyMessage_'):
+        return console.log(ctx.scene.enter('chat'));
     }
 
     return next();
