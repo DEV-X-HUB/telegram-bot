@@ -29,7 +29,7 @@ export function checkAndRedirectToScene() {
       const commandText = command.slice(1);
       if (query) return checkQueries(ctx, query, next);
 
-      if (commandText == 'start') {
+      if (commandText == 'start' || commandText == 'menu') {
         ctx?.scene?.leave();
         return MainMenuController.onStart(ctx);
       }
