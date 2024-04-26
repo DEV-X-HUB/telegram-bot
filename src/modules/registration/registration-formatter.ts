@@ -216,7 +216,7 @@ class RegistrationFormatter {
 
         [
           { text: 'Email', cbString: 'email' },
-          { text: 'Done', cbString: 'register_data' },
+          { text: 'Done', cbString: 'editing_done' },
         ],
       ]),
     ];

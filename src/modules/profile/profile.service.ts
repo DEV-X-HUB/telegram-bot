@@ -35,6 +35,19 @@ class ProfileService {
       return null;
     }
   }
+  async getProfileById(user_id: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: user_id.toString(),
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
   async getProfileDataWithTgId(tgId: string) {
     try {
       const user = await prisma.user.findUnique({
@@ -115,6 +128,23 @@ class ProfileService {
       throw new Error(`Error updating profile: ${error.message}`);
     }
   }
+  async updateDiplayNameByTgId(tg_id: string, display_name: string) {
+    try {
+      await prisma.user.update({
+        where: {
+          tg_id: tg_id,
+        },
+        data: {
+          display_name: display_name,
+        },
+      });
+
+      return { status: 'success', message: 'success' };
+    } catch (error: any) {
+      console.log(`: ${error.message}`);
+      return { status: 'success', message: 'Error while updating display name' };
+    }
+  }
 
   async getFollowersByUserId(userId: string) {
     try {
@@ -149,24 +179,10 @@ class ProfileService {
     }
   }
 
-  async registerUser(state: any, tgId: string) {
+  async registerUser(createUserDto: CreateUserDto) {
     try {
-      const doesUserExist = await this.isUserRegisteredWithPhone(state.phone_number);
+      const doesUserExist = await this.isUserRegisteredWithPhone(createUserDto.phone_number);
       if (doesUserExist) return { success: false, message: 'user exists', data: null };
-
-      const createUserDto: CreateUserDto = {
-        tg_id: tgId.toString(),
-        username: state.username,
-        first_name: state.first_name,
-        last_name: state.last_name,
-        phone_number: state.phone_number,
-        email: state.email,
-        country: state.country,
-        city: state.city,
-        gender: state.gender,
-        age: parseInt(state.age),
-        display_name: null,
-      };
 
       const createUserResult = await this.createUser(createUserDto);
       return createUserResult;
@@ -226,6 +242,82 @@ class ProfileService {
     }
   }
 
+  async isBlockedBy(currentUserId: string, userId: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: currentUserId,
+        },
+        select: {
+          blocked_users: true,
+        },
+      });
+      if (!user) return { status: 'success', isBlocked: false };
+      const isBlocked = user?.blocked_users.find((blocked_user) => blocked_user == userId);
+
+      return { status: 'success', isBlocked: isBlocked ? true : false };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, isBlocked: false };
+    }
+  }
+
+  async unblockUser(currentUserId: string, userId: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: currentUserId,
+        },
+        select: {
+          blocked_users: true,
+        },
+      });
+
+      if (!user) return { status: 'fail', message: `success` };
+
+      const filteredBlocks = user?.blocked_users.filter((blocked_user) => blocked_user != userId);
+
+      await prisma.user.update({
+        where: {
+          id: currentUserId,
+        },
+        data: {
+          blocked_users: filteredBlocks,
+        },
+      });
+      return { status: 'success', message: `success` };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation` };
+    }
+  }
+
+  async blockUser(currentUserId: string, userId: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: currentUserId,
+        },
+        select: {
+          blocked_users: true,
+        },
+      });
+      if (!user) return { status: 'fail', message: `success` };
+      const filteredBlocks = user?.blocked_users;
+      await prisma.user.update({
+        where: {
+          id: currentUserId,
+        },
+        data: {
+          blocked_users: [...filteredBlocks, userId],
+        },
+      });
+      return { status: 'success', message: `success` };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation` };
+    }
+  }
   async isFollowing(currentUserId: string, userId: string) {
     try {
       const follow = await prisma.follows.findFirst({
@@ -238,6 +330,91 @@ class ProfileService {
     } catch (error) {
       console.error('Error checking if user is following:', error);
       return { status: 'fail', message: `unable to make operation`, isFollowing: false };
+    }
+  }
+  async isDisplayNameTaken(display_name: string) {
+    try {
+      const follow = await prisma.user.findFirst({
+        where: {
+          display_name,
+        },
+      });
+      return { status: 'success', isDisplayNameTaken: !!follow };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, isDisplayNameTaken: false };
+    }
+  }
+
+  static async fetchReceivedMessage(user_id: string) {
+    try {
+      const messages = await prisma.message.findMany({
+        where: {
+          receiver_id: user_id,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+        },
+      });
+
+      return { status: 'success', messages };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, messages: [] };
+    }
+  }
+  static async fetchSendMessage(user_id: string) {
+    try {
+      const messages = await prisma.message.findMany({
+        where: {
+          sender_id: user_id,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              display_name: true,
+              chat_id: true,
+            },
+          },
+        },
+      });
+
+      return { status: 'success', messages };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', message: `unable to make operation`, messages: [] };
+    }
+  }
+  static async createMessage(user_id: string, receiver_id: string, message: string) {
+    try {
+      const newUser = await prisma.message.create({
+        data: { id: UID(), content: message, sender_id: user_id, receiver_id },
+      });
+      return { success: true, data: newUser, message: 'user created' };
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, data: null, message: error?.message };
     }
   }
 }

@@ -44,6 +44,22 @@ export const sendMediaGroup = async (ctx: any, phtos: any[], caption: string = '
   await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 };
 
+export const hasCallbackQuery = (ctx: any, queryStarter: string) => {
+  if (!ctx.callbackQuery) return false;
+  ``;
+  const query = ctx.callbackQuery.data;
+  return query.startsWith(queryStarter);
+};
+
+export const sendMessage = async (ctx: any, chatId: number, message: string, sender_id: string, message_id: string) => {
+  return await ctx.telegram.sendMessage(chatId, message, {
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [[{ text: '✍️ Reply', callback_data: `replyMessage_${sender_id}_${message_id}` }]],
+    },
+  });
+};
+
 export const sendMediaGroupToChannel = async (
   ctx: any,
   photos: any[],

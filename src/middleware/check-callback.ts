@@ -1,6 +1,7 @@
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import ProfileController from '../modules/profile/profile.controller';
 import PostController from '../modules/post/post.controller';
+
 const profileController = new ProfileController();
 // Middleware to check if user entered command and redirect to its scene
 export function checkCallBacks() {
@@ -9,10 +10,8 @@ export function checkCallBacks() {
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
 
-    console.log(query, 'query from call back');
-
     switch (true) {
-      case query.startsWith('show_all_questions'): {
+      case query.startsWith('searchedPosts'): {
         const [_, round] = query.split(':');
         return PostController.listAllPosts(ctx, round);
       }
@@ -29,8 +28,25 @@ export function checkCallBacks() {
 
       case query.startsWith('follow'):
         return profileController.handleFollow(ctx, query);
+
       case query.startsWith('unfollow'):
         return profileController.handlUnfollow(ctx, query);
+
+      case query.startsWith('unblock'):
+        return profileController.handlUnblock(ctx, query);
+
+      case query.startsWith('asktoBlock'):
+        return profileController.askToBlock(ctx, query);
+
+      case query.startsWith('blockUser'):
+        return profileController.handleBlock(ctx, query);
+      case query.startsWith('cancelBlock'):
+        return profileController.cancelBlock(ctx, query);
+
+      case query.startsWith('sendMessage_'):
+        return console.log(ctx.scene.enter('chat'));
+      case query.startsWith('replyMessage_'):
+        return console.log(ctx.scene.enter('chat'));
     }
 
     return next();
@@ -46,7 +62,6 @@ export function checkMenuOptions() {
 }
 
 export function checkQueries(ctx: any, query: string, next: any) {
-  console.log(query, 'query from string');
   switch (true) {
     case query.startsWith('searchedPosts'): {
       const [_, searachText, round] = query.split('_');

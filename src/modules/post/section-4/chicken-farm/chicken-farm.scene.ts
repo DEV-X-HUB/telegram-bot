@@ -1,5 +1,6 @@
 import { Scenes } from 'telegraf';
 import ChickenFarmController from './chicken-farm.controller';
+import { restartScene } from '../../../../middleware/check-command';
 
 const chickenFarmController = new ChickenFarmController();
 const chickenFarmScene = new Scenes.WizardScene(
@@ -16,4 +17,5 @@ const chickenFarmScene = new Scenes.WizardScene(
   chickenFarmController.adjustNotifySetting,
 );
 
+chickenFarmScene.use(restartScene('Post-Section-4'));
 export default chickenFarmScene;
