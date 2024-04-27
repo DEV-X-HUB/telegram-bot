@@ -68,13 +68,11 @@ export const registerationSkips = (ctx: any) => {
 
   if (query) {
     return skipQueries.some((skipQuery) => {
-      console.log(query.toString().startsWith(skipQuery), query);
       return query.toString().startsWith(skipQuery);
     });
   }
   if (message) {
     return skipQueries.some((skipQuery) => {
-      console.log(message.toString().startsWith(skipQuery), message);
       return message.toString().startsWith(skipQuery);
     });
   }

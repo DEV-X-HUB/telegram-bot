@@ -22,7 +22,7 @@ class RegistrationController {
     });
 
     await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
-    ctx.wizard.state.registering = 'registering';
+    ctx.wizard.state.registering = true;
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
