@@ -50,6 +50,25 @@ model User {
   receiver_messages  Message[] @relation("MessageReceiver")
 }
 
+
+model Admin {
+  id            String  @id @default(uuid()) // UUID type for user_id
+  first_name    String // Required first name
+  last_name     String // Required last name
+  email         String   @unique// Optional email
+  phone_number  String?  @unique // Unique phone number
+  password      String // Required password
+
+  // otp
+  otp           String? // Optional otp
+  otp_expires   DateTime? // Optional otp_expires
+
+  //reset password
+  reset_password_token String? // Optional reset_password_token
+  reset_password_expires DateTime? // Optional reset_password_expires
+  
+}
+
 model Message {
   id         String   @id @default(uuid())
   sender_id   String

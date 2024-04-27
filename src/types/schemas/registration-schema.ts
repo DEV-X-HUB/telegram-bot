@@ -63,10 +63,11 @@ export const ageOrDateSchema = z.string().refine(
 export const emailSchema = z.string().refine(
   (value) => {
     // Check if the email is valid
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9]*@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+
     return emailRegex.test(value);
   },
   {
     message: 'Invalid email address. Please enter a valid email.',
-  },  
+  },
 );

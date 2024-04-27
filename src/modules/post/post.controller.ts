@@ -23,7 +23,7 @@ class PostController {
     const query = ctx?.update?.inline_query?.query;
 
     if (!query || query.trim() == '') return;
-    const { success, posts } = await questionService.getPostsByDescription(query);
+    const { success, posts } = await questionService.getAllPostsByDescription(query);
     if (!success) return await ctx.reply('unable to make search');
     if (posts.length == 0)
       return await ctx.answerInlineQuery([...questionFormmatter.formatNoQuestionsErrorMessage()], {

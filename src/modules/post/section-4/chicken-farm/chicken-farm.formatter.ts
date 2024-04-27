@@ -62,8 +62,12 @@ class ChickenFarmFormatter {
     return MarkupButtons(this.backOption, oneTime);
   }
 
-  getPreviewData(state: any) {
+  getDetailData(state: any) {
     return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n_______\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+  }
+
+  getPreviewData(state: any) {
+    return `#${state.category}\n_______\n\nTitle: ${state.sector}\n\nDescription: ${state.description} \n\n\By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -90,7 +94,7 @@ class ChickenFarmFormatter {
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [

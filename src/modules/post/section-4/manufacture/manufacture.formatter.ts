@@ -93,15 +93,21 @@ class ManufactureFormatter {
     return MarkupButtons(this.backOption, oneTime);
   }
 
-  getPreviewData(state: any) {
+  getDetailData(state: any) {
     return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector}\n\nWorker: ${state.number_of_worker} \n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n
+    By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>
+    \n\nStatus : ${state.status}`;
+  }
+
+  getPreviewData(state: any) {
+    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector}\n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n
     By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>
     \n\nStatus : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [
