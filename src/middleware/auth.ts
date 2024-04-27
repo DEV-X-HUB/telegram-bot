@@ -3,6 +3,7 @@ import config from '../config/config';
 import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
 import { findSender } from '../utils/constants/chat';
 import RegistrationService from '../modules/registration/restgration.service';
+import { isRegistering } from '../modules/registration/registration.scene';
 const mainMenuFormmater = new MainMenuFormmater();
 
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
@@ -16,8 +17,6 @@ async function checkUserInChannel(userId: number): Promise<any> {
         user_id: userId,
       },
     });
-
-    console.log(response.data.result.status);
 
     const isUserJoined =
       response.data.result.status === 'member' ||
@@ -71,8 +70,7 @@ export const registerationSkips = (ctx: any) => {
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
 
-  const isInRegistration = ctx.wizard?.state?.registering;
-  if (isInRegistration) return true;
+  if (isRegistering()) return true;
 
   if (query) {
     return skipQueries.some((skipQuery) => {

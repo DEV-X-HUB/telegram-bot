@@ -10,11 +10,16 @@ import RegistrationFormatter from './registration-formatter';
 import RegistrationService from './restgration.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import CreateUserDto from '../../types/dto/create-user.dto';
+import registrationScene, { updateRegisrationStateAction } from './registration.scene';
 const registrationService = new RegistrationService();
 const registrationFormatter = new RegistrationFormatter();
 class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
+    registrationScene.enterHandler(1, async () => {
+      updateRegisrationStateAction('start_register');
+    });
+
     await ctx.reply(config.terms_condtion_link, {
       reply_markup: {
         remove_keyboard: true,
