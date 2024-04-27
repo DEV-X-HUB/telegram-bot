@@ -117,16 +117,16 @@ class ConstructionFormatter {
 
   getDetailData(state: any) {
     if (areEqaul(state.size, 'small', true))
-      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n________________\n\n${state.size} \n\nLocation: ${state.location}  \n\nExperience: ${state.company_experience} \n\nDocument: ${state.document_request_type}\n\nDescription: ${state.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n________________\n\n${state.size} \n\nLand size: ${state.land_size} \n\nLand Status: ${state.land_status}\n\nLocation: ${state.location}\n\nDescription: ${state.description} \n\n
-    By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+      return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location}  \n\n<b>Experience</b>: ${state.company_experience} \n\n<b>Document</b>: ${state.document_request_type}\n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+
+    return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\n<b>Location</b>: ${state.location}\n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   getPreviewData(state: any) {
     if (areEqaul(state.size, 'small', true))
-      return `#${state.category}\n________________\n\n${state.size} \n\nLocation: ${state.location} \n\nDescription: ${state.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
-    return `#${state.category}\n________________\n\n${state.size} \n\nLand size: ${state.land_size} \n\nLand Status: ${state.land_status}\n\nDescription: ${state.description} \n\n
-    By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+      return `<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+
+    return `#${state.category}\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${state.description} \n\n<b> By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
@@ -253,7 +253,7 @@ class ConstructionFormatter {
     const description =
       post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
 
-    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+    const message = `#${post.category}\n_______\n\n<b>Description</b> : ${description}\n\n<b>Status</b> : ${post.status}`;
 
     const buttons = InlineKeyboardButtons([
       [

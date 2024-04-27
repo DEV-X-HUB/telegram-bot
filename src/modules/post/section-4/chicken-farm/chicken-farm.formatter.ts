@@ -63,11 +63,11 @@ class ChickenFarmFormatter {
   }
 
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n_______\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category}</b>\n_______\n\n <b>Title </b>: ${state.sector}\n\n <b>Estimated Capital </b>: ${state.estimated_capital} \n\n<b>Enterprise Name </b>: ${state.enterprise_name} \n\n <b>Description</b>: ${state.description} \n\n\<b>By </b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category}\n_______\n\nTitle: ${state.sector}\n\nDescription: ${state.description} \n\n\By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `<b>#${state.category}<b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n <b>Description </b>: ${state.description} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -76,12 +76,13 @@ class ChickenFarmFormatter {
   mentionPostMessage() {
     return [this.messages.mentionPost, this.goBackButton()];
   }
+
   displayPreviousPostsList(post: any) {
     // Check if post.description is defined before accessing its length
     const description =
       post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
 
-    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+    const message = `<b>#${post.category}</b>\n_______\n\n<b>Description</b>: ${description}\n\n<b>Status</b> : ${post.status}`;
 
     const buttons = InlineKeyboardButtons([
       [
