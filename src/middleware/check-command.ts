@@ -4,6 +4,7 @@ import { Context } from 'telegraf';
 import { checkQueries } from './check-callback';
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import { capitalize } from '../utils/constants/string';
+import { findSender } from '../utils/constants/chat';
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
@@ -21,6 +22,7 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
+
     if (!text) return next();
 
     if (!text) return next();

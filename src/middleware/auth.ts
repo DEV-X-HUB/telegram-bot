@@ -90,12 +90,12 @@ export const registerationSkips = (ctx: any) => {
 
 export function checkRegistration() {
   return async (ctx: any, next: any) => {
+    const isVia_bot = ctx.message?.via_bot;
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
-
+    if (isVia_bot) return true;
     if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
-    console.log(isUserRegistered, 'rrrrrrrrrr');
     if (!isUserRegistered) {
       ctx.reply('Please register to use the service');
       return ctx.scene.enter('register');

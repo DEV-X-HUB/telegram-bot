@@ -43,5 +43,3 @@ export default () => {
   dbConnecion;
   return bot;
 };
-
-console.log('🔍 Search Questions'.startsWith('🔍 Search Questions'), 'ggg');
