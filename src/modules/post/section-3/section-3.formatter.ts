@@ -50,13 +50,17 @@ class Section3Formatter {
     return MarkupButtons(this.backOption, oneTime);
   }
 
-  getPreviewData(state: any) {
+  getDetailData(state: any) {
     return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+  }
+
+  getPreviewData(state: any) {
+    return `#${state.category}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [

@@ -115,16 +115,23 @@ class ConstructionFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
+  getDetailData(state: any) {
+    if (areEqaul(state.size, 'small', true))
+      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n________________\n\n${state.size} \n\nLocation: ${state.location}  \n\nExperience: ${state.company_experience} \n\nDocument: ${state.document_request_type}\n\nDescription: ${state.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n________________\n\n${state.size} \n\nLand size: ${state.land_size} \n\nLand Status: ${state.land_status}\n\nLocation: ${state.location}\n\nDescription: ${state.description} \n\n
+    By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+  }
+
   getPreviewData(state: any) {
     if (areEqaul(state.size, 'small', true))
-      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n________________\n\n${state.size} \n\nLocation: ${state.location}  \n\nExperience: ${state.company_experience} \n\nDocument: ${state.document_request_type}\n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n________________\n\n${state.size} \n\nLang size: ${state.land_size} \n\nLand Status: ${state.land_status}\n\nLocation: ${state.location}\n\nDescription: ${state.description} \n\n
+      return `#${state.category}\n________________\n\n${state.size} \n\nLocation: ${state.location} \n\nDescription: ${state.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `#${state.category}\n________________\n\n${state.size} \n\nLand size: ${state.land_size} \n\nLand Status: ${state.land_status}\n\nDescription: ${state.description} \n\n
     By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [
