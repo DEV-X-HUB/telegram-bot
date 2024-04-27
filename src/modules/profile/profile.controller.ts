@@ -36,7 +36,7 @@ class ProfileController {
     this.saveToState(ctx, userData);
     ctx.wizard.state.activity = 'preview';
 
-    await deleteKeyboardMarkup(ctx);
+    await deleteKeyboardMarkup(ctx, profileFormatter.formatePreview(ctx.wizard.state.userData));
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
   async previewHandler(ctx: any) {
