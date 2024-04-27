@@ -11,11 +11,13 @@ class MainMenuController {
     const sender = findSender(ctx);
     const option = ctx?.message?.text;
 
-    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
-    if (!isUserRegistered) {
-      ctx.reply('Please register to use the service');
-      return ctx.scene.enter('register');
-    }
+    // if (option && option.startsWith('🔍 Search Questions')) {
+    //   const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
+    //   if (!isUserRegistered) {
+    //     ctx.reply('Please register to use the service');
+    //     return ctx.scene.enter('register');
+    //   }
+    // }
 
     switch (option) {
       case 'Service 1': {

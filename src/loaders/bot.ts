@@ -20,6 +20,8 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene]);
 
+  bot.on('inline_query', SearchQuestionController.handleSearch);
+
   stage.use(checkRegistration());
   stage.use(checkCallBacks());
   stage.use(checkAndRedirectToScene());
@@ -28,8 +30,6 @@ export default () => {
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
   bot.use(checkMenuOptions());
-
-  bot.on('inline_query', SearchQuestionController.handleSearch);
 
   const commands = [
     { name: 'start', description: 'Start the bot' },
@@ -43,3 +43,5 @@ export default () => {
   dbConnecion;
   return bot;
 };
+
+console.log('🔍 Search Questions'.startsWith('🔍 Search Questions'), 'ggg');

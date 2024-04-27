@@ -59,7 +59,15 @@ export function checkUserInChannelandPromtJoin() {
 }
 
 export const registerationSkips = (ctx: any) => {
-  const skipQueries = ['searchedPosts', 'browse', 'post_detail', '/start', '/restart', 'search'];
+  const skipQueries = [
+    'searchedPosts',
+    'browse',
+    'post_detail',
+    '/start',
+    '/restart',
+    '/search',
+    '🔍 Search Questions',
+  ];
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
 
@@ -73,7 +81,7 @@ export const registerationSkips = (ctx: any) => {
   }
   if (message) {
     return skipQueries.some((skipQuery) => {
-      return message.toString().startsWith(skipQuery);
+      return message.startsWith(skipQuery);
     });
   }
 
@@ -85,8 +93,9 @@ export function checkRegistration() {
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
 
-    if (isRegisteredSkiped == true) return next();
+    if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
+    console.log(isUserRegistered, 'rrrrrrrrrr');
     if (!isUserRegistered) {
       ctx.reply('Please register to use the service');
       return ctx.scene.enter('register');
