@@ -218,6 +218,7 @@ export async function loginAdmin(req: Request, res: Response) {
         last_name: true,
         email: true,
         phone_number: true,
+        password: true, // Add password field to the select statement
       },
     });
 
@@ -238,7 +239,7 @@ export async function loginAdmin(req: Request, res: Response) {
     }
 
     // create a token
-    const token = await jwt.sign({ id: admin.id }, config.jwt.secret, {
+    const token = await jwt.sign({ id: admin.id }, config.jwt.secret as string, {
       expiresIn: config.jwt.expires_in,
     });
 
