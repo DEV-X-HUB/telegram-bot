@@ -8,6 +8,7 @@ export function checkCallBacks() {
   return async (ctx: any, next: any) => {
     const callbackQuery = ctx?.callbackQuery;
     if (!callbackQuery) return next();
+    console.log(callbackQuery);
     const query = callbackQuery.data;
 
     switch (true) {

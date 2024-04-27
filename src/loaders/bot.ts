@@ -20,15 +20,14 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene]);
 
+  stage.use(checkRegistration());
   stage.use(checkCallBacks());
-
   stage.use(checkAndRedirectToScene());
 
   bot.use(session());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
   bot.use(checkMenuOptions());
-  stage.use(checkRegistration());
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 
