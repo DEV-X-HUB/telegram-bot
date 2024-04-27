@@ -62,12 +62,23 @@ export const registerationSkips = (ctx: any) => {
   const skipQueries = ['searchedPosts', 'browse', 'post_detail', '/start', '/restart'];
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
+
+  const isInRegistration = ctx.wizard?.state?.registering;
+  if (isInRegistration) return true;
+
   if (query) {
-    return skipQueries.some((skipQuery) => query.toString().startsWith(skipQuery));
+    return skipQueries.some((skipQuery) => {
+      console.log(query.toString().startsWith(skipQuery), query);
+      return query.toString().startsWith(skipQuery);
+    });
   }
   if (message) {
-    return skipQueries.some((skipQuery) => message.toString().startsWith(skipQuery));
+    return skipQueries.some((skipQuery) => {
+      console.log(message.toString().startsWith(skipQuery), message);
+      return message.toString().startsWith(skipQuery);
+    });
   }
+
   return false;
 };
 
@@ -75,7 +86,8 @@ export function checkRegistration() {
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
-    if (isRegisteredSkiped) return next();
+
+    if (isRegisteredSkiped == true) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
     if (!isUserRegistered) {
       ctx.reply('Please register to use the service');

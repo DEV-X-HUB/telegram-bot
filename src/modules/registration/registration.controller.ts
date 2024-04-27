@@ -20,7 +20,9 @@ class RegistrationController {
         remove_keyboard: true,
       },
     });
+
     await ctx.reply(...registrationFormatter.termsAndConditionsDisplay(), { parse_mode: 'Markdown' });
+    ctx.wizard.state.registering = 'registering';
     return ctx.wizard.next();
   }
   async agreeTermsHandler(ctx: any) {
@@ -250,6 +252,8 @@ class RegistrationController {
             await deleteMessageWithCallback(ctx);
             ctx.reply(...registrationFormatter.registrationSuccess());
             ctx.scene.leave();
+
+            ctx.wizard.state.registering = false;
             return MainMenuController.onStart(ctx);
           } else {
             ctx.reply(...registrationFormatter.registrationError());
