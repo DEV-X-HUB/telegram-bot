@@ -81,7 +81,6 @@ export const getCommand = (ctx: any): boolean | string => {
 
 export function restartScene(sceneId: string) {
   return async (ctx: any, next: any) => {
-    console.log('ddddddddddddddd');
     const command = getCommand(ctx);
     if (command && command == 'restart') {
       ctx.message.text = 'none';
