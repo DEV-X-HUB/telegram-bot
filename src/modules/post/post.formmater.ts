@@ -55,7 +55,7 @@ class PostFormatter {
     if (withUrl)
       return [
         // navigate to the bot and start the bot with the command 'answer'
-        { text: `Answer`, url: `${config.bot_url}?start=answer_${questionId}` },
+        { text: `Detail`, url: `${config.bot_url}?start=postDetail_${questionId}` },
         // { text: `Browse`, url: `${config.bot_url}?start=browse_${questionId}` },
       ];
     else
@@ -73,7 +73,7 @@ class PostFormatter {
       id: `${post.id}_${index}`,
       title: post.description,
       input_message_content: {
-        message_text: `#${post.category}\n\n${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name}</a>\n${formatDateFromIsoString(post.created_at)}`,
+        message_text: this.getPostsPreview(post) as string,
         parse_mode: 'HTML',
         entities: [
           {
@@ -110,7 +110,7 @@ class PostFormatter {
         reply_markup: {
           inline_keyboard: [
             // navigate to the bot and start the bot with the command 'answer'
-            { text: `Ask a question`, url: `${config.bot_url}?start` },
+            { text: `Make a post`, url: `${config.bot_url}?start` },
           ],
         },
       },
@@ -150,6 +150,95 @@ class PostFormatter {
   }
 
   getformattedQuestionDetail(post: any) {
+    const sectionName = getSectionName(post.category) as PostCategory;
+    switch (post.category) {
+      case 'Section 1A':
+        return post1AFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1B':
+        return post1BFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1C':
+        return post1CFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 2': {
+        return post2Formatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      }
+
+      case 'Section 3': {
+        return section3Formatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created,
+          user: post.user,
+          ...post[sectionName],
+        });
+      }
+
+      case 'Chicken Farm':
+        return chickenFarmFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section4Manufacture':
+        return manufactureFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section4Construction':
+        return constructionFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+    }
+
+    switch (true) {
+      case areEqaul(post.category, 'Section 1A', true): {
+        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
+        ``;
+      }
+    }
+  }
+
+  getPostsPreview(post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
     switch (post.category) {
       case 'Section 1A':
@@ -237,6 +326,32 @@ class PostFormatter {
       }
     }
   }
+
+  // getFormattedPostPreview(post: Post) {
+  //   const sectionName = getSectionName(post.category) as PostCategory;
+  //   switch (post.category) {
+  //     case 'Section 1A':
+  //       return post1AFormatter.getPreviewData(post);
+  //     case 'Section 1B':
+  //       return post1BFormatter.getPreviewData(post);
+  //     case 'Section 1C':
+  //       return post1CFormatter.getPreviewData(post);
+  //     case 'Section 2': {
+  //       return post2Formatter.getPreviewData(post);
+  //     }
+
+  //     case 'Section 3': {
+  //       return section3Formatter.getPreviewData(post);
+  //     }
+
+  //     case 'Chicken Farm':
+  //       return chickenFarmFormatter.getPreviewData(post);
+  //     case 'Section4Manufacture':
+  //       return manufactureFormatter.getPreviewData(post);
+  //     case 'Section4Construction':
+  //       return constructionFormatter.getPreviewData(post);
+  //   }
+  // }
 }
 
 export default PostFormatter;
