@@ -1,9 +1,13 @@
 import { RequestHandler, Request, Response } from 'express';
 import prisma from '../loaders/db-connecion';
-import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
+import Bot from '../loaders/bot';
+import PostController from '../modules/post/post.controller';
+import PostService from '../modules/post/post.service';
+
+const postService = new PostService();
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
@@ -81,34 +85,32 @@ export const getPostsOfUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateStatusOfPost = async (req: Request, res: Response) => {
-  const post_id = req.params.id;
-  try {
-    const post = await prisma.post.update({
-      where: { id: post_id },
-      data: {
-        status: req.body.status,
-      },
-    });
-
-    if (!post) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No post found',
-      });
-    }
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Post status updated',
-      data: post,
-    });
-  } catch (error) {
+export const updatePostStatus = async (req: Request, res: Response) => {
+  const bot = Bot();
+  const { postId, status: updateStatus } = req.body;
+  const { post, status, message } = await postService.updatePostStatus(postId, updateStatus);
+  if (status == 'fail')
     res.status(500).json({
       status: 'fail',
-      message: (error as Error).message,
+      message,
+    });
+
+  if (!post) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'No post found',
     });
   }
+
+  if (updateStatus == 'open') {
+    const { status, message } = await PostController.sendPostToUser(bot, post);
+    await PostController.postToChannel(bot, config.channel_id, post);
+  }
+  res.status(200).json({
+    status: 'success',
+    message: 'Post status updated',
+    data: 'post',
+  });
 };
 
 export const deletePostById = async (req: Request, res: Response) => {

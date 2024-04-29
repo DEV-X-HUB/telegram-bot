@@ -22,7 +22,7 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
-
+    console.log(text);
     if (!text) return next();
 
     if (!text) return next();

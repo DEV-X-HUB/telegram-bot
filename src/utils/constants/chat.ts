@@ -46,7 +46,6 @@ export const sendMediaGroup = async (ctx: any, phtos: any[], caption: string = '
 
 export const hasCallbackQuery = (ctx: any, queryStarter: string) => {
   if (!ctx.callbackQuery) return false;
-  ``;
   const query = ctx.callbackQuery.data;
   return query.startsWith(queryStarter);
 };
@@ -58,6 +57,28 @@ export const sendMessage = async (ctx: any, chatId: number, message: string, sen
       inline_keyboard: [[{ text: '✍️ Reply', callback_data: `replyMessage_${sender_id}_${message_id}` }]],
     },
   });
+};
+export const messagePostPreview = async (bot: any, chatId: any, message: string, post_id: string) => {
+  return await bot.telegram.sendMessage(chatId, message, {
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [[{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post_id}` }]],
+    },
+  });
+};
+
+export const sendMediaGroupToUser = async (
+  ctx: any,
+  chatId: string,
+  photos: any[],
+  caption: string = 'Images associated with the post',
+) => {
+  const mediaGroup = photos.map((image: any) => ({
+    media: image,
+    type: 'photo',
+    caption: caption,
+  }));
+  await ctx.telegram.sendMediaGroup(chatId, mediaGroup);
 };
 
 export const sendMediaGroupToChannel = async (

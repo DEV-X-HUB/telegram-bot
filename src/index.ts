@@ -6,12 +6,12 @@ import {
   getPosts,
   getPostById,
   getPostsOfUser,
-  updateStatusOfPost,
+  updatePostStatus,
   deleteAllPosts,
   deletePostById,
-  // createAdmin,
-  // loginAdmin,
-} from './api/apiFunctions';
+  createAdmin,
+  loginAdmin,
+} from './api/post-controller';
 
 const app = Express();
 const ignite = () => {
@@ -24,16 +24,16 @@ const ignite = () => {
 
     // ROUTES
     // Post routes
-    app.get('/posts', getPosts);
-    app.get('/posts/:id', getPostById);
-    app.get('/posts/user/:userId', getPostsOfUser);
-    app.put('/posts/:id', updateStatusOfPost);
-    app.delete('/posts/:id', deletePostById);
-    app.delete('/posts', deleteAllPosts);
+    app.get('/post/all', getPosts);
+    app.get('/post/:id', getPostById);
+    app.get('/post/user-post/:userId', getPostsOfUser);
+    app.put('/post/update', updatePostStatus);
+    app.delete('/post/:id', deletePostById);
+    app.delete('/post', deleteAllPosts);
 
     // Admin routes
-    // app.post('/admin/login', loginAdmin);
-    // app.post('/admin/signup', createAdmin);
+    app.post('/admin/login', loginAdmin);
+    app.post('/admin/signup', createAdmin);
 
     const server = app.listen(config.port, () => {
       console.log(`bot is running on port ${config.port}`);

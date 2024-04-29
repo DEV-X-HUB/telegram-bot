@@ -85,8 +85,8 @@ model Follows {
   id           String @id @default(uuid())
   follower_id  String 
   following_id String
-  follower     User   @relation("Follower", fields: [follower_id], references: [id])
-  following    User   @relation("Following", fields: [following_id], references: [id])
+  follower     User   @relation("Follower", fields: [following_id], references: [id])
+  following    User   @relation("Following", fields: [follower_id], references: [id])
   @@unique([follower_id, following_id])
 }
 

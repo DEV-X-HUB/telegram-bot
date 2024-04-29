@@ -14,6 +14,7 @@ import {
   CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
+import { PostStatus } from '../../types/api';
 import config from '../../config/config';
 
 class PostService {
@@ -376,7 +377,55 @@ class PostService {
       return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
+  async updatePostStatus(postId: string, status: PostStatus) {
+    try {
+      const post = await prisma.post.update({
+        where: { id: postId },
+        data: {
+          status: status,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+              followers: true,
+              followings: true,
+              blocked_users: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
 
+      return {
+        status: 'success',
+        message: 'Post status updated',
+        post,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: 'fail',
+        message: 'Unable to update Post',
+        post: null,
+      };
+    }
+    const post = await prisma.post.update({
+      where: { id: postId },
+      data: {
+        status: status,
+      },
+      select: {},
+    });
+  }
   async geAlltPostsByDescription(searchText: string, round: number) {
     const postPerRound = parseInt(config.number_of_result || '5');
     const skip = (round - 1) * postPerRound;
@@ -427,15 +476,19 @@ class PostService {
       return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
-  async getPostById(questionId: string) {
+  async getPostById(postId: string) {
+    console.log(postId);
     try {
       const post = await prisma.post.findFirst({
-        where: { id: questionId },
+        where: { id: postId },
         include: {
           user: {
             select: {
               id: true,
               display_name: true,
+              followers: true,
+              followings: true,
+              blocked_users: true,
             },
           },
           Service1A: true,
@@ -455,6 +508,81 @@ class PostService {
     } catch (error) {
       console.error('Error searching questions:', error);
       return { success: true, post: null };
+    }
+  }
+  async getFollowersChatId(postId: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: { id: postId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+              followers: true,
+              followings: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        post,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, post: null };
+    }
+  }
+
+  async getChatIds(recipientsIds: string[]) {
+    try {
+      const chatIds = await prisma.user.findMany({
+        where: {
+          id: { in: recipientsIds },
+        },
+        select: {
+          chat_id: true,
+        },
+      });
+      return {
+        success: true,
+        chatIds,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, chatIds: [] };
+    }
+  }
+  async getFilteredRecipients(recipientsIds: string[], posterId: string) {
+    console.log(recipientsIds);
+    try {
+      const recipientChatIds = await prisma.user.findMany({
+        where: {
+          id: {
+            in: recipientsIds,
+          },
+          NOT: {
+            blocked_users: { has: posterId },
+          },
+        },
+        select: {
+          chat_id: true,
+        },
+      });
+
+      return { status: 'success', recipientChatIds: recipientChatIds };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', recipientChatIds: [] };
     }
   }
 

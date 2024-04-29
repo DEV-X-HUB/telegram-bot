@@ -114,6 +114,7 @@ class ProfileController {
 
     const userData = await profileService.getProfileDataWithId(userId);
     const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    if (!userData) return ctx.reply(profileFormatter.messages.userNotFound);
 
     return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
@@ -131,9 +132,13 @@ class ProfileController {
     const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
 
     if (userData)
-      return ctx.editMessageReplyMarkup({
-        inline_keyboard: [profileFormatter.getProfileButtons(userData.id, false, isBlocked)],
-      });
+      try {
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [profileFormatter.getProfileButtons(userData.id, true, isBlocked)],
+        });
+      } catch (error) {
+        console.log(error);
+      }
   }
   async handlUnfollow(ctx: any, query: string) {
     const [_, userId] = query.split('_');
