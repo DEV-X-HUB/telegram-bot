@@ -377,6 +377,7 @@ class RegistrationController {
         );
       }
       default:
+        ctx.wizard.state.editField = null;
         ctx.wizard.state.city = callbackQuery.data;
         ctx.replyWithHTML(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.back();
