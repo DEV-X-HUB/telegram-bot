@@ -4,7 +4,7 @@ z.coerce.string().email().min(5);
 
 export const firstNameSchema = z
   .string()
-  .regex(/^[\u1200-\u137F\s]+$/, { message: 'First name must contain only letters' })
+  .regex(/(^[\u1200-\u137F\s]+$)|(^[a-zA-Z]+$)/, { message: 'First name must contain only letters' })
   .min(3, { message: 'First name must be at least 3 characters long' })
   .max(15, { message: 'First name must be at most 15 characters long' });
 
@@ -16,7 +16,7 @@ export const firstNameSchema = z
 
 export const lastNameSchema = z
   .string()
-  .regex(/^[\u1200-\u137F\s]+$/, { message: 'First name must contain only letters' })
+  .regex(/(^[\u1200-\u137F\s]+$)|(^[a-zA-Z]+$)/, { message: 'First name must contain only letters' })
   .min(3, { message: 'First name must be at least 3 characters long' })
   .max(15, { message: 'First name must be at most 15 characters long' });
 
