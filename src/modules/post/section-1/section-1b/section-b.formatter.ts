@@ -226,14 +226,17 @@ class Post1BFormatter {
       ]),
     ];
   }
+
+  // <b> </b>
+
   getDetailData(state: any) {
     if (areEqaul(state.main_category, 'main_4'))
-      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_category}\n________________\n\n${state.title} \n\nCondtition: ${state.condition}  \n\nDate of Issue: ${state.date_of_issue} \n\nDate of Expire: ${state.date_of_expire} \n\nOriginal Location: ${state.location}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_category}\n________________\n\n${state.title}  \n\nCondition: ${state.condition} \n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+      return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n<b>${state.title}</b> \n\n<b>Condtition:</b> ${state.condition}  \n\n<b>Date of Issue:</b> ${state.date_of_issue} \n\n<b>Date of Expire:</b> ${state.date_of_expire} \n\n<b>Original Location:</b> ${state.location}\n\nWoreda: ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n${state.title}  \n\n<b>Condition:</b> ${state.condition}\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `${state.sub_category}\n________________\n\n${state.title}\n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `<b>${state.sub_category}</b>\n________________\n\n${state.title}\n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   // getDetailData
@@ -293,7 +296,7 @@ class Post1BFormatter {
   }
   editPreview(state: any) {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       areEqaul(state.main_category, 'main_10', true)
         ? InlineKeyboardButtons([
             [

@@ -288,7 +288,7 @@ class QuestionPostSectionBController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...sectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...sectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
@@ -375,7 +375,7 @@ class QuestionPostSectionBController {
         case 'back': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.back();
-          return await ctx.replyWithHTML(...sectionBFormatter.preview(state));
+          return await ctx.replyWithHTML(...sectionBFormatter.preview(state), { parse_mode: 'HTML' });
         }
         default: {
           await ctx.reply('DEFAULT');
@@ -451,7 +451,9 @@ class QuestionPostSectionBController {
           extra = ctx.wizard.state.condition;
           break;
       }
-      await ctx.reply(...((await sectionBFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await sectionBFormatter.editFieldDispay(callbackMessage)) as any), {
+        parse_mode: 'HTML',
+      });
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }

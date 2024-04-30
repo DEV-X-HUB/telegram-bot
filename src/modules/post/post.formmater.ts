@@ -15,6 +15,7 @@ import ChickenFarmFormatter from './section-4/chicken-farm/chicken-farm.formatte
 import ConstructionFormatter from './section-4/construction/construction.formatter';
 import Post2Formatter from './section-2/section-2.formatter';
 import Section3Formatter from './section-3/section-3.formatter';
+import { timeStamp } from 'console';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
@@ -40,9 +41,115 @@ class PostFormatter {
     NoQuestionMessageText: 'Click the button below  to ask ',
     allQuestionsMsg: 'Click the button below  to list the questions ',
     useButtonError: 'use buttons to select  ',
+    selectCategoryMessage: 'Select category...',
+    selectTimeStampMessage: 'Select timeframe...',
   };
 
+  // Buttons to filter by status
+  filterByStatusButtons(status: any) {
+    const buttons = [
+      { text: 'All', cbString: `filterByStatus_all` },
+      { text: 'Open', cbString: `filterByStatus_open` },
+      { text: 'Closed', cbString: `filterByStatus_closed` },
+    ];
+
+    return buttons.map((button) => ({
+      ...button,
+      text: `${status === button.cbString.split('_')[1] ? '✅' : ''} ${button.text}`,
+    }));
+  }
+
+  // Button to display categories for filtering
+  filterByCategoryButton(category: string) {
+    return [
+      {
+        text: `Category - ${category}`,
+        cbString: `filterByCategory`,
+      },
+    ];
+  }
+
+  // List of categories button to filter
+  filterByCategoryChooseButtons(category: any) {
+    const categories = [
+      'all',
+      'Section 1A',
+      'Section 1B',
+      'Section 1C',
+      'Section 2',
+      'Section 3',
+      'Chicken Farm',
+      'Section4Manufacture',
+      'Section4Construction',
+    ];
+
+    return categories.map((cat) => ({
+      text: `${category === cat ? '✅' : ''} ${cat}`,
+      cbString: `filterByCategory_${cat}`,
+    }));
+  }
+
+  // Button to display timeframes for filtering
+  filterByTimeframeButton(timeframe: string) {
+    const timeFrameDisplay = {
+      all: 'All Time',
+      today: 'Today',
+      last7: 'Last 7 days',
+      last30: 'Last 30 days',
+    } as any;
+
+    return [
+      {
+        text: `Timeframe - ${timeFrameDisplay[timeframe]}`,
+        cbString: `filterByTimeframe_${timeframe}`,
+      },
+    ];
+  }
+
+  // List of timeframes button to filter
+  filterByTimeframeChooseButtons(timeframe: any) {
+    const timeFrameDisplay = {
+      all: 'All Time',
+      today: 'Today',
+      last7: 'Last 7 days',
+      last30: 'Last 30 days',
+    };
+    return Object.entries(timeFrameDisplay).map(([key, value]) => ({
+      text: `${timeframe === key ? '✅' : ''} ${value}`,
+      cbString: `filterByTimeframe_${key}`,
+    }));
+  }
+
+  browsePostDisplay(post: any) {
+    return [
+      // 'hello',
+      this.getPostsPreview(post),
+      InlineKeyboardButtons([
+        this.filterByStatusButtons('open'),
+        this.filterByCategoryButton('All'),
+        this.filterByTimeframeButton('all'),
+      ]),
+
+      // this.filterByCategoryChooseButtons(post.category),
+      // this.filterByStatusButtons(post.status),
+      // this.filterByTimeframeChooseButtons('all'),
+    ];
+  }
+
   constructor() {}
+
+  filterByStatusOptionDisplay(status: string) {
+    return [
+      `Filter by status`,
+      InlineKeyboardButtons([
+        [
+          { text: `${status == 'all' ? '✅' : ''} All`, cbString: `filterByStatus_all` },
+          { text: `${status == 'open' ? '✅' : ''} Open`, cbString: `filterByStatus_open` },
+          { text: `${status == 'closed' ? '✅' : ''} Closed`, cbString: `filterByStatus_closed` },
+        ],
+      ]),
+    ];
+  }
 
   seachQuestionTopBar(questionsNumber: number = 0, searchString: string) {
     return {
@@ -326,6 +433,15 @@ class PostFormatter {
       }
     }
   }
+
+  // getBrowsePreview(post: any) {
+  //   return [
+  //     this.getPostsPreview(post),
+  //     this.filterByCategoryChooseButtons(post.category),
+  //     this.filterByStatusButtons(post.status),
+  //     this.filterByTimeframeChooseButtons('all'),
+  //   ];
+  // }
 
   // getFormattedPostPreview(post: Post) {
   //   const sectionName = getSectionName(post.category) as PostCategory;

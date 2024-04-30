@@ -140,11 +140,11 @@ class Post1AFormatter {
   }
 
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category.replace(/ /g, '_')}\n________________\n\n${state.arbr_value?.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton: </b>${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.arbr_value?.toLocaleUpperCase()}\n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `#${state.category.replace(/ /g, '_')}\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {

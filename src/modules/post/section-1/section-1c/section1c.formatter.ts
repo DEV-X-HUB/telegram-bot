@@ -189,13 +189,13 @@ class Post1CFormatter {
   photoDisplay() {
     return ['Attach four photos ', this.goBackButton(false)];
   }
-
+  // <b> </b>
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category.replace(/ /g, '_')}\n________________\n\n${state.arbr_value.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value.toLocaleUpperCase()}</b>\n\n<b>Paper Stamp:</b>P ${state.paper_stamp} \n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Service type 1 :</b> ${state.service_type_1} \n\n<b>Service type 2 :</b> ${state.service_type_2} \n\n<b>Service type 3 :</b> ${state.service_type_3} \n\n<b>Year of Confirmation:</b> ${state.year_of_confirmation}\n\n<b>Last digit:</b> ${state.last_digit} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n${state.arbr_value.toLocaleUpperCase()}\n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value.toLocaleUpperCase()}</b>\n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -241,7 +241,7 @@ class Post1CFormatter {
 
   editPreview(state: any) {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       InlineKeyboardButtons([
         [
           { text: 'Paper stamp', cbString: 'paper_stamp' },

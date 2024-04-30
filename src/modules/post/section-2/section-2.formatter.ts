@@ -69,11 +69,11 @@ class Post2Formatter {
   }
 
   getDetailData(state: any) {
-    return `#${state.category}\n________________\n\n${state.service_type} \n\n\Title: ${state.title}  \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `<b>#${state.category}</b>\n________________\n\n<b>${state.service_type}</b> \n\n<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category}\n________________\n\n${state.service_type} \n\n\Title: ${state.title}  \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\nStatus : ${state.status}`;
+    return `<b>#${state.category}</b>\n________________\n\n<b>${state.service_type}</b> \n\n\<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b><a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -87,7 +87,7 @@ class Post2Formatter {
     const description =
       post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
 
-    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+    const message = `<b>#${post.category}</b>\n_______\n\n<b>Description:</b> ${description}\n\n<b>Status:</b> ${post.status}`;
 
     const buttons = InlineKeyboardButtons([
       [

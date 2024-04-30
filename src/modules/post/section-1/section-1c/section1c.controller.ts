@@ -366,7 +366,7 @@ class QuestionPostSection1CController {
         case 'back': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.back();
-          return await ctx.replyWithHTML(...section1cFormatter.preview(state));
+          return await ctx.replyWithHTML(...section1cFormatter.preview(state), { parse_mode: 'HTML' });
         }
         default: {
           await ctx.reply('DEFAULT');
@@ -415,12 +415,12 @@ class QuestionPostSection1CController {
 
     if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(...section1cFormatter.preview(state));
+      await ctx.replyWithHTML(...section1cFormatter.preview(state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(...section1cFormatter.preview(state));
+      await ctx.replyWithHTML(...section1cFormatter.preview(state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
 
@@ -433,7 +433,9 @@ class QuestionPostSection1CController {
         ctx.wizard.state.previousMessageData.message_id,
       );
 
-      await ctx.reply(...((await section1cFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await section1cFormatter.editFieldDispay(callbackMessage)) as any), {
+        parse_mode: 'HTML',
+      });
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }
@@ -453,7 +455,7 @@ class QuestionPostSection1CController {
         message_id: (parseInt(messageText.message_id) - 1).toString(),
         chat_id: messageText.chat.id,
       });
-      ctx.reply(...section1cFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section1cFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
 
@@ -472,7 +474,7 @@ class QuestionPostSection1CController {
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...section1cFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section1cFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
   }

@@ -11,6 +11,7 @@ import { setCommands } from '../utils/helper/commands';
 import SearchQuestionController from '../modules/post/post.controller';
 import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';
+import BrowsePostScene from '../modules/browse-post/browse-post.scene';
 
 let bot: Telegraf<Context> | null = null;
 
@@ -18,7 +19,7 @@ export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
-  const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene]);
+  const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 
@@ -38,6 +39,7 @@ export default () => {
     { name: 'register', description: 'Register to the bot' },
     { name: 'profile', description: 'View your profile' },
     { name: 'restart', description: 'Restart the service' },
+    { name: 'browse', description: 'Browse posts' },
   ];
   setCommands(commands);
   dbConnecion;

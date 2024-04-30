@@ -5,6 +5,7 @@ import { checkQueries } from './check-callback';
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 import { capitalize } from '../utils/constants/string';
 import { findSender } from '../utils/constants/chat';
+
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
@@ -52,6 +53,12 @@ export function checkAndRedirectToScene() {
           return MainMenuController.onStart(ctx);
         }
       }
+
+      if ("commandText=='browse") {
+        ctx?.scene?.leave();
+        return ctx.scene.enter(commandText);
+      }
+
       if (ctx.scene.scenes.has(commandText)) {
         ctx?.scene?.leave();
         return ctx.scene.enter(commandText);

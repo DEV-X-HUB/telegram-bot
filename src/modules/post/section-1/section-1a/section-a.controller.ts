@@ -190,7 +190,7 @@ class QuestionPostSectionAController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
@@ -273,7 +273,7 @@ class QuestionPostSectionAController {
         case 'back': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.back();
-          return await ctx.replyWithHTML(...section1AFormatter.preview(state));
+          return await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
         }
         default: {
           await ctx.reply('DEFAULT');
@@ -319,12 +319,12 @@ class QuestionPostSectionAController {
 
     if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(...section1AFormatter.preview(state));
+      await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(...section1AFormatter.preview(state));
+      await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
 
@@ -335,7 +335,9 @@ class QuestionPostSectionAController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      await ctx.reply(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any), {
+        parse_mode: 'HTML',
+      });
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }

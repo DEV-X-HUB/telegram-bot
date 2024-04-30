@@ -51,11 +51,11 @@ class Section3Formatter {
   }
 
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n\n` : ''}<b>#${state.category}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Title:</b> ${state.title} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `<b>#${state.category}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Description:</b> ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
