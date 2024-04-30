@@ -38,6 +38,8 @@ const registrationScene = new Scenes.WizardScene(
   registrationController.editCity,
 );
 // restart listener
+registrationScene.use(restartScene('register', 'register'));
+
 registrationScene.use(async (ctx: any, next: any) => {
   ctx.wizard.state.registering = true;
   next();
@@ -49,7 +51,6 @@ export function onRegisterationLeave() {
     return next();
   };
 }
-registrationScene.use(restartScene('register'));
 
 registrationScene.leaveMiddleware = onRegisterationLeave;
 export default registrationScene;
