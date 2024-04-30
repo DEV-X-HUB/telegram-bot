@@ -274,7 +274,7 @@ class RegistrationController {
           }
         }
         default: {
-          await ctx.reply('aggain body');
+          // await ctx.reply('');
         }
       }
     }

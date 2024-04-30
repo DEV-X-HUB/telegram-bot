@@ -12,7 +12,7 @@ import { capitalizeFirstLetter } from '../../utils/constants/string';
 
 class RegistrationFormatter {
   countries: any[] = [];
-  countryCodes: any[] = ['et'];
+  countryCodes: any[] = ['et', 'ke', 'ug', 'tz'];
   messages = {
     useButtonError: 'Please use the buttons above to choose ',
     userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
