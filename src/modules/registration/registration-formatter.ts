@@ -183,7 +183,7 @@ class RegistrationFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>${capitalizeFirstLetter(state.first_name)} ${capitalizeFirstLetter(state.last_name)}</b>\n________________\n\n<b>First name</b>: ${capitalizeFirstLetter(state.first_name)} \n\n<b>Last name</b>: ${capitalizeFirstLetter(state.last_name)} \n\n<b>Age</b>: ${state.age} \n\nGender: ${state.gender}\n\n<b>Residence</b> : ${state.city},${state.country}\n\n<b>Email</b>: ${state.email || 'None'}\n\n<b>Phone Number</b>: ${state.phone_number}`;
+    return `<b>${capitalizeFirstLetter(state.first_name)} ${capitalizeFirstLetter(state.last_name)}</b>\n________________\n\n<b>First name</b>: ${capitalizeFirstLetter(state.first_name)} \n\n<b>Last name</b>: ${capitalizeFirstLetter(state.last_name)} \n\n<b>Age</b>: ${state.age} \n\n<b>Gender</b>: ${state.gender}\n\n<b>Residence</b> : ${state.city},${state.country}\n\n<b>Email</b>: ${state.email || 'None'}\n\n<b>Phone Number</b>: ${state.phone_number}`;
   }
   preview(state: any) {
     return [

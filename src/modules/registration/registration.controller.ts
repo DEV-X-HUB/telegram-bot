@@ -122,7 +122,7 @@ class RegistrationController {
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
     await deleteKeyboardMarkup(ctx, registrationFormatter.messages.genderPrompt);
-    ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.removeKeyboard());
+    await ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
@@ -226,7 +226,6 @@ class RegistrationController {
         await ctx.reply(...registrationFormatter.chooseGenderFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply('some thing');
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
