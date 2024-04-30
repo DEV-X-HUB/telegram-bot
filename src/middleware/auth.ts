@@ -91,6 +91,7 @@ export function checkRegistration() {
     const isVia_bot = ctx.message?.via_bot;
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
+    console.log(isRegisteredSkiped, 'skipped');
     if (isVia_bot) return true;
     if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
