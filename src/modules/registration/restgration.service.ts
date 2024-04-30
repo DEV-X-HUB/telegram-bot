@@ -25,7 +25,9 @@ class RegistrationService {
           tg_id: tgId.toString(),
         },
       });
-      return Boolean(user);
+
+      if (user) return true;
+      return false;
     } catch (error) {
       console.error(error);
       return false;

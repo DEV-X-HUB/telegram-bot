@@ -69,7 +69,7 @@ export const registerationSkips = (ctx: any) => {
   ];
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
-
+  console.log(isRegistering(), 'is registering  ');
   if (isRegistering()) return true;
 
   if (query) {
