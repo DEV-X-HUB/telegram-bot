@@ -226,7 +226,6 @@ class RegistrationController {
         await ctx.reply(...registrationFormatter.chooseGenderFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply('some thing');
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
