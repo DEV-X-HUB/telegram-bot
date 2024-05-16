@@ -12,6 +12,7 @@ import {
   // createAdmin,
   // loginAdmin,
 } from './api/apiFunctions';
+import { updateRegisrationStateAction } from './modules/registration/registration.scene';
 
 const app = Express();
 const ignite = () => {
@@ -41,10 +42,12 @@ const ignite = () => {
 
     // Graceful shutdown
     process.once('SIGINT', () => {
+      updateRegisrationStateAction('end_register');
       bot.stop('SIGINT');
       server.close();
     });
     process.once('SIGTERM', () => {
+      updateRegisrationStateAction('end_register');
       bot.stop('SIGTERM');
       server.close();
     });

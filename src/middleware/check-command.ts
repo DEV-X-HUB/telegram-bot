@@ -80,10 +80,11 @@ export const getCommand = (ctx: any): boolean | string => {
   return false;
 };
 
-export function restartScene(sceneId: string) {
+export function restartScene(sceneId: string, register?: string) {
   return async (ctx: any, next: any) => {
     const command = getCommand(ctx);
-    if (command && command == 'restart') {
+
+    if ((command && command == 'restart') || (register && command == register)) {
       ctx.message.text = 'none';
       await ctx?.scene?.leave();
       return await ctx.scene.enter(sceneId);

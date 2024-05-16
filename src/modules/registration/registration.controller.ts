@@ -122,7 +122,7 @@ class RegistrationController {
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
     await deleteKeyboardMarkup(ctx, registrationFormatter.messages.genderPrompt);
-    ctx.reply(...registrationFormatter.chooseGenderFormatter());
+    await ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
@@ -377,6 +377,7 @@ class RegistrationController {
         );
       }
       default:
+        ctx.wizard.state.editField = null;
         ctx.wizard.state.city = callbackQuery.data;
         ctx.replyWithHTML(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.back();
