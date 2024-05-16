@@ -217,9 +217,12 @@ class QuestionPostSectionAController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.reply(...section1AFormatter.postingSuccessful());
+            await displayDialog(
+              ctx,
+              'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+            );
             await deleteMessageWithCallback(ctx);
             await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'));
-            await displayDialog(ctx, 'Posted succesfully');
             return ctx.wizard.selectStep(11);
           } else {
             ctx.reply(...section1AFormatter.postingError());
