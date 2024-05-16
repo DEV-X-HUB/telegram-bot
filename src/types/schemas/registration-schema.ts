@@ -1,8 +1,8 @@
 import z, { ZodError } from 'zod';
+import config from '../../config/config';
 
 z.coerce.string().email().min(5);
 
-const monthThreshold: number = 7;
 export const firstNameSchema = z
   .string()
   .regex(/(^[\u1200-\u137F\s]+$)|(^[a-zA-Z]+$)/, { message: 'First name must contain only letters' })
@@ -20,6 +20,16 @@ export const ageOrDateSchema = z.string().refine(
     // Check if the value is a number (age)
     const number = Number(value);
     if (!isNaN(number)) {
+      if (!/^\d+$/.test(value)) {
+        throw new ZodError([
+          {
+            code: 'custom',
+            message: 'age must be a valid integer or date value.',
+            path: [],
+          },
+        ]);
+      }
+
       return number >= 14 && number <= 100;
     }
 
@@ -47,7 +57,7 @@ export const ageOrDateSchema = z.string().refine(
       const currentYear = currentDate.getFullYear();
       let age = currentYear - yearNumber;
 
-      if (parseInt(month) <= monthThreshold) {
+      if (parseInt(month) <= config.monthThreshold) {
         age--;
       }
 
