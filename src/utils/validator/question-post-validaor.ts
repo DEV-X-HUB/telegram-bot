@@ -3,7 +3,7 @@ import DateSchema, {
   IssueDateSchema,
   ConfirmationYearSchema,
   lastDititSchema,
-} from '../../types/schemas/question-post-schema';
+} from '../../types/schemas/post-schema';
 
 type RegistrationValue = string | number | Date;
 

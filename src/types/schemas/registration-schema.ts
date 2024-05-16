@@ -20,6 +20,16 @@ export const ageOrDateSchema = z.string().refine(
     // Check if the value is a number (age)
     const number = Number(value);
     if (!isNaN(number)) {
+      if (!/^\d+$/.test(value)) {
+        throw new ZodError([
+          {
+            code: 'custom',
+            message: 'age must be a valid integer or date value.',
+            path: [],
+          },
+        ]);
+      }
+
       return number >= 14 && number <= 100;
     }
 
