@@ -15,26 +15,58 @@ export const DescriptionSchema = z.string().refine(
 
 export const lastDititSchema = z.string().refine(
   (value) => {
-    const number = Number(value);
-    if (isNaN(number)) {
-      // Invalid format (not a date or a number)
+    // Check if the input is a valid integer
+    if (!/^\d+$/.test(value)) {
       throw new ZodError([
         {
-          code: 'too_small',
-          minimum: 2,
-          type: 'string',
-          inclusive: true,
-          exact: false,
-          message: 'last digit  must be number',
+          code: 'custom',
+          message: 'The input must be a valid integer.',
           path: [],
         },
       ]);
-    } else {
-      return true; // Valid number within range
     }
+
+    // Check if the input is not only "0"
+    if (value === '0') {
+      throw new ZodError([
+        {
+          code: 'custom',
+          message: 'The input cannot be only zero.',
+          path: [],
+        },
+      ]);
+    }
+
+    // Check if the input does not begin with "0"
+    if (value[0] === '0') {
+      throw new ZodError([
+        {
+          code: 'custom',
+          message: 'The input must not begin with zero.',
+          path: [],
+        },
+      ]);
+    }
+
+    // Ensure the last character of the string is a digit (it will be by default if the above checks pass)
+    const lastChar = value[value.length - 1];
+    if (!/\d/.test(lastChar)) {
+      throw new ZodError([
+        {
+          code: 'custom',
+          message: 'The last digit must be a number.',
+          path: [],
+        },
+      ]);
+    }
+
+    return true; // All checks passed
   },
-  { message: 'last digit  must be number' }, // Removed - replaced with specific errors
+  {
+    message: 'Invalid input.', // General error message
+  },
 );
+
 export const ConfirmationYearSchema = z
   .string()
   .length(4, 'confirmation year must be four digit number')
