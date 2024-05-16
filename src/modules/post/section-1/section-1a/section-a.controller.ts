@@ -118,7 +118,9 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
     const validationMessage = postValidator('location', message);
+    console.log(validationMessage);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     // assign the location to the state
     ctx.wizard.state.location = message;
     await ctx.reply(...section1AFormatter.descriptionDisplay());

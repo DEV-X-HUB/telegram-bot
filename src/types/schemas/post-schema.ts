@@ -2,6 +2,7 @@ import z, { ZodError } from 'zod';
 import config from '../../config/config';
 
 const maxWords = parseInt(config.desc_word_length as string) || 45;
+const locationMaxLetters = 20;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
@@ -122,5 +123,16 @@ export const DateSchema = z
       message: "Invalid date format or date doesn't exist.",
     },
   );
+
+export const locationSchema = z.string().refine(
+  (value) => {
+    const lettersCount = value.replace(/[^a-zA-Z]/g, '').length;
+    const hasSpecialCharacters = /[^\w\s]/.test(value);
+    return lettersCount <= locationMaxLetters && !hasSpecialCharacters;
+  },
+  {
+    message: `location must not exceed ${locationMaxLetters} letters and should not contain any special characters or emoji`,
+  },
+);
 
 export default DateSchema;
