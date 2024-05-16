@@ -44,6 +44,15 @@ export const sendMediaGroup = async (ctx: any, phtos: any[], caption: string = '
   await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 };
 
+export const sendDocumentGroup = async (ctx: any, documents: any[]) => {
+  const mediaGroup = documents.map((document: any) => ({
+    media: document,
+    type: 'document',
+    // caption: caption,
+  }));
+  await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+};
+
 export const hasCallbackQuery = (ctx: any, queryStarter: string) => {
   if (!ctx.callbackQuery) return false;
   ``;

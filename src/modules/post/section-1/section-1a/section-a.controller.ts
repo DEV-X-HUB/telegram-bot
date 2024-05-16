@@ -4,6 +4,7 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  sendDocumentGroup,
   sendMediaGroup,
 } from '../../../../utils/constants/chat';
 import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
@@ -18,6 +19,9 @@ import PostService from '../../post.service';
 
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
+
+import { Context } from 'telegraf';
+import { sendFile } from 'telegram/client/uploads';
 
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
@@ -140,6 +144,8 @@ class QuestionPostSectionAController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    console.log(ctx.message.document.file_id);
+
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
@@ -148,16 +154,22 @@ class QuestionPostSectionAController {
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...section1AFormatter.photoDisplay());
 
+    if (ctx.message.document) imagesUploaded.push(ctx.message.document.file_id);
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    else if (ctx.message.photo) imagesUploaded.push(ctx.message.photo[0].file_id);
+    else return ctx.reply(...section1AFormatter.photoDisplay());
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
-      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
-      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
+      // if the file is type image
+      if (ctx.message.photo) await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
+      // if the file is document
+      else if (ctx.message.document) {
+        // send all documents in the array as media group
+        await sendDocumentGroup(ctx, imagesUploaded);
+        await ctx.reply('These are the images you uploaded');
+      }
 
       const user = await profileService.getProfileByTgId(sender.id);
       if (user) {
