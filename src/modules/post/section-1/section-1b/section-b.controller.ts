@@ -8,7 +8,7 @@ import {
 import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
 
 import SectionBFormatter from './section-b.formatter';
-import { postValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import { CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';

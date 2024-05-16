@@ -9,7 +9,7 @@ import { areEqaul, isInInlineOption } from '../../../utils/constants/string';
 
 import Section2Formatter from './section-2.formatter';
 import PostService from '../post.service';
-import { postValidator } from '../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../utils/validator/post-validaor';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
 import ProfileService from '../../profile/profile.service';
 import { displayDialog } from '../../../ui/dialog';
