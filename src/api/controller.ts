@@ -246,7 +246,13 @@ export async function loginAdmin(req: Request, res: Response) {
     res.status(200).json({
       status: 'success',
       message: 'Admin logged in',
-      data: admin,
+      data: {
+        id: admin.id,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        email: admin.email,
+        phone_number: admin.phone_number,
+      },
       token,
     });
   } catch (error) {
