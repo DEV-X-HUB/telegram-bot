@@ -20,7 +20,7 @@ import config from '../../config/config';
 class PostService {
   constructor() {}
 
-  static async createQuestionPost(questionPost: any, tg_id: string) {
+  static async createpost(post: any, tg_id: string) {
     try {
       // Find user with tg_id
       const user = await prisma.user.findUnique({
@@ -41,7 +41,7 @@ class PostService {
       const question = await prisma.post.create({
         data: {
           id: UUID(),
-          ...questionPost,
+          ...post,
           user_id: user.id,
           status: 'pending',
         },
