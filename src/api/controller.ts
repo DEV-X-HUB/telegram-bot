@@ -183,8 +183,6 @@ export async function createAdmin(req: Request, res: Response) {
         email,
         role: 'SUPER_ADMIN',
         password: hashedPassword,
-        otp: hashedOTP,
-        otp_expires: new Date(Date.now() + 600000),
       },
     });
 
@@ -198,80 +196,6 @@ export async function createAdmin(req: Request, res: Response) {
       status: 'success',
       message: 'Thank you for signing up. Please verify your email via the OTP sent to your email',
       data: admin,
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'fail',
-      message: (error as Error).message,
-    });
-  }
-}
-
-export async function verifyAdmin(req: Request, res: Response) {
-  const { email, otp } = req.body;
-
-  if (!email || !otp) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Please provide all required fields',
-    });
-  }
-
-  try {
-    const admin = await prisma.admin.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!admin) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'Admin not found',
-      });
-    }
-
-    if (new Date(Date.now()) > (admin?.otp_expires as any)) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'OTP has expired. Please request a new one',
-      });
-    }
-
-    const isOTPValid = await bcrypt.compare(otp, admin.otp as any);
-
-    if (!isOTPValid) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Invalid OTP',
-      });
-    }
-
-    await prisma.admin.update({
-      where: {
-        email,
-      },
-      data: {
-        otp: null,
-        otp_expires: null,
-      },
-    });
-
-    // create a token
-    const token = await jwt.sign({ id: admin.id }, config.jwt.secret as string, {
-      expiresIn: config.jwt.expires_in,
-    });
-
-    return res.status(200).json({
-      status: 'success',
-      message: 'Admin verified',
-      data: {
-        id: admin.id,
-        first_name: admin.first_name,
-        last_name: admin.last_name,
-        email: admin.email,
-      },
-      token,
     });
   } catch (error) {
     res.status(500).json({
@@ -337,6 +261,188 @@ export async function loginAdmin(req: Request, res: Response) {
         email: admin.email,
       },
       token,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Please provide all required fields',
+    });
+  }
+
+  try {
+    const admin = await prisma.admin.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!admin) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Admin not found',
+      });
+    }
+
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    // store the otp and otp_expires in the database.
+    // update if the otp exists or create a new one if it doesn't
+    await prisma.otp.upsert({
+      where: {
+        admin_id: admin.id,
+      },
+      update: {
+        otp: hashedOTP,
+        otp_expires: new Date(Date.now() + 600000), // 10 minutes
+      },
+      create: {
+        admin_id: admin.id,
+        otp: hashedOTP,
+        otp_expires: new Date(Date.now() + 600000), // 10 minutes
+      },
+    });
+
+    // send email
+    await sendEmail(email, 'Reset your password', `<h1>Use this OTP to reset your password: ${otp}</h1>`);
+
+    return res.status(201).json({
+      status: 'success',
+      message: 'OTP sent to your email',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
+
+export async function verifyResetOTP(req: Request, res: Response) {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Please provide all required fields',
+    });
+  }
+
+  try {
+    const otpInfo = await prisma.otp.findFirst({
+      where: {
+        admin: {
+          email,
+        },
+      },
+    });
+
+    if (!otpInfo) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'OTP not found',
+      });
+    }
+
+    if (new Date(Date.now()) > (otpInfo?.otp_expires as any)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'OTP has expired. Please request a new one',
+      });
+    }
+
+    const isOTPValid = await bcrypt.compare(otp, otpInfo.otp as any);
+    if (!isOTPValid) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid OTP',
+      });
+    }
+
+    await prisma.otp.update({
+      where: {
+        id: otpInfo.id,
+      },
+      data: {
+        isVerified: true,
+      },
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'OTP verified',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const { email, password, confirmPassword } = req.body;
+
+  if (!email || !password || !confirmPassword) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Please provide all required fields',
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Passwords do not match',
+    });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await prisma.admin.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!admin) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Admin not found',
+      });
+    }
+
+    await prisma.admin.update({
+      where: {
+        email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    // delete the otp
+    await prisma.otp.delete({
+      where: {
+        admin_id: admin.id,
+      },
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Password reset successful. Please login',
     });
   } catch (error) {
     res.status(500).json({

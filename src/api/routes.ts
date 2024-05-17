@@ -2,12 +2,14 @@ import express from 'express';
 import {
   createAdmin,
   deletePostById,
+  forgotPassword,
   getPostById,
   getPosts,
   getUserPosts,
   loginAdmin,
+  resetPassword,
   updatePostStatus,
-  verifyAdmin,
+  verifyResetOTP,
 } from './controller';
 const router = express.Router();
 
@@ -21,6 +23,8 @@ router.delete('/posts/:id', deletePostById);
 // admin auth routes
 router.post('/auth/login', loginAdmin);
 router.post('/auth/signup', createAdmin);
-router.post('/auth/verify', verifyAdmin);
+router.post('/auth/forgot', forgotPassword);
+router.post('/auth/verify', verifyResetOTP);
+router.post('/auth/reset', resetPassword);
 
 export default router;
