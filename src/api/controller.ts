@@ -4,84 +4,73 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
+import ApiService from './service';
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
-  try {
-    const posts = await prisma.post.findMany();
-    if (!posts || posts.length === 0) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No posts found',
-      });
-    }
-
-    return res.status(200).json({
-      status: 'success',
-      data: posts,
-    });
-  } catch (error) {
+  const { status, data, message } = await ApiService.getPosts();
+  if (status == 'fail') {
     res.status(500).json({
-      status: 'fail',
-      message: (error as Error).message,
+      status,
+      message,
     });
   }
+  return res.status(200).json({
+    status,
+    data: data,
+  });
 };
 
 export const getPostById = async (req: Request, res: Response) => {
   const post_id = req.params.id;
-
   try {
-    const post = await prisma.post.findUnique({
-      where: { id: post_id },
-    });
-    if (!post) {
-      res.status(404).json({
-        status: 'fail',
-        message: 'No post found',
+    const { status, data, message } = await ApiService.getPostById(post_id);
+    if (status == 'fail') {
+      res.status(500).json({
+        status,
+        message,
+        data: null,
       });
     }
-
-    res.status(200).json({
-      status: 'success',
-      data: post,
+    return res.status(200).json({
+      status,
+      data: data,
     });
   } catch (error) {
     res.status(500).json({
       status: 'fail',
       message: (error as Error).message,
+      data: null,
     });
   }
 };
 
-export const getPostsOfUser = async (req: Request, res: Response) => {
+export const getUserPosts = async (req: Request, res: Response) => {
   const { user_id } = req.body;
   try {
-    const posts = await prisma.post.findMany({
-      where: {
-        user_id,
-      },
-    });
-    if (!posts) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No posts found',
+    const { status, data, message } = await ApiService.getUserPosts(user_id);
+    if (status == 'fail') {
+      res.status(500).json({
+        status,
+        message,
+        data: null,
       });
     }
-
     return res.status(200).json({
-      status: 'success',
-      data: posts,
+      status,
+      message,
+      data: data,
     });
   } catch (error) {
     res.status(500).json({
       status: 'fail',
       message: (error as Error).message,
+      data: null,
     });
   }
 };
 
-export const updateStatusOfPost = async (req: Request, res: Response) => {
+export const updatePostStatus = async (req: Request, res: Response) => {
   const post_id = req.params.id;
   try {
     const post = await prisma.post.update({
@@ -138,7 +127,7 @@ export const deletePostById = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteAllPosts = async (req: Request, res: Response) => {
+export const deleteUserPosts = async (req: Request, res: Response) => {
   try {
     const posts = await prisma.post.deleteMany();
 

@@ -427,10 +427,10 @@ class PostService {
       return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
-  async getPostById(questionId: string) {
+  async getPostById(postId: string) {
     try {
       const post = await prisma.post.findFirst({
-        where: { id: questionId },
+        where: { id: postId },
         include: {
           user: {
             select: {
