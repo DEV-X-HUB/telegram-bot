@@ -377,55 +377,7 @@ class PostService {
       return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
-  async updatePostStatus(postId: string, status: PostStatus) {
-    try {
-      const post = await prisma.post.update({
-        where: { id: postId },
-        data: {
-          status: status,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              display_name: true,
-              followers: true,
-              followings: true,
-              blocked_users: true,
-            },
-          },
-          Service1A: true,
-          Service1B: true,
-          Service1C: true,
-          Service2: true,
-          Service3: true,
-          Service4ChickenFarm: true,
-          Service4Manufacture: true,
-          Service4Construction: true,
-        },
-      });
 
-      return {
-        status: 'success',
-        message: 'Post status updated',
-        post,
-      };
-    } catch (error) {
-      console.log(error);
-      return {
-        status: 'fail',
-        message: 'Unable to update Post',
-        post: null,
-      };
-    }
-    const post = await prisma.post.update({
-      where: { id: postId },
-      data: {
-        status: status,
-      },
-      select: {},
-    });
-  }
   async geAlltPostsByDescription(searchText: string, round: number) {
     const postPerRound = parseInt(config.number_of_result || '5');
     const skip = (round - 1) * postPerRound;
