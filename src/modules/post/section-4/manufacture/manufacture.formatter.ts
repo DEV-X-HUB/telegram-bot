@@ -1,5 +1,5 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import { areEqaul } from '../../../../utils/constants/string';
 import { NotifyOption } from '../../../../types/params';
 import config from '../../../../config/config';

@@ -4,17 +4,17 @@ import {
   deletePostById,
   getPostById,
   getPosts,
-  getPostsOfUser,
+  getUserPosts,
   loginAdmin,
-  updateStatusOfPost,
+  updatePostStatus,
 } from './controller';
 const router = express.Router();
 
 // post routes
 router.get('/posts', getPosts);
 router.get('/posts/:id', getPostById);
-router.get('/posts/user/:userId', getPostsOfUser);
-router.put('/posts/:id', updateStatusOfPost);
+router.get('/posts/user/:userId', getUserPosts);
+router.put('/posts/:id', updatePostStatus);
 router.delete('/posts/:id', deletePostById);
 
 // admin routes
