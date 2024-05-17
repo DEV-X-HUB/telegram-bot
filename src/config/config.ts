@@ -25,4 +25,9 @@ export default {
   email_port: process.env.EMAIL_PORT,
   email: process.env.EMAIL,
   email_password: process.env.EMAIL_PASSWORD,
+
+  super_admin_email: process.env.SUPER_ADMIN_EMAIL,
+  super_admin_password: process.env.SUPER_ADMIN_PASSWORD,
+  super_admin_firstname: process.env.SUPER_ADMIN_FIRST_NAME,
+  super_admin_lastname: process.env.SUPER_ADMIN_LAST_NAME,
 };
