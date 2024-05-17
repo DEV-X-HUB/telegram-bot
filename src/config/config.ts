@@ -20,4 +20,9 @@ export default {
   upload_image_number: process.env.IMAGE_UPLOADED_NUMBER,
 
   monthThreshold: 7,
+
+  email_host: process.env.EMAIL_HOST,
+  email_port: process.env.EMAIL_PORT,
+  email: process.env.EMAIL,
+  email_password: process.env.EMAIL_PASSWORD,
 };

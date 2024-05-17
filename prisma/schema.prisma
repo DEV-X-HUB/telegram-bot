@@ -21,6 +21,16 @@ enum NotifyOption {
 }
 
 
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum AdminStatus {
+  ACTIVE
+  INACTIVE
+}
+
 
 model User {
   id            String  @id @default(uuid()) // UUID type for user_id
@@ -51,13 +61,18 @@ model User {
 }
 
 
+
+
 model Admin {
   id            String  @id @default(uuid()) // UUID type for user_id
   first_name    String // Required first name
   last_name     String // Required last name
   email         String   @unique// Optional email
-  phone_number  String?  @unique // Unique phone number
+
   password      String // Required password
+  role          AdminRole
+  status        AdminStatus @default(ACTIVE)
+  created_at    DateTime   @default(now())
 
   // otp
   otp           String? // Optional otp

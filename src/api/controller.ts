@@ -7,6 +7,8 @@ import config from '../config/config';
 import ApiService from './service';
 import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
+import generateOTP from '../utils/generatePassword';
+import sendEmail from '../utils/sendEmail';
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
@@ -147,9 +149,68 @@ export const deleteUserPosts = async (req: Request, res: Response) => {
 };
 
 export async function createAdmin(req: Request, res: Response) {
-  const { first_name, last_name, email, phone_number, password } = req.body;
+  const { first_name, last_name, email, password } = req.body;
 
-  if (!first_name || !last_name || !email || !phone_number || !password) {
+  if (!first_name || !last_name || !email || !password) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Please provide all required fields',
+    });
+  }
+
+  const adminExists = await prisma.admin.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (adminExists) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Admin already exists',
+    });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+
+    const admin = await prisma.admin.create({
+      data: {
+        first_name,
+        last_name,
+        email,
+        role: 'SUPER_ADMIN',
+        password: hashedPassword,
+        otp: hashedOTP,
+        otp_expires: new Date(Date.now() + 600000),
+      },
+    });
+
+    const emailInfo = await sendEmail(
+      email,
+      'Verify your email',
+      `<h1>Thank you for signing up. Use this OTP to verify your email: ${otp}</h1>`,
+    );
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Thank you for signing up. Please verify your email via the OTP sent to your email',
+      data: admin,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
+
+export async function verifyAdmin(req: Request, res: Response) {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
     return res.status(400).json({
       status: 'fail',
       message: 'Please provide all required fields',
@@ -157,22 +218,60 @@ export async function createAdmin(req: Request, res: Response) {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-    const admin = await prisma.admin.create({
-      data: {
-        first_name,
-        last_name,
+    const admin = await prisma.admin.findUnique({
+      where: {
         email,
-        phone_number,
-        password: hashedPassword,
       },
     });
 
-    res.status(200).json({
+    if (!admin) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Admin not found',
+      });
+    }
+
+    if (new Date(Date.now()) > (admin?.otp_expires as any)) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'OTP has expired. Please request a new one',
+      });
+    }
+
+    const isOTPValid = await bcrypt.compare(otp, admin.otp as any);
+
+    if (!isOTPValid) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Invalid OTP',
+      });
+    }
+
+    await prisma.admin.update({
+      where: {
+        email,
+      },
+      data: {
+        otp: null,
+        otp_expires: null,
+      },
+    });
+
+    // create a token
+    const token = await jwt.sign({ id: admin.id }, config.jwt.secret as string, {
+      expiresIn: config.jwt.expires_in,
+    });
+
+    return res.status(200).json({
       status: 'success',
-      message: 'Admin created',
-      data: admin,
+      message: 'Admin verified',
+      data: {
+        id: admin.id,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        email: admin.email,
+      },
+      token,
     });
   } catch (error) {
     res.status(500).json({
@@ -202,7 +301,7 @@ export async function loginAdmin(req: Request, res: Response) {
         first_name: true,
         last_name: true,
         email: true,
-        phone_number: true,
+
         password: true, // Add password field to the select statement
       },
     });
@@ -236,7 +335,6 @@ export async function loginAdmin(req: Request, res: Response) {
         first_name: admin.first_name,
         last_name: admin.last_name,
         email: admin.email,
-        phone_number: admin.phone_number,
       },
       token,
     });
