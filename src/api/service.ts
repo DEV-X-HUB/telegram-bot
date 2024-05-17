@@ -2,10 +2,11 @@ import { PostStatus } from '@prisma/client';
 import config from '../config/config';
 import prisma from '../loaders/db-connecion';
 import { BareResponse, ResponseWithData } from '../types/api';
-import { CreateAdminDto, SignInDto } from '../types/dto/auth.dto';
+import { CreateAdminDto, ForgotPasswordDto, SignInDto } from '../types/dto/auth.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import sendEmail from '../utils/sendEmail';
+import generateOTP from '../utils/generatePassword';
 
 class ApiService {
   static async getPosts(round: number): Promise<ResponseWithData> {
@@ -222,12 +223,6 @@ class ApiService {
         },
       });
 
-      await sendEmail(
-        email,
-        'Account Created',
-        `<h1> Your admin account have been created successfuly .usee this password to sign in: ${password}</h1>`,
-      );
-
       return {
         status: 'success',
         message: 'Admin created Successfully',
@@ -241,17 +236,22 @@ class ApiService {
       };
     }
   }
-  static async crateDefaulAdmin() {
+  static async crateDefaulAdmin(): Promise<ResponseWithData> {
     const admin = await prisma.admin.findMany({});
     if (!admin || admin.length == 0) {
-      await this.createAdmin({
+      return await this.createAdmin({
         first_name: config.super_admin_firstname as string,
         last_name: config.super_admin_firstname as string,
-        email: config.super_admin_firstname as string,
-        password: config.super_admin_firstname as string,
+        email: config.super_admin_email as string,
+        password: config.super_admin_password as string,
         role: 'SUPER_ADMIN',
       });
-    }
+    } else
+      return {
+        status: 'fail',
+        message: 'admin exits',
+        data: null,
+      };
   }
 
   static async loginAdmin(signInDto: SignInDto): Promise<ResponseWithData> {
@@ -316,6 +316,66 @@ class ApiService {
       return {
         status: 'fail',
         message: (error as Error).message,
+        data: null,
+      };
+    }
+  }
+
+  static async createOTP(forgotPasswordDto: ForgotPasswordDto): Promise<ResponseWithData> {
+    const email = config.super_admin_email;
+
+    if (!email) {
+      return {
+        status: 'fail',
+        message: 'Please provide all required fields',
+        data: null,
+      };
+    }
+
+    try {
+      const admin = await prisma.admin.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!admin) {
+        return {
+          status: 'fail',
+          message: 'Admin not found',
+          data: null,
+        };
+      }
+
+      const otp = generateOTP();
+      const hashedOTP = await bcrypt.hash(otp, 10);
+
+      await prisma.otp.upsert({
+        where: {
+          admin_id: admin.id,
+        },
+        update: {
+          otp: hashedOTP,
+          otp_expires: new Date(Date.now() + 600000), // 10 minutes
+        },
+        create: {
+          admin_id: admin.id,
+          otp: hashedOTP,
+          otp_expires: new Date(Date.now() + 600000), // 10 minutes
+        },
+      });
+
+      // send email
+
+      return {
+        status: 'success',
+        message: 'OTP sent to your email',
+        data: otp,
+      };
+    } catch (error) {
+      return {
+        status: 'fail',
+        message: (error as Error).message as string,
         data: null,
       };
     }

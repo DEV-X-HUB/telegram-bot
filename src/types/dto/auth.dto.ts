@@ -9,5 +9,8 @@ interface SignInDto {
   email: string;
   password: string;
 }
+interface ForgotPasswordDto {
+  email: string;
+}
 
-export { CreateAdminDto, SignInDto };
+export { CreateAdminDto, SignInDto, ForgotPasswordDto };
