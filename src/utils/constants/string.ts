@@ -1,4 +1,4 @@
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/ui';
 import { PostCategory } from '../../types/params';
 
 export const areEqaul = (text1: string, text2: string, ignoreCase?: boolean) => {

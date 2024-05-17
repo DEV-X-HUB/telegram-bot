@@ -5,3 +5,4 @@ interface BareResponse {
 interface ResponseWithData extends BareResponse {
   data: null | any;
 }
+export type PostStatus = 'pending' | 'open' | 'closed';

@@ -1,5 +1,5 @@
 import { MarkupButtons } from '../../../ui/button';
-import { TableMarkupKeyboardButtons } from '../../../types/components';
+import { TableMarkupKeyboardButtons } from '../../../types/ui';
 
 class Section1Formatter {
   categories: TableMarkupKeyboardButtons;

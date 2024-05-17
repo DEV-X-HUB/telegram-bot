@@ -3,18 +3,20 @@ import { PostCategory } from '../../types/params';
 import {
   deleteMessageWithCallback,
   findSender,
+  messagePostPreview,
   sendMediaGroup,
   sendMediaGroupToChannel,
+  sendMediaGroupToUser,
 } from '../../utils/constants/chat';
 import { areEqaul, getSectionName } from '../../utils/constants/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
-import QuestionFormmatter from './post.formmater';
+import PostFormmatter from './post.formmater';
 import QuestionService from './post.service';
 import { Context, Markup } from 'telegraf';
 const questionService = new QuestionService();
 const profileService = new ProfileService();
-const questionFormmatter = new QuestionFormmatter();
+const postFormmatter = new PostFormmatter();
 const roundSize = 10;
 class PostController {
   constructor() {}
@@ -26,12 +28,12 @@ class PostController {
     const { success, posts } = await questionService.getAllPostsByDescription(query);
     if (!success) return await ctx.reply('unable to make search');
     if (posts.length == 0)
-      return await ctx.answerInlineQuery([...questionFormmatter.formatNoQuestionsErrorMessage()], {
-        button: questionFormmatter.seachQuestionTopBar(0, query),
+      return await ctx.answerInlineQuery([...postFormmatter.formatNoQuestionsErrorMessage()], {
+        button: postFormmatter.seachQuestionTopBar(0, query),
       });
 
-    return await ctx.answerInlineQuery([...questionFormmatter.formatSearchQuestions(posts)], {
-      button: questionFormmatter.seachQuestionTopBar(posts.length, query),
+    return await ctx.answerInlineQuery([...postFormmatter.formatSearchQuestions(posts)], {
+      button: postFormmatter.seachQuestionTopBar(posts.length, query),
       cache_time: 0,
     });
   }
@@ -84,7 +86,7 @@ class PostController {
     //   caption: 'Images uploaded with the Question',
     // }));
     // await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-    // await ctx.replyWithHTML(...questionFormmatter.formatSingleQuestion(question, true));
+    // await ctx.replyWithHTML(...postFormmatter.formatSingleQuestion(question, true));
     // await ctx.reply(
     //   // add copy sticker
     //   'Send me your answer   \n\n`Note that you can send your answer through voice, or you could send your answer with media(photo, video, audio)`',
@@ -121,7 +123,7 @@ class PostController {
     const answer = message;
     ctx.wizard.state.answer = answer;
     const user = await profileService.getProfileByTgId(sender.id);
-    if (user) ctx.replyWithHTML(...questionFormmatter.formatAnswerPreview(answer, user), { parse_mode: 'HTML' });
+    if (user) ctx.replyWithHTML(...postFormmatter.formatAnswerPreview(answer, user), { parse_mode: 'HTML' });
     return ctx.wizard.next();
   }
   static async AnswerQuestionPreview(ctx: any) {
@@ -131,7 +133,7 @@ class PostController {
     if (message && areEqaul(message, 'cancel', true)) {
       return ctx.reply('canceled ');
     }
-    if (!callbackQuery) return ctx.reply(questionFormmatter.messages.useButtonError);
+    if (!callbackQuery) return ctx.reply(postFormmatter.messages.useButtonError);
 
     switch (callbackQuery.data) {
       case 'edit_answer': {
@@ -164,7 +166,6 @@ class PostController {
     if (query) {
       if (query.startsWith('answer')) {
         const [_, postId] = query.split('_');
-        console.log(postId, 'iddd');
         // get question data from the answerinlinequery
         const questionData = {
           postId: '0',
@@ -190,9 +191,6 @@ class PostController {
       }
     }
   }
-  static async handleSubscribeQuery(ctx: any, query: string) {
-    console.log(query);
-  }
 
   static async listAllPosts(ctx: any, round: number = 1, searchString?: string) {
     const { success, posts, nextRound, total } = searchString
@@ -204,14 +202,14 @@ class PostController {
 
       if (post[sectionName].photo && post[sectionName].photo[0])
         await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
-          caption: questionFormmatter.getformattedQuestionDetail(post),
+          caption: postFormmatter.getformattedQuestionDetail(post),
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
           },
         });
       else
-        await ctx.replyWithHTML(questionFormmatter.getformattedQuestionDetail(post), {
+        await ctx.replyWithHTML(postFormmatter.getformattedQuestionDetail(post), {
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [[{ text: 'View Detail', callback_data: `post_detail:${post.id}` }]],
@@ -219,7 +217,7 @@ class PostController {
         });
     }
     if (nextRound != round) {
-      await ctx.reply(...questionFormmatter.nextRoundSeachedPostsPrompDisplay(round, total, searchString));
+      await ctx.reply(...postFormmatter.nextRoundSeachedPostsPrompDisplay(round, total, searchString));
     }
   }
   static async getPostnDetail(ctx: any, postId: string) {
@@ -231,47 +229,79 @@ class PostController {
       await sendMediaGroup(ctx, (post as any)[sectionName].photo, 'Images Uploaded with post');
     }
 
-    return await ctx.replyWithHTML(...questionFormmatter.formatQuestionDetail(post));
+    return await ctx.replyWithHTML(...postFormmatter.formatQuestionDetail(post));
   }
 
   static async searchByTitle() {
     const { success, posts } = await questionService.geAlltPosts(1);
   }
 
-  static async postToChannel(ctx: any, channelId: any, postId: any) {
-    const { success, post } = await questionService.getPostById(postId);
-
-    console.log('Success:', success);
-    console.log('Post:', post);
-
-    if (!success || !post) {
-      return ctx.reply('Failed to find the post');
-    }
-
+  static async postToChannel(bot: any, channelId: any, post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
-    console.log('Section Name:', sectionName);
 
-    const caption = questionFormmatter.getFormattedQuestionPreview(post);
-    console.log('Caption:', caption);
+    const caption = postFormmatter.getFormattedQuestionPreview(post);
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      sendMediaGroupToChannel(ctx, (post as any)[sectionName].photo, caption);
+      sendMediaGroupToChannel(bot, (post as any)[sectionName].photo, caption);
     }
 
-    await ctx.telegram.sendMessage(channelId, questionFormmatter.getformattedQuestionDetail(post), {
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [[{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post.id}` }]],
-      },
-    });
+    await messagePostPreview(
+      bot,
+      config.channel_id,
+      postFormmatter.getformattedQuestionDetail(post) as string,
+      post.id,
+    );
+  }
+  static async sendPostToUser(bot: any, post: any) {
+    const recipientsIds: string[] = [];
+    const followerings = post?.user.followings;
+    const followers = post?.user.followers;
+    if (post?.notify_option == 'friend') {
+      if (followerings && followerings?.length > 0 && followers && followers?.length > 0) {
+        followers.forEach((follower: any) => {
+          followerings.forEach((followering: any) => {
+            if (follower.follower_id == followering.following_id) {
+              recipientsIds.push(follower.follower_id);
+            }
+          });
+        });
+      }
+    }
 
-    // await ctx.telegram.sendMessage(channelId, questionFormmatter.getformattedQuestionDetail(post), {
-    //   parse_mode: 'HTML',
-    //   reply_markup: {
-    //     inline_keyboard: [[{ text: 'View Detail',
-    //      callback_data: `post_detail:${post.id}` }]],
-    //   },
-    // });
+    if (post?.notify_option == 'follower') {
+      if (followers && followers.length > 0) {
+        followers.forEach((follower: any) => {
+          recipientsIds.push(follower.follower_id);
+        });
+      }
+    }
+
+    if (recipientsIds.length > 0) {
+      const { status, recipientChatIds } = await questionService.getFilteredRecipients(recipientsIds, post.user.id);
+
+      if (status == 'fail')
+        return { status: 'fail', message: 'message not send to user , unable to find recipients chat id' };
+
+      if (recipientChatIds.length < 0)
+        return { status: 'fail', message: 'message not send to user, all recipients have blocked the user' };
+
+      const sectionName = getSectionName(post.category) as PostCategory;
+      const caption = postFormmatter.getFormattedQuestionPreview(post);
+      for (const chatId of recipientChatIds) {
+        if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+          await sendMediaGroupToUser(bot, chatId.chat_id, (post as any)[sectionName].photo, caption);
+        }
+
+        await messagePostPreview(
+          bot,
+          parseInt(chatId.chat_id),
+          postFormmatter.getformattedQuestionDetail(post) as string,
+          post.id,
+        );
+      }
+
+      return { status: 'success', message: 'message sent to user ' };
+    } else return { status: 'success', message: 'no  recipients ' };
   }
 }
 

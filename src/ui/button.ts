@@ -4,7 +4,7 @@ import {
   RowMarkupKeyboardButtons,
   TableInlineKeyboardButtons,
   TableMarkupKeyboardButtons,
-} from '../types/components';
+} from '../types/ui';
 
 export const urlButton = (buttonText: string, url: string, hidable?: boolean) => {
   return Markup.inlineKeyboard([Markup.button.url(buttonText, url, hidable)]);

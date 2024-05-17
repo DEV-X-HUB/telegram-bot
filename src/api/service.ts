@@ -1,5 +1,6 @@
 import config from '../config/config';
 import prisma from '../loaders/db-connecion';
+import { BareResponse, ResponseWithData } from '../types/api';
 class ApiService {
   static async getPosts() {
     try {

@@ -1,5 +1,5 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/ui';
 import config from '../../../config/config';
 import { NotifyOption } from '@prisma/client';
 import { areEqaul } from '../../../utils/constants/string';

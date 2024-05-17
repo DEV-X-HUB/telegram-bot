@@ -68,6 +68,7 @@ class ProfileFormatter {
     userBlockPrompt: 'Are you sure you want to block? ',
     blockSuccess: 'You have blocked  this user',
     unBlockSuccess: 'You have unblocked this user',
+    userNotFound: 'User Not Found',
   };
   constructor() {
     this.countries = getSelectedCoutryList();
