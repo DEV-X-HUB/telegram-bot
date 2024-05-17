@@ -335,7 +335,6 @@ export async function loginAdmin(req: Request, res: Response) {
         first_name: admin.first_name,
         last_name: admin.last_name,
         email: admin.email,
-        phone_number: admin.phone_number,
       },
       token,
     });
