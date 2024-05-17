@@ -1,9 +1,12 @@
-import { RequestHandler, Request, Response } from 'express';
+import { RequestHandler, Request, Response, NextFunction } from 'express';
 import prisma from '../loaders/db-connecion';
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
+import sendEmail from '../utils/sendEmail';
+import { check } from 'prettier';
+import generateOTP from '../generatePassword';
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
@@ -171,8 +174,26 @@ export async function createAdmin(req: Request, res: Response) {
     });
   }
 
+  // check if email or p already exists
+  const existingAdmin = await prisma.admin.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (existingAdmin) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Email already exists. Please use different email',
+    });
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    // generate otp
+    const otp = generateOTP();
+    const hashedOTP = await bcrypt.hash(otp, 10);
+    console.log(otp);
 
     const admin = await prisma.admin.create({
       data: {
@@ -181,12 +202,17 @@ export async function createAdmin(req: Request, res: Response) {
         email,
         phone_number,
         password: hashedPassword,
+        otp: hashedOTP,
+        otp_expires: new Date(Date.now() + 600000),
       },
     });
 
-    res.status(200).json({
+    // send email to the admin with otp for verification
+    const emailInfo = await sendEmail(email, 'Verify your email', `<h1>Use this OTP to verify your email: ${otp}</h1>`);
+
+    return res.status(200).json({
       status: 'success',
-      message: 'Admin created',
+      message: 'Thank you for signing up. Please verify your email via the OTP sent to your email',
       data: admin,
     });
   } catch (error) {
@@ -262,3 +288,38 @@ export async function loginAdmin(req: Request, res: Response) {
     });
   }
 }
+export const resetAdminPassword = async (req: Request, res: Response, next: NextFunction) => {
+  checkAdmin: async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Please provide an email',
+      });
+    }
+
+    try {
+      const admin = await prisma.admin.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!admin) {
+        return res.status(404).json({
+          status: 'fail',
+          message: 'Admin not found',
+        });
+      }
+
+      req.body.admin = admin;
+      next();
+    } catch (error) {
+      res.status(500).json({
+        status: 'fail',
+        message: (error as Error).message,
+      });
+    }
+  };
+};
