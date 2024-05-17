@@ -64,24 +64,26 @@ model User {
 
 
 model Admin {
-  id            String  @id @default(uuid()) // UUID type for user_id
-  first_name    String // Required first name
-  last_name     String // Required last name
-  email         String   @unique// Optional email
+  id            String    @id @default(uuid()) // UUID type for user_id
+  first_name    String    // Required first name
+  last_name     String    // Required last name
+  email         String     @unique// Optional email
 
-  password      String // Required password
+  password      String     // Required password
   role          AdminRole
   status        AdminStatus @default(ACTIVE)
+  created_at    DateTime    @default(now())
+  otp           Otp[]
+}
+
+model Otp {
+  id            String     @id @default(uuid()) // UUID type for user_id
+  admin_id      String     @unique
+  otp           String     // Required otp
+  otp_expires   DateTime   // Required expires
   created_at    DateTime   @default(now())
-
-  // otp
-  otp           String? // Optional otp
-  otp_expires   DateTime? // Optional otp_expires
-
-  //reset password
-  reset_password_token String? // Optional reset_password_token
-  reset_password_expires DateTime? // Optional reset_password_expires
-  
+  isVerified    Boolean    @default(false)
+  admin         Admin      @relation(fields: [admin_id], references: [id])
 }
 
 
