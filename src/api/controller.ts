@@ -301,7 +301,7 @@ export async function loginAdmin(req: Request, res: Response) {
         first_name: true,
         last_name: true,
         email: true,
-        phone_number: true,
+
         password: true, // Add password field to the select statement
       },
     });
