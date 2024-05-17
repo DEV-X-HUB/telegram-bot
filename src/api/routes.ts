@@ -7,6 +7,7 @@ import {
   getUserPosts,
   loginAdmin,
   updatePostStatus,
+  verifyAdmin,
 } from './controller';
 const router = express.Router();
 
@@ -17,8 +18,9 @@ router.get('/posts/user/:userId', getUserPosts);
 router.put('/posts/:id', updatePostStatus);
 router.delete('/posts/:id', deletePostById);
 
-// admin routes
-router.post('/admin/login', loginAdmin);
-router.post('/admin/signup', createAdmin);
+// admin auth routes
+router.post('/auth/login', loginAdmin);
+router.post('/auth/signup', createAdmin);
+router.post('/auth/verify', verifyAdmin);
 
 export default router;
