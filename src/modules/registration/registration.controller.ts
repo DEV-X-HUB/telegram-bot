@@ -197,7 +197,12 @@ class RegistrationController {
           return ctx.wizard.back();
         }
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
-        return ctx.reply(...(await registrationFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+        return ctx.reply(
+          ...(await registrationFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
       }
       case 'next': {
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
