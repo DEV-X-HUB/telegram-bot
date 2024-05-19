@@ -13,7 +13,6 @@ import {
 } from '../types/dto/auth.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import sendEmail from '../utils/sendEmail';
 import generateOTP from '../utils/generatePassword';
 
 class ApiService {

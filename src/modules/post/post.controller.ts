@@ -7,8 +7,8 @@ import {
   sendMediaGroup,
   sendMediaGroupToChannel,
   sendMediaGroupToUser,
-} from '../../utils/constants/chat';
-import { areEqaul, getSectionName } from '../../utils/constants/string';
+} from '../../utils/helpers/chat';
+import { areEqaul, getSectionName } from '../../utils/helpers/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
 import PostFormmatter from './post.formmater';

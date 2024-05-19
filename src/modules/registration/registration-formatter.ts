@@ -6,9 +6,9 @@ import {
   getFilteredCoutryList,
   getSelectedCoutryList,
   iterateCities,
-} from '../../utils/constants/country-list';
+} from '../../utils/helpers/country-list';
 import { ICity } from 'country-state-city';
-import { capitalizeFirstLetter } from '../../utils/constants/string';
+import { capitalizeFirstLetter } from '../../utils/helpers/string';
 
 class RegistrationFormatter {
   countries: any[] = [];

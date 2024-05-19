@@ -6,10 +6,10 @@ import {
   getFilteredCoutryList,
   getSelectedCoutryList,
   iterateCities,
-} from '../../utils/constants/country-list';
+} from '../../utils/helpers/country-list';
 import { ICity } from 'country-state-city';
-import { areEqaul, capitalizeFirstLetter } from '../../utils/constants/string';
-import { formatDateFromIsoString } from '../../utils/constants/date';
+import { areEqaul, capitalizeFirstLetter } from '../../utils/helpers/string';
+import { formatDateFromIsoString } from '../../utils/helpers/date';
 import config from '../../config/config';
 import { NotifyOption } from '../../types/params';
 

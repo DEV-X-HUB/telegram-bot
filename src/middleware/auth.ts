@@ -1,7 +1,7 @@
 import axios from 'axios';
 import config from '../config/config';
 import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
-import { findSender } from '../utils/constants/chat';
+import { findSender } from '../utils/helpers/chat';
 import RegistrationService from '../modules/registration/restgration.service';
 import { isRegistering } from '../modules/registration/registration.scene';
 const mainMenuFormmater = new MainMenuFormmater();

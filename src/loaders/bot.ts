@@ -7,7 +7,7 @@ import { checkAndRedirectToScene } from '../middleware/check-command';
 import { checkRegistration, checkUserInChannelandPromtJoin } from '../middleware/auth';
 import QuestionPostScene from '../modules/post/post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
-import { setCommands } from '../utils/helper/commands';
+import { setCommands } from '../utils/helpers/commands';
 import SearchQuestionController from '../modules/post/post.controller';
 import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';

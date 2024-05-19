@@ -1,10 +1,10 @@
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/helpers/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
-import { calculateAge } from '../../utils/constants/date';
+import { calculateAge } from '../../utils/helpers/date';
 import config from '../../config/config';
 
 import { Markup, Context } from 'telegraf';
-import { areEqaul } from '../../utils/constants/string';
+import { areEqaul } from '../../utils/helpers/string';
 
 import RegistrationFormatter from './registration-formatter';
 import RegistrationService from './restgration.service';

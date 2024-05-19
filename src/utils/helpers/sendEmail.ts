@@ -1,4 +1,4 @@
-import config from '../config/config';
+import config from '../../config/config';
 
 // nodemailer module is used to send emails
 import nodemailer from 'nodemailer';

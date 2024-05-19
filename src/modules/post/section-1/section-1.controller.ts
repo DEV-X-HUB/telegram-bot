@@ -1,4 +1,4 @@
-import { areEqaul, isInMarkUPOption } from '../../../utils/constants/string';
+import { areEqaul, isInMarkUPOption } from '../../../utils/helpers/string';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
 
 import Section1Formatter from './section-1.formatter';

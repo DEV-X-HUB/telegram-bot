@@ -1,7 +1,7 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
-import { areEqaul } from '../../../../utils/constants/string';
+import { areEqaul } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 
 class Post1AFormatter {

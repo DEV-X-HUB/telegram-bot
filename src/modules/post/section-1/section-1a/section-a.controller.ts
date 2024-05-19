@@ -5,8 +5,8 @@ import {
   deleteMessageWithCallback,
   findSender,
   sendMediaGroup,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/helpers/string';
 
 import Section1AFormatter from './section-a.formatter';
 import { postValidator } from '../../../../utils/validator/post-validaor';

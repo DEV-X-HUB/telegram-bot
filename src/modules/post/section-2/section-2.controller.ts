@@ -4,8 +4,8 @@ import {
   deleteMessageWithCallback,
   findSender,
   sendMediaGroup,
-} from '../../../utils/constants/chat';
-import { areEqaul, isInInlineOption } from '../../../utils/constants/string';
+} from '../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption } from '../../../utils/helpers/string';
 
 import Section2Formatter from './section-2.formatter';
 import PostService from '../post.service';

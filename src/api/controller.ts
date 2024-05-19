@@ -3,7 +3,8 @@ import config from '../config/config';
 import ApiService from './service';
 import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
-import sendEmail from '../utils/sendEmail';
+import sendEmail from '../utils/helpers/sendEmail';
+import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaulAdmin();
@@ -11,8 +12,8 @@ import sendEmail from '../utils/sendEmail';
   if (status == 'success') {
     await sendEmail(
       config.super_admin_email as string,
-      'Account Created',
-      `<h1> Your admin account have been created successfuly .use this password to sign in: ${config.super_admin_password as string}</h1>`,
+      'Admin Account Created',
+      formatAccountCreationEmailMsg(config.super_admin_password as string),
     );
   }
 })();
@@ -172,6 +173,9 @@ export async function createAdmin(req: Request, res: Response) {
         data: null,
       });
     }
+
+    await sendEmail(email as string, 'Admin Account Created', formatAccountCreationEmailMsg(password as string));
+
     return res.status(200).json({
       status,
       message,
@@ -274,7 +278,8 @@ export async function forgotPassword(req: Request, res: Response) {
         message,
       });
     }
-    await sendEmail(email, 'Reset your password', `<h1>Use this OTP to reset your password: ${otp}</h1>`);
+
+    await sendEmail(email, 'Reset your password', formatResetOptEmailMsg(otp as string));
 
     return res.status(200).json({
       status,
