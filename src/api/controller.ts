@@ -270,7 +270,7 @@ export async function loginAdmin(req: Request, res: Response) {
 
 export async function forgotPassword(req: Request, res: Response) {
   try {
-    const email = config.super_admin_email as string;
+    const { email } = req.body;
 
     const { status, message, data: otp } = await ApiService.createOTP({ email });
     if (status == 'fail') {
