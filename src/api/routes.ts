@@ -25,7 +25,6 @@ router.get('/posts/:round', getPosts);
 router.get('/posts/:round/:status', getPostsByStatus);
 router.get('/posts/:id', getPostDetail);
 router.get('/posts/user/:userId', getUserPosts);
-router.get('/posts/user/:userId', getUserPosts);
 router.put('/posts/:id', updatePostStatus);
 router.delete('/posts/:id', deletePost);
 router.delete('/posts/user:id', deleteUserPosts);
