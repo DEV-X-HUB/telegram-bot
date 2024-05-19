@@ -32,7 +32,7 @@ export const getPosts = async (req: Request, res: Response) => {
   });
 };
 
-export const getPostById = async (req: Request, res: Response) => {
+export const getPostDetail = async (req: Request, res: Response) => {
   const post_id = req.params.id;
   try {
     const { status, data, message } = await ApiService.getPostById(post_id);
@@ -110,7 +110,7 @@ export const updatePostStatus = async (req: Request, res: Response) => {
   });
 };
 
-export const deletePostById = async (req: Request, res: Response) => {
+export const deletePost = async (req: Request, res: Response) => {
   const post_id = req.params.id;
   try {
     const { status, message } = await ApiService.deletePostById(post_id);
