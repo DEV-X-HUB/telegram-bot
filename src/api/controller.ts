@@ -7,8 +7,8 @@ import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 
 (async () => {
-  const { status, message } = await ApiService.crateDefaulAdmin();
-  console.log(status, message);
+  const { status, message } = await ApiService.crateDefaultAdmin();
+  console.log(message);
   if (status == 'success') {
     await sendEmail(
       config.super_admin_email as string,

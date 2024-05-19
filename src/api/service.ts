@@ -294,7 +294,7 @@ class ApiService {
       };
     }
   }
-  static async crateDefaulAdmin(): Promise<ResponseWithData> {
+  static async crateDefaultAdmin(): Promise<ResponseWithData> {
     const admin = await prisma.admin.findMany({});
     if (!admin || admin.length == 0) {
       return await this.createAdmin({
@@ -307,7 +307,7 @@ class ApiService {
     } else
       return {
         status: 'fail',
-        message: 'admin exits',
+        message: '---admin exists---',
         data: null,
       };
   }
