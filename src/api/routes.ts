@@ -9,8 +9,9 @@ import {
   loginAdmin,
   resetPassword,
   updatePostStatus,
-  verifyResetOTP,
+  verifyResetOtp,
 } from './controller';
+import { roleGuard } from '../middleware/admin-auth';
 const router = express.Router();
 
 // post routes
@@ -22,9 +23,11 @@ router.delete('/posts/:id', deletePostById);
 
 // admin auth routes
 router.post('/auth/login', loginAdmin);
-router.post('/auth/signup', createAdmin);
-router.post('/auth/forgot', forgotPassword);
-router.post('/auth/verify', verifyResetOTP);
+router.post('/auth/create-admin', roleGuard('SUPER_ADMIN'), createAdmin);
+router.put('/auth/update-admin-status', roleGuard('SUPER_ADMIN'), createAdmin);
+router.delete('/auth/delete-admin', roleGuard('SUPER_ADMIN'), createAdmin);
+router.get('/auth/forgot', forgotPassword);
+router.post('/auth/verify', verifyResetOtp);
 router.post('/auth/reset', resetPassword);
 
 export default router;

@@ -2,7 +2,15 @@ import { PostStatus } from '@prisma/client';
 import config from '../config/config';
 import prisma from '../loaders/db-connecion';
 import { BareResponse, ResponseWithData } from '../types/api';
-import { CreateAdminDto, ForgotPasswordDto, SignInDto } from '../types/dto/auth.dto';
+import {
+  CreateAdminDto,
+  DeleteAdminDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  SignInDto,
+  UpdateAdminStatusDto,
+  VerifyResetOtpDto,
+} from '../types/dto/auth.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import sendEmail from '../utils/sendEmail';
@@ -270,14 +278,6 @@ class ApiService {
         where: {
           email,
         },
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          email: true,
-
-          password: true, // Add password field to the select statement
-        },
       });
 
       if (!admin) {
@@ -299,7 +299,7 @@ class ApiService {
       }
 
       // create a token
-      const token = await jwt.sign({ id: admin.id }, config.jwt.secret as string, {
+      const token = await jwt.sign({ id: admin.id, role: admin?.role }, config.jwt.secret as string, {
         expiresIn: config.jwt.expires_in,
       });
 
@@ -377,6 +377,180 @@ class ApiService {
         status: 'fail',
         message: (error as Error).message as string,
         data: null,
+      };
+    }
+  }
+
+  static async updateAdminStatus(updateAdminStatus: UpdateAdminStatusDto): Promise<BareResponse> {
+    try {
+      const { adminId, status } = updateAdminStatus;
+
+      const admin = await prisma.admin.findFirst({
+        where: {
+          id: adminId,
+          role: 'ADMIN',
+        },
+      });
+
+      if (!admin) {
+        return {
+          status: 'fail',
+          message: 'Admin not foundl',
+        };
+      }
+
+      await prisma.admin.update({
+        where: {
+          id: adminId,
+        },
+        data: {
+          status: status,
+        },
+      });
+
+      return {
+        status: 'fail',
+        message: `Admin status updated to ${status ? 'active' : 'inactive'}`,
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  static async deleteAdminById(deleteAdminDto: DeleteAdminDto): Promise<BareResponse> {
+    try {
+      const { adminId } = deleteAdminDto;
+
+      const admin = await prisma.admin.findFirst({
+        where: {
+          id: adminId,
+          role: 'ADMIN',
+        },
+      });
+
+      if (!admin) {
+        return {
+          status: 'fail',
+          message: 'Admin not found',
+        };
+      }
+
+      await prisma.admin.delete({
+        where: {
+          id: adminId,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Admin successfully deleted',
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  static async verifyResetOtp({ email, otp }: VerifyResetOtpDto): Promise<BareResponse> {
+    try {
+      const otpInfo = await prisma.otp.findFirst({
+        where: {
+          admin: {
+            email,
+          },
+        },
+      });
+
+      if (!otpInfo) {
+        return {
+          status: 'fail',
+          message: 'OTP not found',
+        };
+      }
+
+      if (new Date() > otpInfo.otp_expires) {
+        return {
+          status: 'fail',
+          message: 'OTP has expired. Please request a new one',
+        };
+      }
+
+      const isOtpValid = await bcrypt.compare(otp, otpInfo.otp);
+      if (!isOtpValid) {
+        return {
+          status: 'fail',
+          message: 'Invalid OTP',
+        };
+      }
+
+      await prisma.otp.update({
+        where: {
+          id: otpInfo.id,
+        },
+        data: {
+          isVerified: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'OTP verified',
+      };
+    } catch (error: any) {
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  static async resetPassword({ email, password, confirmPassword }: ResetPasswordDto): Promise<BareResponse> {
+    if (password !== confirmPassword) {
+      return {
+        status: 'fail',
+        message: 'Passwords do not match',
+      };
+    }
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const admin = await prisma.admin.findUnique({
+        where: { email },
+      });
+
+      if (!admin) {
+        return {
+          status: 'fail',
+          message: 'Admin not found',
+        };
+      }
+
+      await prisma.admin.update({
+        where: { email },
+        data: { password: hashedPassword },
+      });
+
+      // Delete the OTP
+      await prisma.otp.deleteMany({
+        where: { admin_id: admin.id },
+      });
+
+      return {
+        status: 'success',
+        message: 'Password reset successful. Please login',
+      };
+    } catch (error: any) {
+      return {
+        status: 'fail',
+        message: error.message,
       };
     }
   }
