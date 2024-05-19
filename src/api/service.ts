@@ -196,6 +196,7 @@ class ApiService {
   }
   static async createAdmin(createAdminDto: CreateAdminDto): Promise<ResponseWithData> {
     const { first_name, last_name, email, password, role } = createAdminDto;
+    console.log(createAdminDto);
 
     if (!first_name || !last_name || !email || !password) {
       return {
