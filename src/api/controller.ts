@@ -17,6 +17,7 @@ import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/
     );
   }
 })();
+
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
   const round = req.params.round;
@@ -30,6 +31,38 @@ export const getPosts = async (req: Request, res: Response) => {
   return res.status(200).json({
     status,
     data: data,
+  });
+};
+
+export const getPostsByStatus = async (req: Request, res: Response) => {
+  const { round, status } = req.params;
+
+  if (!round || isNaN(parseInt(round))) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Invalid round parameter',
+    });
+  }
+
+  if (!status) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Status parameter is required',
+    });
+  }
+
+  const { status: fetchStatus, data, message } = await ApiService.getPostsByStatus(parseInt(round), status);
+
+  if (fetchStatus === 'fail') {
+    return res.status(500).json({
+      status: fetchStatus,
+      message,
+    });
+  }
+
+  return res.status(200).json({
+    status: fetchStatus,
+    data,
   });
 };
 

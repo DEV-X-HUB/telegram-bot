@@ -55,6 +55,56 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
+  static async getPostsByStatus(round: number, status: string): Promise<ResponseWithData> {
+    const resultsPerPage = parseInt(config.number_of_result || '5');
+    const skip = (round - 1) * resultsPerPage;
+    const postCount = await prisma.post.count({
+      where: {
+        status: status as PostStatus,
+      },
+    });
+
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          status: status as PostStatus,
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+        skip,
+        take: resultsPerPage,
+      });
+
+      return {
+        status: 'success',
+        message: 'Posts fetched successfully',
+        data: {
+          posts,
+          nextRound: posts.length === postCount ? round : round + 1,
+          total: postCount,
+        },
+      };
+    } catch (error: any) {
+      console.error('Error fetching posts:', error);
+      return {
+        status: 'fail',
+        message: error?.message,
+        data: null,
+      };
+    }
+  }
+
   static async getUserPosts(userId: string, round: number): Promise<ResponseWithData> {
     const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
     const postCount = await prisma.post.count();

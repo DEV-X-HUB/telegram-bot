@@ -7,6 +7,7 @@ import {
   forgotPassword,
   getPostDetail,
   getPosts,
+  getPostsByStatus,
   getUserPosts,
   loginAdmin,
   resetPassword,
@@ -21,6 +22,7 @@ router.use(authGuard);
 
 // post routes
 router.get('/posts/:round', getPosts);
+router.get('/posts/:round/:status', getPostsByStatus);
 router.get('/posts/:id', getPostDetail);
 router.get('/posts/user/:userId', getUserPosts);
 router.get('/posts/user/:userId', getUserPosts);
