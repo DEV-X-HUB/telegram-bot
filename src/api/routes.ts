@@ -1,7 +1,9 @@
 import express from 'express';
 import {
   createAdmin,
+  deleteAdmin,
   deletePostById,
+  deleteUserPosts,
   forgotPassword,
   getPostById,
   getPosts,
@@ -21,14 +23,15 @@ router.use(authGuard);
 router.get('/posts', getPosts);
 router.get('/posts/:id', getPostById);
 router.get('/posts/user/:userId', getUserPosts);
+router.get('/posts/user/:userId', getUserPosts);
 router.put('/posts/:id', updatePostStatus);
-router.delete('/posts/:id', deletePostById);
+router.delete('/posts/user:id', deleteUserPosts);
 
 // admin auth routes
 router.post('/auth/login', loginAdmin);
 router.post('/auth/create-admin', roleGuard('SUPER_ADMIN'), createAdmin);
 router.put('/auth/update-admin-status', roleGuard('SUPER_ADMIN'), updateAdminStatus);
-router.delete('/auth/delete-admin', roleGuard('SUPER_ADMIN'), createAdmin);
+router.delete('/auth/delete-admin', roleGuard('SUPER_ADMIN'), deleteAdmin);
 router.post('/auth/forgot', forgotPassword);
 router.post('/auth/verify', verifyResetOtp);
 router.post('/auth/reset', resetPassword);

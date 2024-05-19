@@ -1,13 +1,8 @@
-import { RequestHandler, Request, Response } from 'express';
-import prisma from '../loaders/db-connecion';
-import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { Request, Response } from 'express';
 import config from '../config/config';
 import ApiService from './service';
 import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
-import generateOTP from '../utils/generatePassword';
 import sendEmail from '../utils/sendEmail';
 
 (async () => {
