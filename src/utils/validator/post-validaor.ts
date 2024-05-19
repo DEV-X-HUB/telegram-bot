@@ -1,9 +1,10 @@
+import { locationSchema } from '../../types/schemas/post-schema';
 import DateSchema, {
   DescriptionSchema,
   IssueDateSchema,
   ConfirmationYearSchema,
   lastDititSchema,
-} from '../../types/schemas/question-post-schema';
+} from '../../types/schemas/post-schema';
 
 type RegistrationValue = string | number | Date;
 
@@ -27,7 +28,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
       break;
     }
     case 'location':
-      schema = DescriptionSchema;
+      schema = locationSchema;
       break;
     case 'confirmation_year':
       schema = ConfirmationYearSchema;

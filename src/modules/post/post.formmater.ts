@@ -1,6 +1,6 @@
 import { Post, User } from '@prisma/client';
 import config from '../../config/config';
-import { TableInlineKeyboardButtons } from '../../types/components';
+import { TableInlineKeyboardButtons } from '../../types/ui';
 import { InlineKeyboardButtons } from '../../ui/button';
 import { formatDateFromIsoString } from '../../utils/constants/date';
 import { capitalize, areEqaul, getSectionName } from '../../utils/constants/string';

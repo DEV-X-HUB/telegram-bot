@@ -1,6 +1,6 @@
 import { MarkupButtons, urlButton } from '../../ui/button';
 import config from '../../config/config';
-import { TableMarkupKeyboardButtons } from '../../types/components';
+import { TableMarkupKeyboardButtons } from '../../types/ui';
 
 class MainmenuFormatter {
   messages = {

@@ -242,3 +242,11 @@ model Service4Construction {
   photo                     String[] // Required array of photo URLs
   post                      Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
+
+
+
+
+
+
+
+

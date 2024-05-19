@@ -1,23 +1,18 @@
 import z, { ZodError } from 'zod';
+import config from '../../config/config';
 
 z.coerce.string().email().min(5);
 
 export const firstNameSchema = z
   .string()
   .regex(/(^[\u1200-\u137F\s]+$)|(^[a-zA-Z]+$)/, { message: 'First name must contain only letters' })
-  .min(3, { message: 'First name must be at least 3 characters long' })
+  .min(2, { message: 'First name must be at least 3 characters long' })
   .max(15, { message: 'First name must be at most 15 characters long' });
-
-// export const lastNameSchema = z
-//   .string()
-//   .regex(/^[a-zA-Z]+$/, { message: 'Last name must contain only letters' })
-//   .min(3, { message: 'Last name must be at least 3 characters long' })
-//   .max(15, { message: 'Last name must be at most 15 characters long' });
 
 export const lastNameSchema = z
   .string()
   .regex(/(^[\u1200-\u137F\s]+$)|(^[a-zA-Z]+$)/, { message: 'First name must contain only letters' })
-  .min(3, { message: 'First name must be at least 3 characters long' })
+  .min(2, { message: 'First name must be at least 3 characters long' })
   .max(15, { message: 'First name must be at most 15 characters long' });
 
 export const ageOrDateSchema = z.string().refine(
@@ -25,6 +20,16 @@ export const ageOrDateSchema = z.string().refine(
     // Check if the value is a number (age)
     const number = Number(value);
     if (!isNaN(number)) {
+      if (!/^\d+$/.test(value)) {
+        throw new ZodError([
+          {
+            code: 'custom',
+            message: 'age must be a valid integer or date value.',
+            path: [],
+          },
+        ]);
+      }
+
       return number >= 14 && number <= 100;
     }
 
@@ -50,7 +55,11 @@ export const ageOrDateSchema = z.string().refine(
       // Calculate age from the entered date
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      const age = currentYear - yearNumber;
+      let age = currentYear - yearNumber;
+
+      if (parseInt(month) <= config.monthThreshold) {
+        age--;
+      }
 
       // Check if the calculated age is between 14 and 100
       return age >= 14 && age <= 100;
@@ -63,8 +72,6 @@ export const ageOrDateSchema = z.string().refine(
     message: 'Invalid input. Please enter a valid age (14-100) or a valid date (dd/mm/yyyy).',
   },
 );
-
-// export const emailSchema = z.string().email({ message: 'Invalid email address' });
 
 export const emailSchema = z.string().refine(
   (value) => {
