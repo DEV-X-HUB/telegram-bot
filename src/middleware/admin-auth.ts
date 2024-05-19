@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { JwtAuthPayload, RequestWithUser } from '../types/api';
-
-const secretKey = 'your_secret_key'; // Replace with your secret key
+import config from '../config/config';
 
 // Middleware to extract and verify token
 
@@ -19,7 +18,7 @@ export const authGuard = (req: RequestWithUser, res: Response, next: NextFunctio
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, secretKey) as JwtAuthPayload;
+    const decoded = jwt.verify(token, config.jwt.secret as string) as JwtAuthPayload;
     req.user = decoded; // Attach user info to request object
     next();
   } catch (err) {
