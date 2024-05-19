@@ -8,9 +8,9 @@ const secretKey = 'your_secret_key'; // Replace with your secret key
 
 export const authGuard = (req: RequestWithUser, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  console.log(req.path);
+  const escapedRoutes = ['/auth/forgot', '/auth/login', '/auth/reset', '/auth/verify'];
 
-  if (req.path === '/auth/login') return next();
+  if (escapedRoutes.includes(req.path)) return next();
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Unauthorized' });
