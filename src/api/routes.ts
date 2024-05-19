@@ -11,8 +11,10 @@ import {
   updatePostStatus,
   verifyResetOtp,
 } from './controller';
-import { roleGuard } from '../middleware/admin-auth';
+import { authGuard, roleGuard } from '../middleware/admin-auth';
 const router = express.Router();
+
+router.use(authGuard);
 
 // post routes
 router.get('/posts', getPosts);
