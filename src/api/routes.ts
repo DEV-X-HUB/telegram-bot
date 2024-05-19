@@ -29,7 +29,7 @@ router.post('/auth/login', loginAdmin);
 router.post('/auth/create-admin', roleGuard('SUPER_ADMIN'), createAdmin);
 router.put('/auth/update-admin-status', roleGuard('SUPER_ADMIN'), updateAdminStatus);
 router.delete('/auth/delete-admin', roleGuard('SUPER_ADMIN'), createAdmin);
-router.get('/auth/forgot', forgotPassword);
+router.post('/auth/forgot', forgotPassword);
 router.post('/auth/verify', verifyResetOtp);
 router.post('/auth/reset', resetPassword);
 
