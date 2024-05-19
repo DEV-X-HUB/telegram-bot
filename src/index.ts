@@ -4,7 +4,8 @@ import Express from 'express';
 import config from './config/config';
 
 import { updateRegisrationStateAction } from './modules/registration/registration.scene';
-import appRouter from './api/routes';
+import APIRouter from './api/routes';
+import { authGuard } from './middleware/admin-auth';
 
 const app = Express();
 const ignite = () => {
@@ -16,7 +17,7 @@ const ignite = () => {
     app.use(Express.urlencoded({ extended: true }));
 
     // ROUTES
-    app.use('/', appRouter);
+    app.use('/admin', authGuard, APIRouter);
 
     const server = app.listen(config.port, () => {
       console.log(`bot is running on port ${config.port}`);

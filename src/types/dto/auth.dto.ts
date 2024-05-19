@@ -1,16 +1,34 @@
-interface CreateAdminDto {
+export interface CreateAdminDto {
   first_name: string;
   last_name: string;
   email: string;
   password: string;
   role: 'ADMIN' | 'SUPER_ADMIN';
 }
-interface SignInDto {
+export interface SignInDto {
   email: string;
   password: string;
 }
-interface ForgotPasswordDto {
+export interface ForgotPasswordDto {
   email: string;
 }
 
-export { CreateAdminDto, SignInDto, ForgotPasswordDto };
+export type UpdateAdminStatusDto = {
+  adminId: string;
+  status: 'ACTIVE' | 'INACTIVE';
+};
+
+export interface DeleteAdminDto {
+  adminId: string;
+}
+
+export interface VerifyResetOtpDto {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordDto {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}

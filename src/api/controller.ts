@@ -190,15 +190,19 @@ export async function createAdmin(req: Request, res: Response) {
     });
   }
 }
-
-export async function loginAdmin(req: Request, res: Response) {
+export async function updateAdminStatus(req: Request, res: Response) {
   try {
-    const { email, password } = req.body;
-    const { status, message } = await ApiService.loginAdmin({ email, password });
+    const { adminId, status: adminStatus } = req.body;
+    const { status, message } = await ApiService.updateAdminStatus({
+      adminId,
+      status: adminStatus,
+    });
+
     if (status == 'fail') {
       res.status(400).json({
         status,
         message,
+        data: null,
       });
     }
     return res.status(200).json({
@@ -209,6 +213,56 @@ export async function loginAdmin(req: Request, res: Response) {
     res.status(500).json({
       status: 'fail',
       message: (error as Error).message,
+    });
+  }
+}
+
+export async function deleteAdmin(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { status, message } = await ApiService.deleteAdminById({ adminId: id });
+
+    if (status === 'fail') {
+      return res.status(400).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      status,
+      message,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
+
+export async function loginAdmin(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
+    const { status, message, data } = await ApiService.loginAdmin({ email, password });
+    if (status == 'fail') {
+      res.status(400).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+    return res.status(200).json({
+      status,
+      message,
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+      data: null,
     });
   }
 }
@@ -238,7 +292,7 @@ export async function forgotPassword(req: Request, res: Response) {
   }
 }
 
-export async function verifyResetOTP(req: Request, res: Response) {
+export async function verifyResetOtp(req: Request, res: Response) {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -249,48 +303,18 @@ export async function verifyResetOTP(req: Request, res: Response) {
   }
 
   try {
-    const otpInfo = await prisma.otp.findFirst({
-      where: {
-        admin: {
-          email,
-        },
-      },
-    });
+    const { status, message } = await ApiService.verifyResetOtp({ email, otp });
 
-    if (!otpInfo) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'OTP not found',
-      });
-    }
-
-    if (new Date(Date.now()) > (otpInfo?.otp_expires as any)) {
+    if (status === 'fail') {
       return res.status(400).json({
-        status: 'fail',
-        message: 'OTP has expired. Please request a new one',
+        status,
+        message,
       });
     }
-
-    const isOTPValid = await bcrypt.compare(otp, otpInfo.otp as any);
-    if (!isOTPValid) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Invalid OTP',
-      });
-    }
-
-    await prisma.otp.update({
-      where: {
-        id: otpInfo.id,
-      },
-      data: {
-        isVerified: true,
-      },
-    });
 
     return res.status(200).json({
-      status: 'success',
-      message: 'OTP verified',
+      status,
+      message,
     });
   } catch (error) {
     res.status(500).json({
@@ -299,64 +323,36 @@ export async function verifyResetOTP(req: Request, res: Response) {
     });
   }
 }
-
 export async function resetPassword(req: Request, res: Response) {
   const { email, password, confirmPassword } = req.body;
 
-  if (!email || !password || !confirmPassword) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Please provide all required fields',
-    });
-  }
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Passwords do not match',
-    });
-  }
-
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const admin = await prisma.admin.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!admin) {
-      return res.status(404).json({
+    if (!email || !password || !confirmPassword) {
+      return res.status(400).json({
         status: 'fail',
-        message: 'Admin not found',
+        message: 'Please provide all required fields',
       });
     }
 
-    await prisma.admin.update({
-      where: {
-        email,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
+    const { status, message } = await ApiService.resetPassword({ email, password, confirmPassword });
 
-    // delete the otp
-    await prisma.otp.delete({
-      where: {
-        admin_id: admin.id,
-      },
-    });
+    if (status === 'fail') {
+      return res.status(400).json({
+        status,
+        message,
+      });
+    }
 
     return res.status(200).json({
-      status: 'success',
-      message: 'Password reset successful. Please login',
+      status,
+      message,
     });
-  } catch (error) {
-    res.status(500).json({
-      status: 'fail',
-      message: (error as Error).message,
-    });
+  } catch (error: any) {
+    if (status === 'fail') {
+      return res.status(400).json({
+        status: 'fail',
+        message: error.message,
+      });
+    }
   }
 }
