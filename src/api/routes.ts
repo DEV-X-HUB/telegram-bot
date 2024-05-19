@@ -8,6 +8,7 @@ import {
   getUserPosts,
   loginAdmin,
   resetPassword,
+  updateAdminStatus,
   updatePostStatus,
   verifyResetOtp,
 } from './controller';
@@ -26,7 +27,7 @@ router.delete('/posts/:id', deletePostById);
 // admin auth routes
 router.post('/auth/login', loginAdmin);
 router.post('/auth/create-admin', roleGuard('SUPER_ADMIN'), createAdmin);
-router.put('/auth/update-admin-status', roleGuard('SUPER_ADMIN'), createAdmin);
+router.put('/auth/update-admin-status', roleGuard('SUPER_ADMIN'), updateAdminStatus);
 router.delete('/auth/delete-admin', roleGuard('SUPER_ADMIN'), createAdmin);
 router.get('/auth/forgot', forgotPassword);
 router.post('/auth/verify', verifyResetOtp);

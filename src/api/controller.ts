@@ -67,7 +67,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
   try {
     const { status, data, message } = await ApiService.getUserPosts(user_id, parseInt(round));
     if (status == 'fail') {
-      res.status(500).json({
+      return res.status(500).json({
         status,
         message,
         data: null,
@@ -120,7 +120,7 @@ export const deletePostById = async (req: Request, res: Response) => {
   try {
     const { status, message } = await ApiService.deletePostById(post_id);
     if (status == 'fail') {
-      res.status(500).json({
+      return res.status(500).json({
         status,
         message,
       });
@@ -142,7 +142,7 @@ export const deleteUserPosts = async (req: Request, res: Response) => {
     const user_id = req.params.id;
     const { status, message } = await ApiService.deletePostById(user_id);
     if (status == 'fail') {
-      res.status(500).json({
+      return res.status(500).json({
         status,
         message,
       });
@@ -171,7 +171,7 @@ export async function createAdmin(req: Request, res: Response) {
     });
 
     if (status == 'fail') {
-      res.status(400).json({
+      return res.status(400).json({
         status,
         message,
         data: null,
@@ -199,7 +199,7 @@ export async function updateAdminStatus(req: Request, res: Response) {
     });
 
     if (status == 'fail') {
-      res.status(400).json({
+      return res.status(400).json({
         status,
         message,
         data: null,
@@ -247,12 +247,13 @@ export async function loginAdmin(req: Request, res: Response) {
     const { email, password } = req.body;
     const { status, message, data } = await ApiService.loginAdmin({ email, password });
     if (status == 'fail') {
-      res.status(400).json({
+      return res.status(400).json({
         status,
         message,
         data: null,
       });
     }
+
     return res.status(200).json({
       status,
       message,
@@ -273,7 +274,7 @@ export async function forgotPassword(req: Request, res: Response) {
 
     const { status, message, data: otp } = await ApiService.createOTP({ email });
     if (status == 'fail') {
-      res.status(400).json({
+      return res.status(400).json({
         status,
         message,
       });

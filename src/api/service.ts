@@ -235,7 +235,7 @@ class ApiService {
       return {
         status: 'success',
         message: 'Admin created Successfully',
-        data: { first_name, last_name, email, role },
+        data: { first_name, last_name, email, role, id: admin.id },
       };
     } catch (error) {
       return {
@@ -295,6 +295,13 @@ class ApiService {
         return {
           status: 'fail',
           message: 'Email or password is incorrect',
+          data: null,
+        };
+      }
+      if (admin.status == 'INACTIVE') {
+        return {
+          status: 'fail',
+          message: 'Your are currently Deactivated',
           data: null,
         };
       }
@@ -411,7 +418,7 @@ class ApiService {
 
       return {
         status: 'fail',
-        message: `Admin status updated to ${status ? 'active' : 'inactive'}`,
+        message: `Admin status updated to ${status}`,
       };
     } catch (error: any) {
       console.log(error);
