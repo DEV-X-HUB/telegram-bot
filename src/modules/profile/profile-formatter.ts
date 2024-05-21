@@ -133,7 +133,7 @@ class ProfileFormatter {
     if (!post) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
     return [
       `#${post.category} \n\n${post.description} \n\n\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a> \n\n${post.created_at}) \n\nStatus: ${post.status}`,
-      InlineKeyboardButtons(this.questionActions(post.status)),
+      InlineKeyboardButtons(this.questionActions(post)),
       // InlineKeyboardButtons(this.questionActions('open')),
     ];
   }
