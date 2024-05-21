@@ -118,10 +118,10 @@ export const getUserPosts = async (req: Request, res: Response) => {
 
 export const updatePostStatus = async (req: Request, res: Response) => {
   const bot = Bot();
-  const { postId, postStatus } = req.body;
+  const { postId, status: postStatus } = req.body;
   const { data, status, message } = await ApiService.updatePostStatus(postId, postStatus);
   if (status == 'fail')
-    res.status(500).json({
+    return res.status(500).json({
       status: 'fail',
       message,
     });
@@ -134,10 +134,10 @@ export const updatePostStatus = async (req: Request, res: Response) => {
   }
 
   if (postStatus == 'open') {
-    const { status, message } = await PostController.sendPostToUser(Bot, data);
+    const { status, message } = await PostController.sendPostToUser(bot, data);
     await PostController.postToChannel(bot, config.channel_id, data);
   }
-  res.status(200).json({
+  return res.status(200).json({
     status: 'success',
     message: 'Post status updated',
     data: 'post',

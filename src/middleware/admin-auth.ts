@@ -22,7 +22,7 @@ export const authGuard = (req: RequestWithUser, res: Response, next: NextFunctio
     req.user = decoded; // Attach user info to request object
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 };
 

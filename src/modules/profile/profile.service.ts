@@ -153,11 +153,17 @@ class ProfileService {
           following_id: userId,
         },
         include: {
-          follower: true,
+          following: {
+            select: {
+              display_name: true,
+              id: true,
+              tg_id: true,
+            },
+          },
         },
       });
 
-      return followers.map((entry) => entry.follower);
+      return followers.map((entry) => entry.following);
     } catch (error: any) {
       throw new Error(`Error fetching followers: ${error.message}`);
     }
@@ -169,7 +175,13 @@ class ProfileService {
           follower_id: userId,
         },
         include: {
-          follower: true,
+          follower: {
+            select: {
+              display_name: true,
+              id: true,
+              tg_id: true,
+            },
+          },
         },
       });
 

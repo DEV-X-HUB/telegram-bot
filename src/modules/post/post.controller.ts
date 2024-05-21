@@ -242,7 +242,7 @@ class PostController {
     const caption = postFormmatter.getFormattedQuestionPreview(post);
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      sendMediaGroupToChannel(bot, (post as any)[sectionName].photo, caption);
+      await sendMediaGroupToChannel(bot, (post as any)[sectionName].photo, caption);
     }
 
     await messagePostPreview(
@@ -256,6 +256,7 @@ class PostController {
     const recipientsIds: string[] = [];
     const followerings = post?.user.followings;
     const followers = post?.user.followers;
+
     if (post?.notify_option == 'friend') {
       if (followerings && followerings?.length > 0 && followers && followers?.length > 0) {
         followers.forEach((follower: any) => {

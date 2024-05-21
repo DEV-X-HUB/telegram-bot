@@ -185,12 +185,9 @@ class ApiService {
         },
         include: {
           user: {
-            select: {
-              id: true,
-              display_name: true,
+            include: {
               followers: true,
               followings: true,
-              blocked_users: true,
             },
           },
           Service1A: true,
@@ -217,13 +214,6 @@ class ApiService {
         data: null,
       };
     }
-    const post = await prisma.post.update({
-      where: { id: postId },
-      data: {
-        status: status,
-      },
-      select: {},
-    });
   }
   static async deletePostById(postId: string): Promise<BareResponse> {
     try {

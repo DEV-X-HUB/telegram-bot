@@ -515,15 +515,11 @@ class PostService {
     }
   }
   async getFilteredRecipients(recipientsIds: string[], posterId: string) {
-    console.log(recipientsIds);
     try {
       const recipientChatIds = await prisma.user.findMany({
         where: {
           id: {
             in: recipientsIds,
-          },
-          NOT: {
-            blocked_users: { has: posterId },
           },
         },
         select: {
