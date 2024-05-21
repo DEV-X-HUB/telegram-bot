@@ -14,7 +14,7 @@ import {
   CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
-import { PostStatus } from '../../types/api';
+import { PostStatus, ResponseWithData } from '../../types/api';
 import config from '../../config/config';
 
 class PostService {
@@ -316,6 +316,76 @@ class PostService {
       return { success: false, posts: null, message: error?.message };
     }
   }
+  static async getPostById(post_id: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: {
+          id: post_id,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+
+      return { success: true, post: post, message: 'success' };
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, post: null, message: error?.message };
+    }
+  }
+
+  static async updatePostStatusByUser(postId: string, status: PostStatus): Promise<ResponseWithData> {
+    try {
+      const post = await prisma.post.update({
+        where: { id: postId },
+        data: {
+          status: status,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Post status updated',
+        data: post,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: 'fail',
+        message: 'Unable to update Post',
+        data: null,
+      };
+    }
+  }
 
   async getPostsByDescription(searchText: string) {
     try {
@@ -437,7 +507,6 @@ class PostService {
     }
   }
   async getPostById(postId: string) {
-    console.log(postId);
     try {
       const post = await prisma.post.findFirst({
         where: { id: postId },
@@ -470,6 +539,7 @@ class PostService {
       return { success: true, post: null };
     }
   }
+
   async getFollowersChatId(postId: string) {
     try {
       const post = await prisma.post.findFirst({

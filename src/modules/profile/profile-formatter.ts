@@ -79,23 +79,13 @@ class ProfileFormatter {
     this.postFormtter = new PostFormatter();
   }
 
-  questionActions(post_id: string, status: PostUpdateStatus) {
+  postActions(post_id: string, status: PostUpdateStatus) {
     if (status == 'pending')
       return [
         [
           {
             text: 'Cancel',
-            cbString: `cancelPost_${post_id}`,
-          },
-        ],
-      ];
-
-    if (status == 'cancel')
-      return [
-        [
-          {
-            text: 'Resubmit',
-            cbString: `resubmitPost_${post_id}`,
+            cbString: `cancelPost:${post_id}`,
           },
         ],
       ];
@@ -105,7 +95,7 @@ class ProfileFormatter {
         [
           {
             text: 'Close',
-            cbString: `closePost_${post_id}`,
+            cbString: `closePost:${post_id}`,
           },
         ],
       ];
@@ -116,7 +106,7 @@ class ProfileFormatter {
         [
           {
             text: 'Open',
-            cbString: `openPost_${post_id}`,
+            cbString: `openPost:${post_id}`,
           },
         ],
       ];
@@ -125,7 +115,7 @@ class ProfileFormatter {
       [
         {
           text: 'Open',
-          cbString: `openPost_${post_id}`,
+          cbString: `openPost:${post_id}`,
         },
       ],
     ];
@@ -136,7 +126,7 @@ class ProfileFormatter {
 
     return [
       this.postFormtter.getFormattedQuestionPreview(post),
-      InlineKeyboardButtons(this.questionActions(post.id, post.status)),
+      InlineKeyboardButtons(this.postActions(post.id, post.status)),
     ];
   }
 

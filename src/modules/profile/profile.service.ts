@@ -3,6 +3,7 @@ import prisma from '../../loaders/db-connecion';
 import { v4 as UID } from 'uuid';
 import { NotifyOption } from '../../types/params';
 import PostService from '../post/post.service';
+import { PostStatus, ResponseWithData } from '../../types/api';
 
 const postService = new PostService();
 class ProfileService {
@@ -219,6 +220,9 @@ class ProfileService {
   async getUserPosts(user_id: string) {
     return PostService.getUserPosts(user_id);
   }
+  async getPostById(post_id: string) {
+    return PostService.getPostById(post_id);
+  }
   async getUserPostsTgId(tg_id: string) {
     return PostService.getUserPostsByTgId(tg_id);
   }
@@ -428,6 +432,10 @@ class ProfileService {
       console.log(error);
       return { success: false, data: null, message: error?.message };
     }
+  }
+
+  async updatePostStatusByUser(postId: string, status: PostStatus): Promise<ResponseWithData> {
+    return PostService.updatePostStatusByUser(postId, status);
   }
 }
 

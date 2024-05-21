@@ -346,6 +346,7 @@ class PostFormatter {
   }
   getFormattedQuestionPreview(post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
+    console.log(sectionName);
     switch (post.category) {
       case 'Section 1A':
         return post1AFormatter.getPreviewData({
@@ -423,13 +424,6 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-    }
-
-    switch (true) {
-      case areEqaul(post.category, 'Section 1A', true): {
-        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
-        ``;
-      }
     }
   }
 
@@ -512,13 +506,6 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-    }
-
-    switch (true) {
-      case areEqaul(post.category, 'Section 1A', true): {
-        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
-        ``;
-      }
     }
   }
 
