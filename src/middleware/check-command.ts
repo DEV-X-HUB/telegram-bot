@@ -53,7 +53,7 @@ export function checkAndRedirectToScene() {
         }
       }
 
-      if ("commandText=='browse") {
+      if (commandText == 'browse') {
         ctx?.scene?.leave();
         return ctx.scene.enter(commandText);
       }
