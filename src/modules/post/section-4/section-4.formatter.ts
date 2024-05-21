@@ -1,5 +1,5 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/ui';
 
 class Section4Formatter {
   categories: TableInlineKeyboardButtons = [

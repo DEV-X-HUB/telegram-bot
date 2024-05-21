@@ -1,10 +1,10 @@
-import { deleteKeyboardMarkup, deleteMessageWithCallback, findSender, sendMessage } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessageWithCallback, findSender, sendMessage } from '../../utils/helpers/chat';
 
 import ProfileFormatter from './chat-formatter';
 import ChatService from './chat.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
-import { areEqaul } from '../../utils/constants/string';
+import { areEqaul } from '../../utils/helpers/string';
 
 const chatService = new ChatService();
 const profileService = new ProfileService();

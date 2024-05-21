@@ -1,7 +1,7 @@
 import { Telegraf, Context, Scenes, Markup } from 'telegraf';
 import ProfileFormatter from './chat-formatter';
 import ChatController from './chat.controller';
-import { findSender, hasCallbackQuery } from '../../utils/constants/chat';
+import { findSender, hasCallbackQuery } from '../../utils/helpers/chat';
 import { checkRegistration } from '../../middleware/auth';
 
 const chatController = new ChatController();

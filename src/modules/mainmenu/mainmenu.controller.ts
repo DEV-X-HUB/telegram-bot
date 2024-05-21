@@ -1,4 +1,4 @@
-import { findSender } from '../../utils/constants/chat';
+import { findSender } from '../../utils/helpers/chat';
 import RegistrationService from '../registration/restgration.service';
 import MainmenuFormatter from './mainmenu-formmater';
 

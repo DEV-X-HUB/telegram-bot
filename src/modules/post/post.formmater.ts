@@ -1,9 +1,9 @@
 import { Post, User } from '@prisma/client';
 import config from '../../config/config';
-import { TableInlineKeyboardButtons } from '../../types/components';
+import { TableInlineKeyboardButtons } from '../../types/ui';
 import { InlineKeyboardButtons } from '../../ui/button';
-import { formatDateFromIsoString } from '../../utils/constants/date';
-import { capitalize, areEqaul, getSectionName } from '../../utils/constants/string';
+import { formatDateFromIsoString } from '../../utils/helpers/date';
+import { capitalize, areEqaul, getSectionName } from '../../utils/helpers/string';
 import Post1AFormatter from './section-1/section-1a/section-a.formatter';
 import Post1BFormatter from './section-1/section-1b/section-b.formatter';
 import Post1CFormatter from './section-1/section-1c/section1c.formatter';
@@ -239,13 +239,13 @@ class PostFormatter {
       this.questionOptionsButtons(question.id, !forAnswer),
     ];
   }
-  getFormattedQuestionPreview(question: any) {
-    switch (true) {
-      case areEqaul(question.category, 'Section 1A', true): {
-        return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name != null ? question.user.display_name : 'Anonymous '}</a>`;
-      }
-    }
-  }
+  // getFormattedQuestionPreview(question: any) {
+  //   switch (true) {
+  //     case areEqaul(question.category, 'Section 1A', true): {
+  //       return `#${question.category.replace(/ /g, '_')}\n________________\n\n${question.ar_br?.toLocaleUpperCase()}\n\nWoreda: ${question.woreda} \n\nLast digit: ${question.last_digit}\n\nBy: <a href="${config.bot_url}?start=userProfile_${question.user.id}">${question.user.display_name != null ? question.user.display_name : 'Anonymous '}</a>`;
+  //     }
+  //   }
+  // }
   formatQuestionDetail(post: any, forAnswer?: boolean) {
     return [this.getformattedQuestionDetail(post)];
   }
@@ -328,6 +328,94 @@ class PostFormatter {
         });
       case 'Section4Construction':
         return constructionFormatter.getDetailData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+    }
+
+    switch (true) {
+      case areEqaul(post.category, 'Section 1A', true): {
+        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
+        ``;
+      }
+    }
+  }
+  getFormattedQuestionPreview(post: any) {
+    const sectionName = getSectionName(post.category) as PostCategory;
+    switch (post.category) {
+      case 'Section 1A':
+        return post1AFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1B':
+        return post1BFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 1C':
+        return post1CFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section 2': {
+        return post2Formatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      }
+
+      case 'Section 3': {
+        return section3Formatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created,
+          user: post.user,
+          ...post[sectionName],
+        });
+      }
+
+      case 'Chicken Farm':
+        return chickenFarmFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section4Manufacture':
+        return manufactureFormatter.getPreviewData({
+          description: post.description,
+          status: post.status,
+          category: post.category,
+          created_at: post.created_at,
+          user: post.user,
+          ...post[sectionName],
+        });
+      case 'Section4Construction':
+        return constructionFormatter.getPreviewData({
           description: post.description,
           status: post.status,
           category: post.category,

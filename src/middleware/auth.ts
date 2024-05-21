@@ -1,7 +1,7 @@
 import axios from 'axios';
 import config from '../config/config';
 import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
-import { findSender } from '../utils/constants/chat';
+import { findSender } from '../utils/helpers/chat';
 import RegistrationService from '../modules/registration/restgration.service';
 import { isRegistering } from '../modules/registration/registration.scene';
 const mainMenuFormmater = new MainMenuFormmater();
@@ -69,7 +69,7 @@ export const registerationSkips = (ctx: any) => {
   ];
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
-
+  console.log(isRegistering(), 'is registering  ');
   if (isRegistering()) return true;
 
   if (query) {
@@ -91,6 +91,7 @@ export function checkRegistration() {
     const isVia_bot = ctx.message?.via_bot;
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
+    console.log(isRegisteredSkiped, 'skipped');
     if (isVia_bot) return true;
     if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);

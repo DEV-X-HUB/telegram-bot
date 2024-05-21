@@ -6,9 +6,9 @@ import {
   deleteMessageWithCallback,
   findSender,
   sendMediaGroup,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
-import { postValidator } from '../../../../utils/validator/question-post-validaor';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/helpers/string';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import PostService from '../../post.service';

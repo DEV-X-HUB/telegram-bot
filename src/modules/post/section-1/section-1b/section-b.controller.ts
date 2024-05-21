@@ -4,16 +4,16 @@ import {
   deleteMessageWithCallback,
   findSender,
   sendMediaGroup,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption } from '../../../../utils/helpers/string';
 
 import SectionBFormatter from './section-b.formatter';
-import { postValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import { CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
-import { parseDateString } from '../../../../utils/constants/date';
+import { parseDateString } from '../../../../utils/helpers/date';
 import PostService from '../../post.service';
 
 const sectionBFormatter = new SectionBFormatter();

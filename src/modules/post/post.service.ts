@@ -14,12 +14,13 @@ import {
   CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
+import { PostStatus } from '../../types/api';
 import config from '../../config/config';
 
 class PostService {
   constructor() {}
 
-  static async createQuestionPost(questionPost: any, tg_id: string) {
+  static async createpost(post: any, tg_id: string) {
     try {
       // Find user with tg_id
       const user = await prisma.user.findUnique({
@@ -40,7 +41,7 @@ class PostService {
       const question = await prisma.post.create({
         data: {
           id: UUID(),
-          ...questionPost,
+          ...post,
           user_id: user.id,
           status: 'pending',
         },
@@ -427,15 +428,19 @@ class PostService {
       return { success: true, posts: [], nextRound: round, total: 0 };
     }
   }
-  async getPostById(questionId: string) {
+  async getPostById(postId: string) {
+    console.log(postId);
     try {
       const post = await prisma.post.findFirst({
-        where: { id: questionId },
+        where: { id: postId },
         include: {
           user: {
             select: {
               id: true,
               display_name: true,
+              followers: true,
+              followings: true,
+              blocked_users: true,
             },
           },
           Service1A: true,
@@ -455,6 +460,77 @@ class PostService {
     } catch (error) {
       console.error('Error searching questions:', error);
       return { success: true, post: null };
+    }
+  }
+  async getFollowersChatId(postId: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: { id: postId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+              followers: true,
+              followings: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        post,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, post: null };
+    }
+  }
+
+  async getChatIds(recipientsIds: string[]) {
+    try {
+      const chatIds = await prisma.user.findMany({
+        where: {
+          id: { in: recipientsIds },
+        },
+        select: {
+          chat_id: true,
+        },
+      });
+      return {
+        success: true,
+        chatIds,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, chatIds: [] };
+    }
+  }
+  async getFilteredRecipients(recipientsIds: string[], posterId: string) {
+    try {
+      const recipientChatIds = await prisma.user.findMany({
+        where: {
+          id: {
+            in: recipientsIds,
+          },
+        },
+        select: {
+          chat_id: true,
+        },
+      });
+
+      return { status: 'success', recipientChatIds: recipientChatIds };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', recipientChatIds: [] };
     }
   }
 

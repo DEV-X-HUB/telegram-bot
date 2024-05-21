@@ -1,7 +1,7 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
-import { areEqaul } from '../../../../utils/constants/string';
+import { areEqaul } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 
 class Post1AFormatter {
@@ -23,7 +23,8 @@ class Post1AFormatter {
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
-    postSuccessMsg: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -140,11 +141,11 @@ class Post1AFormatter {
   }
 
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton: </b>${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton:</b> ${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {

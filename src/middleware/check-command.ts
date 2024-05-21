@@ -3,9 +3,8 @@ import RegistrationService from '../modules/registration/restgration.service';
 import { Context } from 'telegraf';
 import { checkQueries } from './check-callback';
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
-import { capitalize } from '../utils/constants/string';
-import { findSender } from '../utils/constants/chat';
-
+import { capitalize } from '../utils/helpers/string';
+import { findSender } from '../utils/helpers/chat';
 // Middleware (Validator) to check if the user entered a command in the wizard scene
 export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean {
   // if the user enters a command(starting with "/") t
@@ -23,7 +22,7 @@ export function checkCommandInWizardScene(ctx: any, errorMsg?: string): boolean 
 export function checkAndRedirectToScene() {
   return async (ctx: any, next: any) => {
     const text = ctx?.message?.text;
-
+    console.log(text);
     if (!text) return next();
 
     if (!text) return next();
@@ -86,10 +85,11 @@ export const getCommand = (ctx: any): boolean | string => {
   return false;
 };
 
-export function restartScene(sceneId: string) {
+export function restartScene(sceneId: string, register?: string) {
   return async (ctx: any, next: any) => {
     const command = getCommand(ctx);
-    if (command && command == 'restart') {
+
+    if ((command && command == 'restart') || (register && command == register)) {
       ctx.message.text = 'none';
       await ctx?.scene?.leave();
       return await ctx.scene.enter(sceneId);

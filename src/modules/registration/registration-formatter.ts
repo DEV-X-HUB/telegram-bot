@@ -6,13 +6,13 @@ import {
   getFilteredCoutryList,
   getSelectedCoutryList,
   iterateCities,
-} from '../../utils/constants/country-list';
+} from '../../utils/helpers/country-list';
 import { ICity } from 'country-state-city';
-import { capitalizeFirstLetter } from '../../utils/constants/string';
+import { capitalizeFirstLetter } from '../../utils/helpers/string';
 
 class RegistrationFormatter {
   countries: any[] = [];
-  countryCodes: any[] = ['et'];
+  countryCodes: any[] = ['et', 'ke', 'ug', 'tz'];
   messages = {
     useButtonError: 'Please use the buttons above to choose ',
     userExitErrorMsg: 'You have already registed for this bot. feel free to navigate other services',
@@ -183,7 +183,7 @@ class RegistrationFormatter {
   }
 
   getPreviewData(state: any) {
-    return `${capitalizeFirstLetter(state.first_name)} ${capitalizeFirstLetter(state.last_name)}\n________________\n\nFirst name: ${capitalizeFirstLetter(state.first_name)} \n\nLast name: ${capitalizeFirstLetter(state.last_name)} \n\nAge: ${state.age} \n\nGender: ${state.gender}\n\nResidence : ${state.city},${state.country}\n\nEmail: ${state.email || 'None'}\n\nPhone Number: ${state.phone_number}`;
+    return `<b>${capitalizeFirstLetter(state.first_name)} ${capitalizeFirstLetter(state.last_name)}</b>\n________________\n\n<b>First name</b>: ${capitalizeFirstLetter(state.first_name)} \n\n<b>Last name</b>: ${capitalizeFirstLetter(state.last_name)} \n\n<b>Age</b>: ${state.age} \n\n<b>Gender</b>: ${state.gender}\n\n<b>Residence</b> : ${state.city},${state.country}\n\n<b>Email</b>: ${state.email || 'None'}\n\n<b>Phone Number</b>: ${state.phone_number}`;
   }
   preview(state: any) {
     return [

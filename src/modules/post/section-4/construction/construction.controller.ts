@@ -3,12 +3,12 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption } from '../../../../utils/helpers/string';
 
 import QuestionPostSectionConstructionFormmater from './construction.formatter';
 import QuestionService from '../../post.service';
-import { postValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import { displayDialog } from '../../../../ui/dialog';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import Section4ConstructionService from './construction.service';

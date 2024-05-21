@@ -9,8 +9,8 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/helpers/string';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import PostService from '../../post.service';
@@ -164,7 +164,7 @@ class ManufactureController {
 
       // empty the images array
       imagesUploaded = [];
-      ctx.reply(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       //   ctx.reply(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       //   ctx.reply(...postingFormatter.previewCallToAction());
       return ctx.wizard.next();
@@ -188,13 +188,13 @@ class ManufactureController {
           console.log('preview edit');
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...manufactureFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...manufactureFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
         case 'editing_done': {
           // await deleteMessageWithCallback(ctx);
-          await ctx.reply(manufactureFormatter.preview(state));
+          await ctx.replyWithHTML(manufactureFormatter.preview(state));
           return ctx.wizard.back();
         }
 
@@ -402,7 +402,7 @@ class ManufactureController {
     } else if (callbackMessage == 'editing_done') {
       // await deleteMessageWithCallback(ctx);
 
-      await ctx.reply(...manufactureFormatter.preview(state));
+      await ctx.replyWithHTML(...manufactureFormatter.preview(state));
 
       return ctx.wizard.back();
     }
@@ -454,7 +454,7 @@ class ManufactureController {
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
   }

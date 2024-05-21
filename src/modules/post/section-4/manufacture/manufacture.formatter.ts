@@ -1,6 +1,6 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
-import { areEqaul } from '../../../../utils/constants/string';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
+import { areEqaul } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 import config from '../../../../config/config';
 
@@ -94,15 +94,12 @@ class ManufactureFormatter {
   }
 
   getDetailData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector}\n\nWorker: ${state.number_of_worker} \n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n
-    By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>
-    \n\nStatus : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Worker</b>: ${state.number_of_worker} \n\n<b>Estimated Capital</b>: ${state.estimated_capital} \n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>
+    \n\n<b>Status</b> : ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.sector}\n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n
-    By: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>
-    \n\nStatus : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
@@ -207,7 +204,7 @@ class ManufactureFormatter {
     const description =
       post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
 
-    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+    const message = `#${post.category}\n_______\n\n<b>Description </b>: ${description}\n\n<b>Status</b> : ${post.status}`;
 
     const buttons = InlineKeyboardButtons([
       [

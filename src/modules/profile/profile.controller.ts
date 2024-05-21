@@ -1,10 +1,10 @@
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/helpers/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
-import { calculateAge } from '../../utils/constants/date';
+import { calculateAge } from '../../utils/helpers/date';
 import config from '../../config/config';
 
 import { Markup } from 'telegraf';
-import { areEqaul, isInInlineOption } from '../../utils/constants/string';
+import { areEqaul, isInInlineOption } from '../../utils/helpers/string';
 
 import ProfileFormatter from './profile-formatter';
 import ProfileService from './profile.service';
@@ -114,6 +114,7 @@ class ProfileController {
 
     const userData = await profileService.getProfileDataWithId(userId);
     const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
+    if (!userData) return ctx.reply(profileFormatter.messages.userNotFound);
 
     return ctx.reply(...profileFormatter.profilePreviwByThirdParty(userData, isFollowing, isBlocked));
   }
@@ -131,9 +132,13 @@ class ProfileController {
     const { isBlocked } = await profileService.isBlockedBy(currentUser?.id || '', userId);
 
     if (userData)
-      return ctx.editMessageReplyMarkup({
-        inline_keyboard: [profileFormatter.getProfileButtons(userData.id, false, isBlocked)],
-      });
+      try {
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [profileFormatter.getProfileButtons(userData.id, true, isBlocked)],
+        });
+      } catch (error) {
+        console.log(error);
+      }
   }
   async handlUnfollow(ctx: any, query: string) {
     const [_, userId] = query.split('_');

@@ -1,10 +1,10 @@
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/constants/chat';
+import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/helpers/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
-import { calculateAge } from '../../utils/constants/date';
+import { calculateAge } from '../../utils/helpers/date';
 import config from '../../config/config';
 
-import { Markup } from 'telegraf';
-import { areEqaul } from '../../utils/constants/string';
+import { Markup, Context } from 'telegraf';
+import { areEqaul } from '../../utils/helpers/string';
 
 import RegistrationFormatter from './registration-formatter';
 import RegistrationService from './restgration.service';
@@ -122,7 +122,7 @@ class RegistrationController {
     const age = calculateAge(ctx.message.text);
     ctx.wizard.state.age = age;
     await deleteKeyboardMarkup(ctx, registrationFormatter.messages.genderPrompt);
-    ctx.reply(...registrationFormatter.chooseGenderFormatter(), Markup.removeKeyboard());
+    await ctx.reply(...registrationFormatter.chooseGenderFormatter());
     return ctx.wizard.next();
   }
   async chooseGender(ctx: any) {
@@ -197,7 +197,12 @@ class RegistrationController {
           return ctx.wizard.back();
         }
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
-        return ctx.reply(...(await registrationFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+        return ctx.reply(
+          ...(await registrationFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
       }
       case 'next': {
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
@@ -208,10 +213,11 @@ class RegistrationController {
           )),
         );
       }
+
       default:
         ctx.wizard.state.city = callbackQuery.data;
         ctx.wizard.state.currentRound = 0;
-        ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        ctx.replyWithHTML(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.next();
     }
   }
@@ -225,14 +231,13 @@ class RegistrationController {
         await ctx.reply(...registrationFormatter.chooseGenderFormatter());
         return ctx.wizard.back();
       }
-      await ctx.reply('some thing');
     } else {
       const state = ctx.wizard.state;
       switch (callbackQuery.data) {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
         case 'register_data': {
@@ -273,7 +278,7 @@ class RegistrationController {
           }
         }
         default: {
-          await ctx.reply('aggain body');
+          // await ctx.reply('');
         }
       }
     }
@@ -287,7 +292,7 @@ class RegistrationController {
       // changing field value
       const messageText = ctx.message.text;
       if (areEqaul(messageText, 'back', true))
-        return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+        return ctx.replyWithHTML(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
       if (!editField) return await ctx.reply('invalid input ');
 
       const validationMessage = registrationValidator(ctx.wizard.state.editField, ctx.message.text);
@@ -297,7 +302,7 @@ class RegistrationController {
         editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
       ctx.wizard.state.editField = null;
       deleteKeyboardMarkup(ctx);
-      return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
@@ -310,12 +315,12 @@ class RegistrationController {
 
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
-      ctx.reply(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       return MainMenuController.onStart(ctx);
     }
     if (areEqaul(callbackMessage, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
     if (editField) {
       //  if edit filed is selected
@@ -331,7 +336,7 @@ class RegistrationController {
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
       ctx.wizard.state.editField = null;
-      return ctx.reply(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
     if (fileds.some((filed) => filed == callbackMessage)) {
       // selecting field to change
@@ -361,7 +366,7 @@ class RegistrationController {
     switch (callbackQuery.data) {
       case 'back': {
         if (ctx.wizard.state.currentRound == 0) {
-          ctx.reply(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
           return ctx.wizard.back();
         }
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
@@ -377,8 +382,9 @@ class RegistrationController {
         );
       }
       default:
+        ctx.wizard.state.editField = null;
         ctx.wizard.state.city = callbackQuery.data;
-        ctx.reply(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+        ctx.replyWithHTML(...registrationFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.back();
     }
   }

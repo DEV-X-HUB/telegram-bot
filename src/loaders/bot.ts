@@ -7,11 +7,11 @@ import { checkAndRedirectToScene } from '../middleware/check-command';
 import { checkRegistration, checkUserInChannelandPromtJoin } from '../middleware/auth';
 import QuestionPostScene from '../modules/post/post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
-import { setCommands } from '../utils/helper/commands';
+import { setCommands } from '../utils/helpers/commands';
 import SearchQuestionController from '../modules/post/post.controller';
 import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';
-import BrowsePostScene from '../modules/browse-post/browse-post.scene';
+import PostController from '../modules/post/post.controller';
 
 let bot: Telegraf<Context> | null = null;
 
@@ -21,12 +21,13 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
+  bot.use(checkUserInChannelandPromtJoin());
+
   bot.on('inline_query', SearchQuestionController.handleSearch);
 
   stage.use(checkRegistration());
   stage.use(checkCallBacks());
   stage.use(checkAndRedirectToScene());
-
   bot.use(session());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
@@ -41,6 +42,7 @@ export default () => {
     { name: 'restart', description: 'Restart the service' },
     { name: 'browse', description: 'Browse posts' },
   ];
+
   setCommands(commands);
   dbConnecion;
   return bot;

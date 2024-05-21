@@ -2,16 +2,9 @@ import Bot from './loaders/bot';
 
 import Express from 'express';
 import config from './config/config';
-import {
-  getPosts,
-  getPostById,
-  getPostsOfUser,
-  updateStatusOfPost,
-  deleteAllPosts,
-  deletePostById,
-  // createAdmin,
-  // loginAdmin,
-} from './api/apiFunctions';
+
+import { updateRegisrationStateAction } from './modules/registration/registration.scene';
+import APIRouter from './api/routes';
 
 const app = Express();
 const ignite = () => {
@@ -23,17 +16,7 @@ const ignite = () => {
     app.use(Express.urlencoded({ extended: true }));
 
     // ROUTES
-    // Post routes
-    app.get('/posts', getPosts);
-    app.get('/posts/:id', getPostById);
-    app.get('/posts/user/:userId', getPostsOfUser);
-    app.put('/posts/:id', updateStatusOfPost);
-    app.delete('/posts/:id', deletePostById);
-    app.delete('/posts', deleteAllPosts);
-
-    // Admin routes
-    // app.post('/admin/login', loginAdmin);
-    // app.post('/admin/signup', createAdmin);
+    app.use('/admin', APIRouter);
 
     const server = app.listen(config.port, () => {
       console.log(`bot is running on port ${config.port}`);
@@ -41,10 +24,12 @@ const ignite = () => {
 
     // Graceful shutdown
     process.once('SIGINT', () => {
+      updateRegisrationStateAction('end_register');
       bot.stop('SIGINT');
       server.close();
     });
     process.once('SIGTERM', () => {
+      updateRegisrationStateAction('end_register');
       bot.stop('SIGTERM');
       server.close();
     });
