@@ -371,6 +371,8 @@ class ProfileController {
     if (status == 'fail') return ctx.reply(errorMsg);
     if (isDisplayNameTaken) return ctx.reply(profileFormatter.messages.displayNameTakenMsg);
   }
+
+  async updatePostStatus(ctx: any) {}
 }
 
 export default ProfileController;

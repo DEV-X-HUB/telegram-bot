@@ -74,21 +74,58 @@ class ProfileFormatter {
     this.countries = getSelectedCoutryList();
   }
 
-  questionActions() {
+  questionActions(post: any) {
+    const status = post.status;
+
+    if (status == 'pending')
+      return [
+        [
+          {
+            text: 'Cancel',
+            cbString: `cancelPost_${post.id}`,
+          },
+        ],
+      ];
+
+    if (status == 'cancel')
+      return [
+        [
+          {
+            text: 'Resubmit',
+            cbString: `resubmitPost_${post.id}`,
+          },
+        ],
+      ];
+
+    if (status == 'open') {
+      return [
+        [
+          {
+            text: 'Close',
+            cbString: `closePost_${post.id}`,
+          },
+        ],
+      ];
+    }
+
+    if (status == 'close') {
+      return [
+        [
+          {
+            text: 'Open',
+            cbString: `openPost_${post.id}`,
+          },
+        ],
+      ];
+    }
+
     return [
       [
-        { text: 'Edit Question', cbString: 'edit' },
-        { text: 'Add poll', cbString: 'poll' },
+        {
+          text: '',
+          cbString: '',
+        },
       ],
-      [
-        { text: 'Notify Settings', cbString: 'notify' },
-        { text: 'Disable Reply', cbString: 'disable_reply' },
-      ],
-      [
-        { text: ' @Mention Previous Question', cbString: 'mention' },
-        { text: 'Cancel', cbString: 'cancel' },
-      ],
-      [{ text: 'Submit', cbString: 'submit' }],
     ];
   }
 
@@ -96,7 +133,8 @@ class ProfileFormatter {
     if (!post) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
     return [
       `#${post.category} \n\n${post.description} \n\n\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a> \n\n${post.created_at}) \n\nStatus: ${post.status}`,
-      InlineKeyboardButtons(this.questionActions()),
+      InlineKeyboardButtons(this.questionActions(post.status)),
+      // InlineKeyboardButtons(this.questionActions('open')),
     ];
   }
 
