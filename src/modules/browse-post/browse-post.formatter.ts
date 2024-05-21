@@ -1,7 +1,7 @@
 import config from '../../config/config';
 import { PostCategory } from '../../types/params';
 import { InlineKeyboardButtons } from '../../ui/button';
-import { areEqaul, getSectionName } from '../../utils/constants/string';
+import { areEqaul, getSectionName } from '../../utils/helpers/string';
 import Post1AFormatter from '../post/section-1/section-1a/section-a.formatter';
 import Post1BFormatter from '../post/section-1/section-1b/section-b.formatter';
 import Post1CFormatter from '../post/section-1/section-1c/section1c.formatter';

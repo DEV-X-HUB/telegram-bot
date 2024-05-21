@@ -1,6 +1,6 @@
 // BrowsePostScene
 
-import { deleteMessageWithCallback } from '../../utils/constants/chat';
+import { deleteMessageWithCallback } from '../../utils/helpers/chat';
 import PostService from '../post/post.service';
 import BrowsePostFormatter from './browse-post.formatter';
 const browsePostFormatter = new BrowsePostFormatter();
