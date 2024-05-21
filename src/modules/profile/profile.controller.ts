@@ -12,6 +12,9 @@ import MainMenuController from '../mainmenu/mainmenu.controller';
 import CreateUserDto from '../../types/dto/create-user.dto';
 const profileService = new ProfileService();
 const profileFormatter = new ProfileFormatter();
+
+import { Context } from 'telegraf';
+import PostService from '../post/post.service';
 class ProfileController {
   constructor() {}
   saveToState(ctx: any, userData: any) {
@@ -372,7 +375,59 @@ class ProfileController {
     if (isDisplayNameTaken) return ctx.reply(profileFormatter.messages.displayNameTakenMsg);
   }
 
-  async updatePostStatus(ctx: any) {}
+  async handleOpenPost(ctx: any, post_id: string) {
+    const message = ctx.callbackQuery.message;
+
+    const message_id = message.message_id;
+    const chat_id = message.chat.id;
+
+    const { data, status } = await profileService.updatePostStatusByUser(post_id, 'open');
+    if (status == 'fail') return ctx.reply('Unable to  Open the post ');
+    const response: any = profileFormatter.postPreview(data);
+    const [messageText, buttons] = response;
+
+    return await ctx.telegram.editMessageText(
+      chat_id, // Chat ID
+      message_id,
+      undefined, // Message ID
+      messageText, // New text to set
+      {
+        reply_markup: buttons?.reply_markup,
+        parse_mode: 'HTML',
+      },
+    );
+  }
+  async handleClosePost(ctx: any, post_id: string) {
+    const message = ctx.callbackQuery.message;
+
+    const message_id = message.message_id;
+    const chat_id = message.chat.id;
+
+    const { data, status } = await profileService.updatePostStatusByUser(post_id, 'closed');
+    if (status == 'fail') return ctx.reply('Unable to  Close  the post ');
+    const response: any = profileFormatter.postPreview(data);
+    const [messageText, buttons] = response;
+
+    return await ctx.telegram.editMessageText(
+      chat_id, // Chat ID
+      message_id,
+      undefined, // Message ID
+      messageText, // New text to set
+      {
+        reply_markup: buttons?.reply_markup,
+        parse_mode: 'HTML',
+      },
+    );
+  }
+  async handleCancelPost(ctx: any, post_id: string) {
+    const deleted = await PostService.deletePostById(post_id);
+    if (deleted) {
+      await deleteMessageWithCallback(ctx);
+      return ctx.reply('Post Cancelled');
+    } else {
+      return ctx.reply('Unable to  cancelled the post ');
+    }
+  }
 }
 
 export default ProfileController;

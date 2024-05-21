@@ -12,8 +12,12 @@ import { areEqaul, capitalizeFirstLetter } from '../../utils/helpers/string';
 import { formatDateFromIsoString } from '../../utils/helpers/date';
 import config from '../../config/config';
 import { NotifyOption } from '../../types/params';
+import PostFormatter from '../post/post.formmater';
+
+type PostUpdateStatus = 'open' | 'close' | 'cancel' | 'pending';
 
 class ProfileFormatter {
+  postFormtter;
   countries: any[] = [];
   countryCodes: any[] = ['et'];
   previewButtons = [
@@ -72,27 +76,16 @@ class ProfileFormatter {
   };
   constructor() {
     this.countries = getSelectedCoutryList();
+    this.postFormtter = new PostFormatter();
   }
 
-  questionActions(post: any) {
-    const status = post.status;
-
+  postActions(post_id: string, status: PostUpdateStatus) {
     if (status == 'pending')
       return [
         [
           {
             text: 'Cancel',
-            cbString: `cancelPost_${post.id}`,
-          },
-        ],
-      ];
-
-    if (status == 'cancel')
-      return [
-        [
-          {
-            text: 'Resubmit',
-            cbString: `resubmitPost_${post.id}`,
+            cbString: `cancelPost:${post_id}`,
           },
         ],
       ];
@@ -102,7 +95,7 @@ class ProfileFormatter {
         [
           {
             text: 'Close',
-            cbString: `closePost_${post.id}`,
+            cbString: `closePost:${post_id}`,
           },
         ],
       ];
@@ -113,17 +106,16 @@ class ProfileFormatter {
         [
           {
             text: 'Open',
-            cbString: `openPost_${post.id}`,
+            cbString: `openPost:${post_id}`,
           },
         ],
       ];
     }
-
     return [
       [
         {
-          text: '',
-          cbString: '',
+          text: 'Open',
+          cbString: `openPost:${post_id}`,
         },
       ],
     ];
@@ -131,10 +123,10 @@ class ProfileFormatter {
 
   postPreview(post: any) {
     if (!post) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
+
     return [
-      `#${post.category} \n\n${post.description} \n\n\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a> \n\n${post.created_at}) \n\nStatus: ${post.status}`,
-      InlineKeyboardButtons(this.questionActions(post)),
-      // InlineKeyboardButtons(this.questionActions('open')),
+      this.postFormtter.getFormattedQuestionPreview(post),
+      InlineKeyboardButtons(this.postActions(post.id, post.status)),
     ];
   }
 

@@ -9,7 +9,7 @@ export function checkCallBacks() {
     const callbackQuery = ctx?.callbackQuery;
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
-
+    console.log(query, 'query in check callback');
     switch (true) {
       case query.startsWith('searchedPosts'): {
         const [_, round] = query.split(':');
@@ -18,6 +18,19 @@ export function checkCallBacks() {
       case query.startsWith('post_detail'): {
         const [_, postId] = query.split(':');
         return PostController.getPostnDetail(ctx, postId);
+      }
+
+      case query.startsWith('openPost'): {
+        const [_, postId] = query.split(':');
+        return profileController.handleOpenPost(ctx, postId);
+      }
+      case query.startsWith('closePost'): {
+        const [_, postId] = query.split(':');
+        return profileController.handleClosePost(ctx, postId);
+      }
+      case query.startsWith('cancelPost'): {
+        const [_, postId] = query.split(':');
+        return profileController.handleCancelPost(ctx, postId);
       }
 
       case query.startsWith('answer'):
