@@ -299,6 +299,14 @@ class PostService {
               display_name: true,
             },
           },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
         },
       });
 

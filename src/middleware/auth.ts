@@ -52,7 +52,7 @@ export function checkUserInChannelandPromtJoin() {
         return next();
       }
     } catch (error) {
-      // return ctx.reply('Unable to check user in channel. Please try again later');
+      return ctx.reply('Unable to check user in channel. Please try again later');
     }
   };
 }
