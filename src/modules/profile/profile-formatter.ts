@@ -18,7 +18,7 @@ class ProfileFormatter {
   countryCodes: any[] = ['et'];
   previewButtons = [
     [{ text: '✏️ Edit Profile', cbString: `edit_profile` }],
-    [{ text: 'My Question', cbString: `my_posts` }],
+    [{ text: 'My Posts', cbString: `my_posts` }],
     [
       { text: 'Followers', cbString: `my_followers` },
       { text: 'Following', cbString: `my_followings` },

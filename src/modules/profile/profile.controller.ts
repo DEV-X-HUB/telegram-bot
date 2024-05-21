@@ -76,7 +76,7 @@ class ProfileController {
           ctx.wizard.state.activity = 'post_list_view';
 
           // map over the questions array and return the question preview
-          posts.map((post: any) => {
+          return posts.map((post: any) => {
             return ctx.replyWithHTML(...profileFormatter.postPreview(post));
           });
         }

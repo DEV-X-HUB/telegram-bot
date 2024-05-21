@@ -220,7 +220,7 @@ class ProfileService {
     return PostService.getUserPosts(user_id);
   }
   async getUserPostsTgId(tg_id: string) {
-    return PostService.getUserPosts(tg_id);
+    return PostService.getUserPostsByTgId(tg_id);
   }
 
   async followUser(followerId: string, followingId: string) {
