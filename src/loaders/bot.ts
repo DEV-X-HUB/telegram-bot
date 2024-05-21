@@ -12,6 +12,7 @@ import SearchQuestionController from '../modules/post/post.controller';
 import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';
 import PostController from '../modules/post/post.controller';
+import BrowsePostScene from '../modules/browse-post/browse-post.scene';
 
 let bot: Telegraf<Context> | null = null;
 
