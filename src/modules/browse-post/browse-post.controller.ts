@@ -7,13 +7,6 @@ const browsePostFormatter = new BrowsePostFormatter();
 
 const postService = new PostService();
 
-// type filterByDto = {
-//   status: string;
-//   category: string;
-//   timeframe: string;
-// };
-
-// const
 class BrowsePostController {
   constructor() {}
 
@@ -25,11 +18,19 @@ class BrowsePostController {
       timeframe: 'all',
     };
 
-    const posts = await postService.geAlltPosts(1);
-    console.log(posts);
-    ctx.replyWithHTML(...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 2, 10), {
-      parse_mode: 'HTML',
-    });
+    // const posts = await postService.geAlltPosts(1);
+    const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+
+    if (!posts || posts.posts.length == 0) {
+      return ctx.reply(browsePostFormatter.messages.noPostError);
+    }
+
+    ctx.replyWithHTML(
+      ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+      {
+        parse_mode: 'HTML',
+      },
+    );
 
     return ctx.wizard.next();
   }
@@ -54,9 +55,13 @@ class BrowsePostController {
       };
 
       // fetch post with status
-      const posts = await postService.geAlltPosts(1);
-      console.log(posts);
+      const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+
       await deleteMessageWithCallback(ctx);
+
+      if (!posts || posts.posts.length == 0) {
+        return ctx.reply(browsePostFormatter.messages.noPostError);
+      }
 
       return await ctx.replyWithHTML(
         ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, 10),
@@ -118,13 +123,20 @@ class BrowsePostController {
         category: categoryFilter,
       };
 
-      // fetch with the selected post
-      const posts = await postService.geAlltPosts(1);
+      const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
       console.log(posts);
+
+      if (!posts || posts.posts.length == 0) {
+        return ctx.reply(browsePostFormatter.messages.noPostError);
+      }
+
       await deleteMessageWithCallback(ctx);
-      ctx.replyWithHTML(...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 2, 10), {
-        parse_mode: 'HTML',
-      });
+      ctx.replyWithHTML(
+        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+        {
+          parse_mode: 'HTML',
+        },
+      );
 
       return ctx.wizard.selectStep(1);
     }
@@ -148,12 +160,20 @@ class BrowsePostController {
 
       // Get posts by the selected category
 
-      const posts = await postService.geAlltPosts(1);
-      console.log(posts);
+      const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+
       await deleteMessageWithCallback(ctx);
-      ctx.replyWithHTML(...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 2, 10), {
-        parse_mode: 'HTML',
-      });
+
+      if (!posts || posts.posts.length == 0) {
+        return ctx.reply(browsePostFormatter.messages.noPostError);
+      }
+
+      ctx.replyWithHTML(
+        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+        {
+          parse_mode: 'HTML',
+        },
+      );
 
       return ctx.wizard.selectStep(1);
     }

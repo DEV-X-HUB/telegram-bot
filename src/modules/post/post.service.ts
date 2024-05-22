@@ -646,6 +646,73 @@ class PostService {
       return { success: true, posts: [] };
     }
   }
+
+  async getAllPostsWithQuery(query: any) {
+    const { category, status, timeframe } = query;
+
+    let formattedTimeframe;
+
+    switch (timeframe) {
+      case 'today': {
+        formattedTimeframe = '1440';
+        break;
+      }
+      case 'week': {
+        formattedTimeframe = '10080';
+        break;
+      }
+
+      case 'month': {
+        formattedTimeframe = '43200';
+        break;
+      }
+
+      default: {
+        formattedTimeframe = '1440';
+      }
+    }
+
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          // filter by status if status is provided and not equals to 'all'
+          status: status && status !== 'all' ? { equals: status } : undefined,
+          category: category && category !== 'all' ? { equals: category } : undefined,
+          created_at: {
+            gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+          },
+        },
+
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+
+        //
+      });
+      return {
+        success: true,
+        posts,
+        total: posts.length,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [] };
+    }
+  }
 }
 
 export default PostService;
