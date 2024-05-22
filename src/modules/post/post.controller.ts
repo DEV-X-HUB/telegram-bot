@@ -242,7 +242,7 @@ class PostController {
     const caption = postFormmatter.getFormattedQuestionPreview(post);
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      await sendMediaGroupToChannel(bot, (post as any)[sectionName].photo, caption);
+      await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], caption);
     }
 
     await messagePostPreview(
