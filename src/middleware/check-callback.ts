@@ -9,7 +9,6 @@ export function checkCallBacks() {
     const callbackQuery = ctx?.callbackQuery;
     if (!callbackQuery) return next();
     const query = callbackQuery.data;
-    console.log(query, 'query in check callback');
     switch (true) {
       case query.startsWith('searchedPosts'): {
         const [_, round] = query.split(':');
