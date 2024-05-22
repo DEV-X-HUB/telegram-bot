@@ -1,5 +1,6 @@
 import config from '../../config/config';
 import { PostCategory } from '../../types/params';
+import { TableMarkupKeyboardButtons } from '../../types/ui';
 import { InlineKeyboardButtons } from '../../ui/button';
 import { areEqaul, getSectionName } from '../../utils/helpers/string';
 import Post1AFormatter from '../post/section-1/section-1a/section-a.formatter';
@@ -28,8 +29,21 @@ class BrowsePostFormatter {
     useButtonError: 'Please use buttons to select',
     selectCategoryMessage: 'Select category...',
     selectTimeStampMessage: 'Select timeframe...',
-    noPostError: 'No post found',
+    noPostError: 'There are no posts for the selected options. Click /browse to return to the browse post page.',
   };
+  returnToBrowsePostButton: TableMarkupKeyboardButtons;
+
+  constructor() {
+    this.returnToBrowsePostButton = [
+      [
+        {
+          text: 'Return to browse post',
+          cbString: 'returnToBrowsePost',
+        },
+      ],
+    ];
+  }
+
   // Buttons to filter by status
   filterByStatusButtons(status: any) {
     const buttons = [
@@ -112,8 +126,8 @@ class BrowsePostFormatter {
     const timeFrameDisplay = {
       all: 'All Time',
       today: 'Today',
-      last7: 'Last 7 days',
-      last30: 'Last 30 days',
+      week: 'Last 7 days',
+      month: 'Last 30 days',
     };
 
     // let timeFrameToDisplay;
@@ -319,6 +333,10 @@ class BrowsePostFormatter {
         ``;
       }
     }
+  }
+
+  noPostsFound() {
+    return [this.messages.noPostError, InlineKeyboardButtons(this.returnToBrowsePostButton)];
   }
 }
 export default BrowsePostFormatter;

@@ -647,10 +647,13 @@ class PostService {
     }
   }
 
-  async getAllPostsWithQuery(query: any) {
+  async getAllPostsWithQuery(query: any, page: number = 1) {
+    // only one post per page
+    const pageSize = 1;
     const { category, status, timeframe } = query;
+    console.log(timeframe);
 
-    let formattedTimeframe;
+    let formattedTimeframe: any;
 
     switch (timeframe) {
       case 'today': {
@@ -666,23 +669,38 @@ class PostService {
         formattedTimeframe = '43200';
         break;
       }
-
-      default: {
-        formattedTimeframe = '1440';
-      }
     }
 
     try {
+      const totalCount = await prisma.post.count({
+        where: {
+          // filter by status if status is provided and not equals to 'all'
+          status: status && status !== 'all' ? { equals: status } : undefined,
+          category: category && category !== 'all' ? { equals: category } : undefined,
+          created_at:
+            timeframe && timeframe !== 'all'
+              ? {
+                  gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+                }
+              : undefined,
+        },
+      });
+
+      const totalPages = Math.ceil(totalCount / pageSize);
+      const skip = (page - 1) * pageSize;
+
       const posts = await prisma.post.findMany({
         where: {
           // filter by status if status is provided and not equals to 'all'
           status: status && status !== 'all' ? { equals: status } : undefined,
           category: category && category !== 'all' ? { equals: category } : undefined,
-          created_at: {
-            gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
-          },
+          created_at:
+            timeframe && timeframe !== 'all'
+              ? {
+                  gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+                }
+              : undefined,
         },
-
         include: {
           user: {
             select: {
@@ -700,13 +718,16 @@ class PostService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
-
-        //
+        skip,
+        take: 1,
       });
+
       return {
         success: true,
         posts,
-        total: posts.length,
+        total: totalCount,
+        totalPages,
+        currentPage: page,
       };
     } catch (error) {
       console.error('Error searching questions:', error);
