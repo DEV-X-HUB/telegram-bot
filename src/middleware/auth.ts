@@ -45,6 +45,7 @@ export function checkUserInChannelandPromtJoin() {
 
     try {
       const isUserJoined = await checkUserInChannel(sender.id);
+      console.log(isUserJoined);
 
       if (isUserJoined?.joined == false) {
         return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
