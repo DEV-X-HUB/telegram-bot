@@ -242,15 +242,10 @@ class PostController {
     const caption = postFormmatter.getFormattedQuestionPreview(post);
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], caption);
+      await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
     }
 
-    await messagePostPreview(
-      bot,
-      config.channel_id,
-      postFormmatter.getformattedQuestionDetail(post) as string,
-      post.id,
-    );
+    await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
   }
   static async sendPostToUser(bot: any, post: any) {
     const recipientsIds: string[] = [];
