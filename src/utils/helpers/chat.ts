@@ -69,6 +69,15 @@ export const messagePostPreview = async (bot: any, chatId: any, message: string,
   });
 };
 
+export const messageJoinPrompt = async (bot: any, chatId: any, message: string) => {
+  return await bot.telegram.sendMessage(chatId, message, {
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [[{ text: 'Join', url: `https://t.me/${config.channel_username}` }]],
+    },
+  });
+};
+
 export const sendMediaGroupToUser = async (
   ctx: any,
   chatId: string,

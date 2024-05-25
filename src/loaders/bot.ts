@@ -11,10 +11,16 @@ import { setCommands } from '../utils/helpers/commands';
 import SearchQuestionController from '../modules/post/post.controller';
 import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';
-import PostController from '../modules/post/post.controller';
 import BrowsePostScene from '../modules/browse-post/browse-post.scene';
+import MainMenuService from '../modules/mainmenu/mainmenu-service';
+import schedule from 'node-schedule';
 
+const mainMenuService = new MainMenuService();
 let bot: Telegraf<Context> | null = null;
+
+const checkUserInitializer = () => {
+  mainMenuService.checkUsersInchannel(bot);
+};
 
 export default () => {
   if (bot != null) return bot;
@@ -44,7 +50,10 @@ export default () => {
     { name: 'browse', description: 'Browse posts' },
   ];
 
+  schedule.scheduleJob('0 0 * * *', checkUserInitializer);
+
   setCommands(commands);
   dbConnecion;
+
   return bot;
 };

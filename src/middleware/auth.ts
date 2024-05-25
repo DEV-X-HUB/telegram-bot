@@ -4,17 +4,18 @@ import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
 import { findSender } from '../utils/helpers/chat';
 import RegistrationService from '../modules/registration/restgration.service';
 import { isRegistering } from '../modules/registration/registration.scene';
+import { ResponseWithData } from '../types/api';
 const mainMenuFormmater = new MainMenuFormmater();
 
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
 
 //
-async function checkUserInChannel(userId: number): Promise<any> {
+export async function checkUserInChannel(tg_id: number): Promise<ResponseWithData> {
   try {
     const response = await axios.get(`${baseUrl}/getChatMember`, {
       params: {
         chat_id: config.channel_id,
-        user_id: userId,
+        user_id: tg_id,
       },
     });
 
@@ -23,18 +24,17 @@ async function checkUserInChannel(userId: number): Promise<any> {
       response.data.result.status === 'administrator' ||
       response.data.result.status === 'creator';
 
-    const responseData = {
+    return {
       status: 'success',
-      joined: isUserJoined,
+      data: isUserJoined,
+      message: 'success',
     };
-
-    console.log(isUserJoined);
-
-    return responseData;
-  } catch (error) {
-    // throw new Error('Failed to check user in channel');
+  } catch (error: any) {
+    console.error(error.message);
     return {
       status: 'fail',
+      data: false,
+      message: error.message,
     };
   }
 }
@@ -42,18 +42,18 @@ async function checkUserInChannel(userId: number): Promise<any> {
 export function checkUserInChannelandPromtJoin() {
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
-
     try {
-      const isUserJoined = await checkUserInChannel(sender.id);
-      console.log(isUserJoined);
+      const { status, data: isUserJoined, message } = await checkUserInChannel(sender.id);
+      if (status == 'fail') return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(message || ''));
 
-      if (isUserJoined?.joined == false) {
+      if (!isUserJoined) {
         return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
-      } else if (isUserJoined?.joined == true) {
+      } else if (isUserJoined) {
         return next();
       }
-    } catch (error) {
-      return ctx.reply('Unable to check user in channel. Please try again later');
+    } catch (error: any) {
+      console.error(error.message);
+      return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(error.message || ''));
     }
   };
 }

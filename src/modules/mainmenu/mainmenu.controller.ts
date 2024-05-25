@@ -1,6 +1,8 @@
 import { findSender } from '../../utils/helpers/chat';
 import RegistrationService from '../registration/restgration.service';
 import MainmenuFormatter from './mainmenu-formmater';
+import MainMenuService from './mainmenu-service';
+const mainMenuService = new MainMenuService();
 
 const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
