@@ -7,21 +7,20 @@ const mainMenuService = new MainMenuService();
 const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
   static async onStart(ctx: any) {
-    ctx.reply(...mainMenuFormatter.chooseServiceDisplay());
+    return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(1));
   }
   static async chooseOption(ctx: any) {
     const sender = findSender(ctx);
     const option = ctx?.message?.text;
 
-    // if (option && option.startsWith('🔍 Search Questions')) {
-    //   const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
-    //   if (!isUserRegistered) {
-    //     ctx.reply('Please register to use the service');
-    //     return ctx.scene.enter('register');
-    //   }
-    // }
-
     switch (option) {
+      case 'Back': {
+        return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(1));
+      }
+      case 'Next': {
+        return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(2));
+      }
+
       case 'Service 1': {
         ctx?.scene?.leave();
         return ctx.scene.enter('Post-Section-1');
@@ -54,6 +53,10 @@ class MainMenuController {
           },
         });
         return ctx.scene.leave();
+      }
+
+      case 'FAQ': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatFAQ());
       }
     }
   }
