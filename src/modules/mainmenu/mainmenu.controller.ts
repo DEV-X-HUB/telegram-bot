@@ -58,6 +58,9 @@ class MainMenuController {
       case 'FAQ': {
         return ctx.replyWithHTML(mainMenuFormatter.formatFAQ());
       }
+      case 'Terms and Conditions': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatTermsandCondtions());
+      }
     }
   }
 }

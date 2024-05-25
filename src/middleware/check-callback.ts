@@ -76,6 +76,7 @@ export function checkMenuOptions() {
     'Back',
     'Next',
     'FAQ',
+    'Terms and Conditions',
   ];
   return async (ctx: any, next: any) => {
     const message = ctx?.message?.text;

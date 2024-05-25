@@ -4,7 +4,11 @@ dotenv.config();
 export default {
   channel_username: process.env.CHANNEL_USERNAME || -1002088332003,
   number_of_result: process.env.NUMBER_OF_RESULTS,
-  bot_url: process.env.BOT_URL,
+  bot_url: process.env.BOT_URL as string,
+  bor_name: process.env.BOT_NAME,
+  comapny_name: process.env.COMPANY_NAME,
+  company_url: process.env.COMPANY_URL,
+
   desc_word_length: process.env.DESC_WORD_LENGTH,
   terms_condtion_link: process.env.TERMS_CONDITION_LINK,
   channel_id: process.env.CHANNEL_ID,
