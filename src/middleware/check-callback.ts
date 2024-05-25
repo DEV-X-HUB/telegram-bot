@@ -77,6 +77,9 @@ export function checkMenuOptions() {
     'Next',
     'FAQ',
     'Terms and Conditions',
+    'Customer Service',
+    'About Us',
+    'Contact Us',
   ];
   return async (ctx: any, next: any) => {
     const message = ctx?.message?.text;

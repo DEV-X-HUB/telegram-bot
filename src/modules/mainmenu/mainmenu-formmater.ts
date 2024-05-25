@@ -1,21 +1,7 @@
 import { MarkupButtons, urlButton } from '../../ui/button';
 import config from '../../config/config';
 import { TableMarkupKeyboardButtons } from '../../types/ui';
-
-type FAQ = {
-  question: string;
-  answer: string;
-};
-
-type TermAndConditions = {
-  intro: string;
-  details: TermAndCondition[];
-};
-
-type TermAndCondition = {
-  title: string;
-  description: string;
-};
+import { ContactLink, CustomerServiceLink, FAQ, TermAndConditions } from '../../types/params';
 
 class MainmenuFormatter {
   messages = {
@@ -116,6 +102,38 @@ class MainmenuFormatter {
       },
     ],
   };
+  aboutUs = `Welcome to Tech Innovators Inc. We are dedicated to revolutionizing the technology landscape with innovative solutions and sustainable practices. Our mission is to drive progress and create a smarter, more connected future for everyone.
+`;
+
+  customerServiceLinks: CustomerServiceLink[] = [
+    {
+      name: 'Support Team',
+      telegramLink: 'https://t.me/support_team',
+    },
+    {
+      name: 'Sales Inquiries',
+      telegramLink: 'https://t.me/sales_inquiries',
+    },
+    {
+      name: 'Technical Assistance',
+      telegramLink: 'https://t.me/technical_assistance',
+    },
+  ];
+
+  contactLinks: ContactLink[] = [
+    {
+      name: 'Telegram',
+      link: 'https://t.me/your_telegram_username',
+    },
+    {
+      name: 'Facebook',
+      link: 'https://www.facebook.com/your_page',
+    },
+    {
+      name: 'Email',
+      link: 'your@email.com',
+    },
+  ];
   constructor() {}
   chooseServiceDisplay(round: number) {
     if (round == 2) return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptionsSecondRound)];
@@ -143,9 +161,37 @@ class MainmenuFormatter {
 
     return responseMessage;
   }
+  formatCustomerSerive() {
+    let index = 0;
+    let responseMessage = `-------------  <b>Customer Serivce</b> ------------\n\nUse the follwing links to get help\n\n`;
+    for (const { name, telegramLink } of this.customerServiceLinks) {
+      responseMessage += ` <b> <a href="${telegramLink}">${name}</a></b>\n\n`;
+      index++;
+    }
+
+    return responseMessage;
+  }
+  formatContactUs() {
+    let index = 0;
+    let responseMessage = `-------------  <b>Contact Us</b> ------------\n\nUse the follwing links to get reach us\n\n`;
+    for (const { name, link } of this.contactLinks) {
+      if (name.toLocaleLowerCase() == 'email')
+        responseMessage += `<b>${name.toLocaleUpperCase()}</b> :<i>${link}</i>\n\n`;
+      else responseMessage += `<b>${name.toLocaleUpperCase()}</b> :<a href="${link}">${name}</a>\n\n`;
+      index++;
+    }
+
+    return responseMessage;
+  }
+  formatAboutUs() {
+    let index = 0;
+    let responseMessage = `-------------  <b>About Us</b> ------------\n\n`;
+    return responseMessage + this.aboutUs;
+  }
+
   formatTermsandCondtions() {
     let index = 0;
-    let responseMessage = `-------------  <b>Terms and Conditions</b> ------------\n\n${this.termsAndConditions.intro}`;
+    let responseMessage = `-------------  <b>Terms and Conditions</b> ------------\n\n${this.termsAndConditions.intro}\n\n`;
     for (const { title, description } of this.termsAndConditions.details) {
       responseMessage += `<b>${index + 1}. ${title}</b>\n  <b>---</b> ${description}\n\n`;
 

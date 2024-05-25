@@ -10,3 +10,28 @@ export type PostCategory =
   | 'Service4Construction'
   | 'Service4Manufacture'
   | 'Service 3';
+
+export type FAQ = {
+  question: string;
+  answer: string;
+};
+
+export type TermAndConditions = {
+  intro: string;
+  details: TermAndCondition[];
+};
+
+export type TermAndCondition = {
+  title: string;
+  description: string;
+};
+
+export type CustomerServiceLink = {
+  name: string;
+  telegramLink: string;
+};
+
+export type ContactLink = {
+  name: string;
+  link: string;
+};

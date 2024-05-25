@@ -1,8 +1,5 @@
 import { findSender } from '../../utils/helpers/chat';
-import RegistrationService from '../registration/restgration.service';
 import MainmenuFormatter from './mainmenu-formmater';
-import MainMenuService from './mainmenu-service';
-const mainMenuService = new MainMenuService();
 
 const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
@@ -58,8 +55,17 @@ class MainMenuController {
       case 'FAQ': {
         return ctx.replyWithHTML(mainMenuFormatter.formatFAQ());
       }
+      case 'About Us': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatAboutUs());
+      }
       case 'Terms and Conditions': {
         return ctx.replyWithHTML(mainMenuFormatter.formatTermsandCondtions());
+      }
+      case 'Customer Service': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatCustomerSerive());
+      }
+      case 'Contact Us': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatContactUs());
       }
     }
   }
