@@ -6,7 +6,25 @@ class MainmenuFormatter {
   messages = {
     selectOptionPrompt: 'Select an option',
   };
-  mainMenuOptions: TableMarkupKeyboardButtons = [
+  mainMenuOptionsFristRound: TableMarkupKeyboardButtons = [
+    [
+      { text: 'Service 1', cbString: '' },
+      { text: 'Service 2', cbString: '' },
+    ],
+    [
+      { text: 'Service 3', cbString: '' },
+      { text: 'Service 4', cbString: '' },
+    ],
+    [
+      { text: '🔍 Search Questions', cbString: '' },
+      { text: 'Browse', cbString: '' },
+    ],
+    [
+      { text: 'Profile', cbString: '' },
+      { text: 'Next', cbString: '' },
+    ],
+  ];
+  mainMenuOptionsSecondRound: TableMarkupKeyboardButtons = [
     [
       { text: 'Service 1', cbString: '' },
       { text: 'Service 2', cbString: '' },
@@ -26,7 +44,10 @@ class MainmenuFormatter {
   ];
   constructor() {}
   chooseServiceDisplay() {
-    return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptions)];
+    return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptionsFristRound)];
+  }
+  chooseServiceDisplayNext() {
+    return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptionsSecondRound)];
   }
   formatJoinMessage(first_name: string) {
     return [

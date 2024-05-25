@@ -43,6 +43,10 @@ class MainMenuController {
         ctx.scene.leave();
         return ctx.scene.enter('Post-Question-Section-4');
       }
+      case 'Browse': {
+        ctx?.scene?.leave();
+        return ctx.scene.enter('browse');
+      }
       case '🔍 Search Questions': {
         await ctx.reply('Search questions using button below', {
           reply_markup: {
