@@ -20,6 +20,7 @@ import {
   CreatePostService4ManufactureDto,
 } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
+import config from '../../../../config/config';
 const constructionFormatter = new ConstructionFormatter();
 
 const profileService = new ProfileService();
@@ -185,6 +186,14 @@ class QuestionPostSectionConstructionController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...constructionFormatter.descriptionDisplay());
@@ -199,6 +208,7 @@ class QuestionPostSectionConstructionController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -446,6 +456,13 @@ class QuestionPostSectionConstructionController {
     }
   }
   async editPhoto(ctx: any) {
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
@@ -464,6 +481,7 @@ class QuestionPostSectionConstructionController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
