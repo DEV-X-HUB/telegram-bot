@@ -3,9 +3,10 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
   sendMediaGroup,
 } from '../../../../utils/helpers/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/helpers/string';
+import { areEqaul, extractElements, isInInlineOption } from '../../../../utils/helpers/string';
 
 import SectionBFormatter from './section-b.formatter';
 import { postValidator } from '../../../../utils/validator/post-validaor';
@@ -15,6 +16,7 @@ import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
 import { parseDateString } from '../../../../utils/helpers/date';
 import PostService from '../../post.service';
+import config from '../../../../config/config';
 
 const sectionBFormatter = new SectionBFormatter();
 const profileService = new ProfileService();
@@ -235,6 +237,14 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
@@ -250,6 +260,7 @@ class QuestionPostSectionBController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -316,12 +327,30 @@ class QuestionPostSectionBController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.wizard.state.status = 'Pending';
-            ctx.reply(...sectionBFormatter.postingSuccessful());
+
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
+
+            await displayDialog(ctx, sectionBFormatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = sectionBFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
             return ctx.wizard.selectStep(17);
           } else {
             ctx.reply(...sectionBFormatter.postingError());
@@ -471,6 +500,14 @@ class QuestionPostSectionBController {
     }
   }
   async editPhoto(ctx: any) {
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
@@ -489,6 +526,8 @@ class QuestionPostSectionBController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
+
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state

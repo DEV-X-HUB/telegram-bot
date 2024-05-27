@@ -15,7 +15,9 @@ class ChickenFarmFormatter {
     descriptionPrompt: 'Enter description maximimum 45 words',
     notifyOptionPrompt: 'Select who can be notified this question',
     displayError: 'Invalid input, please try again',
-    postingSuccessful: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postingError: 'Posting failed',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -67,7 +69,7 @@ class ChickenFarmFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category}<b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n <b>Description </b>: ${state.description} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
+    return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n <b>Description </b>: ${state.description} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -190,7 +192,7 @@ class ChickenFarmFormatter {
   }
 
   postingSuccessful() {
-    return [this.messages.postingSuccessful];
+    return [this.messages.postSuccessMsg];
   }
 
   postingError() {

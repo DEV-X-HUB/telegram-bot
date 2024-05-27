@@ -95,3 +95,13 @@ export const formatResetOptEmailMsg = (otp: string) => {
  </html>
  `;
 };
+
+export function extractElements<T>(arr: T[]): { firstNMinusOne: T[]; lastElement: T } | undefined {
+  const length = arr.length;
+  if (length < 2) return undefined; // If the array is empty, return undefined
+
+  const firstNMinusOne = arr.slice(0, length - 1); // Extract first n-1 elements
+  const lastElement = arr[length - 1]; // Extract the last element
+
+  return { firstNMinusOne, lastElement }; // Return both arrays as a tuple
+}

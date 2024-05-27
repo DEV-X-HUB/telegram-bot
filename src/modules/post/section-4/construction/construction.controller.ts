@@ -3,8 +3,10 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
+  sendMediaGroup,
 } from '../../../../utils/helpers/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/helpers/string';
+import { areEqaul, extractElements, isInInlineOption } from '../../../../utils/helpers/string';
 
 import QuestionPostSectionConstructionFormmater from './construction.formatter';
 import QuestionService from '../../post.service';
@@ -20,6 +22,7 @@ import {
   CreatePostService4ManufactureDto,
 } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
+import config from '../../../../config/config';
 const constructionFormatter = new ConstructionFormatter();
 
 const profileService = new ProfileService();
@@ -185,6 +188,14 @@ class QuestionPostSectionConstructionController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...constructionFormatter.descriptionDisplay());
@@ -199,6 +210,7 @@ class QuestionPostSectionConstructionController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -272,10 +284,26 @@ class QuestionPostSectionConstructionController {
             console.log('Posting successful');
             await ctx.reply(...constructionFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...constructionFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
             await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = constructionFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
 
             // jump to posted review
             return ctx.wizard.selectStep(12);
@@ -446,6 +474,13 @@ class QuestionPostSectionConstructionController {
     }
   }
   async editPhoto(ctx: any) {
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
@@ -464,6 +499,7 @@ class QuestionPostSectionConstructionController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({

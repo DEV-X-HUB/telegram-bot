@@ -11,6 +11,8 @@ class Post2Formatter {
     typePrompt: 'What are you Looking for',
     enterTitlePrompt: 'Enter Title',
     typePrompt1: '',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPromp: 'Attach a photo',

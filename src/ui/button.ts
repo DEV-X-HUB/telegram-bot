@@ -21,6 +21,6 @@ export const MarkupButtons = (tableButtons: TableMarkupKeyboardButtons, onetime?
 const getCulumnButtons = (buttons: RowInlineKeyboardButtons | RowMarkupKeyboardButtons) => {
   return [...buttons.map(({ text, cbString, hidebale }) => Markup.button.callback(text, cbString, hidebale))];
 };
-const getButtonRows = (buttonRows: TableInlineKeyboardButtons | TableMarkupKeyboardButtons) => {
+export const getButtonRows = (buttonRows: TableInlineKeyboardButtons | TableMarkupKeyboardButtons) => {
   return [...buttonRows.map((buttonRow) => getCulumnButtons(buttonRow))];
 };

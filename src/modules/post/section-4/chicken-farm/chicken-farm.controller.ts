@@ -18,9 +18,6 @@ const postService = new PostService();
 const chickenFarmFormatter = new ChickenFarmFormatter();
 const profileService = new ProfileService();
 
-let imagesUploaded: any[] = [];
-const imagesNumber = 1;
-
 class ChickenFarmController {
   constructor() {}
   async start(ctx: any) {

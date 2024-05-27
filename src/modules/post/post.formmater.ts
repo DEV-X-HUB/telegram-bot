@@ -346,7 +346,7 @@ class PostFormatter {
   }
   getFormattedQuestionPreview(post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
-    console.log(sectionName);
+
     switch (post.category) {
       case 'Section 1A':
         return post1AFormatter.getPreviewData({

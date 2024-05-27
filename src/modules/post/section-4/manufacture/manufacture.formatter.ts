@@ -21,11 +21,15 @@ class ManufactureFormatter {
     postingSuccessful: 'Posted Successfully',
     inputError: 'Invalid input, please try again',
     reviewPrompt: 'Preview your post and press once you are done',
-    postingSuccess: 'Posted Successfully',
+    postingSuccess:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
     somethingWentWrong: 'Something went wrong',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
   };
   constructor() {
     this.estimatedCapitalOption = [
