@@ -3,8 +3,10 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
+  sendMediaGroup,
 } from '../../../../utils/helpers/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/helpers/string';
+import { areEqaul, extractElements, isInInlineOption } from '../../../../utils/helpers/string';
 
 import QuestionPostSectionConstructionFormmater from './construction.formatter';
 import QuestionService from '../../post.service';
@@ -282,10 +284,26 @@ class QuestionPostSectionConstructionController {
             console.log('Posting successful');
             await ctx.reply(...constructionFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...constructionFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
             await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = constructionFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
 
             // jump to posted review
             return ctx.wizard.selectStep(12);

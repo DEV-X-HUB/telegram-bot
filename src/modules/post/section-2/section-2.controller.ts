@@ -3,9 +3,10 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
   sendMediaGroup,
 } from '../../../utils/helpers/chat';
-import { areEqaul, isInInlineOption } from '../../../utils/helpers/string';
+import { areEqaul, extractElements, isInInlineOption } from '../../../utils/helpers/string';
 
 import Section2Formatter from './section-2.formatter';
 import PostService from '../post.service';
@@ -157,12 +158,12 @@ class PostSection2Controller {
       await ctx.reply('....');
     } else {
       const state = ctx.wizard.state;
-      ``;
+
       switch (callbackQuery.data) {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...section2Formatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...section2Formatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
@@ -183,10 +184,31 @@ class PostSection2Controller {
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.reply(...section2Formatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
+
+            await displayDialog(ctx, section2Formatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = section2Formatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
+            // await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state, 'submitted'), {
+            //   parse_mode: 'HTML',
+            // });
 
             // post it to the channel
             await PostController.postToChannel(ctx, config.channel_id, response?.data?.post_id);

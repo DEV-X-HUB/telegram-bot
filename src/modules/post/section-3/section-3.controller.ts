@@ -6,8 +6,10 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
+  sendMediaGroup,
 } from '../../../utils/helpers/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/helpers/string';
+import { areEqaul, extractElements, isInInlineOption, isInMarkUPOption } from '../../../utils/helpers/string';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
 import ProfileService from '../../profile/profile.service';
 import PostService from '../post.service';
@@ -198,10 +200,31 @@ class Section3Controller {
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.reply(...section3Formatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
+
+            await displayDialog(ctx, section3Formatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = section3Formatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
+            // await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'submitted'), {
+            //   parse_mode: 'HTML',
+            // });
 
             // jump to posted review
             return ctx.wizard.selectStep(8);

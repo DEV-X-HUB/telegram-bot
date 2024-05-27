@@ -97,13 +97,25 @@ export const replyDetailWithContext = async ({
   caption,
   photoURl,
 }: {
-  ctx: any;
+  ctx: Context;
   photoURl: string;
   caption: string;
 }) => {
   ctx.replyWithPhoto(photoURl, {
     parse_mode: 'HTML',
     caption,
+  });
+};
+export const replyPostPreview = async ({ ctx, caption, photoURl }: { ctx: any; photoURl: string; caption: string }) => {
+  ctx.replyWithPhoto(photoURl, {
+    parse_mode: 'HTML',
+    caption,
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: 'Cancel', callback_data: 'cancel_post' }],
+        [{ text: 'Main menu', callback_data: 'main_menu' }],
+      ],
+    },
   });
 };
 

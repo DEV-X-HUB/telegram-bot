@@ -15,7 +15,9 @@ class ChickenFarmFormatter {
     descriptionPrompt: 'Enter description maximimum 45 words',
     notifyOptionPrompt: 'Select who can be notified this question',
     displayError: 'Invalid input, please try again',
-    postingSuccessful: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postingError: 'Posting failed',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -190,7 +192,7 @@ class ChickenFarmFormatter {
   }
 
   postingSuccessful() {
-    return [this.messages.postingSuccessful];
+    return [this.messages.postSuccessMsg];
   }
 
   postingError() {

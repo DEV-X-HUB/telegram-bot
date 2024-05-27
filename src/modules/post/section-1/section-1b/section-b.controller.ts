@@ -3,9 +3,10 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
   sendMediaGroup,
 } from '../../../../utils/helpers/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/helpers/string';
+import { areEqaul, extractElements, isInInlineOption } from '../../../../utils/helpers/string';
 
 import SectionBFormatter from './section-b.formatter';
 import { postValidator } from '../../../../utils/validator/post-validaor';
@@ -326,12 +327,30 @@ class QuestionPostSectionBController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.wizard.state.status = 'Pending';
-            ctx.reply(...sectionBFormatter.postingSuccessful());
+
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
+
+            await displayDialog(ctx, sectionBFormatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = sectionBFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
             return ctx.wizard.selectStep(17);
           } else {
             ctx.reply(...sectionBFormatter.postingError());
