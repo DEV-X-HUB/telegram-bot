@@ -10,6 +10,8 @@ class MainMenuController {
     const sender = findSender(ctx);
     const option = ctx?.message?.text;
 
+    console.log(option, 'option in main menu');
+
     switch (option) {
       case 'Back': {
         return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(1));
