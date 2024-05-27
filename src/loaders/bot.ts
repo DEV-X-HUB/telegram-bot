@@ -32,13 +32,13 @@ export default () => {
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 
+  stage.use(checkMenuOptions());
   stage.use(checkRegistration());
   stage.use(checkCallBacks());
   stage.use(checkAndRedirectToScene());
   bot.use(session());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
-  bot.use(checkMenuOptions());
 
   const commands = [
     { name: 'start', description: 'Start the bot' },

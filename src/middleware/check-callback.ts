@@ -83,6 +83,7 @@ export function checkMenuOptions() {
   ];
   return async (ctx: any, next: any) => {
     const message = ctx?.message?.text;
+
     if (message && mainMenus.includes(message)) return MainMenuController.chooseOption(ctx);
     return next();
   };
