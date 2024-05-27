@@ -8,6 +8,7 @@ import {
   sendMediaGroupToChannel,
   sendMediaGroupToUser,
   replyDetailWithContext,
+  messagePostPreview,
 } from '../../utils/helpers/chat';
 import { areEqaul, extractElements, getSectionName } from '../../utils/helpers/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
@@ -223,6 +224,7 @@ class PostController {
   }
   static async getPostDetail(ctx: any, postId: string) {
     const { success, post } = await questionService.getPostById(postId);
+
     if (!success || !post) return ctx.reply('error while');
     const sectionName = getSectionName(post.category) as PostCategory;
 
@@ -256,6 +258,7 @@ class PostController {
     const sectionName = getSectionName(post.category) as PostCategory;
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+      // if phost has image
       await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
 
       await messagePostPreviewWithBot({
@@ -265,7 +268,7 @@ class PostController {
         photoURl: (post as any)[sectionName].photo[0],
         caption: postFormmatter.getFormattedQuestionPreview(post) as string,
       });
-    }
+    } else await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
   }
   static async sendPostToUser(bot: any, post: any) {
     const recipientsIds: string[] = [];

@@ -67,7 +67,7 @@ class ChickenFarmFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category}<b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n <b>Description </b>: ${state.description} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
+    return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n <b>Description </b>: ${state.description} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
   }
 
   noPostsErrorMessage() {
