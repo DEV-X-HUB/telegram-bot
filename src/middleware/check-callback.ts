@@ -16,7 +16,7 @@ export function checkCallBacks() {
       }
       case query.startsWith('post_detail'): {
         const [_, postId] = query.split(':');
-        return PostController.getPostnDetail(ctx, postId);
+        return PostController.getPostDetail(ctx, postId);
       }
 
       case query.startsWith('openPost'): {
@@ -108,7 +108,7 @@ export function checkQueries(ctx: any, query: string, next: any) {
 
     case query.startsWith('postDetail'): {
       const [_, postId] = query.split('_');
-      return PostController.getPostnDetail(ctx, postId);
+      return PostController.getPostDetail(ctx, postId);
     }
 
     default:

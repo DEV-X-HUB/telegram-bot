@@ -60,12 +60,50 @@ export const sendMessage = async (ctx: any, chatId: number, message: string, sen
     },
   });
 };
+
 export const messagePostPreview = async (bot: any, chatId: any, message: string, post_id: string) => {
   return await bot.telegram.sendMessage(chatId, message, {
     parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [[{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post_id}` }]],
     },
+  });
+};
+
+export const messagePostPreviewWithBot = async ({
+  bot,
+  chat_id,
+  caption,
+  photoURl,
+  post_id,
+}: {
+  bot: any;
+  chat_id: string;
+  post_id: string;
+  photoURl: string;
+  caption: string;
+}) => {
+  return await bot.telegram.sendPhoto(chat_id, photoURl, {
+    parse_mode: 'HTML',
+    caption,
+    reply_markup: {
+      inline_keyboard: [[{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post_id}` }]],
+    },
+  });
+};
+
+export const replyDetailWithContext = async ({
+  ctx,
+  caption,
+  photoURl,
+}: {
+  ctx: any;
+  photoURl: string;
+  caption: string;
+}) => {
+  ctx.replyWithPhoto(photoURl, {
+    parse_mode: 'HTML',
+    caption,
   });
 };
 

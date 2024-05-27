@@ -3,21 +3,22 @@ import { PostCategory } from '../../types/params';
 import {
   deleteMessageWithCallback,
   findSender,
-  messagePostPreview,
+  messagePostPreviewWithBot,
   sendMediaGroup,
   sendMediaGroupToChannel,
   sendMediaGroupToUser,
+  replyDetailWithContext,
 } from '../../utils/helpers/chat';
-import { areEqaul, getSectionName } from '../../utils/helpers/string';
+import { areEqaul, extractElements, getSectionName } from '../../utils/helpers/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
 import PostFormmatter from './post.formmater';
 import QuestionService from './post.service';
-import { Context, Markup } from 'telegraf';
 const questionService = new QuestionService();
 const profileService = new ProfileService();
 const postFormmatter = new PostFormmatter();
 const roundSize = 10;
+import { Context, Markup } from 'telegraf';
 class PostController {
   constructor() {}
 
@@ -220,16 +221,31 @@ class PostController {
       await ctx.reply(...postFormmatter.nextRoundSeachedPostsPrompDisplay(round, total, searchString));
     }
   }
-  static async getPostnDetail(ctx: any, postId: string) {
+  static async getPostDetail(ctx: any, postId: string) {
     const { success, post } = await questionService.getPostById(postId);
     if (!success || !post) return ctx.reply('error while');
     const sectionName = getSectionName(post.category) as PostCategory;
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      await sendMediaGroup(ctx, (post as any)[sectionName].photo, 'Images Uploaded with post');
-    }
+      const elements = extractElements<string>((post as any)[sectionName].photo);
+      if (elements) {
+        // if array of elelement has many photos
+        await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
 
-    return await ctx.replyWithHTML(...postFormmatter.formatQuestionDetail(post));
+        await replyDetailWithContext({
+          ctx,
+          photoURl: elements.lastElement,
+          caption: postFormmatter.getformattedQuestionDetail(post) as string,
+        });
+      } else {
+        // if array of  has one  photo
+        await replyDetailWithContext({
+          ctx,
+          photoURl: (post as any)[sectionName].photo[0],
+          caption: postFormmatter.getformattedQuestionDetail(post) as string,
+        });
+      }
+    } else return await ctx.replyWithHTML(...postFormmatter.formatQuestionDetail(post)); // if post has no photo
   }
 
   static async searchByTitle() {
@@ -239,13 +255,17 @@ class PostController {
   static async postToChannel(bot: any, channelId: any, post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
 
-    const caption = postFormmatter.getFormattedQuestionPreview(post);
-
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
       await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
-    }
 
-    await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
+      await messagePostPreviewWithBot({
+        bot,
+        post_id: post.id,
+        chat_id: config.channel_id as string,
+        photoURl: (post as any)[sectionName].photo[0],
+        caption: postFormmatter.getFormattedQuestionPreview(post) as string,
+      });
+    }
   }
   static async sendPostToUser(bot: any, post: any) {
     const recipientsIds: string[] = [];
@@ -282,18 +302,16 @@ class PostController {
         return { status: 'fail', message: 'message not send to user, all recipients have blocked the user' };
 
       const sectionName = getSectionName(post.category) as PostCategory;
-      const caption = postFormmatter.getFormattedQuestionPreview(post);
       for (const chatId of recipientChatIds) {
         if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-          await sendMediaGroupToUser(bot, chatId.chat_id, (post as any)[sectionName].photo, caption);
+          await messagePostPreviewWithBot({
+            bot,
+            post_id: post.id,
+            chat_id: chatId.chat_id,
+            photoURl: (post as any)[sectionName].photo[0],
+            caption: postFormmatter.getFormattedQuestionPreview(post) as string,
+          });
         }
-
-        await messagePostPreview(
-          bot,
-          parseInt(chatId.chat_id),
-          postFormmatter.getformattedQuestionDetail(post) as string,
-          post.id,
-        );
       }
 
       return { status: 'success', message: 'message sent to user ' };
