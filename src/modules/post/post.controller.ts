@@ -258,8 +258,8 @@ class PostController {
     const sectionName = getSectionName(post.category) as PostCategory;
 
     if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-      // if phost has image
-      await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
+      // // if phost has image
+      // await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
 
       await messagePostPreviewWithBot({
         bot,
