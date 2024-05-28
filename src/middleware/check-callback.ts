@@ -73,7 +73,7 @@ export function checkMenuOptions() {
     '🔍 Search Questions',
     'Profile',
     'Browse',
-    'Back',
+    'Go Back',
     'Next',
     'FAQ',
     'Terms and Conditions',

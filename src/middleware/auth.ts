@@ -67,6 +67,13 @@ export const registerationSkips = (ctx: any) => {
     '/restart',
     '/search',
     '🔍 Search Questions',
+    'Go Back',
+    'Next',
+    'FAQ',
+    'Terms and Conditions',
+    'Customer Service',
+    'About Us',
+    'Contact Us',
   ];
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;

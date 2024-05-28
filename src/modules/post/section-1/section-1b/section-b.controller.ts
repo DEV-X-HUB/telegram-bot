@@ -34,6 +34,8 @@ class QuestionPostSectionBController {
     const text = ctx.message.text;
 
     if (areEqaul(text, 'back', true)) return ctx.scene.enter('Post-Section-1');
+    const validationMessage = postValidator('title', text);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.title = text;
     await deleteKeyboardMarkup(ctx, sectionBFormatter.messages.categoriesPrompt);
     ctx.reply(...sectionBFormatter.mainCategoryOption());

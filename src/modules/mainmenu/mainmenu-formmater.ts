@@ -36,7 +36,7 @@ class MainmenuFormatter {
     ],
     [
       { text: 'Customer Service', cbString: '' },
-      { text: 'Back', cbString: '' },
+      { text: 'Go Back', cbString: '' },
     ],
   ];
 

@@ -87,6 +87,19 @@ export const ConfirmationYearSchema = z
             path: [],
           },
         ]);
+      } else if (number < 1970) {
+        // Invalid format (not a date or a number)
+        throw new ZodError([
+          {
+            code: 'too_small',
+            minimum: 4,
+            type: 'string',
+            inclusive: true,
+            exact: false,
+            message: 'confirmation year must be greater than 1970',
+            path: [],
+          },
+        ]);
       } else {
         return true; // Valid number within range
       }
@@ -96,23 +109,20 @@ export const ConfirmationYearSchema = z
 
 export const IssueDateSchema = z
   .string()
-  .regex(/^\d{2}\/\d{4}$/)
+  .regex(/^\d{1,2}\/\d{4}$/)
   .refine(
     (value) => {
       const [month, year] = value.split('/');
-      const monthNumber = parseInt(month);
-      const yearNumber = parseInt(year);
-
-      // Validate month (1 to 12) and year (current year onwards)
-      return monthNumber >= 1 && monthNumber <= 12 && yearNumber >= new Date().getFullYear();
+      const isValidDate = !isNaN(Date.parse(`${year}-${month}-${1}`));
+      return isValidDate;
     },
     {
-      message: 'Invalid date format',
+      message: 'Invalid date format ',
     },
   );
 export const DateSchema = z
   .string()
-  .regex(/^\d{2}\/\d{2}\/\d{4}$/)
+  .regex(/^\d{2}\/\d{1,2}\/\d{4}$/)
   .refine(
     (value) => {
       const [day, month, year] = value.split('/');
@@ -120,7 +130,7 @@ export const DateSchema = z
       return isValidDate;
     },
     {
-      message: "Invalid date format or date doesn't exist.",
+      message: 'Invalid date format ',
     },
   );
 
@@ -134,5 +144,6 @@ export const locationSchema = z.string().refine(
     message: `location must not exceed ${locationMaxLetters} letters and should not contain any special characters or emoji`,
   },
 );
+export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
 
 export default DateSchema;
