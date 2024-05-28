@@ -130,6 +130,7 @@ class ManufactureController {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...manufactureFormatter.descriptionPrompt());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -468,6 +469,7 @@ class ManufactureController {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 

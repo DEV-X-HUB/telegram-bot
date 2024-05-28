@@ -200,6 +200,7 @@ class QuestionPostSectionConstructionController {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...constructionFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -491,6 +492,7 @@ class QuestionPostSectionConstructionController {
         chat_id: messageText.chat.id,
       });
       ctx.replyWithHTML(...constructionFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 

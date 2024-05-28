@@ -242,6 +242,7 @@ class QuestionPostSection1CController {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section1cFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -494,6 +495,7 @@ class QuestionPostSection1CController {
         chat_id: messageText.chat.id,
       });
       ctx.replyWithHTML(...section1cFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 

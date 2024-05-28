@@ -113,6 +113,7 @@ class PostSection2Controller {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section2Formatter.enterDescriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -352,6 +353,7 @@ class PostSection2Controller {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...section2Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 

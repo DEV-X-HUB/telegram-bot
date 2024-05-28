@@ -155,6 +155,7 @@ class QuestionPostSectionAController {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section1AFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -396,6 +397,7 @@ class QuestionPostSectionAController {
         chat_id: messageText.chat.id,
       });
       ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 

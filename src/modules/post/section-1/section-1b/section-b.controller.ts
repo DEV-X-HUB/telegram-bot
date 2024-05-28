@@ -251,7 +251,8 @@ class QuestionPostSectionBController {
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...sectionBFormatter.descriptionDisplay());
+      await ctx.reply(...sectionBFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -520,6 +521,7 @@ class QuestionPostSectionBController {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...sectionBFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 

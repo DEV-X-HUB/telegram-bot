@@ -101,6 +101,7 @@ class Section3Controller {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section3Formatter.descriptionPrompt());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -397,6 +398,7 @@ class Section3Controller {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
