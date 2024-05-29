@@ -316,7 +316,7 @@ class RegistrationController {
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
       ctx.replyWithHTML(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      return MainMenuController.onStart(ctx);
+      return ctx.wizard.back();
     }
     if (areEqaul(callbackMessage, 'back', true)) {
       deleteMessageWithCallback(ctx);

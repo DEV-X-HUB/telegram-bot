@@ -64,26 +64,6 @@ export function checkCallBacks() {
     return next();
   };
 }
-export function checkMenuOptions() {
-  const mainMenus = [
-    '🔍 Search Questions',
-    'Profile',
-    'Browse',
-    'Go Back',
-    'Next',
-    'FAQ',
-    'Terms and Conditions',
-    'Customer Service',
-    'About Us',
-    'Contact Us',
-  ];
-  return async (ctx: any, next: any) => {
-    const message = ctx?.message?.text;
-
-    if (message && mainMenus.includes(message)) return MainMenuController.chooseOption(ctx);
-    return next();
-  };
-}
 
 export function checkQueries(ctx: any, query: string, next: any) {
   switch (true) {
