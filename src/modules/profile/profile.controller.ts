@@ -2,7 +2,7 @@ import {
   deleteKeyboardMarkup,
   deleteMessageWithCallback,
   findSender,
-  replyPostPreviewWithContext,
+  replyUserPostPreviewWithContext,
 } from '../../utils/helpers/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
 import { calculateAge } from '../../utils/helpers/date';
@@ -88,11 +88,12 @@ class ProfileController {
             const sectionName = getSectionName(post.category) as PostCategory;
 
             if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-              await replyPostPreviewWithContext({
+              await replyUserPostPreviewWithContext({
                 ctx,
                 photoURl: (post as any)[sectionName].photo[0],
                 caption: profileFormatter.postPreview(post)[0] as string,
                 post_id: post.id,
+                status: post.status,
               });
             } else ctx.replyWithHTML(...profileFormatter.postPreview(post)); // if post has no photo
           }
