@@ -651,7 +651,7 @@ class PostService {
     // only one post per page
     const pageSize = 1;
     const { category, status, timeframe } = query;
-    console.log(timeframe);
+    console.log(query.fields);
 
     let formattedTimeframe: any;
 
@@ -671,6 +671,56 @@ class PostService {
       }
     }
 
+    // column field query based on the category
+    let columnSpecificWhereCondition = {};
+    console.log(category, 'cccccccccccccccccccccccccc');
+    switch (category) {
+      case 'Section 1A':
+        columnSpecificWhereCondition = {
+          Service1A: {
+            arbr_value:
+              !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+          },
+        };
+        break;
+      case 'Section 1B':
+        columnSpecificWhereCondition = {
+          Service1B: {
+            main_category:
+              !query?.fields?.main_category || query?.fields?.main_category == 'all'
+                ? undefined
+                : { equals: query?.fields?.main_category },
+            sub_category:
+              !query?.fields?.sub_category || query?.fields?.sub_category == 'all'
+                ? undefined
+                : { equals: query?.fields?.sub_category },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+          },
+        };
+        break;
+
+      case 'Section 3':
+        columnSpecificWhereCondition = {
+          Service3: {
+            birth_or_marital:
+              !query?.fields?.birth_or_marital || query?.fields?.birth_or_marital == 'all'
+                ? undefined
+                : { equals: query?.fields?.birth_or_marital },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+          },
+        };
+        break;
+
+      default:
+        columnSpecificWhereCondition = {};
+    }
+
+    console.log(columnSpecificWhereCondition);
+
     try {
       const totalCount = await prisma.post.count({
         where: {
@@ -683,6 +733,7 @@ class PostService {
                   gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
                 }
               : undefined,
+          ...columnSpecificWhereCondition,
         },
       });
 
@@ -700,6 +751,35 @@ class PostService {
                   gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
                 }
               : undefined,
+
+          ...columnSpecificWhereCondition,
+          // Service3: {
+          //   birth_or_marital: {
+          //     equals: 'all',
+          //   },
+          // },
+
+          // Service1A: {
+          // arbr_value:
+          //   query?.fields?.ar_br || query?.fields?.ar_br != 'all' ? { equals: query?.fields?.ar_br } : undefined,
+          // },
+
+          // Service1B: {
+          //   main_category:
+          //     query?.fields?.main_category || query?.fields?.main_category != 'all'
+          //       ? { equals: query?.fields?.main_category }
+          //       : undefined,
+          //   sub_category:
+          //     query?.fields?.sub_category || query?.fields?.sub_category != 'all'
+          //       ? { equals: query?.fields?.sub_category }
+          //       : undefined,
+          // },
+          // Service3: {
+          //   birth_or_marital:
+          //     query?.fields?.birth_or_marital || query?.fields?.birth_or_marital != 'all'
+          //       ? { equals: query?.fields?.birth_or_marital }
+          //       : undefined,
+          // },
         },
         include: {
           user: {

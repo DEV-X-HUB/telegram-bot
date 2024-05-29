@@ -28,6 +28,14 @@ class BrowsePostFormatter {
   messages = {
     useButtonError: 'Please use buttons to select',
     selectCategoryMessage: 'Select category...',
+    selectWoredaMessage: 'Select woreda...',
+    selectSection1BMainCategoryMsg: 'Select main category...',
+    selectSection1BSubCategoryMsg: 'Select sub category...',
+    selectArBrMessage: 'Select AR/BR...',
+    selectBirthMaritalMessage: 'Select Birth/Marital...',
+    selectCorrAmendMessage: 'Select Correction/Amendment...',
+    selectSection2TypeMessage: 'Select type...',
+    selectSection4TypeMessage: 'Select type...',
     selectTimeStampMessage: 'Select timeframe...',
     noPostError: 'There are no posts for the selected options. Click /browse to return to the browse post page.',
   };
@@ -86,6 +94,513 @@ class BrowsePostFormatter {
       {
         text: `${category === cat ? '✅' : ''} ${cat}`,
         cbString: `filterByCategory_${cat}`,
+      },
+    ]);
+  }
+
+  filterSection1AWithArBr(selected_ar_br?: any) {
+    const ar_brOptions = ['AR', 'BR'];
+
+    return ar_brOptions.map((option) => [
+      {
+        text: `${selected_ar_br === option ? '✅' : ''} ${option}`,
+        cbString: `filterSection1AWithARBR_${option}`,
+      },
+    ]);
+  }
+
+  // List of section1b main categories to filter
+  filterBySection1BMainCategory(mainCategory: any) {
+    // const mainCategories = ['all', 'Main 1', 'Main 2', 'Main 3', 'Main 4', 'Main 5', 'Main 6', 'Main 7', 'Main 8'];
+
+    const mainCategories = [
+      {
+        displayName: 'all',
+        fieldName: 'all',
+      },
+      {
+        displayName: 'Main 1',
+        fieldName: 'main_1',
+      },
+      {
+        displayName: 'Main 2',
+        fieldName: 'main_2',
+      },
+      {
+        displayName: 'Main 3',
+        fieldName: 'main_3',
+      },
+      {
+        displayName: 'Main 4',
+        fieldName: 'main_4',
+      },
+      {
+        displayName: 'Main 5',
+        fieldName: 'main_5',
+      },
+      {
+        displayName: 'Main 6',
+        fieldName: 'main_6',
+      },
+      {
+        displayName: 'Main 7',
+        fieldName: 'main_7',
+      },
+      {
+        displayName: 'Main 8',
+        fieldName: 'main_8',
+      },
+      {
+        displayName: 'Main 9',
+        fieldName: 'main_9',
+      },
+      {
+        displayName: 'Main 10',
+        fieldName: 'main_10',
+      },
+    ];
+
+    return mainCategories.map((cat) => [
+      {
+        text: `${mainCategory === cat.fieldName ? '✅' : ''} ${cat.displayName}`,
+        cbString: `filterBySection1BMainCategory_${cat.fieldName}`,
+      },
+    ]);
+
+    // return mainCategories.map((cat) => [
+    //   {
+    //     text: `${mainCategory === cat ? '✅' : ''} ${cat}`,
+    //     cbString: `filterBySection1BMainCategory_${cat}`,
+    //   },
+    // ]);
+  }
+
+  filterBySection1BSubCategory(mainCategory: any, selectedSubCategory?: any) {
+    let subCategories: any;
+
+    switch (mainCategory) {
+      case 'main_1':
+        // subCategories = ['#SubA1', '#SubA2', '#SubA3', '#SubA4', '#SubA5', '#SubA6', '#SubA7', '#SubA8'];
+
+        subCategories = [
+          {
+            displayName: '#SubA1',
+            fieldName: '#SubA_1',
+          },
+          {
+            displayName: '#SubA2',
+            fieldName: '#SubA_2',
+          },
+          {
+            displayName: '#SubA3',
+            fieldName: '#SubA_3',
+          },
+          {
+            displayName: '#SubA4',
+            fieldName: '#SubA_4',
+          },
+          {
+            displayName: '#SubA5',
+            fieldName: '#SubA_5',
+          },
+          {
+            displayName: '#SubA6',
+            fieldName: '#SubA_6',
+          },
+          {
+            displayName: '#SubA7',
+            fieldName: '#SubA_7',
+          },
+          {
+            displayName: '#SubA8',
+            fieldName: '#SubA_8',
+          },
+        ];
+
+        break;
+      case 'main_2':
+        // subCategories = ['#SubB1', '#SubB2', '#SubB3', '#SubB4', '#SubB5', '#SubB6', '#SubB7', '#SubB8', '#SubB9'];
+        subCategories = [
+          {
+            displayName: '#SubB1',
+            fieldName: '#SubB_1',
+          },
+          {
+            displayName: '#SubB2',
+            fieldName: '#SubB_2',
+          },
+          {
+            displayName: '#SubB3',
+            fieldName: '#SubB_3',
+          },
+          {
+            displayName: '#SubB4',
+            fieldName: '#SubB_4',
+          },
+          {
+            displayName: '#SubB5',
+            fieldName: '#SubB_5',
+          },
+          {
+            displayName: '#SubB6',
+            fieldName: '#SubB_6',
+          },
+          {
+            displayName: '#SubB7',
+            fieldName: '#SubB_7',
+          },
+          {
+            displayName: '#SubB8',
+            fieldName: '#SubB_8',
+          },
+          {
+            displayName: '#SubB9',
+            fieldName: '#SubB_9',
+          },
+        ];
+        break;
+
+      case 'main_3':
+        // subCategories = ['#SubB1', '#SubB2', '#SubB3', '#SubB4', '#SubB5', '#SubB6', '#SubB7', '#SubB8', '#SubB9'];
+        subCategories = [
+          {
+            displayName: '#SubB1',
+            fieldName: '#SubB_1',
+          },
+          {
+            displayName: '#SubB2',
+            fieldName: '#SubB_2',
+          },
+          {
+            displayName: '#SubB3',
+            fieldName: '#SubB_3',
+          },
+          {
+            displayName: '#SubB4',
+            fieldName: '#SubB_4',
+          },
+          {
+            displayName: '#SubB5',
+            fieldName: '#SubB_5',
+          },
+          {
+            displayName: '#SubB6',
+            fieldName: '#SubB_6',
+          },
+          {
+            displayName: '#SubB7',
+            fieldName: '#SubB_7',
+          },
+          {
+            displayName: '#SubB8',
+            fieldName: '#SubB_8',
+          },
+          {
+            displayName: '#SubB9',
+            fieldName: '#SubB_9',
+          },
+        ];
+
+        break;
+      case 'main_4':
+        // subCategories = ['#SubC1', '#SubC2', '#SubC3', '#SubC4', '#SubC5', '#SubC6', '#SubC7', '#SubC8'];
+        subCategories = [
+          {
+            displayName: '#SubC1',
+            fieldName: '#SubC_1',
+          },
+          {
+            displayName: '#SubC2',
+            fieldName: '#SubC_2',
+          },
+          {
+            displayName: '#SubC3',
+            fieldName: '#SubB_3',
+          },
+          {
+            displayName: '#SubC4',
+            fieldName: '#SubC_4',
+          },
+          {
+            displayName: '#SubC5',
+            fieldName: '#SubC_5',
+          },
+          {
+            displayName: '#SubC6',
+            fieldName: '#SubC_6',
+          },
+          {
+            displayName: '#SubC7',
+            fieldName: '#SubC_7',
+          },
+          {
+            displayName: '#SubC8',
+            fieldName: '#SubC_8',
+          },
+        ];
+
+        break;
+      case 'main_5':
+        // subCategories = ['#SubD1', '#SubD2', '#SubD3'];
+        subCategories = [
+          {
+            displayName: '#SubD1',
+            fieldName: '#SubD_1',
+          },
+          {
+            displayName: '#SubD2',
+            fieldName: '#SubD_2',
+          },
+          {
+            displayName: '#SubD3',
+            fieldName: '#SubD_3',
+          },
+        ];
+
+        break;
+      case 'main_6':
+        // subCategories = ['#SubE1', '#SubE2', '#SubE3', '#SubE4', '#SubE5', '#SubE6', '#SubE7', '#SubE8', '#SubE9'];
+
+        subCategories = [
+          {
+            displayName: '#SubE1',
+            fieldName: '#SubE_1',
+          },
+          {
+            displayName: '#SubE2',
+            fieldName: '#SubE_2',
+          },
+          {
+            displayName: '#SubE3',
+            fieldName: '#SubE_3',
+          },
+          {
+            displayName: '#SubE4',
+            fieldName: '#SubE_4',
+          },
+          {
+            displayName: '#SubE5',
+            fieldName: '#SubE_5',
+          },
+          {
+            displayName: '#SubE6',
+            fieldName: '#SubE_6',
+          },
+          {
+            displayName: '#SubE7',
+            fieldName: '#SubE_7',
+          },
+          {
+            displayName: '#SubE8',
+            fieldName: '#SubE_8',
+          },
+          {
+            displayName: '#SubE9',
+            fieldName: '#SubE_9',
+          },
+        ];
+
+        break;
+      case 'main_7':
+        // subCategories = ['#SubF1', '#SubF2', '#SubF3', '#SubF4', '#SubF5'];
+        subCategories = [
+          {
+            displayName: '#SubF1',
+            fieldName: '#SubF_1',
+          },
+          {
+            displayName: '#SubF2',
+            fieldName: '#SubF_2',
+          },
+          {
+            displayName: '#SubF3',
+            fieldName: '#SubF_3',
+          },
+          {
+            displayName: '#SubF4',
+            fieldName: '#SubF_4',
+          },
+          {
+            displayName: '#SubF5',
+            fieldName: '#SubF_5',
+          },
+        ];
+        break;
+      case 'main_8':
+        // subCategories = ['#SubG1', '#SubG2', '#SubG3', '#SubG4', '#SubG5', '#SubG6', '#SubG7', '#SubG8'];
+        subCategories = [
+          {
+            displayName: '#SubG1',
+            fieldName: '#SubG_1',
+          },
+          {
+            displayName: '#SubG2',
+            fieldName: '#SubG_2',
+          },
+          {
+            displayName: '#SubG3',
+            fieldName: '#SubG_3',
+          },
+          {
+            displayName: '#SubG4',
+            fieldName: '#SubG_4',
+          },
+          {
+            displayName: '#SubG5',
+            fieldName: '#SubG_5',
+          },
+          {
+            displayName: '#SubG6',
+            fieldName: '#SubG_6',
+          },
+          {
+            displayName: '#SubG7',
+            fieldName: '#SubG_7',
+          },
+          {
+            displayName: '#SubG8',
+            fieldName: '#SubG_8',
+          },
+        ];
+        break;
+      case 'main_9':
+        // subCategories = ['#SubH1', '#SubH2', '#SubH3'];
+        subCategories = [
+          {
+            displayName: '#SubH1',
+            fieldName: '#SubH_1',
+          },
+          {
+            displayName: '#SubH2',
+            fieldName: '#SubH_2',
+          },
+          {
+            displayName: '#SubH3',
+            fieldName: '#SubH_3',
+          },
+        ];
+        break;
+      case 'main_10':
+        subCategories = [];
+
+      default:
+        subCategories = [];
+    }
+
+    console.log(mainCategory, subCategories);
+
+    return subCategories.map((subcat: any) => [
+      {
+        text: `${selectedSubCategory === subcat.fieldName ? '✅' : ''} ${subcat.fieldName}`,
+        cbString: `filterBySection1BSub_${subcat.fieldName}`,
+      },
+    ]);
+  }
+
+  filterSection1CWithArBr(selected_ar_br?: any) {
+    const ar_brOptions = ['AR', 'BR'];
+
+    return ar_brOptions.map((option) => [
+      {
+        text: `${selected_ar_br === option ? '✅' : ''} ${option}`,
+        cbString: `filterBySection1AWithArBr${option}`,
+      },
+    ]);
+  }
+
+  filterBySection2Type(selected_corr_amend?: any) {
+    const corr_amendOptions = ['Correction', 'Amendment'];
+
+    return corr_amendOptions.map((option) => [
+      {
+        text: `${selected_corr_amend === option ? '✅' : ''} ${option}`,
+        cbString: `filterBySection2_${option}`,
+      },
+    ]);
+  }
+
+  filterBySection3BirthMarital(selected_birth_marital?: any) {
+    // const birth_maritalOptions = ['Birth', 'Marital'];
+    const birth_maritalOptions = [
+      {
+        displayName: 'Birth',
+        fieldName: 'birth',
+      },
+      {
+        displayName: 'Marital',
+        fieldName: 'marital',
+      },
+    ];
+
+    return birth_maritalOptions.map((option) => [
+      {
+        text: `${selected_birth_marital === option.fieldName ? '✅' : ''} ${option.displayName}`,
+        cbString: `filterBySection3BirthMarital_${option.fieldName}`,
+      },
+    ]);
+  }
+  filterBySection4Type(selectedType?: any) {
+    const section4Types = ['Manufacture', 'Construction', 'Chicken Farm'];
+    return section4Types.map((type) => [
+      {
+        text: `${selectedType === type ? '✅' : ''} ${type}`,
+        cbString: `filterBySection4Type_${type}`,
+      },
+    ]);
+  }
+
+  filterByWoredaOptionsButton(selectedWoreda?: any) {
+    const woredas = [
+      {
+        displayName: 'all',
+        fieldName: 'all',
+      },
+      {
+        displayName: 'Woreda 1',
+        fieldName: 'woreda_1',
+      },
+      {
+        displayName: 'Woreda 2',
+        fieldName: 'woreda_2',
+      },
+      {
+        displayName: 'Woreda 3',
+        fieldName: 'woreda_3',
+      },
+      {
+        displayName: 'Woreda 4',
+        fieldName: 'woreda_4',
+      },
+      {
+        displayName: 'Woreda 5',
+        fieldName: 'woreda_5',
+      },
+      {
+        displayName: 'Woreda 6',
+        fieldName: 'woreda_6',
+      },
+      {
+        displayName: 'Woreda 7',
+        fieldName: 'woreda_7',
+      },
+      {
+        displayName: 'Woreda 8',
+        fieldName: 'woreda_8',
+      },
+      {
+        displayName: 'Woreda 9',
+        fieldName: 'woreda_9',
+      },
+      {
+        displayName: 'Woreda 10',
+        fieldName: 'woreda_10',
+      },
+    ];
+
+    return woredas.map((woreda) => [
+      {
+        text: `${selectedWoreda == woreda.fieldName ? '✅' : ''} ${woreda.displayName}`,
+        cbString: `filterByWoreda_${woreda.fieldName}`,
       },
     ]);
   }
@@ -162,10 +677,69 @@ class BrowsePostFormatter {
     return [this.messages.selectCategoryMessage, InlineKeyboardButtons(this.filterByCategoryChooseButtons(category))];
   }
 
+  filterBySection1AWithArBrDisplay(selected_ar_br?: any) {
+    return [this.messages.selectArBrMessage, InlineKeyboardButtons(this.filterSection1AWithArBr(selected_ar_br))];
+  }
+
+  filterBySection1BMainCategoryDisplay(mainCategory: any) {
+    return [
+      this.messages.selectSection1BMainCategoryMsg,
+      InlineKeyboardButtons(this.filterBySection1BMainCategory(mainCategory)),
+    ];
+  }
+
+  filterBySection1BSubCategoryDisplay(mainCategory: any, selectedSubCategory?: any) {
+    return [
+      this.messages.selectSection1BSubCategoryMsg,
+      InlineKeyboardButtons(this.filterBySection1BSubCategory(mainCategory, selectedSubCategory)),
+    ];
+  }
+
+  filterBySection1CWithArBrDisplay(selected_ar_br?: any) {
+    return [this.messages.selectArBrMessage, InlineKeyboardButtons(this.filterSection1CWithArBr(selected_ar_br))];
+  }
+
+  filterBySection2TypeDisplay(selected_corr_amend?: any) {
+    return [
+      this.messages.selectCorrAmendMessage,
+      InlineKeyboardButtons(this.filterBySection2Type(selected_corr_amend)),
+    ];
+  }
+
+  filterBySection3BirthMaritalDisplay(selected_birth_marital?: any) {
+    return [
+      this.messages.selectBirthMaritalMessage,
+      InlineKeyboardButtons(this.filterBySection3BirthMarital(selected_birth_marital)),
+    ];
+  }
+
+  filterBySection4TypeDisplay(selectedType?: any) {
+    return [this.messages.selectSection4TypeMessage, InlineKeyboardButtons(this.filterBySection4Type(selectedType))];
+  }
+
   filterByTimeframeDisplay(timestamp?: any) {
     return [
       this.messages.selectTimeStampMessage,
       InlineKeyboardButtons(this.filterByTimeframeChooseButtons(timestamp)),
+    ];
+  }
+
+  filterByWoredaButton(category: any, selectedWoreda?: any) {
+    if (['Section 1A', 'Section 1B', 'Section 1C'].includes(category)) {
+      return [
+        {
+          text: `Woreda - ${selectedWoreda || 'All'}`,
+          cbString: `filterByWoreda_${selectedWoreda}`,
+        },
+      ];
+    } else return [];
+  }
+
+  filterByWoredaOptionsDisplay(selectedWoreda?: any) {
+    console.log(`oooo ${selectedWoreda}`);
+    return [
+      this.messages.selectWoredaMessage,
+      InlineKeyboardButtons(this.filterByWoredaOptionsButton(selectedWoreda ? selectedWoreda : 'all')),
     ];
   }
 
@@ -176,6 +750,10 @@ class BrowsePostFormatter {
         this.filterByStatusButtons(filter?.status || 'all'),
         this.filterByCategoryButton(filter?.category || 'all'),
         this.filterByTimeframeButton(filter?.timeframe || 'all'),
+
+        // display woreda filter optionally
+        this.filterByWoredaButton(post.category, filter?.fields?.woreda),
+
         this.paginationButtons(currentPage as number, totalPages as number),
       ]),
 
@@ -247,6 +825,7 @@ class BrowsePostFormatter {
   }
 
   getPostsPreview(post: any) {
+    console.log(`category : ${post.category}`);
     const sectionName = getSectionName(post.category) as PostCategory;
     switch (post.category) {
       case 'Section 1A':
