@@ -106,6 +106,25 @@ export const replyDetailWithContext = async ({
     caption,
   });
 };
+export const replyPostPreviewWithContext = async ({
+  ctx,
+  caption,
+  photoURl,
+  post_id,
+}: {
+  ctx: Context;
+  photoURl: string;
+  caption: string;
+  post_id: string;
+}) => {
+  ctx.replyWithPhoto(photoURl, {
+    parse_mode: 'HTML',
+    caption,
+    reply_markup: {
+      inline_keyboard: [[{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post_id}` }]],
+    },
+  });
+};
 export const replyPostPreview = async ({ ctx, caption, photoURl }: { ctx: any; photoURl: string; caption: string }) => {
   ctx.replyWithPhoto(photoURl, {
     parse_mode: 'HTML',

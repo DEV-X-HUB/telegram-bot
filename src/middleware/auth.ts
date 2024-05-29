@@ -30,7 +30,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
       message: 'success',
     };
   } catch (error: any) {
-    console.error(error.message);
+    console.error(error);
     return {
       status: 'fail',
       data: false,
