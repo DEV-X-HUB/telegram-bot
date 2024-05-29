@@ -80,6 +80,8 @@ export const registerationSkips = (ctx: any) => {
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
 
+  const user = findSender(ctx);
+  if (isRegistering(user.id)) return true;
   if (query) {
     return skipQueries.some((skipQuery) => {
       return query.toString().startsWith(skipQuery);

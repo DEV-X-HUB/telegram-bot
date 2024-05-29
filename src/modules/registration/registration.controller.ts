@@ -17,7 +17,8 @@ class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
     registrationScene.enterHandler(1, async () => {
-      updateRegisrationStateAction('start_register');
+      const user = findSender(ctx);
+      updateRegisrationStateAction('start_register', user.id);
     });
 
     await ctx.reply(config.terms_condtion_link, {

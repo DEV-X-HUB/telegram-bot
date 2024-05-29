@@ -24,12 +24,10 @@ const ignite = () => {
 
     // Graceful shutdown
     process.once('SIGINT', () => {
-      updateRegisrationStateAction('end_register');
       bot.stop('SIGINT');
       server.close();
     });
     process.once('SIGTERM', () => {
-      updateRegisrationStateAction('end_register');
       bot.stop('SIGTERM');
       server.close();
     });
