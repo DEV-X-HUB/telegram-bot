@@ -680,6 +680,8 @@ class PostService {
           Service1A: {
             arbr_value:
               !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
           },
         };
         break;
@@ -694,6 +696,8 @@ class PostService {
               !query?.fields?.sub_category || query?.fields?.sub_category == 'all'
                 ? undefined
                 : { equals: query?.fields?.sub_category },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
           },
         };
         break;
@@ -705,6 +709,8 @@ class PostService {
               !query?.fields?.birth_or_marital || query?.fields?.birth_or_marital == 'all'
                 ? undefined
                 : { equals: query?.fields?.birth_or_marital },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
           },
         };
         break;

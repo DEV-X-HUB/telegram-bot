@@ -28,6 +28,7 @@ class BrowsePostFormatter {
   messages = {
     useButtonError: 'Please use buttons to select',
     selectCategoryMessage: 'Select category...',
+    selectWoredaMessage: 'Select woreda...',
     selectSection1BMainCategoryMsg: 'Select main category...',
     selectSection1BSubCategoryMsg: 'Select sub category...',
     selectArBrMessage: 'Select AR/BR...',
@@ -490,7 +491,7 @@ class BrowsePostFormatter {
 
     return subCategories.map((subcat: any) => [
       {
-        text: `${selectedSubCategory === subcat.fieldName ? '✅' : ''} ${subcat}`,
+        text: `${selectedSubCategory === subcat.fieldName ? '✅' : ''} ${subcat.fieldName}`,
         cbString: `filterBySection1BSub_${subcat.fieldName}`,
       },
     ]);
@@ -519,12 +520,22 @@ class BrowsePostFormatter {
   }
 
   filterBySection3BirthMarital(selected_birth_marital?: any) {
-    const birth_maritalOptions = ['Birth', 'Marital'];
+    // const birth_maritalOptions = ['Birth', 'Marital'];
+    const birth_maritalOptions = [
+      {
+        displayName: 'Birth',
+        fieldName: 'birth',
+      },
+      {
+        displayName: 'Marital',
+        fieldName: 'marital',
+      },
+    ];
 
     return birth_maritalOptions.map((option) => [
       {
-        text: `${selected_birth_marital === option ? '✅' : ''} ${option}`,
-        cbString: `filterBySection3_${option}`,
+        text: `${selected_birth_marital === option.fieldName ? '✅' : ''} ${option.displayName}`,
+        cbString: `filterBySection3BirthMarital_${option.fieldName}`,
       },
     ]);
   }
@@ -534,6 +545,62 @@ class BrowsePostFormatter {
       {
         text: `${selectedType === type ? '✅' : ''} ${type}`,
         cbString: `filterBySection4Type_${type}`,
+      },
+    ]);
+  }
+
+  filterByWoredaOptionsButton(selectedWoreda?: any) {
+    const woredas = [
+      {
+        displayName: 'all',
+        fieldName: 'all',
+      },
+      {
+        displayName: 'Woreda 1',
+        fieldName: 'woreda_1',
+      },
+      {
+        displayName: 'Woreda 2',
+        fieldName: 'woreda_2',
+      },
+      {
+        displayName: 'Woreda 3',
+        fieldName: 'woreda_3',
+      },
+      {
+        displayName: 'Woreda 4',
+        fieldName: 'woreda_4',
+      },
+      {
+        displayName: 'Woreda 5',
+        fieldName: 'woreda_5',
+      },
+      {
+        displayName: 'Woreda 6',
+        fieldName: 'woreda_6',
+      },
+      {
+        displayName: 'Woreda 7',
+        fieldName: 'woreda_7',
+      },
+      {
+        displayName: 'Woreda 8',
+        fieldName: 'woreda_8',
+      },
+      {
+        displayName: 'Woreda 9',
+        fieldName: 'woreda_9',
+      },
+      {
+        displayName: 'Woreda 10',
+        fieldName: 'woreda_10',
+      },
+    ];
+
+    return woredas.map((woreda) => [
+      {
+        text: `${selectedWoreda == woreda.fieldName ? '✅' : ''} ${woreda.displayName}`,
+        cbString: `filterByWoreda_${woreda.fieldName}`,
       },
     ]);
   }
@@ -657,6 +724,25 @@ class BrowsePostFormatter {
     ];
   }
 
+  filterByWoredaButton(category: any, selectedWoreda?: any) {
+    if (['Section 1A', 'Section 1B', 'Section 1C'].includes(category)) {
+      return [
+        {
+          text: `Woreda - ${selectedWoreda || 'All'}`,
+          cbString: `filterByWoreda_${selectedWoreda}`,
+        },
+      ];
+    } else return [];
+  }
+
+  filterByWoredaOptionsDisplay(selectedWoreda?: any) {
+    console.log(`oooo ${selectedWoreda}`);
+    return [
+      this.messages.selectWoredaMessage,
+      InlineKeyboardButtons(this.filterByWoredaOptionsButton(selectedWoreda ? selectedWoreda : 'all')),
+    ];
+  }
+
   browsePostDisplay(post: any, filter?: any, currentPage?: number, totalPages?: number) {
     return [
       this.getPostsPreview(post),
@@ -664,6 +750,10 @@ class BrowsePostFormatter {
         this.filterByStatusButtons(filter?.status || 'all'),
         this.filterByCategoryButton(filter?.category || 'all'),
         this.filterByTimeframeButton(filter?.timeframe || 'all'),
+
+        // display woreda filter optionally
+        this.filterByWoredaButton(post.category, filter?.fields?.woreda),
+
         this.paginationButtons(currentPage as number, totalPages as number),
       ]),
 

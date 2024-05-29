@@ -25,6 +25,7 @@ class BrowsePostController {
         sub_category: 'all',
         birth_or_marital: 'all',
         service_type: 'all',
+        woreda: 'all',
       },
     };
 
@@ -93,6 +94,18 @@ class BrowsePostController {
       await deleteMessageWithCallback(ctx);
       await ctx.reply(...browsePostFormatter.filterByTimeframeDisplay(timeframeFilter));
       return ctx.wizard.selectStep(3);
+    }
+
+    // Filter by woreda
+    if (callbackQuery.data.startsWith('filterByWoreda')) {
+      // const woredaFilter = ctx.callbackQuery.data.split('_')[1];
+
+      const woredaFilter = `woreda_${ctx.callbackQuery.data.split('_')[2]}` || 'all';
+      console.log(`wwwww ${woredaFilter}`);
+
+      await deleteMessageWithCallback(ctx);
+      await ctx.reply(...browsePostFormatter.filterByWoredaOptionsDisplay());
+      return ctx.wizard.selectStep(11);
     }
 
     // Pagination
@@ -479,7 +492,7 @@ class BrowsePostController {
 
   async handleFilterSection3BirthMarital(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
+    console.log(`Maritalll: callbackQuery.data`);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -544,6 +557,79 @@ class BrowsePostController {
 
       return ctx.wizard.selectStep(1);
     }
+  }
+
+  async handleFilterByWoreda(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    console.log(callbackQuery.data);
+    if (!callbackQuery) {
+      return ctx.reply(...browsePostFormatter.messages.useButtonError);
+    }
+
+    if (callbackQuery.data.startsWith('filterByWoreda')) {
+      const woredaFilter = `woreda_${ctx.callbackQuery.data.split('_')[2]}`;
+      console.log(`aaaaaa ${woredaFilter}`);
+
+      ctx.wizard.state.filterBy = {
+        ...ctx.wizard.state.filterBy,
+        fields: {
+          ...ctx.wizard.state.filterBy.fields,
+          woreda: woredaFilter,
+          // woreda: generateWoredaDisplayName(woredaFilter),
+        },
+      };
+
+      // Get posts by the selected category
+      const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+
+      await deleteMessageWithCallback(ctx);
+
+      if (!posts || posts.posts.length == 0) {
+        return ctx.reply(browsePostFormatter.messages.noPostError);
+      }
+
+      ctx.replyWithHTML(
+        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+        {
+          parse_mode: 'HTML',
+        },
+      );
+
+      return ctx.wizard.selectStep(1);
+    }
+  }
+
+  async handlefilterByLastDigit(ctx: any) {}
+}
+
+function generateWoredaDisplayName(woreda: string) {
+  switch (woreda) {
+    case 'woreda_1':
+      return 'Woreda 1';
+
+    case 'woreda_2':
+      return 'Woreda 2';
+
+    case 'woreda_3':
+      return 'Woreda 3';
+    case 'woreda_4':
+      return 'Woreda 4';
+
+    case 'woreda_5':
+      return 'Woreda 5';
+    case 'woreda_6':
+      return 'Woreda 6';
+    case 'woreda_7':
+      return 'Woreda 7';
+    case 'woreda_8':
+      return 'Woreda 8';
+    case 'woreda_9':
+      return 'Woreda 9';
+    case 'woreda_10':
+      return 'Woreda 10';
+
+    default:
+      return 'all';
   }
 }
 
