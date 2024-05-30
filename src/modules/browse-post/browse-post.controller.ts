@@ -187,7 +187,7 @@ class BrowsePostController {
         return ctx.wizard.selectStep(5);
       } else if (categoryFilter === 'Section 1C') {
         await deleteMessageWithCallback(ctx);
-        await ctx.reply(...browsePostFormatter.filterBySection3BirthMaritalDisplay(categoryFilter));
+        await ctx.reply(...browsePostFormatter.filterBySection1CWithArBrDisplay(categoryFilter));
         // jump to handler
         return ctx.wizard.selectStep(7);
       } else if (categoryFilter === 'Section 2') {
