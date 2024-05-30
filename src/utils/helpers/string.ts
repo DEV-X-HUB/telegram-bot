@@ -1,5 +1,6 @@
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/ui';
 import { PostCategory } from '../../types/params';
+import config from '../../config/config';
 
 export const areEqaul = (text1: string, text2: string, ignoreCase?: boolean) => {
   if (ignoreCase) return text1.toLocaleLowerCase().trim() == text2.toLocaleLowerCase().trim();
@@ -105,3 +106,11 @@ export function extractElements<T>(arr: T[]): { firstNMinusOne: T[]; lastElement
 
   return { firstNMinusOne, lastElement }; // Return both arrays as a tuple
 }
+
+export const trimParagraph = (paragraph: string, maxLength: number = 4): string => {
+  const words = paragraph.split(' ');
+  if (words.length <= parseInt(config.desc_preview_word_length as string) || 5) {
+    return paragraph;
+  }
+  return words.slice(0, maxLength).join(' ') + '...';
+};

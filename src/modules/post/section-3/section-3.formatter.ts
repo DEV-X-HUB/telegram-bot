@@ -2,7 +2,7 @@ import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/ui';
 import config from '../../../config/config';
 import { NotifyOption } from '../../../types/params';
-import { areEqaul } from '../../../utils/helpers/string';
+import { areEqaul, trimParagraph } from '../../../utils/helpers/string';
 
 class Section3Formatter {
   birthOrMaritalOption: TableInlineKeyboardButtons;
@@ -55,7 +55,7 @@ class Section3Formatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Description:</b> ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.category}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Description:</b> ${trimParagraph(state.description)} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {

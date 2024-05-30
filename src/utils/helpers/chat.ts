@@ -1,6 +1,7 @@
 import config from '../../config/config';
 
 import { Context } from 'telegraf';
+import { trimParagraph } from './string';
 
 export const deleteMessage = async (ctx: any, messageData: { message_id: string; chat_id: string }) => {
   await ctx.telegram.deleteMessage(messageData.chat_id, messageData.message_id);
@@ -121,7 +122,7 @@ export const replyUserPostPreviewWithContext = async ({
 }) => {
   ctx.replyWithPhoto(photoURl, {
     parse_mode: 'HTML',
-    caption,
+    caption: trimParagraph(caption),
     reply_markup: {
       inline_keyboard: [
         [{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post_id}` }],
@@ -130,27 +131,27 @@ export const replyUserPostPreviewWithContext = async ({
           ? [
               {
                 text: 'Cancel',
-                url: `cancelPost:${post_id}`,
+                callback_data: `cancelPost:${post_id}`,
               },
             ]
           : status == 'open'
             ? [
                 {
                   text: 'Close',
-                  url: `closePost:${post_id}`,
+                  callback_data: `closePost:${post_id}`,
                 },
               ]
             : status == 'close'
               ? [
                   {
                     text: 'Open',
-                    url: `openPost:${post_id}`,
+                    callback_data: `openPost:${post_id}`,
                   },
                 ]
               : [
                   {
                     text: 'Open',
-                    url: `openPost:${post_id}`,
+                    callback_data: `openPost:${post_id}`,
                   },
                 ],
       ],

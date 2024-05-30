@@ -2,7 +2,7 @@ import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/ui';
 import config from '../../../config/config';
 import { NotifyOption } from '@prisma/client';
-import { areEqaul } from '../../../utils/helpers/string';
+import { areEqaul, trimParagraph } from '../../../utils/helpers/string';
 
 class Post2Formatter {
   backOption: TableMarkupKeyboardButtons;
@@ -75,7 +75,7 @@ class Post2Formatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category}</b>\n________________\n\n<b>${state.service_type}</b> \n\n\<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b><a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
+    return `<b>#${state.category}</b>\n________________\n\n<b>${state.service_type}</b> \n\n\<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${trimParagraph(state.description)} \n\n<b>By:</b><a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {

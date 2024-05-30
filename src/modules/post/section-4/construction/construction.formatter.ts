@@ -1,6 +1,6 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
-import { areEqaul } from '../../../../utils/helpers/string';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import config from '../../../../config/config';
 import { NotifyOption } from '../../../../types/params';
 
@@ -126,9 +126,9 @@ class ConstructionFormatter {
 
   getPreviewData(state: any) {
     if (areEqaul(state.size, 'small', true))
-      return `<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+      return `<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${trimParagraph(state.description)}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
 
-    return `#${state.category}\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${state.description} \n\n<b> By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
+    return `#${state.category}\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${trimParagraph(state.description)} \n\n<b> By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {

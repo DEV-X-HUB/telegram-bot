@@ -96,12 +96,13 @@ export const registerationSkips = (ctx: any) => {
   return false;
 };
 
-export function checkRegistration() {
+export function checkRegistration(skipProfile: boolean = false) {
   const mainMenus = [
     'Service 1',
     'Service 2',
     'Service 3',
     'Service 4',
+    'Profile',
     '🔍 Search Questions',
     'Go Back',
     'Next',
@@ -137,8 +138,10 @@ export function checkRegistration() {
       ctx.reply('Please register to use the service');
       return ctx.scene.enter('register');
     }
-
-    if (message && mainMenus.includes(message)) return MainMenuController.chooseOption(ctx);
+    if (message && mainMenus.includes(message)) {
+      if (skipProfile && message == 'Profile') return next();
+      return MainMenuController.chooseOption(ctx);
+    }
 
     return next();
   };

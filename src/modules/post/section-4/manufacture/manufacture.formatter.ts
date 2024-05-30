@@ -1,6 +1,6 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
-import { areEqaul } from '../../../../utils/helpers/string';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 import config from '../../../../config/config';
 
@@ -103,7 +103,7 @@ class ManufactureFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${trimParagraph(state.description)} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {

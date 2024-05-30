@@ -32,7 +32,7 @@ const ProfileScene = new Scenes.WizardScene('Profile', async (ctx: any) => {
   }
 });
 
-ProfileScene.use(checkRegistration());
+ProfileScene.use(checkRegistration(true));
 ProfileScene.use(restartScene('Profile'));
 
 export default ProfileScene;
