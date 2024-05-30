@@ -103,7 +103,16 @@ export function checkRegistration() {
     'Service 3',
     'Service 4',
     '🔍 Search Questions',
-    'Profile',
+    'Go Back',
+    'Next',
+    'FAQ',
+    'Terms and Conditions',
+    'Customer Service',
+    'About Us',
+    'Contact Us',
+  ];
+  const freeMenus = [
+    '🔍 Search Questions',
     'Browse',
     'Go Back',
     'Next',
@@ -120,6 +129,7 @@ export function checkRegistration() {
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
 
+    if (message && freeMenus.includes(message)) return MainMenuController.chooseOption(ctx);
     if (isVia_bot) return true;
     if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
