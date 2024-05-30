@@ -655,6 +655,21 @@ class PostService {
 
     let formattedTimeframe: any;
 
+    let lastDigit;
+    let lastDigitDiStartsFrom;
+    let lastDigitDiUpTo;
+
+    if (String(query?.fields?.last_digit)?.startsWith('bi')) {
+      lastDigit = 'bi';
+    } else if (query?.fields?.last_digit?.startsWith('di')) {
+      lastDigit = 'di';
+      lastDigitDiStartsFrom = Number(query?.fields?.last_digit?.split('-')[1]);
+      lastDigitDiUpTo = Number(query?.fields?.last_digit?.split('-')[2]);
+      console.log(`last digit ${lastDigit} ${lastDigitDiStartsFrom} ${lastDigitDiUpTo}`);
+    } else lastDigit = 'all';
+
+    console.log('dddddddddddd');
+
     switch (timeframe) {
       case 'today': {
         formattedTimeframe = '1440';
@@ -673,7 +688,6 @@ class PostService {
 
     // column field query based on the category
     let columnSpecificWhereCondition = {};
-    console.log(category, 'cccccccccccccccccccccccccc');
     switch (category) {
       case 'Section 1A':
         columnSpecificWhereCondition = {
@@ -682,6 +696,12 @@ class PostService {
               !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
             woreda:
               !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+            last_digit:
+              lastDigit == 'all'
+                ? undefined
+                : lastDigit == 'di'
+                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
+                  : { equals: lastDigit },
           },
         };
         break;
@@ -698,6 +718,13 @@ class PostService {
                 : { equals: query?.fields?.sub_category },
             woreda:
               !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+
+            last_digit:
+              lastDigit == 'all'
+                ? undefined
+                : lastDigit == 'di'
+                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
+                  : { equals: lastDigit },
           },
         };
         break;
@@ -711,6 +738,13 @@ class PostService {
                 : { equals: query?.fields?.birth_or_marital },
             woreda:
               !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+
+            last_digit:
+              lastDigit == 'all'
+                ? undefined
+                : lastDigit == 'di'
+                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
+                  : { equals: lastDigit },
           },
         };
         break;
@@ -718,8 +752,6 @@ class PostService {
       default:
         columnSpecificWhereCondition = {};
     }
-
-    console.log(columnSpecificWhereCondition);
 
     try {
       const totalCount = await prisma.post.count({
