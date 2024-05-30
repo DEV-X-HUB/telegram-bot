@@ -26,6 +26,7 @@ class BrowsePostController {
         birth_or_marital: 'all',
         service_type: 'all',
         woreda: 'all',
+        last_digit: 'all',
       },
     };
 
@@ -108,6 +109,15 @@ class BrowsePostController {
       return ctx.wizard.selectStep(11);
     }
 
+    // filter by last digit
+    if (callbackQuery.data.startsWith('filterByLastDigit')) {
+      const lastDigitFilter = ctx.callbackQuery.data.split('_')[1];
+
+      await deleteMessageWithCallback(ctx);
+      await ctx.reply(...browsePostFormatter.filterByLastDigitBiDiDisplay(lastDigitFilter));
+      return ctx.wizard.selectStep(12);
+    }
+
     // Pagination
     if (callbackQuery.data.startsWith('goToPage')) {
       console.log(callbackQuery.data);
@@ -177,7 +187,7 @@ class BrowsePostController {
         return ctx.wizard.selectStep(5);
       } else if (categoryFilter === 'Section 1C') {
         await deleteMessageWithCallback(ctx);
-        await ctx.reply(...browsePostFormatter.filterBySection3BirthMaritalDisplay(categoryFilter));
+        await ctx.reply(...browsePostFormatter.filterBySection1CWithArBrDisplay(categoryFilter));
         // jump to handler
         return ctx.wizard.selectStep(7);
       } else if (categoryFilter === 'Section 2') {
@@ -599,7 +609,89 @@ class BrowsePostController {
     }
   }
 
-  async handlefilterByLastDigit(ctx: any) {}
+  async handleFilterByLastDigit(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    console.log(callbackQuery.data);
+    if (!callbackQuery) {
+      return ctx.reply(...browsePostFormatter.messages.useButtonError);
+    }
+
+    if (callbackQuery.data.startsWith('filterByLastDigitBiDi')) {
+      const lastDigitFilter = ctx.callbackQuery.data.split('_')[1];
+
+      ctx.wizard.state.filterBy = {
+        ...ctx.wizard.state.filterBy,
+        fields: {
+          ...ctx.wizard.state.filterBy.fields,
+          last_digit: lastDigitFilter,
+        },
+      };
+
+      if (lastDigitFilter == 'all' || lastDigitFilter == 'bi') {
+        // Get posts by the selected category
+        const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+
+        await deleteMessageWithCallback(ctx);
+
+        if (!posts || posts.posts.length == 0) {
+          return ctx.reply(browsePostFormatter.messages.noPostError);
+        }
+
+        ctx.replyWithHTML(
+          ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+          {
+            parse_mode: 'HTML',
+          },
+        );
+
+        return ctx.wizard.selectStep(1);
+      } else if (lastDigitFilter == 'di') {
+        await deleteMessageWithCallback(ctx);
+        await ctx.reply(...browsePostFormatter.chooseDiButtonsDisplay(lastDigitFilter));
+        return ctx.wizard.selectStep(13);
+      }
+    }
+  }
+
+  async handlefilterByLastDigitDI(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+
+    console.log(callbackQuery.data);
+    if (!callbackQuery) {
+      return ctx.reply(...browsePostFormatter.messages.useButtonError);
+    }
+
+    if (callbackQuery.data.startsWith('filterByLastDigitDI')) {
+      const lastDigitFilter = ctx.callbackQuery.data.split('_')[1];
+      console.log('lastDigitFilter');
+
+      ctx.wizard.state.filterBy = {
+        ...ctx.wizard.state.filterBy,
+        fields: {
+          ...ctx.wizard.state.filterBy.fields,
+          last_digit: lastDigitFilter,
+        },
+      };
+
+      // Get posts by the selected category
+      const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+
+      await deleteMessageWithCallback(ctx);
+
+      if (!posts || posts.posts.length == 0) {
+        return ctx.reply(browsePostFormatter.messages.noPostError);
+      }
+
+      ctx.replyWithHTML(
+        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+        {
+          parse_mode: 'HTML',
+        },
+      );
+
+      return ctx.wizard.selectStep(1);
+    }
+  }
 }
 
 function generateWoredaDisplayName(woreda: string) {

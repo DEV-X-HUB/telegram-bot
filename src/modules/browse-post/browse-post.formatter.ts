@@ -1,3 +1,4 @@
+import { text } from 'stream/consumers';
 import config from '../../config/config';
 import { PostCategory } from '../../types/params';
 import { TableMarkupKeyboardButtons } from '../../types/ui';
@@ -11,6 +12,7 @@ import Section3Formatter from '../post/section-3/section-3.formatter';
 import ChickenFarmFormatter from '../post/section-4/chicken-farm/chicken-farm.formatter';
 import ConstructionFormatter from '../post/section-4/construction/construction.formatter';
 import ManufactureFormatter from '../post/section-4/manufacture/manufacture.formatter';
+import { displayDialog } from '../../ui/dialog';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
@@ -32,6 +34,8 @@ class BrowsePostFormatter {
     selectSection1BMainCategoryMsg: 'Select main category...',
     selectSection1BSubCategoryMsg: 'Select sub category...',
     selectArBrMessage: 'Select AR/BR...',
+    selectLastDigitMessage: 'Select last digit...',
+    selectDIRangeMessage: 'Select BR range...',
     selectBirthMaritalMessage: 'Select Birth/Marital...',
     selectCorrAmendMessage: 'Select Correction/Amendment...',
     selectSection2TypeMessage: 'Select type...',
@@ -673,6 +677,117 @@ class BrowsePostFormatter {
     ]);
   }
 
+  filterByLastDigit(category: any, selectedBiDi?: any) {
+    if (['Section 1A', 'Section 1B', 'Section 1C'].includes(category)) {
+      return [
+        {
+          text: `Last Digit - ${selectedBiDi || 'All'}`,
+          cbString: `filterByLastDigit_${selectedBiDi}`,
+        },
+      ];
+    } else return [];
+  }
+
+  chooseBiDiOptions(selectedBiDi: any) {
+    const biDiOptions = ['bi', 'di'];
+
+    return biDiOptions.map((option) => [
+      {
+        text: `${selectedBiDi === option ? '✅' : ''} ${option}`,
+        cbString: `filterByLastDigitBiDi_${option}`,
+      },
+    ]);
+  }
+
+  filterByLastDigitBiDiDisplay(selectedArBr?: any) {
+    return [this.messages.selectLastDigitMessage, InlineKeyboardButtons(this.chooseBiDiOptions(selectedArBr))];
+  }
+
+  chooseDiButtons(selectedDi: any) {
+    const DiOptions = [
+      {
+        displayName: '1-50',
+        fieldName: 'di-1-50',
+      },
+      {
+        displayName: '51-200',
+        fieldName: 'di-51-200',
+      },
+      {
+        displayName: '201-500',
+        fieldName: 'di-201-500',
+      },
+      {
+        displayName: '501-1000',
+        fieldName: 'di-501-1000',
+      },
+
+      {
+        displayName: '1001-5000',
+        fieldName: 'di-1001-5000',
+      },
+      {
+        displayName: '5001-10,000',
+        fieldName: 'di-5001-10000',
+      },
+      {
+        displayName: '10,001-50,000',
+        fieldName: 'di-10001-50000',
+      },
+      {
+        displayName: '50,001-100,000',
+        fieldName: 'di-50001-100000',
+      },
+      {
+        displayName: '100,001-500,000',
+        fieldName: 'di-100001-500000',
+      },
+      {
+        displayName: '500,001-1,000,000',
+        fieldName: 'di-500001-1000000',
+      },
+      {
+        displayName: '1,000,001-5,000,000',
+        fieldName: 'di-1000001-5000000',
+      },
+      {
+        displayName: '5,000,001-10,000,000',
+        fieldName: 'di-5000001-10000000',
+      },
+      {
+        displayName: '10,000,001-15,000,000',
+        fieldName: 'di-10000001-15000000',
+      },
+      {
+        displayName: '15,000,001-20,000,000',
+        fieldName: 'di-15000001-200000000',
+      },
+      {
+        displayName: '20,000,001-50,000,000',
+        fieldName: 'di-20000001-50000000',
+      },
+      {
+        displayName: '30,000,001-50,000,000',
+        fieldName: 'di-30000001-50000000',
+      },
+      {
+        displayName: 'Above 50,000,000',
+        fieldName: 'di-50000001-*',
+      },
+    ];
+
+    return DiOptions.map((option) => [
+      {
+        text: `${selectedDi === option.fieldName ? '✅' : ''} ${option.displayName}`,
+        cbString: `filterByLastDigitDI_${option.fieldName}`,
+      },
+    ]);
+  }
+
+  chooseDiButtonsDisplay(selectedBr?: any) {
+    return [this.messages.selectArBrMessage, InlineKeyboardButtons(this.chooseDiButtons(selectedBr))];
+  }
+
   filterByCategoryDisplay(category: any) {
     return [this.messages.selectCategoryMessage, InlineKeyboardButtons(this.filterByCategoryChooseButtons(category))];
   }
@@ -753,6 +868,9 @@ class BrowsePostFormatter {
 
         // display woreda filter optionally
         this.filterByWoredaButton(post.category, filter?.fields?.woreda),
+
+        // display last digit filter optionally
+        this.filterByLastDigit(post.category, filter?.fields?.last_digit),
 
         this.paginationButtons(currentPage as number, totalPages as number),
       ]),
