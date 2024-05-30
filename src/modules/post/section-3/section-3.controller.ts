@@ -84,10 +84,11 @@ class Section3Controller {
   }
 
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -100,6 +101,7 @@ class Section3Controller {
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section3Formatter.descriptionPrompt());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -112,6 +114,7 @@ class Section3Controller {
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
       clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -380,10 +383,11 @@ class Section3Controller {
   }
 
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -394,6 +398,7 @@ class Section3Controller {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -406,6 +411,7 @@ class Section3Controller {
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
       clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({

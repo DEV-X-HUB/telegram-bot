@@ -17,7 +17,8 @@ class RegistrationController {
   constructor() {}
   async agreeTermsDisplay(ctx: any) {
     registrationScene.enterHandler(1, async () => {
-      updateRegisrationStateAction('start_register');
+      const user = findSender(ctx);
+      updateRegisrationStateAction('start_register', user.id);
     });
 
     await ctx.reply(config.terms_condtion_link, {
@@ -316,7 +317,7 @@ class RegistrationController {
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
       ctx.replyWithHTML(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      return MainMenuController.onStart(ctx);
+      return ctx.wizard.back();
     }
     if (areEqaul(callbackMessage, 'back', true)) {
       deleteMessageWithCallback(ctx);

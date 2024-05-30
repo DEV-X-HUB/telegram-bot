@@ -106,6 +106,57 @@ export const replyDetailWithContext = async ({
     caption,
   });
 };
+export const replyUserPostPreviewWithContext = async ({
+  ctx,
+  caption,
+  photoURl,
+  post_id,
+  status,
+}: {
+  ctx: Context;
+  photoURl: string;
+  caption: string;
+  post_id: string;
+  status: string;
+}) => {
+  ctx.replyWithPhoto(photoURl, {
+    parse_mode: 'HTML',
+    caption,
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${post_id}` }],
+
+        status == 'pending'
+          ? [
+              {
+                text: 'Cancel',
+                url: `cancelPost:${post_id}`,
+              },
+            ]
+          : status == 'open'
+            ? [
+                {
+                  text: 'Close',
+                  url: `closePost:${post_id}`,
+                },
+              ]
+            : status == 'close'
+              ? [
+                  {
+                    text: 'Open',
+                    url: `openPost:${post_id}`,
+                  },
+                ]
+              : [
+                  {
+                    text: 'Open',
+                    url: `openPost:${post_id}`,
+                  },
+                ],
+      ],
+    },
+  });
+};
 export const replyPostPreview = async ({ ctx, caption, photoURl }: { ctx: any; photoURl: string; caption: string }) => {
   ctx.replyWithPhoto(photoURl, {
     parse_mode: 'HTML',

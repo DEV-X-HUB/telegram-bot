@@ -9,7 +9,7 @@ import QuestionPostScene from '../modules/post/post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
 import { setCommands } from '../utils/helpers/commands';
 import SearchQuestionController from '../modules/post/post.controller';
-import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
+import { checkCallBacks } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';
 import BrowsePostScene from '../modules/browse-post/browse-post.scene';
 import MainMenuService from '../modules/mainmenu/mainmenu-service';
@@ -38,7 +38,6 @@ export default () => {
   bot.use(session());
   bot.use(stage.middleware());
   bot.use(checkAndRedirectToScene());
-  bot.use(checkMenuOptions());
 
   const commands = [
     { name: 'start', description: 'Start the bot' },

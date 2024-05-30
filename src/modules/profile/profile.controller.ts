@@ -1,10 +1,15 @@
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback, findSender } from '../../utils/helpers/chat';
+import {
+  deleteKeyboardMarkup,
+  deleteMessageWithCallback,
+  findSender,
+  replyUserPostPreviewWithContext,
+} from '../../utils/helpers/chat';
 import { registrationValidator } from '../../utils/validator/registration-validator';
 import { calculateAge } from '../../utils/helpers/date';
 import config from '../../config/config';
 
 import { Markup } from 'telegraf';
-import { areEqaul, isInInlineOption } from '../../utils/helpers/string';
+import { areEqaul, extractElements, getSectionName, isInInlineOption } from '../../utils/helpers/string';
 
 import ProfileFormatter from './profile-formatter';
 import ProfileService from './profile.service';
@@ -15,6 +20,7 @@ const profileFormatter = new ProfileFormatter();
 
 import { Context } from 'telegraf';
 import PostService from '../post/post.service';
+import { PostCategory } from '../../types/params';
 class ProfileController {
   constructor() {}
   saveToState(ctx: any, userData: any) {
@@ -78,10 +84,20 @@ class ProfileController {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.state.activity = 'post_list_view';
 
-          // map over the questions array and return the question preview
-          return posts.map((post: any) => {
-            return ctx.replyWithHTML(...profileFormatter.postPreview(post));
-          });
+          for (const post of posts) {
+            const sectionName = getSectionName(post.category) as PostCategory;
+
+            if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+              await replyUserPostPreviewWithContext({
+                ctx,
+                photoURl: (post as any)[sectionName].photo[0],
+                caption: profileFormatter.postPreview(post)[0] as string,
+                post_id: post.id,
+                status: post.status,
+              });
+            } else ctx.replyWithHTML(...profileFormatter.postPreview(post)); // if post has no photo
+          }
+          break;
         }
 
         case 'profile_setting': {

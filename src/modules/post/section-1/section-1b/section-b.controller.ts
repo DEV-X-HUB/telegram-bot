@@ -34,6 +34,8 @@ class QuestionPostSectionBController {
     const text = ctx.message.text;
 
     if (areEqaul(text, 'back', true)) return ctx.scene.enter('Post-Section-1');
+    const validationMessage = postValidator('title', text);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.title = text;
     await deleteKeyboardMarkup(ctx, sectionBFormatter.messages.categoriesPrompt);
     ctx.reply(...sectionBFormatter.mainCategoryOption());
@@ -237,10 +239,11 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -248,7 +251,8 @@ class QuestionPostSectionBController {
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...sectionBFormatter.descriptionDisplay());
+      await ctx.reply(...sectionBFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -261,6 +265,7 @@ class QuestionPostSectionBController {
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
       clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -500,10 +505,11 @@ class QuestionPostSectionBController {
     }
   }
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -515,6 +521,7 @@ class QuestionPostSectionBController {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...sectionBFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -527,6 +534,7 @@ class QuestionPostSectionBController {
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
       clearTimeout(timer);
+      imagesNumberReached = true;
 
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 

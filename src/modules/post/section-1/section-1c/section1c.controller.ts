@@ -229,18 +229,20 @@ class QuestionPostSection1CController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
-    clearTimeout(timer);
+
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section1cFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -253,6 +255,7 @@ class QuestionPostSection1CController {
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
       clearTimeout(timer);
+      imagesNumberReached = true;
       //   const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -476,10 +479,11 @@ class QuestionPostSection1CController {
     }
   }
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -491,6 +495,7 @@ class QuestionPostSection1CController {
         chat_id: messageText.chat.id,
       });
       ctx.replyWithHTML(...section1cFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -503,6 +508,7 @@ class QuestionPostSection1CController {
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
       clearTimeout(timer);
+      imagesNumberReached = true;
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state

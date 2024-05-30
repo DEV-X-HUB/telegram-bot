@@ -1,23 +1,31 @@
 import { Scenes } from 'telegraf';
 import RegistrationController from './registration.controller';
 import { getCommand, restartScene } from '../../middleware/check-command';
+import { findSender } from '../../utils/helpers/chat';
 
-export const registerationVaribles = {
-  isRegistering: false,
+export type RegisterationVaribles = {
+  registeringUser: string[];
 };
-export const updateRegisrationStateAction = (action: any) => {
+export const registerationVaribles: RegisterationVaribles = {
+  registeringUser: [],
+};
+export const updateRegisrationStateAction = (action: any, user_id: string) => {
   switch (action) {
     case 'start_register':
-      registerationVaribles.isRegistering = true;
+      {
+        registerationVaribles.registeringUser.push(user_id);
+      }
       break;
     case 'end_register':
-      registerationVaribles.isRegistering = false;
+      registerationVaribles.registeringUser = registerationVaribles.registeringUser.filter(
+        (registeringUser) => registeringUser != user_id,
+      );
       break;
   }
 };
 
-export const isRegistering = () => {
-  return registerationVaribles.isRegistering;
+export const isRegistering = (user_id: string) => {
+  return registerationVaribles.registeringUser.includes(user_id);
 };
 const registrationController = new RegistrationController();
 
@@ -47,7 +55,8 @@ registrationScene.use(async (ctx: any, next: any) => {
 
 export function onRegisterationLeave() {
   return async (ctx: any, next: any) => {
-    updateRegisrationStateAction('end_register');
+    const user = findSender(ctx);
+    updateRegisrationStateAction('end_register', user.id);
     return next();
   };
 }

@@ -5,6 +5,7 @@ import { findSender } from '../utils/helpers/chat';
 import RegistrationService from '../modules/registration/restgration.service';
 import { isRegistering } from '../modules/registration/registration.scene';
 import { ResponseWithData } from '../types/api';
+import MainMenuController from '../modules/mainmenu/mainmenu.controller';
 const mainMenuFormmater = new MainMenuFormmater();
 
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
@@ -30,7 +31,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
       message: 'success',
     };
   } catch (error: any) {
-    console.error(error.message);
+    console.error(error);
     return {
       status: 'fail',
       data: false,
@@ -67,12 +68,20 @@ export const registerationSkips = (ctx: any) => {
     '/restart',
     '/search',
     '🔍 Search Questions',
+    'Go Back',
+    'Next',
+    'FAQ',
+    'Terms and Conditions',
+    'Customer Service',
+    'About Us',
+    'Contact Us',
   ];
+
   const message = ctx.message?.text;
   const query = ctx.callbackQuery?.data;
-  console.log(isRegistering(), 'is registering  ');
-  if (isRegistering()) return true;
 
+  const user = findSender(ctx);
+  if (isRegistering(user.id)) return true;
   if (query) {
     return skipQueries.some((skipQuery) => {
       return query.toString().startsWith(skipQuery);
@@ -88,11 +97,39 @@ export const registerationSkips = (ctx: any) => {
 };
 
 export function checkRegistration() {
+  const mainMenus = [
+    'Service 1',
+    'Service 2',
+    'Service 3',
+    'Service 4',
+    '🔍 Search Questions',
+    'Go Back',
+    'Next',
+    'FAQ',
+    'Terms and Conditions',
+    'Customer Service',
+    'About Us',
+    'Contact Us',
+  ];
+  const freeMenus = [
+    '🔍 Search Questions',
+    'Browse',
+    'Go Back',
+    'Next',
+    'FAQ',
+    'Terms and Conditions',
+    'Customer Service',
+    'About Us',
+    'Contact Us',
+  ];
+
   return async (ctx: any, next: any) => {
+    const message = ctx.message?.text;
     const isVia_bot = ctx.message?.via_bot;
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
-    console.log(isRegisteredSkiped, 'skipped');
+
+    if (message && freeMenus.includes(message)) return MainMenuController.chooseOption(ctx);
     if (isVia_bot) return true;
     if (isRegisteredSkiped) return next();
     const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
@@ -100,6 +137,8 @@ export function checkRegistration() {
       ctx.reply('Please register to use the service');
       return ctx.scene.enter('register');
     }
+
+    if (message && mainMenus.includes(message)) return MainMenuController.chooseOption(ctx);
 
     return next();
   };
