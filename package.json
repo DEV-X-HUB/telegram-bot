@@ -16,6 +16,7 @@
   "description": "",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "packageManager": "pnpm@7.5.1",
   "dependencies": {
     "@prisma/client": "^5.11.0",
     "@telegraf/session": "^2.0.0-beta.7",
