@@ -57,7 +57,7 @@
     "dev": "npx nodemon",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint --fix --ext .ts",
-    "build": "tsc",
+    "build": "tsc && node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch"
   },

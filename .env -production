@@ -1,0 +1,37 @@
+NODE_ENV=development
+JWT_SECRET=a950a37d791fa868a0cccfe7580d626f5f81d0859fce2bdf87a190fba72a68b0
+JWT_EXPIRES_IN=90d
+PORT = 8081
+
+CHANNEL_USERNAME =bae_offcial
+BOT_NAME = Natty-bot
+
+BOT_TOKEN =6562240422:AAEpBM_qLKntQbZ5IpRX6ytzE08BMtY9kic
+CHANNEL_ID =-1002177273672
+BOT_URL = https://t.me/bae_offcial_bot
+
+COMPANY_NAME =Company
+COMPANY_URL ='#'
+IMAGE_UPLOADED_MINUTE = 1;
+
+TERMS_CONDITION_LINK =https://telegra.ph/TERMS-AND-CONDITIONS-09-16-2
+IMAGE_UPLOADED_NUMBER  =4
+DB_URL=postgresql://neondb_owner:x6iMeSrfjVs2@ep-fragrant-sunset-a514xgkd.us-east-2.aws.neon.tech/neondb?sslmode=require
+DESC_WORD_LENGTH = 45
+NUMBER_OF_RESULTS = 5;
+DESC_PREVIEW_WORD_LENGTH =5
+
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
+EMAIL=natnaeldeyas@gmail.com
+EMAIL_PASSWORD=tbly tooc gkas jxgh
+EMAIl_SECURE=true
+
+
+SUPER_ADMIN_EMAIL =bemnet1612@gmail.com
+# SUPER_ADMIN_EMAIL =nati7fekadu@gmail.com
+SUPER_ADMIN_PASSWORD =12345678
+SUPER_ADMIN_FIRST_NAME =bemnet
+SUPER_ADMIN_LAST_NAME =bemnet
+
+DOMAIN =https://telegram-bot-ch8u.vercel.app/
