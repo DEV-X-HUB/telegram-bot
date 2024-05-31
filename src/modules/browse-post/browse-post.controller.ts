@@ -1,8 +1,9 @@
 // BrowsePostScene
-
+import { Context } from 'telegraf';
 import { deleteMessageWithCallback } from '../../utils/helpers/chat';
 import PostService from '../post/post.service';
 import BrowsePostFormatter from './browse-post.formatter';
+import config from '../../config/config';
 const browsePostFormatter = new BrowsePostFormatter();
 
 const postService = new PostService();
@@ -32,7 +33,6 @@ class BrowsePostController {
 
     // const posts = await postService.geAlltPosts(1);
     const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-    console.log('posts', posts);
 
     if (!posts || posts.posts.length == 0) {
       return ctx.reply(browsePostFormatter.messages.noPostError);
@@ -129,8 +129,13 @@ class BrowsePostController {
       console.log(posts);
       await deleteMessageWithCallback(ctx);
       await ctx.replyWithHTML(
-        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, page, posts.total),
+        browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, page, posts.total)[0],
         {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${posts.posts[0].id}` }],
+            ],
+          },
           parse_mode: 'HTML',
         },
       );
