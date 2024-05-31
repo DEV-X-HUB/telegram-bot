@@ -145,7 +145,7 @@ class Post1AFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${state.last_digit}</b>\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${state.last_digit}\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {
