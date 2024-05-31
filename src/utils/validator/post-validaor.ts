@@ -1,9 +1,9 @@
+import { IssueDateSchema, locationSchema, titleSchema } from '../../types/schemas/post-schema';
 import DateSchema, {
   DescriptionSchema,
-  IssueDateSchema,
   ConfirmationYearSchema,
   lastDititSchema,
-} from '../../types/schemas/question-post-schema';
+} from '../../types/schemas/post-schema';
 
 type RegistrationValue = string | number | Date;
 
@@ -11,10 +11,11 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
   let schema = null;
   switch (fieldName) {
     case 'issue_date': {
-      schema = DateSchema;
+      schema = IssueDateSchema;
       break;
     }
-    case 'issue_date': {
+
+    case 'expire_date': {
       schema = IssueDateSchema;
       break;
     }
@@ -22,12 +23,16 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
       schema = lastDititSchema;
       break;
     }
+    case 'title': {
+      schema = titleSchema;
+      break;
+    }
     case 'description': {
       schema = DescriptionSchema;
       break;
     }
     case 'location':
-      schema = DescriptionSchema;
+      schema = locationSchema;
       break;
     case 'confirmation_year':
       schema = ConfirmationYearSchema;

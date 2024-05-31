@@ -1,12 +1,15 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
-import { areEqaul } from '../../../../utils/constants/string';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import config from '../../../../config/config';
+import { NotifyOption } from '../../../../types/params';
 
-class QustionPostSectionBFormatter {
+class ConstructionFormatter {
+  inlineBackButton: TableInlineKeyboardButtons;
   messages = {
     useButtonError: 'Please use buttons to select options',
     unknowOptionError: 'Unknown Option!',
+    notifyOptionPrompt: 'Select who can be notified this question',
     sizePrompt: 'Please specify the size',
     locationPrompt: 'Please enter your location',
     companyExpriencePrompt: 'Please choose of the company',
@@ -16,8 +19,13 @@ class QustionPostSectionBFormatter {
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPrompt: 'Attach four images with diffrent angle',
     reviewPrompt: 'Preview your post and press once you are done',
-    postSuccessMsg: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postErroMsg: 'Post Error',
+    mentionPost: 'Select post to mention',
+    noPreviousPosts: "You don't have any approved question before.",
+    somethingWentWrong: 'Something went wrong',
   };
   sizeOption: TableInlineKeyboardButtons = [
     [
@@ -78,7 +86,9 @@ class QustionPostSectionBFormatter {
   ];
   backOption: TableInlineKeyboardButtons = [[{ text: 'Back', cbString: 'back' }]];
 
-  constructor() {}
+  constructor() {
+    this.inlineBackButton = [[{ text: 'Back', cbString: 'back' }]];
+  }
   goBackButton(oneTime: boolean = true) {
     return MarkupButtons(this.backOption, oneTime);
   }
@@ -107,27 +117,75 @@ class QustionPostSectionBFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
-  getPreviewData(state: any) {
+  getDetailData(state: any) {
     if (areEqaul(state.size, 'small', true))
-      return `#${state.category}\n________________\n\n${state.size} \n\nLocation: ${state.location}  \n\nExperience: ${state.company_experience} \n\nDocument: ${state.document_request_type}\n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
-    return `#${state.category}\n________________\n\n${state.size} \n\nLang size: ${state.land_size} \n\nLand Status: ${state.land_status}\n\nLocation: ${state.location}\n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nBy: Natnael\n\nStatus : ${state.status}`;
+      return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location}  \n\n<b>Experience</b>: ${state.company_experience} \n\n<b>Document</b>: ${state.document_request_type}\n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+
+    return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\n<b>Location</b>: ${state.location}\n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
-  preview(state: any) {
+  getPreviewData(state: any) {
+    if (areEqaul(state.size, 'small', true))
+      return `<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${trimParagraph(state.description)}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+
+    return `#${state.category}\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${trimParagraph(state.description)} \n\n<b> By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
+  }
+
+  preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify Settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              {
+                text: `${state.mention_post_data ? 'Remove mention post' : 'Mention previous post'}`,
+                // cbString : 'Mention previous post'
+
+                cbString: `${state.mention_post_data ? 'remove_mention_previous_post' : 'mention_previous_post'}`,
+              },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
+    ];
+  }
+
+  notifyOptionDisplay(notifyOption: NotifyOption) {
+    return [
+      this.messages.notifyOptionPrompt,
       InlineKeyboardButtons([
         [
-          { text: 'Edit', cbString: 'edit_data' },
-          { text: 'Notify settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
         ],
         [
-          { text: 'Mention previous post', cbString: 'mention_previous_post' },
-          { text: 'Cancel', cbString: 'cancel' },
+          {
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
+          },
         ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
       ]),
     ];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
   }
 
   editPreview(state: any) {
@@ -188,12 +246,40 @@ class QustionPostSectionBFormatter {
     return [this.messages.reviewPrompt];
   }
 
+  mentionPostMessage() {
+    return [this.messages.mentionPost, this.goBackButton()];
+  }
+
+  displayPreviousPostsList(post: any) {
+    // Check if post.description is defined before accessing its length
+    const description =
+      post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
+
+    const message = `#${post.category}\n_______\n\n<b>Description</b> : ${description}\n\n<b>Status</b> : ${post.status}`;
+
+    const buttons = InlineKeyboardButtons([
+      [
+        { text: 'Select post', cbString: `select_post_${post.id}` },
+        { text: 'Back', cbString: 'back' },
+      ],
+    ]);
+    return [message, buttons];
+  }
+
+  noPostsErrorMessage() {
+    return [this.messages.noPreviousPosts, InlineKeyboardButtons(this.inlineBackButton)];
+  }
+
   postingSuccessful() {
     return [this.messages.postSuccessMsg];
   }
   postingError() {
     return [this.messages.postErroMsg];
   }
+
+  somethingWentWrongError() {
+    return [this.messages.somethingWentWrong];
+  }
 }
 
-export default QustionPostSectionBFormatter;
+export default ConstructionFormatter;

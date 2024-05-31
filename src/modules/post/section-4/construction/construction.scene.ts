@@ -1,8 +1,9 @@
 import { Scenes } from 'telegraf';
 import QuestionPostSectionConstructionController from './construction.controller';
+import { restartScene } from '../../../../middleware/check-command';
 
 const constructionController = new QuestionPostSectionConstructionController();
-const QuestionPostSectionConstructionScene = new Scenes.WizardScene(
+const ConstructionScene = new Scenes.WizardScene(
   'Post-Question-SectionB-Construction',
   constructionController.start,
   constructionController.chooseConstructionSize,
@@ -16,6 +17,11 @@ const QuestionPostSectionConstructionScene = new Scenes.WizardScene(
   constructionController.preview,
   constructionController.editData,
   constructionController.editPhoto,
+  constructionController.postedReview,
+  constructionController.adjustNotifySetting,
+  constructionController.mentionPreviousPost,
 );
 
-export default QuestionPostSectionConstructionScene;
+ConstructionScene.use(restartScene('Post-Section-4'));
+
+export default ConstructionScene;

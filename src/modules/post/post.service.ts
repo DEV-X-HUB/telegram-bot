@@ -1,18 +1,26 @@
 import prisma from '../../loaders/db-connecion';
 import { v4 as UUID } from 'uuid';
+
 import {
   CreateCategoryPostDto,
   CreatePostDto,
   CreatePostService1ADto,
   CreatePostService1BDto,
   CreatePostService1CDto,
+  CreatePostService2Dto,
+  CreatePostService3Dto,
+  CreatePostService4ChickenFarmDto,
+  CreatePostService4ConstructionDto,
+  CreatePostService4ManufactureDto,
 } from '../../types/dto/create-question-post.dto';
 import { PostCategory } from '../../types/params';
+import { PostStatus, ResponseWithData } from '../../types/api';
+import config from '../../config/config';
 
 class PostService {
   constructor() {}
 
-  static async createQuestionPost(questionPost: any, tg_id: string) {
+  static async createpost(post: any, tg_id: string) {
     try {
       // Find user with tg_id
       const user = await prisma.user.findUnique({
@@ -33,7 +41,7 @@ class PostService {
       const question = await prisma.post.create({
         data: {
           id: UUID(),
-          ...questionPost,
+          ...post,
           user_id: user.id,
           status: 'pending',
         },
@@ -115,7 +123,7 @@ class PostService {
         };
 
       let post = null;
-      switch (category as PostCategory) {
+      switch (category) {
         case 'Section 1A': {
           const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService1ADto;
@@ -149,13 +157,71 @@ class PostService {
           });
           break;
         }
-      }
+        case 'Section 2': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService2Dto;
+          post = await prisma.service2.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
 
-      return {
-        success: true,
-        data: { ...post, post_id: postData.post.id },
-        message: 'Post created successfully',
-      };
+        case 'Section 3': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService3Dto;
+          post = await prisma.service3.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
+
+        case 'Chicken Farm': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService4ChickenFarmDto;
+          post = await prisma.service4ChickenFarm.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
+        case 'Construction': {
+          const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+            postDto as CreatePostService4ConstructionDto;
+          post = await prisma.service4Construction.create({
+            data: {
+              post_id: postData.post.id,
+              ...createCategoryPostDto,
+            },
+          });
+          break;
+        }
+        case 'Manufacture':
+          {
+            const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
+              postDto as CreatePostService4ManufactureDto;
+            post = await prisma.service4Manufacture.create({
+              data: {
+                post_id: postData.post.id,
+                ...createCategoryPostDto,
+              },
+            });
+          }
+          break;
+      }
+      if (post)
+        return {
+          success: true,
+          data: { ...post, post_id: postData.post.id },
+          message: 'Post created successfully',
+        };
     } catch (error) {
       console.error(error);
       return {
@@ -166,18 +232,31 @@ class PostService {
     }
   }
 
-  static async deletePostById(postId: string, category: PostCategory): Promise<boolean> {
+  static async deletePostById(postId: string, category?: PostCategory): Promise<Boolean> {
     try {
-      switch (category) {
-        case 'Section 1A':
-          await prisma.post.delete({ where: { id: postId } });
-          break;
-      }
+      await prisma.post.delete({ where: { id: postId } });
       return true;
     } catch (error) {
       console.log(error);
       return false;
     }
+    // try {
+    //   switch (category) {
+    //     case 'Section 1A':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //       break;
+    //     case 'Service4ChickenFarm':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //     case 'Service4Construction':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //     case 'Service4Manufacture':
+    //       await prisma.post.delete({ where: { id: postId } });
+    //   }
+    //   return true;
+    // } catch (error) {
+    //   console.log(error);
+    //   return false;
+    // }
   }
   static async getUserPosts(user_id: string) {
     try {
@@ -220,6 +299,14 @@ class PostService {
               display_name: true,
             },
           },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
         },
       });
 
@@ -229,21 +316,536 @@ class PostService {
       return { success: false, posts: null, message: error?.message };
     }
   }
+  static async getPostById(post_id: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: {
+          id: post_id,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
 
-  // static async getAllPost() {
-  //   const postsWithCategories = await prisma.post.findMany({
-  //     include: {
-  //       Service1A: true, // Include data from Service1A category
-  //       Service1B: true, // Include data from Service1B category
-  //       Service1C: true, // Include data from Service1C category
-  //       Service2: true, // Include data from Service2 category
-  //       Service3: true, // Include data from Service3 category
-  //       // Include other categories if necessary
-  //     },
-  //   });
+      return { success: true, post: post, message: 'success' };
+    } catch (error: any) {
+      console.log(error);
+      return { success: false, post: null, message: error?.message };
+    }
+  }
 
-  //   console.log(postsWithCategories);
-  // }
+  static async updatePostStatusByUser(postId: string, status: PostStatus): Promise<ResponseWithData> {
+    try {
+      const post = await prisma.post.update({
+        where: { id: postId },
+        data: {
+          status: status,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Post status updated',
+        data: post,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: 'fail',
+        message: 'Unable to update Post',
+        data: null,
+      };
+    }
+  }
+
+  async getPostsByDescription(searchText: string) {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          description: {
+            contains: searchText,
+          },
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+        },
+      });
+      return {
+        success: true,
+        posts: posts,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: false, posts: [] };
+    }
+  }
+
+  async geAlltPosts(round: number) {
+    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
+    const postCount = await prisma.post.count();
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+        skip,
+        take: parseInt(config.number_of_result || '5'),
+      });
+      return {
+        success: true,
+        posts: posts,
+        nextRound: posts.length == postCount ? round : round + 1,
+        total: postCount,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [], nextRound: round, total: 0 };
+    }
+  }
+
+  async geAlltPostsByDescription(searchText: string, round: number) {
+    const postPerRound = parseInt(config.number_of_result || '5');
+    const skip = (round - 1) * postPerRound;
+
+    try {
+      const postCount = await prisma.post.count({
+        where: {
+          description: {
+            contains: searchText,
+          },
+        },
+      });
+      const posts = await prisma.post.findMany({
+        skip: skip,
+        take: postPerRound,
+        where: {
+          description: {
+            contains: searchText,
+          },
+          status: {
+            not: {
+              // equals: 'pending',
+            },
+          },
+        },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        posts: posts,
+        nextRound: posts.length == postCount ? round : round + 1,
+        total: postCount,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [], nextRound: round, total: 0 };
+    }
+  }
+  async getPostById(postId: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: { id: postId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+              followers: true,
+              followings: true,
+              blocked_users: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        post,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, post: null };
+    }
+  }
+
+  async getFollowersChatId(postId: string) {
+    try {
+      const post = await prisma.post.findFirst({
+        where: { id: postId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+              followers: true,
+              followings: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        post,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, post: null };
+    }
+  }
+
+  async getChatIds(recipientsIds: string[]) {
+    try {
+      const chatIds = await prisma.user.findMany({
+        where: {
+          id: { in: recipientsIds },
+        },
+        select: {
+          chat_id: true,
+        },
+      });
+      return {
+        success: true,
+        chatIds,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, chatIds: [] };
+    }
+  }
+  async getFilteredRecipients(recipientsIds: string[], posterId: string) {
+    try {
+      const recipientChatIds = await prisma.user.findMany({
+        where: {
+          id: {
+            in: recipientsIds,
+          },
+        },
+        select: {
+          chat_id: true,
+        },
+      });
+
+      return { status: 'success', recipientChatIds: recipientChatIds };
+    } catch (error) {
+      console.error('Error checking if user is following:', error);
+      return { status: 'fail', recipientChatIds: [] };
+    }
+  }
+
+  async getAllPostsByDescription(description: string) {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          description: {
+            contains: description,
+          },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+      return {
+        success: true,
+        posts,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [] };
+    }
+  }
+
+  async getAllPostsWithQuery(query: any, page: number = 1) {
+    // only one post per page
+    const pageSize = 1;
+    const { category, status, timeframe } = query;
+    console.log(query.fields);
+
+    let formattedTimeframe: any;
+
+    let lastDigit;
+    let lastDigitDiStartsFrom;
+    let lastDigitDiUpTo;
+
+    if (String(query?.fields?.last_digit)?.startsWith('bi')) {
+      lastDigit = 'bi';
+    } else if (query?.fields?.last_digit?.startsWith('di')) {
+      lastDigit = 'di';
+      lastDigitDiStartsFrom = Number(query?.fields?.last_digit?.split('-')[1]);
+      lastDigitDiUpTo = Number(query?.fields?.last_digit?.split('-')[2]);
+      console.log(`last digit ${lastDigit} ${lastDigitDiStartsFrom} ${lastDigitDiUpTo}`);
+    } else lastDigit = 'all';
+
+    console.log('dddddddddddd');
+
+    switch (timeframe) {
+      case 'today': {
+        formattedTimeframe = '1440';
+        break;
+      }
+      case 'week': {
+        formattedTimeframe = '10080';
+        break;
+      }
+
+      case 'month': {
+        formattedTimeframe = '43200';
+        break;
+      }
+    }
+
+    // column field query based on the category
+    let columnSpecificWhereCondition = {};
+    switch (category) {
+      case 'Section 1A':
+        columnSpecificWhereCondition = {
+          Service1A: {
+            arbr_value:
+              !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+            last_digit:
+              lastDigit == 'all'
+                ? undefined
+                : lastDigit == 'di'
+                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
+                  : { equals: lastDigit },
+          },
+        };
+        break;
+      case 'Section 1B':
+        columnSpecificWhereCondition = {
+          Service1B: {
+            main_category:
+              !query?.fields?.main_category || query?.fields?.main_category == 'all'
+                ? undefined
+                : { equals: query?.fields?.main_category },
+            sub_category:
+              !query?.fields?.sub_category || query?.fields?.sub_category == 'all'
+                ? undefined
+                : { equals: query?.fields?.sub_category },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+
+            last_digit:
+              lastDigit == 'all'
+                ? undefined
+                : lastDigit == 'di'
+                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
+                  : { equals: lastDigit },
+          },
+        };
+        break;
+
+      case 'Section 3':
+        columnSpecificWhereCondition = {
+          Service3: {
+            birth_or_marital:
+              !query?.fields?.birth_or_marital || query?.fields?.birth_or_marital == 'all'
+                ? undefined
+                : { equals: query?.fields?.birth_or_marital },
+            woreda:
+              !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
+
+            last_digit:
+              lastDigit == 'all'
+                ? undefined
+                : lastDigit == 'di'
+                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
+                  : { equals: lastDigit },
+          },
+        };
+        break;
+
+      default:
+        columnSpecificWhereCondition = {};
+    }
+
+    try {
+      const totalCount = await prisma.post.count({
+        where: {
+          // filter by status if status is provided and not equals to 'all'
+          status: status && status !== 'all' ? { equals: status } : undefined,
+          category: category && category !== 'all' ? { equals: category } : undefined,
+          created_at:
+            timeframe && timeframe !== 'all'
+              ? {
+                  gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+                }
+              : undefined,
+          ...columnSpecificWhereCondition,
+        },
+      });
+
+      const totalPages = Math.ceil(totalCount / pageSize);
+      const skip = (page - 1) * pageSize;
+
+      const posts = await prisma.post.findMany({
+        where: {
+          // filter by status if status is provided and not equals to 'all'
+          status: status && status !== 'all' ? { equals: status } : undefined,
+          category: category && category !== 'all' ? { equals: category } : undefined,
+          created_at:
+            timeframe && timeframe !== 'all'
+              ? {
+                  gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+                }
+              : undefined,
+
+          ...columnSpecificWhereCondition,
+          // Service3: {
+          //   birth_or_marital: {
+          //     equals: 'all',
+          //   },
+          // },
+
+          // Service1A: {
+          // arbr_value:
+          //   query?.fields?.ar_br || query?.fields?.ar_br != 'all' ? { equals: query?.fields?.ar_br } : undefined,
+          // },
+
+          // Service1B: {
+          //   main_category:
+          //     query?.fields?.main_category || query?.fields?.main_category != 'all'
+          //       ? { equals: query?.fields?.main_category }
+          //       : undefined,
+          //   sub_category:
+          //     query?.fields?.sub_category || query?.fields?.sub_category != 'all'
+          //       ? { equals: query?.fields?.sub_category }
+          //       : undefined,
+          // },
+          // Service3: {
+          //   birth_or_marital:
+          //     query?.fields?.birth_or_marital || query?.fields?.birth_or_marital != 'all'
+          //       ? { equals: query?.fields?.birth_or_marital }
+          //       : undefined,
+          // },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              display_name: true,
+            },
+          },
+
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+        skip,
+        take: 1,
+      });
+
+      return {
+        success: true,
+        posts,
+        total: totalCount,
+        totalPages,
+        currentPage: page,
+      };
+    } catch (error) {
+      console.error('Error searching questions:', error);
+      return { success: true, posts: [] };
+    }
+  }
 }
 
 export default PostService;

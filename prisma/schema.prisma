@@ -20,36 +20,95 @@ enum NotifyOption {
   friend
 }
 
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum AdminStatus {
+  ACTIVE
+  INACTIVE
+}
+
+
 model User {
-  id           String  @id @default(uuid()) // UUID type for user_id
-  username     String?  @unique
-  first_name   String // Required first name
-  last_name    String // Required last name
-  age          Int // Required age
-  phone_number String  @unique // Unique phone number
-  tg_id        String  @unique // Unique tg_id
-  email        String? // Optional email
-  country      String? // Optional country
-  city         String? // Optional city
-  gender       String? // Optional gender
-  display_name String? // Optional display name
-  bio          String? // Optional bio
+  id            String  @id @default(uuid()) // UUID type for user_id
+  username      String?  @unique
+  first_name    String // Required first name
+  last_name     String // Required last name
+  age           Int // Required age
+  phone_number  String  @unique // Unique phone number
+  tg_id         String  @unique // Unique tg_id
+  email         String? // Optional email
+  country       String? // Optional country
+  city          String? // Optional city
+  gender        String? // Optional gender
+  display_name  String? // Optional display name
+  bio           String? // Optional bio
   notify_option NotifyOption   @default(none)
 
   followings Follows[]  @relation("Following")
   followers  Follows[]  @relation("Follower")
   posts      Post[]
   created_at  DateTime   @default(now())
+
+
+  blocked_users      String[] 
+  chat_id            String // Optional bio
+  sender_messages    Message[] @relation("MessageSender")
+  receiver_messages  Message[] @relation("MessageReceiver")
+}
+
+
+
+
+model Admin {
+  id            String    @id @default(uuid()) // UUID type for user_id
+  first_name    String    // Required first name
+  last_name     String    // Required last name
+  email         String     @unique// Optional email
+
+  password      String     // Required password
+  role          AdminRole
+  status        AdminStatus @default(ACTIVE)
+  created_at    DateTime    @default(now())
+  otp           Otp[]
+}
+
+model Otp {
+  id            String     @id @default(uuid()) // UUID type for user_id
+  admin_id      String     @unique
+  otp           String     // Required otp
+  otp_expires   DateTime   // Required expires
+  created_at    DateTime   @default(now())
+  isVerified    Boolean    @default(false)
+  admin         Admin      @relation(fields: [admin_id], references: [id])
+}
+
+
+
+model Message {
+  id         String   @id @default(uuid())
+  sender_id   String
+  receiver_id String
+  content    String
+  type       String     @default("message")
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("MessageSender", fields: [sender_id], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiver_id], references: [id])
 }
 
 model Follows {
   id           String @id @default(uuid())
   follower_id  String 
   following_id String
-  follower     User   @relation("Follower", fields: [follower_id], references: [id])
-  following    User   @relation("Following", fields: [following_id], references: [id])
+  follower     User   @relation("Follower", fields: [following_id], references: [id])
+  following    User   @relation("Following", fields: [follower_id], references: [id])
   @@unique([follower_id, following_id])
 }
+
 
 
 model Post {
@@ -65,7 +124,8 @@ model Post {
 
   user        User     @relation(fields: [user_id], references: [id]) 
   user_id     String
-
+  created_at  DateTime   @default(now())
+  
   // Define relation with categories and sub categories models
   Service1A   Service1A? 
   Service1B   Service1B?
@@ -106,7 +166,7 @@ model Service1B {
   location                    String? 
   woreda                      String 
   photo                       String[] 
-  post                        Post @relation(fields: [post_id], references: [id])
+  post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
 model Service1C {
@@ -122,7 +182,7 @@ model Service1C {
   last_digit                  String
   confirmation_year           String
   photo                       String[] 
-  post                        Post @relation(fields: [post_id], references: [id])
+  post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 model Service2 {
   id                          String   @id @default(uuid()) 
@@ -130,7 +190,7 @@ model Service2 {
   service_type                String
   title                       String 
   photo                       String[] @default([])
-  post                        Post @relation(fields: [post_id], references: [id])
+  post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
 
@@ -142,7 +202,7 @@ model Service3 {
   title                  String
   photo                  String[] // Required array of photo URLs
 
-  post                  Post @relation(fields: [post_id], references: [id])
+  post                  Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
 
@@ -153,7 +213,7 @@ model Service4ChickenFarm {
   sector                  String
   estimated_capital       String
   enterprise_name         String
-  post                    Post @relation(fields: [post_id], references: [id])
+  post                    Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 
 }
 
@@ -166,7 +226,7 @@ model Service4Manufacture {
   estimated_capital         String
   enterprise_name           String
   photo                     String[] @default([])
-  post                      Post     @relation(fields: [post_id], references: [id])
+  post                      Post     @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
 
 
@@ -180,8 +240,5 @@ model Service4Construction {
   land_status               String?
   location                  String
   photo                     String[] // Required array of photo URLs
-  post                      Post @relation(fields: [post_id], references: [id])
+  post                      Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
-
-
-

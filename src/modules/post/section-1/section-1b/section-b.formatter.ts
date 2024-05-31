@@ -1,10 +1,10 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
-import { areEqaul } from '../../../../utils/constants/string';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import config from '../../../../config/config';
 import { NotifyOption } from '@prisma/client';
 
-class QustionPostSectionBFormatter {
+class Post1BFormatter {
   categories: TableMarkupKeyboardButtons;
   urgency: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
@@ -34,7 +34,9 @@ class QustionPostSectionBFormatter {
     locationPrompt: 'Enter sub city and location',
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
-    postSuccessMsg: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -59,7 +61,7 @@ class QustionPostSectionBFormatter {
         { text: 'Main 8', cbString: 'main_8' },
       ],
       [
-        { text: 'Main 9', cbString: 'main_8' },
+        { text: 'Main 9', cbString: 'main_9' },
         { text: 'Main 10', cbString: 'main_10' },
       ],
 
@@ -133,8 +135,176 @@ class QustionPostSectionBFormatter {
     ];
   }
   generateSubCatagory(mainCategory: string) {
-    const mainCategoryNumber = mainCategory.split('_')[1];
+    const [mainCategoryNumber] = mainCategory.split('_')[1];
     const subCatagoryType = String.fromCharCode(64 + +mainCategoryNumber);
+
+    if (mainCategoryNumber.toString().trim() == '1')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
+          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        ],
+        [{ text: `Back`, cbString: `Back` }],
+      ];
+    if (mainCategoryNumber.toString().trim() == '2')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
+          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+          { text: `Back`, cbString: `Back` },
+        ],
+      ];
+    if (mainCategoryNumber.toString().trim() == '3')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
+          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+          { text: `Back`, cbString: `Back` },
+        ],
+      ];
+    if (mainCategoryNumber.toString().trim() == '4')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
+          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        ],
+        [{ text: `Back`, cbString: `Back` }],
+      ];
+    if (mainCategoryNumber.toString().trim() == '5')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+
+          { text: `Back`, cbString: `Back` },
+        ],
+      ];
+    if (mainCategoryNumber.toString().trim() == '6')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
+          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+          { text: `Back`, cbString: `Back` },
+        ],
+      ];
+    if (mainCategoryNumber.toString().trim() == '7')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `Back`, cbString: `Back` },
+        ],
+      ];
+    if (mainCategoryNumber.toString().trim() == '8')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
+          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        ],
+        [{ text: `Back`, cbString: `Back` }],
+      ];
+    if (mainCategoryNumber.toString().trim() == '9')
+      return [
+        [
+          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
+          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        ],
+        [
+          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `Back`, cbString: `Back` },
+        ],
+      ];
     return [
       [
         { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
@@ -153,7 +323,7 @@ class QustionPostSectionBFormatter {
         { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
       ],
       [
-        { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_8` },
+        { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
         { text: `Back`, cbString: `Back` },
       ],
     ];
@@ -226,11 +396,22 @@ class QustionPostSectionBFormatter {
       ]),
     ];
   }
-  getPreviewData(state: any) {
+
+  // <b> </b>
+
+  getDetailData(state: any) {
     if (areEqaul(state.main_category, 'main_4'))
-      return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_catagory}\n________________\n\n${state.title} \n\nCondtition: ${state.condition}  \n\nDate of Issue: ${state.date_of_issue} \n\nDate of Expire: ${state.date_of_expire} \n\nOriginal Location: ${state.location}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.sub_catagory}\n________________\n\n${state.title}  \n\nCondition: ${state.condition} \n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+      return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n<b>${state.title}</b> \n\n<b>Condtition:</b> ${state.condition}  \n\n<b>Date of Issue:</b> ${state.date_of_issue} \n\n<b>Date of Expire:</b> ${state.date_of_expire} \n\n<b>Original Location:</b> ${state.location}\n\nWoreda: ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n${state.title}  \n\n<b>Condition:</b> ${state.condition}\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
+
+  getPreviewData(state: any) {
+    return `<b>${state.sub_category}</b>\n________________\n\n${state.title}\n\n<b>Description:</b> ${trimParagraph(state.description)}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+  }
+
+  // getDetailData
+  // getPreviewData
+
   noPostsErrorMessage() {
     return [this.messages.noPreviousPosts];
   }
@@ -255,7 +436,7 @@ class QustionPostSectionBFormatter {
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [
@@ -285,12 +466,12 @@ class QustionPostSectionBFormatter {
   }
   editPreview(state: any) {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       areEqaul(state.main_category, 'main_10', true)
         ? InlineKeyboardButtons([
             [
               { text: 'Title', cbString: 'title' },
-              { text: 'BI/DI', cbString: 'bi_di' },
+              { text: 'BI/DI', cbString: 'id_first_option' },
             ],
 
             areEqaul(state.main_category, 'main_4', true)
@@ -318,7 +499,7 @@ class QustionPostSectionBFormatter {
         : InlineKeyboardButtons([
             [
               { text: 'Title', cbString: 'title' },
-              { text: 'BI/DI', cbString: 'bi_di' },
+              { text: 'BI/DI', cbString: 'id_first_option' },
             ],
 
             [
@@ -349,7 +530,7 @@ class QustionPostSectionBFormatter {
         return this.mainCategoryOption();
       case 'sub_category':
         return this.generateSubCatagory(extra as string);
-      case 'bi_di':
+      case 'id_first_option':
         return this.bIDIOptionDisplay();
       case 'woreda':
         return this.woredaListDisplay();
@@ -385,4 +566,4 @@ class QustionPostSectionBFormatter {
   }
 }
 
-export default QustionPostSectionBFormatter;
+export default Post1BFormatter;

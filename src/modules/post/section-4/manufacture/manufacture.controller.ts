@@ -1,11 +1,28 @@
 import config from '../../../../config/config';
+import {
+  CreatePostService4ConstructionDto,
+  CreatePostService4ManufactureDto,
+} from '../../../../types/dto/create-question-post.dto';
 import { displayDialog } from '../../../../ui/dialog';
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+import {
+  deleteKeyboardMarkup,
+  deleteMessage,
+  deleteMessageWithCallback,
+  findSender,
+  replyPostPreview,
+  sendMediaGroup,
+} from '../../../../utils/helpers/chat';
+import { areEqaul, extractElements, isInInlineOption, isInMarkUPOption } from '../../../../utils/helpers/string';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
+import ProfileService from '../../../profile/profile.service';
+import PostService from '../../post.service';
 
 import ManufactureFormatter from './manufacture.formatter';
+import ManufactureService from './manufacture.service';
+import Section4ManufactureService from './manufacture.service';
 const manufactureFormatter = new ManufactureFormatter();
+
+const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
@@ -42,7 +59,8 @@ class ManufactureController {
       }
 
       if (isInInlineOption(callbackQuery.data, manufactureFormatter.numberOfWorkerOption)) {
-        ctx.wizard.state.number_of_worker = callbackQuery.data;
+        ctx.wizard.state.number_of_worker = Number(callbackQuery.data);
+        console.log(typeof ctx.wizard.state.number_of_worker);
         await deleteMessageWithCallback(ctx);
         await ctx.reply(...manufactureFormatter.estimatedCapitalPrompt());
         return ctx.wizard.next();
@@ -98,11 +116,21 @@ class ManufactureController {
   }
 
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+    const sender = findSender(ctx);
     console.log('being received');
 
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...manufactureFormatter.descriptionPrompt());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -114,6 +142,8 @@ class ManufactureController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -125,13 +155,29 @@ class ManufactureController {
 
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
+      const user = await profileService.getProfileByTgId(sender.id);
+      if (user) {
+        ctx.wizard.state.user = {
+          id: user.id,
+          display_name: user.display_name,
+        };
+      }
+      if (!user) return await ctx.reply(...manufactureFormatter.somethingWentWrongError());
+
+      ctx.wizard.state.user = {
+        id: user?.id,
+        display_name: user?.display_name,
+      };
+
+      ctx.wizard.state.status = 'preview';
+      ctx.wizard.state.notify_option = user?.notify_option || 'none';
+
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
-      ctx.wizard.state.status = 'preview';
 
       // empty the images array
       imagesUploaded = [];
-      ctx.reply(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       //   ctx.reply(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       //   ctx.reply(...postingFormatter.previewCallToAction());
       return ctx.wizard.next();
@@ -139,6 +185,7 @@ class ManufactureController {
   }
 
   async preview(ctx: any) {
+    const user = findSender(ctx);
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {
       const message = ctx.message.text;
@@ -154,33 +201,81 @@ class ManufactureController {
           console.log('preview edit');
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...manufactureFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...manufactureFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
         case 'editing_done': {
           // await deleteMessageWithCallback(ctx);
-          await ctx.reply(manufactureFormatter.preview(state));
+          await ctx.replyWithHTML(manufactureFormatter.preview(state));
           return ctx.wizard.back();
         }
 
         case 'post_data': {
-          // console.log('here you are');
+          console.log('here you are');
           // api request to post the data
-          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+
+          const postDto: CreatePostService4ManufactureDto = {
+            sector: ctx.wizard.state.sector,
+            number_of_workers: ctx.wizard.state.number_of_worker,
+            estimated_capital: ctx.wizard.state.estimated_capital,
+            enterprise_name: ctx.wizard.state.enterprise_name,
+            description: ctx.wizard.state.description,
+            photo: ctx.wizard.state.photo,
+            category: ctx.wizard.state.category,
+            notify_option: ctx.wizard.state.notify_option,
+            previous_post_id: ctx.wizard.state.mention_post_id || undefined,
+          };
+
+          const response = await ManufactureService.createManufacturePost(postDto, callbackQuery.from.id);
           // console.log(response);
+          // ctx.reply(...constructionFormatter.postingSuccessful());
 
-          // if (response?.success) {
-          //   await deleteMessageWithCallback(ctx);
-          await deleteMessageWithCallback(ctx);
-          await displayDialog(ctx, 'Posted successfully');
-          await ctx.scene.leave();
-          ctx.scene.leave();
-          return MainMenuController.onStart(ctx);
-          //   await ctx.reply(...manufactureFormatter.postingSuccessful());
+          if (response?.success) {
+            ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
+            await ctx.reply(...manufactureFormatter.postingSuccessful());
+            await deleteMessageWithCallback(ctx);
+            await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
+              parse_mode: 'HTML',
+            });
+            await displayDialog(ctx, manufactureFormatter.messages.postSuccessMsg);
 
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = manufactureFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
+            // jump to posted review
+            return ctx.wizard.selectStep(10);
+          } else {
+            ctx.reply(...manufactureFormatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
+            }
+          }
+          //   ctx.reply(...constructionFormatter.postingSuccessful());
+          // ctx.scene.leave();
+          // return MainMenuController.onStart(ctx);
           // } else {
-          //   ctx.reply(...postingFormatter.postingError());
+          //   ctx.reply(...constructionFormatter.postingError());
           //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
           //     await deleteMessageWithCallback(ctx);
           //       ctx.scene.leave();
@@ -192,7 +287,49 @@ class ManufactureController {
           //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
           //   : 1);
         }
+
+        case 'notify_settings': {
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...manufactureFormatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
+          // jump to notify setting
+          return ctx.wizard.selectStep(11);
+        }
+
+        case 'mention_previous_post': {
+          console.log('mention_previous_post1');
+          await ctx.reply('mention_previous_post');
+          // fetch previous posts of the user
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
+          if (!success || !posts) {
+            // remove past post
+            await deleteMessageWithCallback(ctx);
+            return await ctx.reply(message);
+          }
+          if (posts.length == 0) {
+            await deleteMessageWithCallback(ctx);
+            return await ctx.reply(...manufactureFormatter.noPostsErrorMessage());
+          }
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...manufactureFormatter.mentionPostMessage());
+          for (const post of posts as any) {
+            await ctx.reply(...manufactureFormatter.displayPreviousPostsList(post));
+          }
+
+          // jump to mention previous post
+          return ctx.wizard.selectStep(12);
+        }
+
+        case 'remove_mention_previous_post': {
+          state.mention_post_data = '';
+          state.mention_post_id = '';
+          await deleteMessageWithCallback(ctx);
+          ctx.replyWithHTML(...manufactureFormatter.preview(state));
+          // return to preview
+          return ctx.wizard.selectStep(7);
+        }
       }
+
       // default: {
       //   await ctx.reply('DEFAULT');
       // }
@@ -239,20 +376,52 @@ class ManufactureController {
     const callbackMessage = callbackQuery.data;
 
     if (callbackMessage == 'post_data') {
-      console.log('Posted Successfully');
-      return await displayDialog(ctx, 'Posted successfully');
-      //   return ctx.reply(...manufactureFormatter.postingSuccessful());
-      // registration
-      // api call for registration
-      // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+      console.log('here you are');
+      // api request to post the data
+      const response = await ManufactureService.createManufacturePost(
+        {
+          sector: state.sector as string,
+          number_of_workers: state.number_of_worker,
+          estimated_capital: state.estimated_capital as string,
+          enterprise_name: state.enterprise_name as string,
+          description: state.description as string,
+          photo: state.photo,
+          category: 'Section4manufacture',
+          notify_option: state.notify_option,
+        },
+        callbackQuery.from.id,
+      );
 
-      // if (response.success) {
-      //   ctx.wizard.state.status = 'pending';
-      //   await deleteMessageWithCallback(ctx);
-      //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //  ctx.scene.leave();
-      // return MainMenuController.onStart(ctx);
-      // }
+      if (response?.success) {
+        console.log('Posting successful');
+        await deleteMessageWithCallback(ctx);
+        await displayDialog(ctx, manufactureFormatter.messages.postingSuccess);
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      } else {
+        ctx.reply(...manufactureFormatter.postingError());
+        if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+          await deleteMessageWithCallback(ctx);
+          ctx.scene.leave();
+          return MainMenuController.onStart(ctx);
+        }
+
+        //   ctx.reply(...constructionFormatter.postingSuccessful());
+        // ctx.scene.leave();
+        // return MainMenuController.onStart(ctx);
+        // } else {
+        //   ctx.reply(...constructionFormatter.postingError());
+        //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+        //     await deleteMessageWithCallback(ctx);
+        //       ctx.scene.leave();
+        // return MainMenuController.onStart(ctx);
+        //   }
+
+        // increment the registration attempt
+        // return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+        //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
+        //   : 1);
+      }
 
       const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
 
@@ -266,7 +435,7 @@ class ManufactureController {
     } else if (callbackMessage == 'editing_done') {
       // await deleteMessageWithCallback(ctx);
 
-      await ctx.reply(...manufactureFormatter.preview(state));
+      await ctx.replyWithHTML(...manufactureFormatter.preview(state));
 
       return ctx.wizard.back();
     }
@@ -285,6 +454,14 @@ class ManufactureController {
   }
 
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
@@ -292,6 +469,7 @@ class ManufactureController {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -303,6 +481,8 @@ class ManufactureController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
@@ -318,8 +498,109 @@ class ManufactureController {
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
+    }
+  }
+
+  async postedReview(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 're_submit_post': {
+        const postDto: CreatePostService4ManufactureDto = {
+          sector: ctx.wizard.state.sector,
+          number_of_workers: ctx.wizard.state.number_of_worker,
+          estimated_capital: ctx.wizard.state.estimated_capital,
+          enterprise_name: ctx.wizard.state.enterprise_name,
+          description: ctx.wizard.state.description,
+          photo: ctx.wizard.state.photo,
+          category: ctx.wizard.state.category,
+          notify_option: ctx.wizard.state.notify_option,
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
+        };
+        const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
+        if (!response?.success) await ctx.reply('Unable to resubmite');
+
+        ctx.wizard.state.post_id = response?.data?.id;
+        ctx.wizard.state.post_main_id = response?.data?.post_id;
+        await ctx.reply('Resubmiited');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Cancel', callback_data: `cancel_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'cancel_post': {
+        console.log(ctx.wizard.state);
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
+
+        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+
+        await ctx.reply('Cancelled');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Resubmit', callback_data: `re_submit_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'main_menu': {
+        deleteMessageWithCallback(ctx);
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
+    }
+  }
+  async adjustNotifySetting(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 'notify_none': {
+        ctx.wizard.state.notify_option = 'none';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        // jump to preview
+        return ctx.wizard.selectStep(7);
+      }
+      case 'notify_friend': {
+        ctx.wizard.state.notify_option = 'friend';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        // jump to preview
+        return ctx.wizard.selectStep(7);
+      }
+      case 'notify_follower': {
+        await deleteMessageWithCallback(ctx);
+        ctx.wizard.state.notify_option = 'follower';
+        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        // jump to preview
+        return ctx.wizard.selectStep(7);
+      }
+    }
+  }
+
+  async mentionPreviousPost(ctx: any) {
+    const state = ctx.wizard.state;
+    console.log(state);
+    const callbackQuery = ctx.callbackQuery;
+    if (callbackQuery) {
+      if (areEqaul(callbackQuery.data, 'back', true)) {
+        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state));
+        return ctx.wizard.back();
+      }
+
+      if (callbackQuery.data.startsWith('select_post_')) {
+        const post_id = callbackQuery.data.split('_')[2];
+
+        state.mention_post_id = post_id;
+        state.mention_post_data = ctx.callbackQuery.message.text;
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...manufactureFormatter.preview(state));
+        // go back to preview
+        return ctx.wizard.selectStep(7);
+      }
     }
   }
 }

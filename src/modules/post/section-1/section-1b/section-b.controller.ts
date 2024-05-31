@@ -3,18 +3,20 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyPostPreview,
   sendMediaGroup,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption } from '../../../../utils/constants/string';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, extractElements, isInInlineOption } from '../../../../utils/helpers/string';
 
 import SectionBFormatter from './section-b.formatter';
-import { postValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import { CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
-import { parseDateString } from '../../../../utils/constants/date';
+import { parseDateString } from '../../../../utils/helpers/date';
 import PostService from '../../post.service';
+import config from '../../../../config/config';
 
 const sectionBFormatter = new SectionBFormatter();
 const profileService = new ProfileService();
@@ -32,6 +34,8 @@ class QuestionPostSectionBController {
     const text = ctx.message.text;
 
     if (areEqaul(text, 'back', true)) return ctx.scene.enter('Post-Section-1');
+    const validationMessage = postValidator('title', text);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.title = text;
     await deleteKeyboardMarkup(ctx, sectionBFormatter.messages.categoriesPrompt);
     ctx.reply(...sectionBFormatter.mainCategoryOption());
@@ -49,7 +53,7 @@ class QuestionPostSectionBController {
     ctx.wizard.state.main_category = callbackQuery.data;
 
     if (areEqaul(callbackQuery.data, 'main_10', true)) {
-      ctx.wizard.state.sub_catagory = callbackQuery.data;
+      ctx.wizard.state.sub_category = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...sectionBFormatter.bIDIOptionDisplay());
       return ctx.wizard.selectStep(4); // jumping to step with step index(bi di selector(id first))
@@ -66,7 +70,7 @@ class QuestionPostSectionBController {
       await ctx.reply(...sectionBFormatter.mainCategoryOption());
       return ctx.wizard.back();
     }
-    ctx.wizard.state.sub_catagory = callbackQuery.data;
+    ctx.wizard.state.sub_category = callbackQuery.data;
     deleteMessageWithCallback(ctx);
     ctx.reply(...sectionBFormatter.bIDIOptionDisplay());
     return ctx.wizard.next();
@@ -92,7 +96,7 @@ class QuestionPostSectionBController {
     }
 
     if (isInInlineOption(callbackQuery.data, sectionBFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
+      ctx.wizard.state.id_first_option = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...sectionBFormatter.lastDidtitDisplay());
       return ctx.wizard.next();
@@ -235,10 +239,20 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...sectionBFormatter.descriptionDisplay());
+      await ctx.reply(...sectionBFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -250,6 +264,8 @@ class QuestionPostSectionBController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -288,7 +304,7 @@ class QuestionPostSectionBController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...sectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...sectionBFormatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
@@ -296,9 +312,9 @@ class QuestionPostSectionBController {
           const postDto: CreatePostService1BDto = {
             title: ctx.wizard.state.title as string,
             main_category: ctx.wizard.state.main_category as string,
-            sub_category: ctx.wizard.state.sub_catagory as string,
+            sub_category: ctx.wizard.state.sub_category as string,
             condition: ctx.wizard.state.condition as string,
-            id_first_option: ctx.wizard.state.bi_di as string,
+            id_first_option: ctx.wizard.state.id_first_option as string,
             issue_date: ctx.wizard.state.issue_date ? parseDateString(ctx.wizard.state.issue_date) : undefined,
             expire_date: ctx.wizard.state.expire_date ? parseDateString(ctx.wizard.state.expire_date) : undefined,
             description: ctx.wizard.state.description as string,
@@ -316,12 +332,30 @@ class QuestionPostSectionBController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.wizard.state.status = 'Pending';
-            ctx.reply(...sectionBFormatter.postingSuccessful());
+
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
+
+            await displayDialog(ctx, sectionBFormatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = sectionBFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
             return ctx.wizard.selectStep(17);
           } else {
             ctx.reply(...sectionBFormatter.postingError());
@@ -375,7 +409,7 @@ class QuestionPostSectionBController {
         case 'back': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.back();
-          return await ctx.replyWithHTML(...sectionBFormatter.preview(state));
+          return await ctx.replyWithHTML(...sectionBFormatter.preview(state), { parse_mode: 'HTML' });
         }
         default: {
           await ctx.reply('DEFAULT');
@@ -390,7 +424,7 @@ class QuestionPostSectionBController {
       'main_category',
       'sub_category',
       'condition',
-      'bi_di',
+      'id_first_option',
       'woreda',
       'last_digit',
       'location',
@@ -451,7 +485,9 @@ class QuestionPostSectionBController {
           extra = ctx.wizard.state.condition;
           break;
       }
-      await ctx.reply(...((await sectionBFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await sectionBFormatter.editFieldDispay(callbackMessage)) as any), {
+        parse_mode: 'HTML',
+      });
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }
@@ -469,6 +505,15 @@ class QuestionPostSectionBController {
     }
   }
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
@@ -476,6 +521,7 @@ class QuestionPostSectionBController {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...sectionBFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -487,6 +533,9 @@ class QuestionPostSectionBController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
+
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state
@@ -507,9 +556,9 @@ class QuestionPostSectionBController {
         const postDto: CreatePostService1BDto = {
           title: ctx.wizard.state.title as string,
           main_category: ctx.wizard.state.main_category as string,
-          sub_category: ctx.wizard.state.sub_catagory as string,
+          sub_category: ctx.wizard.state.sub_category as string,
           condition: ctx.wizard.state.condition as string,
-          id_first_option: ctx.wizard.state.bi_di as string,
+          id_first_option: ctx.wizard.state.id_first_option as string,
           issue_date: ctx.wizard.state.issue_date ? parseDateString(ctx.wizard.state.issue_date) : undefined,
           expire_date: ctx.wizard.state.expire_date ? parseDateString(ctx.wizard.state.expire_date) : undefined,
           description: ctx.wizard.state.description as string,

@@ -4,12 +4,14 @@ import {
   deleteMessage,
   deleteMessageWithCallback,
   findSender,
+  replyDetailWithContext,
+  replyPostPreview,
   sendMediaGroup,
-} from '../../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../../utils/constants/string';
+} from '../../../../utils/helpers/chat';
+import { areEqaul, extractElements, isInInlineOption, isInMarkUPOption } from '../../../../utils/helpers/string';
 
 import Section1AFormatter from './section-a.formatter';
-import { postValidator } from '../../../../utils/validator/question-post-validaor';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
@@ -42,7 +44,7 @@ class QuestionPostSectionAController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
-      ctx.wizard.state.ar_br = callbackQuery.data;
+      ctx.wizard.state.arbr_value = callbackQuery.data;
       ctx.wizard.state.category = 'Section 1A';
       await deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.woredaListDisplay());
@@ -92,7 +94,7 @@ class QuestionPostSectionAController {
     }
 
     if (isInInlineOption(callbackQuery.data, section1AFormatter.bIDiOption)) {
-      ctx.wizard.state.bi_di = callbackQuery.data;
+      ctx.wizard.state.id_first_option = callbackQuery.data;
       deleteMessageWithCallback(ctx);
       ctx.reply(...section1AFormatter.lastDidtitDisplay());
       return ctx.wizard.next();
@@ -118,7 +120,9 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
     const validationMessage = postValidator('location', message);
+    console.log(validationMessage);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     // assign the location to the state
     ctx.wizard.state.location = message;
     await ctx.reply(...section1AFormatter.descriptionDisplay());
@@ -138,10 +142,20 @@ class QuestionPostSectionAController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section1AFormatter.descriptionDisplay());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -153,8 +167,10 @@ class QuestionPostSectionAController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
+
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       const user = await profileService.getProfileByTgId(sender.id);
@@ -169,7 +185,7 @@ class QuestionPostSectionAController {
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
       // empty the images array
       imagesUploaded = [];
-      ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
       ctx.reply(...section1AFormatter.previewCallToAction());
       return ctx.wizard.next();
     }
@@ -190,14 +206,14 @@ class QuestionPostSectionAController {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...section1AFormatter.editPreview(state));
           return ctx.wizard.next();
         }
 
         case 'post_data': {
           const postDto: CreatePostService1ADto = {
-            id_first_option: ctx.wizard.state.bi_di as string,
-            arbr_value: ctx.wizard.state.ar_br as string,
+            id_first_option: ctx.wizard.state.id_first_option as string,
+            arbr_value: ctx.wizard.state.arbr_value as string,
             description: ctx.wizard.state.description as string,
             last_digit: ctx.wizard.state.last_digit as string,
             location: ctx.wizard.state.location as string,
@@ -211,15 +227,32 @@ class QuestionPostSectionAController {
           const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
           if (response?.success) {
-            console.log(response.data);
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
+            await displayDialog(ctx, section1AFormatter.messages.postSuccessMsg);
             ctx.reply(...section1AFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, 'Posted succesfully');
+
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = section1AFormatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
             return ctx.wizard.selectStep(11);
           } else {
             ctx.reply(...section1AFormatter.postingError());
@@ -238,9 +271,7 @@ class QuestionPostSectionAController {
         case 'cancel': {
           ctx.wizard.state.status = 'Cancelled';
           await deleteMessageWithCallback(ctx);
-          await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'Cancelled'), {
-            parse_mode: 'HTML',
-          });
+          await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'Cancelled'));
           return ctx.wizard.selectStep(18);
         }
         case 'notify_settings': {
@@ -258,7 +289,7 @@ class QuestionPostSectionAController {
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section1AFormatter.mentionPostMessage());
           for (const post of posts as any) {
-            await ctx.reply(...section1AFormatter.displayPreviousPostsList(post));
+            await ctx.replyWithHTML(...section1AFormatter.displayPreviousPostsList(post));
           }
           return ctx.wizard.selectStep(13);
         }
@@ -268,12 +299,12 @@ class QuestionPostSectionAController {
           state.mention_post_id = '';
 
           await deleteMessageWithCallback(ctx);
-          await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+          await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         }
         case 'back': {
           await deleteMessageWithCallback(ctx);
           ctx.wizard.back();
-          return await ctx.replyWithHTML(...section1AFormatter.preview(state));
+          return await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
         }
         default: {
           await ctx.reply('DEFAULT');
@@ -283,7 +314,16 @@ class QuestionPostSectionAController {
   }
   async editData(ctx: any) {
     const state = ctx.wizard.state;
-    const fileds = ['ar_br', 'bi_di', 'woreda', 'last_digit', 'location', 'description', 'photo', 'cancel'];
+    const fileds = [
+      'arbr_value',
+      'id_first_option',
+      'woreda',
+      'last_digit',
+      'location',
+      'description',
+      'photo',
+      'cancel',
+    ];
     const callbackQuery = ctx?.callbackQuery;
     const editField = ctx.wizard.state?.editField;
     if (!callbackQuery) {
@@ -297,7 +337,7 @@ class QuestionPostSectionAController {
 
       ctx.wizard.state[editField] = messageText;
       await deleteKeyboardMarkup(ctx);
-      return ctx.replyWithHTML(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...section1AFormatter.editPreview(state));
     }
 
     // if callback exists
@@ -310,12 +350,12 @@ class QuestionPostSectionAController {
 
     if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(...section1AFormatter.preview(state));
+      await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(...section1AFormatter.preview(state));
+      await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
 
@@ -326,7 +366,7 @@ class QuestionPostSectionAController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      await ctx.reply(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
+      await ctx.replyWithHTML(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }
@@ -337,17 +377,27 @@ class QuestionPostSectionAController {
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
       ctx.wizard.state.editField = null;
-      return ctx.replyWithHTML(...section1AFormatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...section1AFormatter.editPreview(state));
     }
   }
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
         message_id: (parseInt(messageText.message_id) - 1).toString(),
         chat_id: messageText.chat.id,
       });
-      ctx.reply(...section1AFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -359,6 +409,8 @@ class QuestionPostSectionAController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state
@@ -366,7 +418,7 @@ class QuestionPostSectionAController {
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...section1AFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
       return ctx.wizard.back();
     }
   }
@@ -376,8 +428,8 @@ class QuestionPostSectionAController {
     switch (callbackQuery.data) {
       case 're_submit_post': {
         const postDto: CreatePostService1ADto = {
-          id_first_option: ctx.wizard.state.bi_di as string,
-          arbr_value: ctx.wizard.state.ar_br as string,
+          id_first_option: ctx.wizard.state.id_first_option as string,
+          arbr_value: ctx.wizard.state.arbr_value as string,
           description: ctx.wizard.state.description as string,
           last_digit: ctx.wizard.state.last_digit as string,
           location: ctx.wizard.state.location as string,
@@ -428,19 +480,19 @@ class QuestionPostSectionAController {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
         await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
         await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
       case 'notify_follower': {
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
     }
@@ -452,7 +504,7 @@ class QuestionPostSectionAController {
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
         await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
 
@@ -461,7 +513,7 @@ class QuestionPostSectionAController {
 
         ctx.wizard.state.mention_post_id = post_id;
         ctx.wizard.state.mention_post_data = ctx.callbackQuery.message.text;
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
     }

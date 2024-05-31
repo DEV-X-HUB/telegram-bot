@@ -4,7 +4,7 @@ import {
   RowMarkupKeyboardButtons,
   TableInlineKeyboardButtons,
   TableMarkupKeyboardButtons,
-} from '../types/components';
+} from '../types/ui';
 
 export const urlButton = (buttonText: string, url: string, hidable?: boolean) => {
   return Markup.inlineKeyboard([Markup.button.url(buttonText, url, hidable)]);
@@ -19,8 +19,12 @@ export const MarkupButtons = (tableButtons: TableMarkupKeyboardButtons, onetime?
 };
 
 const getCulumnButtons = (buttons: RowInlineKeyboardButtons | RowMarkupKeyboardButtons) => {
-  return [...buttons.map(({ text, cbString, hidebale }) => Markup.button.callback(text, cbString, hidebale))];
+  return [
+    ...buttons.map(({ text, cbString, hidebale, url, isUrl }) =>
+      isUrl ? Markup.button.url(text, url as string, hidebale) : Markup.button.callback(text, cbString, hidebale),
+    ),
+  ];
 };
-const getButtonRows = (buttonRows: TableInlineKeyboardButtons | TableMarkupKeyboardButtons) => {
+export const getButtonRows = (buttonRows: TableInlineKeyboardButtons | TableMarkupKeyboardButtons) => {
   return [...buttonRows.map((buttonRow) => getCulumnButtons(buttonRow))];
 };

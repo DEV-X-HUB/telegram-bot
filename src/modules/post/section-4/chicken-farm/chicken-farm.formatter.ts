@@ -1,6 +1,8 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
+import { NotifyOption } from '../../../../types/params';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 
 class ChickenFarmFormatter {
   estimatedCapitalOption: TableInlineKeyboardButtons;
@@ -11,8 +13,11 @@ class ChickenFarmFormatter {
     estimatedCapitalPrompt: 'What is the estimated capital?',
     enterpriseNamePrompt: 'Name for the small scale enterprise?',
     descriptionPrompt: 'Enter description maximimum 45 words',
+    notifyOptionPrompt: 'Select who can be notified this question',
     displayError: 'Invalid input, please try again',
-    postingSuccessful: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postingError: 'Posting failed',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -59,9 +64,12 @@ class ChickenFarmFormatter {
     return MarkupButtons(this.backOption, oneTime);
   }
 
+  getDetailData(state: any) {
+    return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category}</b>\n_______\n\n <b>Title </b>: ${state.sector}\n\n <b>Estimated Capital </b>: ${state.estimated_capital} \n\n<b>Enterprise Name </b>: ${state.enterprise_name} \n\n <b>Description</b>: ${state.description} \n\n\<b>By </b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
+  }
+
   getPreviewData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category}\n_______\n\nTitle: ${state.sector}\n\nEstimated Capital: ${state.estimated_capital} \n\nEnterprise Name: ${state.enterprise_name} \n\nDescription: ${state.description} \n\n\n\  
-    \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n <b>Description </b>: ${trimParagraph(state.description)} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -70,12 +78,13 @@ class ChickenFarmFormatter {
   mentionPostMessage() {
     return [this.messages.mentionPost, this.goBackButton()];
   }
+
   displayPreviousPostsList(post: any) {
     // Check if post.description is defined before accessing its length
     const description =
       post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
 
-    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+    const message = `<b>#${post.category}</b>\n_______\n\n<b>Description</b>: ${description}\n\n<b>Status</b> : ${post.status}`;
 
     const buttons = InlineKeyboardButtons([
       [
@@ -86,24 +95,59 @@ class ChickenFarmFormatter {
     return [message, buttons];
   }
 
-  preview(state: any) {
+  preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify Settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              {
+                text: `${state.mention_post_data ? 'Remove mention post' : 'Mention previous post'}`,
+                // cbString : 'Mention previous post'
+
+                cbString: `${state.mention_post_data ? 'remove_mention_previous_post' : 'mention_previous_post'}`,
+              },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
+    ];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
+  }
+
+  notifyOptionDisplay(notifyOption: NotifyOption) {
+    return [
+      this.messages.notifyOptionPrompt,
       InlineKeyboardButtons([
         [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Notify Settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
         ],
         [
           {
-            text: `${state.mention_post_data ? 'Remove mention post' : 'Mention previous post'}`,
-            // cbString : 'Mention previous post'
-
-            cbString: `${state.mention_post_data ? 'remove_mention_previous_post' : 'mention_previous_post'}`,
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
           },
-          { text: 'Cancel', cbString: 'cancel' },
         ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
       ]),
     ];
   }
@@ -148,7 +192,7 @@ class ChickenFarmFormatter {
   }
 
   postingSuccessful() {
-    return [this.messages.postingSuccessful];
+    return [this.messages.postSuccessMsg];
   }
 
   postingError() {

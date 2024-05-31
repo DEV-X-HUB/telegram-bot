@@ -67,7 +67,7 @@ class Section4ConstructionService {
           message: newPost.message,
         };
 
-      const { description, category, ...constructionData } = postData;
+      const { description, category, notify_option, ...constructionData } = postData;
 
       // Create constuction post and store it
       const newConstructionePost = await prisma.service4Construction.create({

@@ -1,5 +1,5 @@
-import { deleteKeyboardMarkup, deleteMessageWithCallback } from '../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
+import { deleteKeyboardMarkup, deleteMessageWithCallback } from '../../../utils/helpers/chat';
+import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/helpers/string';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
 
 import Section4Formatter from './section-4.formatter';

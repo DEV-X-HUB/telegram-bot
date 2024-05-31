@@ -1,10 +1,10 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
 import { NotifyOption } from '../../../../types/params';
-import { areEqaul } from '../../../../utils/constants/string';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 
-class Section1CFormatter {
+class Post1CFormatter {
   arBrOption: TableInlineKeyboardButtons;
   paperStampOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
@@ -27,7 +27,9 @@ class Section1CFormatter {
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
-    postSuccessMsg: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -189,10 +191,15 @@ class Section1CFormatter {
   photoDisplay() {
     return ['Attach four photos ', this.goBackButton(false)];
   }
+  // <b> </b>
+  getDetailData(state: any) {
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value.toLocaleUpperCase()}</b>\n\n<b>Paper Stamp:</b> ${state.paper_stamp} \n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Service type 1 :</b> ${state.service_type_1} \n\n<b>Service type 2 :</b> ${state.service_type_2} \n\n<b>Service type 3 :</b> ${state.service_type_3} \n\n<b>Year of Confirmation:</b> ${state.confirmation_year}\n\n<b>Last digit:</b> ${state.last_digit}${state.id_first_option} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+  }
 
   getPreviewData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nPaper Stamp: ${state.paper_stamp} \n\nWoreda: ${state.woreda} \n\nService type 1 : ${state.service_type_1} \n\nService type 2 : ${state.service_type_2} \n\nService type 3 : ${state.service_type_3} \n\nYear of Confirmation: ${state.year_of_confirmation}\n\nLast digit: ${state.last_digit} \n\nDescription: ${state.description}  \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value.toLocaleUpperCase()}</b>\n\n<b>Description:</b> ${trimParagraph(state.description)}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
+
   noPostsErrorMessage() {
     return [this.messages.noPreviousPosts];
   }
@@ -217,7 +224,7 @@ class Section1CFormatter {
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [
@@ -236,15 +243,15 @@ class Section1CFormatter {
 
   editPreview(state: any) {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       InlineKeyboardButtons([
         [
           { text: 'Paper stamp', cbString: 'paper_stamp' },
-          { text: 'AR/BR', cbString: 'ar_br' },
+          { text: 'AR/BR', cbString: 'arbr_value' },
         ],
 
         [
-          { text: 'BI/DI', cbString: 'bi_di' },
+          { text: 'BI/DI', cbString: 'id_first_option' },
           { text: 'Woreda', cbString: 'woreda' },
         ],
         [
@@ -272,7 +279,7 @@ class Section1CFormatter {
     switch (editFiled) {
       case 'paper_stamp':
         return this.choosePaperStampDisplay();
-      case 'ar_br':
+      case 'arbr_value':
         return this.arBrOptionDisplay();
       case 'woreda':
         return this.woredaListDisplay();
@@ -284,7 +291,7 @@ class Section1CFormatter {
         return this.serviceType3Display();
       case 'confirmation_year':
         return this.yearOfConfirmationDisplay();
-      case 'bi_di':
+      case 'id_first_option':
         return this.bIDIOptionDisplay();
       case 'last_digit':
         return this.lastDigitDisplay();
@@ -351,4 +358,4 @@ class Section1CFormatter {
   }
 }
 
-export default Section1CFormatter;
+export default Post1CFormatter;

@@ -1,10 +1,10 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
-import { areEqaul } from '../../../../utils/constants/string';
+import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 
-class QustionPostFormatter {
+class Post1AFormatter {
   categories: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
   bIDiOption: TableInlineKeyboardButtons;
@@ -23,7 +23,8 @@ class QustionPostFormatter {
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
-    postSuccessMsg: 'Posted Successfully',
+    postSuccessMsg:
+      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
@@ -139,8 +140,12 @@ class QustionPostFormatter {
     ];
   }
 
+  getDetailData(state: any) {
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton:</b> ${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+  }
+
   getPreviewData(state: any) {
-    return `${state.mention_post_data ? `Related from: \n\n${state.mention_post_data}\n_____________________\n\n` : ''}${state.category.replace(/ /g, '_')}\n________________\n\n${state.ar_br.toLocaleUpperCase()}\n\nWoreda: ${state.woreda} \n\nLast digit: ${state.last_digit} ${state.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${state.location} \n\nDescription: ${state.description} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\nStatus : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}  \n<b>Last digit:</b> ${state.last_digit}</b>\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {
@@ -167,7 +172,7 @@ class QustionPostFormatter {
 
   preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       submitState == 'preview'
         ? InlineKeyboardButtons([
             [
@@ -198,11 +203,11 @@ class QustionPostFormatter {
 
   editPreview(state: any) {
     return [
-      this.getPreviewData(state),
+      this.getDetailData(state),
       InlineKeyboardButtons([
         [
-          { text: 'AR/BR', cbString: 'ar_br' },
-          { text: 'BI/DI', cbString: 'bi_di' },
+          { text: 'AR/BR', cbString: 'arbr_value' },
+          { text: 'BI/DI', cbString: 'id_first_option' },
         ],
 
         [
@@ -224,9 +229,9 @@ class QustionPostFormatter {
 
   async editFieldDispay(editFiled: string) {
     switch (editFiled) {
-      case 'ar_br':
+      case 'arbr_value':
         return this.arBrOptionDisplay();
-      case 'bi_di':
+      case 'id_first_option':
         return this.bIDIOptionDisplay();
       case 'woreda':
         return this.woredaListDisplay();
@@ -258,4 +263,4 @@ class QustionPostFormatter {
   }
 }
 
-export default QustionPostFormatter;
+export default Post1AFormatter;

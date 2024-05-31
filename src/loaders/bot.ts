@@ -4,42 +4,55 @@ import dbConnecion from './db-connecion';
 
 import RegistrationScene from '../modules/registration/registration.scene';
 import { checkAndRedirectToScene } from '../middleware/check-command';
-import { checkUserInChannelandPromtJoin } from '../middleware/auth';
+import { checkRegistration, checkUserInChannelandPromtJoin } from '../middleware/auth';
 import QuestionPostScene from '../modules/post/post.scene';
 import ProfileScene from '../modules/profile/profile.scene';
-import { setCommands } from '../utils/helper/commands';
-import SearchQuestionController from '../modules/question/question.controller';
-import { checkCallBacks, checkMenuOptions } from '../middleware/check-callback';
-import { AnswerQuestionScene } from '../modules/question/question.scene';
+import { setCommands } from '../utils/helpers/commands';
+import SearchQuestionController from '../modules/post/post.controller';
+import { checkCallBacks } from '../middleware/check-callback';
+import ChatScene from '../modules/chat/chat.scene';
+import BrowsePostScene from '../modules/browse-post/browse-post.scene';
+import MainMenuService from '../modules/mainmenu/mainmenu-service';
+import schedule from 'node-schedule';
 
+const mainMenuService = new MainMenuService();
 let bot: Telegraf<Context> | null = null;
+
+const checkUserInitializer = () => {
+  mainMenuService.checkUsersInchannel(bot);
+};
 
 export default () => {
   if (bot != null) return bot;
   bot = new Telegraf(config.bot_token as string);
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
-  const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, AnswerQuestionScene, RegistrationScene]);
+  const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
-  stage.use(checkAndRedirectToScene());
-
-  bot.use(checkCallBacks());
-  bot.use(session());
   bot.use(checkUserInChannelandPromtJoin());
-  bot.use(stage.middleware());
-  bot.use(checkAndRedirectToScene());
-  bot.use(checkMenuOptions());
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 
+  stage.use(checkRegistration());
+  stage.use(checkCallBacks());
+  stage.use(checkAndRedirectToScene());
+  bot.use(session());
+  bot.use(stage.middleware());
+  // bot.use(checkAndRedirectToScene());
+
   const commands = [
     { name: 'start', description: 'Start the bot' },
-    { name: 'search', description: 'Start the bot' },
-    { name: 'help', description: 'Display help' },
-    { name: 'menu', description: 'Display main menu' },
+    { name: 'register', description: 'Register to the bot' },
+    { name: 'search', description: 'search questions' },
     { name: 'register', description: 'Register to the bot' },
     { name: 'profile', description: 'View your profile' },
+    { name: 'restart', description: 'Restart the service' },
+    { name: 'browse', description: 'Browse posts' },
   ];
+
+  schedule.scheduleJob('0 0 * * *', checkUserInitializer);
+
   setCommands(commands);
   dbConnecion;
+
   return bot;
 };

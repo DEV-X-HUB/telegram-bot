@@ -64,6 +64,17 @@ export interface CreatePostService1CDto {
   previous_post_id?: string;
 }
 
+export interface CreatePostService3Dto {
+  birth_or_marital: string;
+  title: string;
+  photo: string[];
+
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+  previous_post_id?: string;
+}
+
 export interface CreatePostService4ManufactureDto {
   sector: string;
   number_of_workers: number;
@@ -102,5 +113,23 @@ export interface CreatePostService4ChickenFarmDto {
   notify_option: NotifyOption;
   previous_post_id?: string;
 }
+export interface CreatePostService2Dto {
+  service_type: string;
+  title: string;
+  photo: string[];
 
-export type CreateCategoryPostDto = CreatePostService1BDto | CreatePostService1ADto | CreatePostService1CDto;
+  description: string;
+  category: string;
+  notify_option: NotifyOption;
+  previous_post_id?: string;
+}
+
+export type CreateCategoryPostDto =
+  | CreatePostService1BDto
+  | CreatePostService1ADto
+  | CreatePostService1CDto
+  | CreatePostService4ChickenFarmDto
+  | CreatePostService4ManufactureDto
+  | CreatePostService4ConstructionDto
+  | CreatePostService3Dto
+  | CreatePostService2Dto;

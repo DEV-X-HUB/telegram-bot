@@ -1,29 +1,32 @@
 import { Scenes } from 'telegraf';
-import QuestionPostSectionBController from './section-b.controller';
+import PostSectionBController from './section-b.controller';
+import { restartScene } from '../../../../middleware/check-command';
 
-const questionPostSectionBController = new QuestionPostSectionBController();
-const QuestionPostSectionBScene = new Scenes.WizardScene(
+const postSectionBController = new PostSectionBController();
+const PostSectionBScene = new Scenes.WizardScene(
   'Post-SectionB',
-  questionPostSectionBController.start,
-  questionPostSectionBController.enterTitle,
-  questionPostSectionBController.chooseMainCategory,
-  questionPostSectionBController.chooseSubCategory,
-  questionPostSectionBController.IDFirstOption,
-  questionPostSectionBController.enterLastDigit,
-  questionPostSectionBController.urgencyCondtion,
-  questionPostSectionBController.seOpCondition,
-  questionPostSectionBController.enterDateofIssue,
-  questionPostSectionBController.enterDateofExpire,
-  questionPostSectionBController.enterOriginlaLocation,
-  questionPostSectionBController.choooseWoreda,
-  questionPostSectionBController.enterDescription,
-  questionPostSectionBController.attachPhoto,
-  questionPostSectionBController.preview,
-  questionPostSectionBController.editData,
-  questionPostSectionBController.editPhoto,
-  questionPostSectionBController.postedReview,
-  questionPostSectionBController.adjustNotifySetting,
-  questionPostSectionBController.mentionPreviousPost,
+  postSectionBController.start,
+  postSectionBController.enterTitle,
+  postSectionBController.chooseMainCategory,
+  postSectionBController.chooseSubCategory,
+  postSectionBController.IDFirstOption,
+  postSectionBController.enterLastDigit,
+  postSectionBController.urgencyCondtion,
+  postSectionBController.seOpCondition,
+  postSectionBController.enterDateofIssue,
+  postSectionBController.enterDateofExpire,
+  postSectionBController.enterOriginlaLocation,
+  postSectionBController.choooseWoreda,
+  postSectionBController.enterDescription,
+  postSectionBController.attachPhoto,
+  postSectionBController.preview,
+  postSectionBController.editData,
+  postSectionBController.editPhoto,
+  postSectionBController.postedReview,
+  postSectionBController.adjustNotifySetting,
+  postSectionBController.mentionPreviousPost,
 );
 
-export default QuestionPostSectionBScene;
+PostSectionBScene.use(restartScene('Post-Section-1'));
+
+export default PostSectionBScene;

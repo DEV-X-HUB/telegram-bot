@@ -6,19 +6,23 @@ import {
   getFilteredCoutryList,
   getSelectedCoutryList,
   iterateCities,
-} from '../../utils/constants/country-list';
+} from '../../utils/helpers/country-list';
 import { ICity } from 'country-state-city';
-import { areEqaul, capitalizeFirstLetter } from '../../utils/constants/string';
-import { formatDateFromIsoString } from '../../utils/constants/date';
+import { areEqaul, capitalizeFirstLetter } from '../../utils/helpers/string';
+import { formatDateFromIsoString } from '../../utils/helpers/date';
 import config from '../../config/config';
 import { NotifyOption } from '../../types/params';
+import PostFormatter from '../post/post.formmater';
+
+type PostUpdateStatus = 'open' | 'close' | 'cancel' | 'pending';
 
 class ProfileFormatter {
+  postFormtter;
   countries: any[] = [];
   countryCodes: any[] = ['et'];
   previewButtons = [
     [{ text: '✏️ Edit Profile', cbString: `edit_profile` }],
-    [{ text: 'My Question', cbString: `my_posts` }],
+    [{ text: 'My Posts', cbString: `my_posts` }],
     [
       { text: 'Followers', cbString: `my_followers` },
       { text: 'Following', cbString: `my_followings` },
@@ -28,6 +32,7 @@ class ProfileFormatter {
       { text: 'Back', cbString: `back` },
     ],
   ];
+  backButtonCallback = [[{ text: 'Back', cbString: `back` }]];
   editOptionsButtons = [
     [{ text: ' Edit Name', cbString: `display_name` }],
     [{ text: 'Edit Bio', cbString: `bio` }],
@@ -38,6 +43,7 @@ class ProfileFormatter {
     [{ text: 'Post Notify Setting', cbString: `notify_setting` }],
     [{ text: 'Back', cbString: `back` }],
   ];
+  clearDisplayNameButton = [[{ text: 'Or Be Anonymous', cbString: `clear_display_name` }]];
 
   messages = {
     notifyOptionPrompt: 'Select who can be notified this question',
@@ -62,34 +68,65 @@ class ProfileFormatter {
     postFetchError: 'Unable to fetch your posts',
     noPostMsg: 'Your have not posted any thing yet !',
     updateNotifyOptionError: 'Unable to change notify setting!',
+    displayNameTakenMsg: 'The name is reserved!, Please try another.',
+    userBlockPrompt: 'Are you sure you want to block? ',
+    blockSuccess: 'You have blocked  this user',
+    unBlockSuccess: 'You have unblocked this user',
+    userNotFound: 'User Not Found',
   };
   constructor() {
     this.countries = getSelectedCoutryList();
+    this.postFormtter = new PostFormatter();
   }
 
-  questionActions() {
+  postActions(post_id: string, status: PostUpdateStatus) {
+    if (status == 'pending')
+      return [
+        [
+          {
+            text: 'Cancel',
+            cbString: `cancelPost:${post_id}`,
+          },
+        ],
+      ];
+
+    if (status == 'open') {
+      return [
+        [
+          {
+            text: 'Close',
+            cbString: `closePost:${post_id}`,
+          },
+        ],
+      ];
+    }
+
+    if (status == 'close') {
+      return [
+        [
+          {
+            text: 'Open',
+            cbString: `openPost:${post_id}`,
+          },
+        ],
+      ];
+    }
     return [
       [
-        { text: 'Edit Question', cbString: 'edit' },
-        { text: 'Add poll', cbString: 'poll' },
+        {
+          text: 'Open',
+          cbString: `openPost:${post_id}`,
+        },
       ],
-      [
-        { text: 'Notify Settings', cbString: 'notify' },
-        { text: 'Disable Reply', cbString: 'disable_reply' },
-      ],
-      [
-        { text: ' @Mention Previous Question', cbString: 'mention' },
-        { text: 'Cancel', cbString: 'cancel' },
-      ],
-      [{ text: 'Submit', cbString: 'submit' }],
     ];
   }
 
   postPreview(post: any) {
     if (!post) return ["You don't have any questions yet. Click on 'Post Question' below to start."];
+
     return [
-      `#${post.category} \n\n${post.description} \n\n\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a> \n\n${post.created_at}) \n\nStatus: ${post.status}`,
-      InlineKeyboardButtons(this.questionActions()),
+      this.postFormtter.getFormattedQuestionPreview(post),
+      InlineKeyboardButtons(this.postActions(post.id, post.status)),
     ];
   }
 
@@ -97,10 +134,28 @@ class ProfileFormatter {
     return this.messages.useButtonError + optionName;
   }
 
+  blockSuccess(user_displayname: any) {
+    return [...(this.messages.blockSuccess + user_displayname)];
+  }
+  unBlockSuccess(user_displayname: any) {
+    return [...(this.messages.unBlockSuccess + user_displayname)];
+  }
   preview(userData: any) {
     return [this.formatePreview(userData), InlineKeyboardButtons(this.previewButtons)];
   }
-  profilePreviwByThirdParty(userData: any, followed: boolean) {
+  blockUserDisplay(user: any) {
+    const blockBriefication = 'Blocking means no interaction with user';
+    return [
+      `${this.messages.userBlockPrompt} ${user.display_name}\n\n` + blockBriefication,
+      InlineKeyboardButtons([
+        [
+          { text: ' Yes, Block ', cbString: `blockUser'_${user.id}` },
+          { text: 'No, Cancel', cbString: `cancelBlock'_${user.id}` },
+        ],
+      ]),
+    ];
+  }
+  profilePreviwByThirdParty(userData: any, followed: boolean, bloked: boolean) {
     // -------------
     return [
       this.formatePreviewByThirdParty(userData),
@@ -110,22 +165,48 @@ class ProfileFormatter {
             text: `${followed ? 'Unfollow' : 'Follow'}`,
             cbString: `${followed ? 'unfollow' : 'follow'}_${userData.id}`,
           },
+
+          {
+            text: `💬 Message`,
+            cbString: `sendMessage_${userData.id}`,
+          },
+          {
+            text: `${bloked ? '⭕️ Unblock' : '🚫 Block'}`,
+            cbString: `${bloked ? 'unblock' : 'asktoBlock'}_${userData.id}`,
+          },
         ],
       ]),
     ];
   }
+  getProfileButtons(user_id: any, followed: boolean, bloked: boolean) {
+    return [
+      {
+        text: `${followed ? 'Unfollow' : 'Follow'}`,
+        callback_data: `${followed ? 'unfollow' : 'follow'}_${user_id}`,
+      },
+
+      {
+        text: `💬 Message`,
+        callback_data: `sendMessage_${user_id}`,
+      },
+      {
+        text: `${bloked ? '⭕️ Unblock' : '🚫 Block'}`,
+        callback_data: `${bloked ? 'unblock' : 'asktoBlock'}_${user_id}`,
+      },
+    ];
+  }
 
   formatePreview(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers} Followers | ${userData.followings} Followings\n`;
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : ' 👧'}`}   | ${userData.followers} Followers | ${userData.followings} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Posted ${userData.posts} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Posted ${userData.posts} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
   formatePreviewByThirdParty(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : '👧'}`}  | 0 Rep | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
+    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? ' 👨‍🦱' : ' 👧'}`}  | ${userData.followers.length} Followers | ${userData.followings.length} Followings\n`;
     const gap = '---------------------------------------\n';
-    const qaStat = `Asked ${userData.posts.length} Questions, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
+    const qaStat = `Posted ${userData.posts.length} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
     return header + gap + qaStat + bio;
   }
@@ -144,14 +225,14 @@ class ProfileFormatter {
 
   editPrompt(editFiled: string, gender: string) {
     switch (editFiled) {
-      case 'name':
-        return [this.messages.namePrompt];
+      case 'display_name':
+        return [this.messages.namePrompt, this.goBackButton()];
       case 'bio':
-        return [this.messages.bioPrompt];
+        return [this.messages.bioPrompt, this.goBackButton()];
       case 'gender':
         return [this.messages.genderPrompt, InlineKeyboardButtons(this.genderOpton(gender))];
       default:
-        return [this.messages.namePrompt];
+        return [this.messages.namePrompt, this.goBackButton()];
     }
   }
 
@@ -383,7 +464,6 @@ class ProfileFormatter {
     return [this.messages.settingPrompt, InlineKeyboardButtons(this.settingButtons)];
   }
   notifyOptionDisplay(notifyOption: NotifyOption, first?: boolean) {
-    console.log(notifyOption, 'notiy setting');
     return first
       ? [
           this.messages.notifyOptionPrompt,

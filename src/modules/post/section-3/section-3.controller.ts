@@ -1,12 +1,26 @@
-import { deleteKeyboardMarkup, deleteMessage, deleteMessageWithCallback } from '../../../utils/constants/chat';
-import { areEqaul, isInInlineOption, isInMarkUPOption } from '../../../utils/constants/string';
+import config from '../../../config/config';
+import { CreatePostService3Dto } from '../../../types/dto/create-question-post.dto';
+import { displayDialog } from '../../../ui/dialog';
+import {
+  deleteKeyboardMarkup,
+  deleteMessage,
+  deleteMessageWithCallback,
+  findSender,
+  replyPostPreview,
+  sendMediaGroup,
+} from '../../../utils/helpers/chat';
+import { areEqaul, extractElements, isInInlineOption, isInMarkUPOption } from '../../../utils/helpers/string';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
+import ProfileService from '../../profile/profile.service';
+import PostService from '../post.service';
 
 import Section3Formatter from './section-3.formatter';
 const section3Formatter = new Section3Formatter();
 
 let imagesUploaded: any[] = [];
 const imagesNumber = 1;
+
+const profileService = new ProfileService();
 
 class Section3Controller {
   constructor() {}
@@ -63,16 +77,31 @@ class Section3Controller {
     }
 
     ctx.wizard.state.description = message;
+    console.log('description', ctx.wizard.state.description);
+
     await ctx.reply(...section3Formatter.photoPrompt());
     return ctx.wizard.next();
   }
 
   async attachPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
+    // Find the uer that is sending the message
+    const sender = findSender(ctx);
+
     console.log('being received');
 
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section3Formatter.descriptionPrompt());
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -84,6 +113,8 @@ class Section3Controller {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -95,15 +126,30 @@ class Section3Controller {
 
       await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
 
+      // Find the user
+      const user = await profileService.getProfileByTgId(sender.id);
+      if (user) {
+        ctx.wizard.state.user = {
+          id: user.id,
+          display_name: user.display_name,
+        };
+      }
+      if (!user) return await ctx.reply(...section3Formatter.somethingWentWrong());
+
+      ctx.wizard.state.user = {
+        id: user?.id,
+        display_name: user?.display_name,
+      };
+      ctx.wizard.state.notify_option = user?.notify_option || 'none';
+
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
-      ctx.wizard.state.status = 'previewing';
+      ctx.wizard.state.status = 'preview';
 
       // empty the images array
       imagesUploaded = [];
-      ctx.reply(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      //   ctx.reply(...section1cFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      //   ctx.reply(...postingFormatter.previewCallToAction());
+      ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+
       return ctx.wizard.next();
     }
   }
@@ -111,6 +157,7 @@ class Section3Controller {
   async preview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     console.log('here is the callback');
+    const user = findSender(ctx);
 
     console.log(callbackQuery);
 
@@ -128,44 +175,130 @@ class Section3Controller {
           console.log('preview edit');
           ctx.wizard.state.editField = null;
           await deleteMessageWithCallback(ctx);
-          ctx.reply(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
+          ctx.replyWithHTML(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
           return ctx.wizard.next();
         }
 
         case 'editing_done': {
-          // await deleteMessageWithCallback(ctx);
-          await ctx.reply(section3Formatter.preview(state));
+          await deleteMessageWithCallback(ctx);
+          await ctx.replyWithHTML(section3Formatter.preview(state));
           return ctx.wizard.back();
         }
 
         case 'post_data': {
-          console.log('here you are');
-          // api request to post the data
-          // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
-          // console.log(response);
+          const postDto: CreatePostService3Dto = {
+            birth_or_marital: state.birth_or_marital,
+            title: ctx.wizard.state.title,
+            description: ctx.wizard.state.description,
+            photo: ctx.wizard.state.photo,
+            notify_option: ctx.wizard.state.notify_option,
+            category: 'Section 3',
+            previous_post_id: ctx.wizard.state.mention_post_id || undefined,
+          };
+          const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
-          // if (response?.success) {
-          //   await deleteMessageWithCallback(ctx);
-          await deleteMessageWithCallback(ctx);
-          await ctx.reply(...section3Formatter.postingSuccessful());
-          ctx.scene.leave();
-          return MainMenuController.onStart(ctx);
-          // } else {
-          //   ctx.reply(...postingFormatter.postingError());
-          //   if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
-          //     await deleteMessageWithCallback(ctx);
-          //     return ctx.scene.enter('start');
-          //   }
+          if (response?.success) {
+            console.log(response.data);
+            ctx.wizard.state.post_id = response?.data?.id;
+            ctx.wizard.state.post_main_id = response?.data?.post_id;
+            ctx.reply(...section3Formatter.postingSuccessful());
+            await deleteMessageWithCallback(ctx);
 
-          // increment the registration attempt
-          // return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
-          //   ? parseInt(ctx.wizard.state.postingAttempt) + 1
-          //   : 1);
+            await displayDialog(ctx, section3Formatter.messages.postSuccessMsg);
+            const elements = extractElements<string>(ctx.wizard.state.photo);
+            const [caption, button] = section3Formatter.preview(ctx.wizard.state, 'submitted');
+            if (elements) {
+              // if array of elelement has many photos
+              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+              await replyPostPreview({
+                ctx,
+                photoURl: elements.lastElement,
+                caption: caption as string,
+              });
+            } else {
+              // if array of  has one  photo
+              await replyPostPreview({
+                ctx,
+                photoURl: ctx.wizard.state.photo[0],
+                caption: caption as string,
+              });
+            }
+
+            // await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'submitted'), {
+            //   parse_mode: 'HTML',
+            // });
+
+            // jump to posted review
+            return ctx.wizard.selectStep(8);
+          } else {
+            ctx.reply(...section3Formatter.postingError());
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              ctx.scene.leave();
+              return MainMenuController.onStart(ctx);
+            }
+
+            if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
+              await deleteMessageWithCallback(ctx);
+              return ctx.scene.enter('start');
+            }
+
+            // increment the registration attempt
+            return (ctx.wizard.state.postingAttempt = ctx.wizard.state.postingAttempt
+              ? parseInt(ctx.wizard.state.postingAttempt) + 1
+              : 1);
+          }
         }
+
+        // case 'cancel': {
+        //   ctx.wizard.state.status = 'Cancelled';
+        //   await deleteMessageWithCallback(ctx);
+        //   await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'Cancelled'), {
+        //     parse_mode: 'HTML',
+        //   });
+        //   return ctx.wizard.selectStep(18);
+        // }
+        case 'notify_settings': {
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...section3Formatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
+          // jump to notify setting
+          return ctx.wizard.selectStep(9);
+        }
+        case 'mention_previous_post': {
+          // fetch previous posts of the user
+          const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
+          if (!success || !posts) return await ctx.reply(message);
+
+          if (posts.length == 0) return await ctx.reply(...section3Formatter.noPostsErrorMessage());
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.reply(...section3Formatter.mentionPostMessage());
+          for (const post of posts as any) {
+            await ctx.reply(...section3Formatter.displayPreviousPostsList(post));
+          }
+
+          // jump to mention previous post
+          return ctx.wizard.selectStep(10);
+        }
+
+        case 'remove_mention_previous_post': {
+          state.mention_post_data = '';
+          state.mention_post_id = '';
+
+          await deleteMessageWithCallback(ctx);
+          await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+          // return to preview
+          return ctx.wizard.selectStep(5);
+        }
+
+        default: {
+          await ctx.reply('Unknown action');
+        }
+        // default: {
+        //   await ctx.reply('DEFAULT');
+        // }
       }
-      // default: {
-      //   await ctx.reply('DEFAULT');
-      // }
     }
   }
   async editData(ctx: any) {
@@ -187,7 +320,7 @@ class Section3Controller {
       //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
       //   chat_id: ctx.message.chat.id,
       // });
-      return ctx.reply(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
     // if callback exists
@@ -223,7 +356,7 @@ class Section3Controller {
     } else if (callbackMessage == 'editing_done') {
       // await deleteMessageWithCallback(ctx);
 
-      await ctx.reply(...section3Formatter.preview(state));
+      await ctx.replyWithHTML(...section3Formatter.preview(state));
       return ctx.wizard.back();
     }
 
@@ -245,11 +378,19 @@ class Section3Controller {
       ctx.wizard.state[editField] = callbackMessage;
       await deleteMessageWithCallback(ctx);
       ctx.wizard.state.editField = null;
-      return ctx.reply(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
+      return ctx.replyWithHTML(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
     }
   }
 
   async editPhoto(ctx: any) {
+    let imagesNumberReached = false;
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+    let timer = setTimeout(
+      () => {
+        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
@@ -257,6 +398,7 @@ class Section3Controller {
         chat_id: messageText.chat.id,
       });
       ctx.reply(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -268,6 +410,8 @@ class Section3Controller {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
+      clearTimeout(timer);
+      imagesNumberReached = true;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
@@ -283,8 +427,108 @@ class Section3Controller {
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
+    }
+  }
+
+  async postReview(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 're_submit_post': {
+        const postDto: CreatePostService3Dto = {
+          birth_or_marital: ctx.wizard.state.birth_or_marital,
+          title: ctx.wizard.state.title,
+          photo: ctx.wizard.state.photo,
+          description: ctx.wizard.state.description,
+          category: 'Section 3',
+          notify_option: ctx.wizard.state.notify_option,
+          previous_post_id: ctx.wizard.state.post_id,
+        };
+        const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
+        if (!response?.success) await ctx.reply('Unable to resubmite');
+
+        ctx.wizard.state.post_id = response?.data?.id;
+        ctx.wizard.state.post_main_id = response?.data?.post_id;
+        await ctx.reply('Resubmiited');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Cancel', callback_data: `cancel_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'cancel_post': {
+        console.log(ctx.wizard.state);
+        const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
+
+        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+
+        await ctx.reply('Cancelled');
+        return ctx.editMessageReplyMarkup({
+          inline_keyboard: [
+            [{ text: 'Resubmit', callback_data: `re_submit_post` }],
+            [{ text: 'Main menu', callback_data: 'main_menu' }],
+          ],
+        });
+      }
+      case 'main_menu': {
+        deleteMessageWithCallback(ctx);
+        ctx.scene.leave();
+        return MainMenuController.onStart(ctx);
+      }
+    }
+  }
+
+  async adjustNotifySetting(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    switch (callbackQuery.data) {
+      case 'notify_none': {
+        ctx.wizard.state.notify_option = 'none';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+
+        // jump to preview
+        return ctx.wizard.selectStep(5);
+      }
+      case 'notify_friend': {
+        ctx.wizard.state.notify_option = 'friend';
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        // jump to preview
+        return ctx.wizard.selectStep(5);
+      }
+      case 'notify_follower': {
+        await deleteMessageWithCallback(ctx);
+        ctx.wizard.state.notify_option = 'follower';
+        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        // jump to preview
+        return ctx.wizard.selectStep(5);
+      }
+    }
+  }
+  async mentionPreviousPost(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+    if (!callbackQuery) return;
+    console.log(ctx.wizard.state, 'sdfdsafasdf');
+    if (callbackQuery) {
+      if (areEqaul(callbackQuery.data, 'back', true)) {
+        await deleteMessageWithCallback(ctx);
+        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        return ctx.wizard.back();
+      }
+
+      if (callbackQuery.data.startsWith('select_post_')) {
+        const post_id = callbackQuery.data.split('_')[2];
+
+        ctx.wizard.state.mention_post_id = post_id;
+        ctx.wizard.state.mention_post_data = ctx.callbackQuery.message.text;
+        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+        // go back to preview
+        return ctx.wizard.selectStep(5);
+      }
     }
   }
 }

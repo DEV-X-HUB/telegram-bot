@@ -1,8 +1,9 @@
 import { Scenes } from 'telegraf';
 import QuestionPostSection1cController from './section1c.controller';
+import { restartScene } from '../../../../middleware/check-command';
 
 const section1cController = new QuestionPostSection1cController();
-const QuestionPostSectionCScene = new Scenes.WizardScene(
+const PostSectionCScene = new Scenes.WizardScene(
   'Post-SectionC',
   section1cController.start,
   section1cController.choosePaperTimeStamp,
@@ -24,4 +25,6 @@ const QuestionPostSectionCScene = new Scenes.WizardScene(
   section1cController.mentionPreviousPost,
 );
 
-export default QuestionPostSectionCScene;
+PostSectionCScene.use(restartScene('Post-Section-1'));
+
+export default PostSectionCScene;

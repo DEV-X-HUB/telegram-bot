@@ -1,9 +1,28 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../ui/button';
-import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/components';
+import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../types/ui';
+import config from '../../../config/config';
+import { NotifyOption } from '../../../types/params';
+import { areEqaul, trimParagraph } from '../../../utils/helpers/string';
 
 class Section3Formatter {
   birthOrMaritalOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
+  messages = {
+    chooseOption: 'Choose an option',
+    titlePrompt: 'What is the title?',
+    useButtonError: 'Please use Buttons to select options',
+    categoryPrompt: 'Please Choose on category from the options',
+    notifyOptionPrompt: 'Select who can be notified this question',
+    reviewPrompt: 'Preview your post and press once you are done',
+    optionPrompt: 'Please Choose on category from the options',
+    attachPhotoPrompt: 'Attach one photo',
+    descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
+    postSuccessMsg: 'Posted Successfully',
+    postErroMsg: 'Post Error',
+    mentionPost: 'Select post to mention',
+    noPreviousPosts: "You don't have any approved question before.",
+    somethingWentWrong: 'Something went wrong, please try again',
+  };
   constructor() {
     this.birthOrMaritalOption = [
       [
@@ -15,40 +34,46 @@ class Section3Formatter {
     this.backOption = [[{ text: 'Back', cbString: 'back' }]];
   }
   birthOrMaritalOptionDisplay() {
-    return ['Choose an option', InlineKeyboardButtons(this.birthOrMaritalOption)];
+    return [this.messages.chooseOption, InlineKeyboardButtons(this.birthOrMaritalOption)];
   }
   titlePrompt() {
-    return ['What is the title?', this.goBackButton(false)];
+    return [this.messages.titlePrompt, this.goBackButton(false)];
   }
   descriptionPrompt() {
-    return ['Enter description maximimum 45 words'];
+    return [this.messages.descriptionPrompt];
   }
   photoPrompt() {
-    return ['Attach one photo ', this.goBackButton(false)];
+    return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
   goBackButton(oneTime: boolean = true) {
     return MarkupButtons(this.backOption, oneTime);
   }
 
-  getPreviewData(state: any) {
-    return `#${state.category.replace(/ /g, '_')}\n\n________________\n\nTitle: ${state.title} \n\nDescription: ${state.description} \n\nContact: @resurrection99 \n\nDashboard: BT1234567\n\nStatus : ${state.status}`;
+  getDetailData(state: any) {
+    return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n\n` : ''}<b>#${state.category}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Title:</b> ${state.title} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
-  preview(state: any) {
+  getPreviewData(state: any) {
+    return `<b>#${state.category}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Description:</b> ${trimParagraph(state.description)} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+  }
+
+  preview(state: any, submitState: string = 'preview') {
     return [
-      this.getPreviewData(state),
-      InlineKeyboardButtons([
-        [
-          { text: 'Edit', cbString: 'preview_edit' },
-          { text: 'Notify Settings', cbString: 'notify_settings' },
-          { text: 'Post', cbString: 'post_data' },
-        ],
-        [
-          { text: 'Mention previous post', cbString: 'mention_previous_post' },
-          { text: 'Cancel', cbString: 'cancel' },
-        ],
-      ]),
+      this.getDetailData(state),
+      submitState == 'preview'
+        ? InlineKeyboardButtons([
+            [
+              { text: 'Edit', cbString: 'preview_edit' },
+              { text: 'Notify settings', cbString: 'notify_settings' },
+              { text: 'Post', cbString: 'post_data' },
+            ],
+            [
+              { text: 'Mention previous post', cbString: 'mention_previous_post' },
+              { text: 'Cancel', cbString: 'cancel' },
+            ],
+          ])
+        : this.getPostSubmitButtons(submitState),
     ];
   }
 
@@ -87,12 +112,79 @@ class Section3Formatter {
         return this.displayError();
     }
   }
+
+  notifyOptionDisplay(notifyOption: NotifyOption) {
+    return [
+      this.messages.notifyOptionPrompt,
+      InlineKeyboardButtons([
+        [
+          {
+            text: `${areEqaul(notifyOption, 'follower', true) ? '✅' : ''} Your Followers`,
+            cbString: `notify_follower`,
+          },
+        ],
+        [
+          {
+            text: `${areEqaul(notifyOption, 'friend', true) ? '✅' : ''} Your freinds (People you follow and follow you)`,
+            cbString: `notify_friend`,
+          },
+        ],
+        [{ text: `${areEqaul(notifyOption, 'none', true) ? '✅' : ''} none`, cbString: `notify_none` }],
+      ]),
+    ];
+  }
+
   postingSuccessful() {
     return ['Posted Successfully'];
   }
 
   displayError() {
     return ['Invalid input, please try again'];
+  }
+
+  previewCallToAction() {
+    return [this.messages.reviewPrompt];
+  }
+
+  postingError() {
+    return [this.messages.postErroMsg];
+  }
+  somethingWentWrong() {
+    return [this.messages.somethingWentWrong];
+  }
+
+  noPostsErrorMessage() {
+    return [this.messages.noPreviousPosts];
+  }
+  mentionPostMessage() {
+    return [this.messages.mentionPost, this.goBackButton()];
+  }
+  displayPreviousPostsList(post: any) {
+    // Check if post.description is defined before accessing its length
+    const description =
+      post.description && post.description.length > 20 ? post.description.substring(0, 30) + '...' : post.description;
+
+    const message = `#${post.category}\n_______\n\nDescription : ${description}\n\nStatus : ${post.status}`;
+
+    const buttons = InlineKeyboardButtons([
+      [
+        { text: 'Select post', cbString: `select_post_${post.id}` },
+        { text: 'Back', cbString: 'back' },
+      ],
+    ]);
+    return [message, buttons];
+  }
+
+  getPostSubmitButtons(submitState: string) {
+    return submitState == 'submitted'
+      ? InlineKeyboardButtons([
+          [{ text: 'Cancel', cbString: 'cancel_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ])
+      : InlineKeyboardButtons([
+          [{ text: 'Resubmit', cbString: 're_submit_post' }],
+          [{ text: 'Main menu', cbString: 'main_menu' }],
+        ]);
   }
 }
 

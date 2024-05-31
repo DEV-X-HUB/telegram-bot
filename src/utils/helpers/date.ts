@@ -1,9 +1,16 @@
+import config from '../../config/config';
+
 export const calculateAge = (ageValue: string) => {
   if (ageValue.includes('/')) {
     const [day, month, year] = ageValue.split('/').map(Number);
     const today = new Date();
     const birthDate = new Date(year, month - 1, day);
-    return today.getFullYear() - birthDate.getFullYear();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    if (month <= config.monthThreshold) {
+      age--;
+    }
+    return age;
   } else return parseInt(ageValue);
 };
 
@@ -41,12 +48,3 @@ export const parseDateString = (dateString: string) => {
   const date = new Date(year, month, day);
   return date;
 };
-
-// Example usage:
-const dateString = '12/12/21';
-const date = parseDateString(dateString);
-if (date !== null) {
-  console.log(date); // Output: Sun Dec 12 2021 00:00:00 GMT+0000 (Coordinated Universal Time)
-} else {
-  console.log('Invalid date string');
-}

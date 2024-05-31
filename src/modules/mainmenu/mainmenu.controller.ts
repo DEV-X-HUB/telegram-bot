@@ -1,23 +1,25 @@
-import { findSender } from '../../utils/constants/chat';
-import RegistrationService from '../registration/restgration.service';
+import { findSender } from '../../utils/helpers/chat';
 import MainmenuFormatter from './mainmenu-formmater';
 
 const mainMenuFormatter = new MainmenuFormatter();
 class MainMenuController {
   static async onStart(ctx: any) {
-    ctx.reply(...mainMenuFormatter.chooseServiceDisplay());
+    return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(1));
   }
   static async chooseOption(ctx: any) {
     const sender = findSender(ctx);
     const option = ctx?.message?.text;
 
-    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
-    if (!isUserRegistered) {
-      ctx.reply('Please register to use the service');
-      return ctx.scene.enter('register');
-    }
+    console.log(option, 'option in main menu');
 
     switch (option) {
+      case 'Go Back': {
+        return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(1));
+      }
+      case 'Next': {
+        return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(2));
+      }
+
       case 'Service 1': {
         ctx?.scene?.leave();
         return ctx.scene.enter('Post-Section-1');
@@ -39,6 +41,10 @@ class MainMenuController {
         ctx.scene.leave();
         return ctx.scene.enter('Post-Question-Section-4');
       }
+      case 'Browse': {
+        ctx?.scene?.leave();
+        return ctx.scene.enter('browse');
+      }
       case '🔍 Search Questions': {
         await ctx.reply('Search questions using button below', {
           reply_markup: {
@@ -46,6 +52,22 @@ class MainMenuController {
           },
         });
         return ctx.scene.leave();
+      }
+
+      case 'FAQ': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatFAQ());
+      }
+      case 'About Us': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatAboutUs());
+      }
+      case 'Terms and Conditions': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatTermsandCondtions());
+      }
+      case 'Customer Service': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatCustomerSerive());
+      }
+      case 'Contact Us': {
+        return ctx.replyWithHTML(mainMenuFormatter.formatContactUs());
       }
     }
   }
