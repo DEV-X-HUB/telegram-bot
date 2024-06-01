@@ -272,7 +272,7 @@ class QuestionPostSectionAController {
           ctx.wizard.state.status = 'Cancelled';
           await deleteMessageWithCallback(ctx);
           await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'Cancelled'));
-          return ctx.wizard.selectStep(18);
+          return ctx.wizard.selectStep(11);
         }
         case 'notify_settings': {
           await deleteMessageWithCallback(ctx);

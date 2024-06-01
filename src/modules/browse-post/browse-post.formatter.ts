@@ -1,9 +1,9 @@
 import { text } from 'stream/consumers';
 import config from '../../config/config';
 import { PostCategory } from '../../types/params';
-import { TableMarkupKeyboardButtons, UrlButtonOptions } from '../../types/ui';
+import { TableMarkupKeyboardButtons } from '../../types/ui';
 import { InlineKeyboardButtons, urlButton } from '../../ui/button';
-import { areEqaul, getSectionName, trimParagraph } from '../../utils/helpers/string';
+import { areEqaul, getSectionName } from '../../utils/helpers/string';
 import Post1AFormatter from '../post/section-1/section-1a/section-a.formatter';
 import Post1BFormatter from '../post/section-1/section-1b/section-b.formatter';
 import Post1CFormatter from '../post/section-1/section-1c/section1c.formatter';
@@ -865,20 +865,23 @@ class BrowsePostFormatter {
   browsePostDisplay(post: any, filter?: any, currentPage?: number, totalPages?: number) {
     return [
       this.getPostsPreview(post),
-      // this.viewDetailButton(post.id),
-      InlineKeyboardButtons([
-        this.filterByStatusButtons(filter?.status || 'all'),
-        this.filterByCategoryButton(filter?.category || 'all'),
-        this.filterByTimeframeButton(filter?.timeframe || 'all'),
 
-        // display woreda filter optionally
-        this.filterByWoredaButton(post.category, filter?.fields?.woreda),
+      {
+        ...InlineKeyboardButtons([
+          [{ text: 'View Detail', cbString: '', url: `${config.bot_url}?start=postDetail_${post.id}`, isUrl: true }],
+          this.filterByStatusButtons(filter?.status || 'all'),
+          this.filterByCategoryButton(filter?.category || 'all'),
+          this.filterByTimeframeButton(filter?.timeframe || 'all'),
 
-        // display last digit filter optionally
-        this.filterByLastDigit(post.category, filter?.fields?.last_digit),
+          // display woreda filter optionally
+          this.filterByWoredaButton(post.category, filter?.fields?.woreda),
 
-        this.paginationButtons(currentPage as number, totalPages as number),
-      ]),
+          // display last digit filter optionally
+          this.filterByLastDigit(post.category, filter?.fields?.last_digit),
+
+          this.paginationButtons(currentPage as number, totalPages as number),
+        ]),
+      },
 
       // this.filterByCategoryChooseButtons(post.category),
       // this.filterByStatusButtons(post.status),

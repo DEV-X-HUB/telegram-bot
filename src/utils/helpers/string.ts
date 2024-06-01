@@ -109,7 +109,7 @@ export function extractElements<T>(arr: T[]): { firstNMinusOne: T[]; lastElement
 
 export const trimParagraph = (paragraph: string, maxLength: number = 4): string => {
   const words = paragraph.split(' ');
-  if (words.length <= parseInt(config.desc_preview_word_length as string) || 5) {
+  if (words.length <= (parseInt(config.desc_preview_word_length as string) || 5)) {
     return paragraph;
   }
   return words.slice(0, maxLength).join(' ') + '...';

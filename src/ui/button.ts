@@ -19,7 +19,11 @@ export const MarkupButtons = (tableButtons: TableMarkupKeyboardButtons, onetime?
 };
 
 const getCulumnButtons = (buttons: RowInlineKeyboardButtons | RowMarkupKeyboardButtons) => {
-  return [...buttons.map(({ text, cbString, hidebale }) => Markup.button.callback(text, cbString, hidebale))];
+  return [
+    ...buttons.map(({ text, cbString, hidebale, url, isUrl }) =>
+      isUrl ? Markup.button.url(text, url as string, hidebale) : Markup.button.callback(text, cbString, hidebale),
+    ),
+  ];
 };
 export const getButtonRows = (buttonRows: TableInlineKeyboardButtons | TableMarkupKeyboardButtons) => {
   return [...buttonRows.map((buttonRow) => getCulumnButtons(buttonRow))];

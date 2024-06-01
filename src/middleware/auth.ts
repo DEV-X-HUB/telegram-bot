@@ -40,15 +40,29 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
   }
 }
 
-export function checkUserInChannelandPromtJoin() {
+export const devlopmentMode = () => {
+  const testUsers = [6715664411, 1497684446, 5821852558];
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
+    if (config.env == 'production') next();
+    if (!testUsers.includes(sender.id)) {
+      console.log(sender);
+      return ctx.replyWithHTML(...mainMenuFormmater.formatFailedDevMessage());
+    }
+    next();
+  };
+};
+
+export function checkUserInChannelandPromtJoin() {
+  return async (ctx: any, next: any) => {
     try {
+      const sender = findSender(ctx);
+
       const { status, data: isUserJoined, message } = await checkUserInChannel(sender.id);
       if (status == 'fail') return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(message || ''));
 
       if (!isUserJoined) {
-        return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
+        return ctx.replyWithHTML(...mainMenuFormmater.formatJoinMessage(sender.first_name));
       } else if (isUserJoined) {
         return next();
       }

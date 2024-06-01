@@ -149,6 +149,11 @@ class MainmenuFormatter {
   formatFailedJoinCheck(message: string) {
     return [`<b>Failed to check user in channel</b>\n<i>${message}</i> \n<b>Please try again!</b>`];
   }
+  formatFailedDevMessage() {
+    return [
+      `<b>The Bot is Under Development.</b>\n<i>${'Please wait until deployment'}</i> \n<b>We appreciate your intereset!</b>`,
+    ];
+  }
 
   formatFAQ() {
     let index = 0;
