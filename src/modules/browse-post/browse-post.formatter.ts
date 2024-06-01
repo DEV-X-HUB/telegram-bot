@@ -1,9 +1,9 @@
 import { text } from 'stream/consumers';
 import config from '../../config/config';
 import { PostCategory } from '../../types/params';
-import { TableMarkupKeyboardButtons } from '../../types/ui';
-import { InlineKeyboardButtons } from '../../ui/button';
-import { areEqaul, getSectionName } from '../../utils/helpers/string';
+import { TableMarkupKeyboardButtons, UrlButtonOptions } from '../../types/ui';
+import { InlineKeyboardButtons, urlButton } from '../../ui/button';
+import { areEqaul, getSectionName, trimParagraph } from '../../utils/helpers/string';
 import Post1AFormatter from '../post/section-1/section-1a/section-a.formatter';
 import Post1BFormatter from '../post/section-1/section-1b/section-b.formatter';
 import Post1CFormatter from '../post/section-1/section-1c/section1c.formatter';
@@ -858,9 +858,14 @@ class BrowsePostFormatter {
     ];
   }
 
+  viewDetailButton(postId: string) {
+    return urlButton('View Detail', `${config.bot_url}?start=view_post_${postId}`);
+  }
+
   browsePostDisplay(post: any, filter?: any, currentPage?: number, totalPages?: number) {
     return [
       this.getPostsPreview(post),
+      // this.viewDetailButton(post.id),
       InlineKeyboardButtons([
         this.filterByStatusButtons(filter?.status || 'all'),
         this.filterByCategoryButton(filter?.category || 'all'),
@@ -1026,7 +1031,7 @@ class BrowsePostFormatter {
 
     switch (true) {
       case areEqaul(post.category, 'Section 1A', true): {
-        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
+        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${trimParagraph(post.description)}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
         ``;
       }
     }
