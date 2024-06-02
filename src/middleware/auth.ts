@@ -31,7 +31,8 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
       message: 'success',
     };
   } catch (error: any) {
-    console.error(error);
+    console.error(error.message);
+    console.error(error.message);
     return {
       status: 'fail',
       data: false,
@@ -41,7 +42,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
 }
 
 export const devlopmentMode = () => {
-  const testUsers = [6715664411, 1497684446, 5821852558];
+  const testUsers = [6715664411, 1497684446, 5821852558, 727495712];
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
     if (config.env == 'production') next();

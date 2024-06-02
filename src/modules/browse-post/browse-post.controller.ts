@@ -123,21 +123,15 @@ class BrowsePostController {
       console.log(callbackQuery.data);
 
       const page = Number(callbackQuery.data.split('_')[1]);
+      console.log('qqqqqqqq');
       console.log(page);
 
       const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy, page);
       console.log(posts);
       await deleteMessageWithCallback(ctx);
-      await ctx.replyWithHTML(
-        browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, page, posts.total)[0],
-        {
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: 'View Detail', url: `${config.bot_url}?start=postDetail_${posts.posts[0].id}` }],
-            ],
-          },
-          parse_mode: 'HTML',
-        },
+
+      return await ctx.replyWithHTML(
+        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, page, posts.total),
       );
     }
   }
@@ -632,33 +626,17 @@ class BrowsePostController {
         },
       };
 
-      if (lastDigitFilter == 'all' || lastDigitFilter == 'bi') {
-        // Get posts by the selected category
-        const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-
+      if (lastDigitFilter == 'all' || lastDigitFilter == 'bi' || lastDigitFilter == 'di') {
         await deleteMessageWithCallback(ctx);
-
-        if (!posts || posts.posts.length == 0) {
-          return ctx.reply(browsePostFormatter.messages.noPostError);
-        }
-
-        ctx.replyWithHTML(
-          ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
-          {
-            parse_mode: 'HTML',
-          },
+        await ctx.reply(
+          ...browsePostFormatter.chooseBiDiButtonsDisplay(lastDigitFilter, ctx.wizard.state.filterBy.fields.last_digit),
         );
-
-        return ctx.wizard.selectStep(1);
-      } else if (lastDigitFilter == 'di') {
-        await deleteMessageWithCallback(ctx);
-        await ctx.reply(...browsePostFormatter.chooseDiButtonsDisplay(lastDigitFilter));
         return ctx.wizard.selectStep(13);
       }
     }
   }
 
-  async handlefilterByLastDigitDI(ctx: any) {
+  async handlefilterByLastDigitBIDI(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
     console.log(callbackQuery.data);
@@ -666,7 +644,7 @@ class BrowsePostController {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
 
-    if (callbackQuery.data.startsWith('filterByLastDigitDI')) {
+    if (callbackQuery.data.startsWith('filterByLastDigitBiDiOptions')) {
       const lastDigitFilter = ctx.callbackQuery.data.split('_')[1];
       console.log('lastDigitFilter');
 

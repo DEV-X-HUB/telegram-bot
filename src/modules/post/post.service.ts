@@ -656,16 +656,14 @@ class PostService {
     let formattedTimeframe: any;
 
     let lastDigit;
-    let lastDigitDiStartsFrom;
-    let lastDigitDiUpTo;
+    let lastDigitStartsFrom;
+    let lastDigitUpTo;
 
-    if (String(query?.fields?.last_digit)?.startsWith('bi')) {
-      lastDigit = 'bi';
-    } else if (query?.fields?.last_digit?.startsWith('di')) {
-      lastDigit = 'di';
-      lastDigitDiStartsFrom = Number(query?.fields?.last_digit?.split('-')[1]);
-      lastDigitDiUpTo = Number(query?.fields?.last_digit?.split('-')[2]);
-      console.log(`last digit ${lastDigit} ${lastDigitDiStartsFrom} ${lastDigitDiUpTo}`);
+    if (String(query?.fields?.last_digit)?.startsWith('bi' || 'di')) {
+      lastDigit = query?.fields?.last_digit;
+      lastDigitStartsFrom = Number(query?.fields?.last_digit?.split('-')[1]);
+      lastDigitUpTo = Number(query?.fields?.last_digit?.split('-')[2]);
+      console.log(`last digit ${lastDigit} ${lastDigitStartsFrom} ${lastDigitUpTo}`);
     } else lastDigit = 'all';
 
     console.log('dddddddddddd');
@@ -696,12 +694,7 @@ class PostService {
               !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
             woreda:
               !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
-            last_digit:
-              lastDigit == 'all'
-                ? undefined
-                : lastDigit == 'di'
-                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
-                  : { equals: lastDigit },
+            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
           },
         };
         break;
@@ -719,12 +712,7 @@ class PostService {
             woreda:
               !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
 
-            last_digit:
-              lastDigit == 'all'
-                ? undefined
-                : lastDigit == 'di'
-                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
-                  : { equals: lastDigit },
+            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
           },
         };
         break;
@@ -739,12 +727,7 @@ class PostService {
             woreda:
               !query?.fields?.woreda || query?.fields?.woreda == 'all' ? undefined : { equals: query?.fields?.woreda },
 
-            last_digit:
-              lastDigit == 'all'
-                ? undefined
-                : lastDigit == 'di'
-                  ? { gte: lastDigitDiStartsFrom, lte: lastDigitDiUpTo }
-                  : { equals: lastDigit },
+            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
           },
         };
         break;

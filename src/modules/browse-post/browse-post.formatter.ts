@@ -703,89 +703,89 @@ class BrowsePostFormatter {
     return [this.messages.selectLastDigitMessage, InlineKeyboardButtons(this.chooseBiDiOptions(selectedArBr))];
   }
 
-  chooseDiButtons(selectedDi: any) {
-    const DiOptions = [
+  chooseBiDiButtons(biOrDi: any, selectedBiDi: any) {
+    const BiDiOptions = [
       {
         displayName: '1-50',
-        fieldName: 'di-1-50',
+        fieldName: `${biOrDi}-1-50`,
       },
       {
         displayName: '51-200',
-        fieldName: 'di-51-200',
+        fieldName: `${biOrDi}-51-200`,
       },
       {
         displayName: '201-500',
-        fieldName: 'di-201-500',
+        fieldName: `${biOrDi}-201-500`,
       },
       {
         displayName: '501-1000',
-        fieldName: 'di-501-1000',
+        fieldName: `${biOrDi}-501-1000`,
       },
 
       {
         displayName: '1001-5000',
-        fieldName: 'di-1001-5000',
+        fieldName: `${biOrDi}-1001-5000`,
       },
       {
         displayName: '5001-10,000',
-        fieldName: 'di-5001-10000',
+        fieldName: `${biOrDi}-5001-10000`,
       },
       {
         displayName: '10,001-50,000',
-        fieldName: 'di-10001-50000',
+        fieldName: `${biOrDi}-10001-50000`,
       },
       {
         displayName: '50,001-100,000',
-        fieldName: 'di-50001-100000',
+        fieldName: `${biOrDi}-50001-100000`,
       },
       {
         displayName: '100,001-500,000',
-        fieldName: 'di-100001-500000',
+        fieldName: `${biOrDi}-100001-500000`,
       },
       {
         displayName: '500,001-1,000,000',
-        fieldName: 'di-500001-1000000',
+        fieldName: `${biOrDi}-500001-1000000`,
       },
       {
         displayName: '1,000,001-5,000,000',
-        fieldName: 'di-1000001-5000000',
+        fieldName: `${biOrDi}-1000001-5000000`,
       },
       {
         displayName: '5,000,001-10,000,000',
-        fieldName: 'di-5000001-10000000',
+        fieldName: `${biOrDi}-5000001-10000000`,
       },
       {
         displayName: '10,000,001-15,000,000',
-        fieldName: 'di-10000001-15000000',
+        fieldName: `${biOrDi}-10000001-15000000`,
       },
       {
         displayName: '15,000,001-20,000,000',
-        fieldName: 'di-15000001-200000000',
+        fieldName: `${biOrDi}di-15000001-200000000`,
       },
       {
         displayName: '20,000,001-50,000,000',
-        fieldName: 'di-20000001-50000000',
+        fieldName: `${biOrDi}di-20000001-50000000`,
       },
       {
         displayName: '30,000,001-50,000,000',
-        fieldName: 'di-30000001-50000000',
+        fieldName: `${biOrDi}-30000001-50000000`,
       },
       {
         displayName: 'Above 50,000,000',
-        fieldName: 'di-50000001-*',
+        fieldName: `${biOrDi}-50000001-*`,
       },
     ];
 
-    return DiOptions.map((option) => [
+    return BiDiOptions.map((option) => [
       {
-        text: `${selectedDi === option.fieldName ? '✅' : ''} ${option.displayName}`,
-        cbString: `filterByLastDigitDI_${option.fieldName}`,
+        text: `${selectedBiDi === option.fieldName ? '✅' : ''} ${option.displayName}`,
+        cbString: `filterByLastDigitBiDiOptions_${option.fieldName}`,
       },
     ]);
   }
 
-  chooseDiButtonsDisplay(selectedBr?: any) {
-    return [this.messages.selectArBrMessage, InlineKeyboardButtons(this.chooseDiButtons(selectedBr))];
+  chooseBiDiButtonsDisplay(arBr: any, selectedBr?: any) {
+    return [this.messages.selectArBrMessage, InlineKeyboardButtons(this.chooseBiDiButtons(arBr, selectedBr))];
   }
 
   filterByCategoryDisplay(category: any) {
