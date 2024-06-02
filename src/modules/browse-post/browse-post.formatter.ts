@@ -858,10 +858,6 @@ class BrowsePostFormatter {
     ];
   }
 
-  viewDetailButton(postId: string) {
-    return urlButton('View Detail', `${config.bot_url}?start=view_post_${postId}`);
-  }
-
   browsePostDisplay(post: any, filter?: any, currentPage?: number, totalPages?: number) {
     return [
       this.getPostsPreview(post),
@@ -1034,7 +1030,7 @@ class BrowsePostFormatter {
 
     switch (true) {
       case areEqaul(post.category, 'Section 1A', true): {
-        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${trimParagraph(post.description)}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
+        return `#${post.category.replace(/ /g, '_')}\n________________\n\n${post.ar_br.toLocaleUpperCase()}\n\nWoreda: ${post.woreda} \n\nLast digit: ${post.last_digit} ${post.bi_di.toLocaleUpperCase()} \n\nSp. Locaton: ${post.location} \n\nDescription: ${post.description}\n\nBy: <a href="${config.bot_url}?start=userProfile_${post.user.id}">${post.user.display_name != null ? post.user.display_name : 'Anonymous '}</a>\n\nStatus : ${post.status}`;
         ``;
       }
     }
