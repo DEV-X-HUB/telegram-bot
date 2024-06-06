@@ -17,7 +17,7 @@ import jwt from 'jsonwebtoken';
 import generateOTP from '../utils/generatePassword';
 
 class ApiService {
-  static async getPosts(round: number): Promise<ResponseWithData> {
+  static async getPosts(round: number = 1): Promise<ResponseWithData> {
     const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
     const postCount = await prisma.post.count();
     try {
@@ -56,7 +56,7 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
-  static async getPostsByStatus(round: number, status: string): Promise<ResponseWithData> {
+  static async getPostsByStatus(round: number = 1, status: PostStatus): Promise<ResponseWithData> {
     const resultsPerPage = parseInt(config.number_of_result || '5');
     const skip = (round - 1) * resultsPerPage;
     const postCount = await prisma.post.count({

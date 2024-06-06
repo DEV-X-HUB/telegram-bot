@@ -5,6 +5,7 @@ import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
 import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
+import { PostStatus } from '@prisma/client';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
@@ -21,7 +22,7 @@ import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
   const round = req.params.round;
-  const { status, data, message } = await ApiService.getPosts(parseInt(round));
+  const { status, data, message } = await ApiService.getPosts(parseInt(round) || 1);
   if (status == 'fail') {
     res.status(500).json({
       status,
@@ -37,13 +38,6 @@ export const getPosts = async (req: Request, res: Response) => {
 export const getPostsByStatus = async (req: Request, res: Response) => {
   const { round, status } = req.params;
 
-  if (!round || isNaN(parseInt(round))) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Invalid round parameter',
-    });
-  }
-
   if (!status) {
     return res.status(400).json({
       status: 'fail',
@@ -51,7 +45,11 @@ export const getPostsByStatus = async (req: Request, res: Response) => {
     });
   }
 
-  const { status: fetchStatus, data, message } = await ApiService.getPostsByStatus(parseInt(round), status);
+  const {
+    status: fetchStatus,
+    data,
+    message,
+  } = await ApiService.getPostsByStatus(parseInt(round) || 1, status as PostStatus);
 
   if (fetchStatus === 'fail') {
     return res.status(500).json({
