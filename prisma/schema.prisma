@@ -31,6 +31,11 @@ enum AdminStatus {
   INACTIVE
 }
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
 
 model User {
   id            String  @id @default(uuid()) // UUID type for user_id
@@ -46,6 +51,8 @@ model User {
   gender        String? // Optional gender
   display_name  String? // Optional display name
   bio           String? // Optional bio
+  status        UserStatus
+  inactive_reason String?  @default("")
   notify_option NotifyOption   @default(none)
 
   followings Follows[]  @relation("Following")
