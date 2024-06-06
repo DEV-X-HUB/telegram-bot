@@ -3,10 +3,10 @@ import Bot from './loaders/bot';
 import Express from 'express';
 import config from './config/config';
 
-import { updateRegisrationStateAction } from './modules/registration/registration.scene';
 import APIRouter from './api/routes';
-
+import cors from 'cors';
 const app = Express();
+app.use(cors());
 const ignite = () => {
   const bot = Bot();
   if (bot) {

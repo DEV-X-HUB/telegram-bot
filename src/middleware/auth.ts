@@ -162,26 +162,5 @@ export function checkRegistration(skipProfile: boolean = false) {
     return next();
   };
 }
-export function checkUserStatus() {
-  const mainMenus = ['Service 1', 'Service 2', 'Service 3', 'Service 4'];
-
-  return async (ctx: any, next: any) => {
-    const message = ctx.message?.text;
-    const isVia_bot = ctx.message?.via_bot;
-    const sender = findSender(ctx);
-
-    if (isVia_bot) return true;
-    const isUserActive = await registrationService.isUserActive(sender.id);
-    console.log('user status ', isUserActive);
-    if (isUserActive) return next();
-    if (!isUserActive) {
-    }
-    if (message && mainMenus.includes(message)) {
-      return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
-    }
-
-    return next();
-  };
-}
 
 // Define the parameters as an object
