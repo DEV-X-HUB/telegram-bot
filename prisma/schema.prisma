@@ -51,7 +51,7 @@ model User {
   gender        String? // Optional gender
   display_name  String? // Optional display name
   bio           String? // Optional bio
-  status        UserStatus
+  status        UserStatus  @default(ACTIVE)
   inactive_reason String?  @default("")
   notify_option NotifyOption   @default(none)
 
