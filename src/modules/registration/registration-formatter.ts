@@ -30,6 +30,9 @@ class RegistrationFormatter {
     emailPrompt: ' Please enter your personal Email ',
     countryPrompt: ' Please choose your country ',
     cityPrompt: ' Please choose your City ',
+    registerPrompt: 'Please register to use the service',
+    activationPrompt:
+      '<b>You are currently deactivated</b>\nYou are not allowed to  <b>post</b> or <b>message any one</b>.\n<i>Please contact help center use such services</i> ',
   };
 
   constructor() {

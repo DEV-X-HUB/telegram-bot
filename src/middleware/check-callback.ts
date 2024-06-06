@@ -56,9 +56,9 @@ export function checkCallBacks() {
         return profileController.cancelBlock(ctx, query);
 
       case query.startsWith('sendMessage_'):
-        return console.log(ctx.scene.enter('chat'));
+        return ctx.scene.enter('chat');
       case query.startsWith('replyMessage_'):
-        return console.log(ctx.scene.enter('chat'));
+        return ctx.scene.enter('chat');
     }
 
     return next();

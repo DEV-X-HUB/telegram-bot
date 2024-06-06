@@ -9,6 +9,7 @@ import {
   ResetPasswordDto,
   SignInDto,
   UpdateAdminStatusDto,
+  UpdateUserStatusDto,
   VerifyResetOtpDto,
 } from '../types/dto/auth.dto';
 import bcrypt from 'bcrypt';
@@ -458,6 +459,45 @@ class ApiService {
       return {
         status: 'fail',
         message: `Admin status updated to ${status}`,
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+  static async updateUserStatus(updateAdminStatus: UpdateUserStatusDto): Promise<BareResponse> {
+    try {
+      const { userId, status, reason } = updateAdminStatus;
+
+      const admin = await prisma.user.findFirst({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!admin) {
+        return {
+          status: 'fail',
+          message: 'user  not found',
+        };
+      }
+
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          status,
+          inactive_reason: reason || '',
+        },
+      });
+
+      return {
+        status: 'fail',
+        message: `User  status updated to ${status}`,
       };
     } catch (error: any) {
       console.log(error);

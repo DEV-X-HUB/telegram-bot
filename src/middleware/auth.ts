@@ -2,11 +2,15 @@ import axios from 'axios';
 import config from '../config/config';
 import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
 import { findSender } from '../utils/helpers/chat';
-import RegistrationService from '../modules/registration/restgration.service';
 import { isRegistering } from '../modules/registration/registration.scene';
 import { ResponseWithData } from '../types/api';
 import MainMenuController from '../modules/mainmenu/mainmenu.controller';
+import RegistrationService from '../modules/registration/restgration.service';
+import RegistrationFormatter from '../modules/registration/registration-formatter';
+
 const mainMenuFormmater = new MainMenuFormmater();
+const registrationService = new RegistrationService();
+const registrationFormatter = new RegistrationFormatter();
 
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
 
@@ -42,7 +46,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
 }
 
 export const devlopmentMode = () => {
-  const testUsers = [6715664411, 1497684446, 5821852558, 727495712];
+  const testUsers = [6715664411, 1497684446, 5821852558, 727495712, 6668727233];
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
     if (config.env == 'production') next();
@@ -112,22 +116,10 @@ export const registerationSkips = (ctx: any) => {
 };
 
 export function checkRegistration(skipProfile: boolean = false) {
-  const mainMenus = [
-    'Service 1',
-    'Service 2',
-    'Service 3',
-    'Service 4',
-    'Profile',
-    '🔍 Search Questions',
-    'Go Back',
-    'Next',
-    'FAQ',
-    'Terms and Conditions',
-    'Customer Service',
-    'About Us',
-    'Contact Us',
-  ];
-  const freeMenus = [
+  const postMenus = ['Service 1', 'Service 2', 'Service 3', 'Service 4'];
+  const profileMenu = ['Profile'];
+  const mainMenus = postMenus.concat(profileMenu);
+  const freeMainMenus = [
     '🔍 Search Questions',
     'Browse',
     'Go Back',
@@ -145,17 +137,47 @@ export function checkRegistration(skipProfile: boolean = false) {
     const sender = findSender(ctx);
     const isRegisteredSkiped = registerationSkips(ctx);
 
-    if (message && freeMenus.includes(message)) return MainMenuController.chooseOption(ctx);
+    if (message && freeMainMenus.includes(message)) return MainMenuController.chooseOption(ctx);
     if (isVia_bot) return true;
     if (isRegisteredSkiped) return next();
-    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
+    const isUserRegistered = await registrationService.isUserRegisteredWithTGId(sender.id);
     if (!isUserRegistered) {
-      ctx.reply('Please register to use the service');
+      ctx.reply(registrationFormatter.messages.registerPrompt);
       return ctx.scene.enter('register');
     }
+    const isUserActive = await registrationService.isUserActive(sender.id);
+
+    if (!isUserActive) {
+      // prevent inactive user form posting
+      if (message && postMenus.includes(message)) {
+        return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
+      }
+    }
+
     if (message && mainMenus.includes(message)) {
       if (skipProfile && message == 'Profile') return next();
       return MainMenuController.chooseOption(ctx);
+    }
+
+    return next();
+  };
+}
+export function checkUserStatus() {
+  const mainMenus = ['Service 1', 'Service 2', 'Service 3', 'Service 4'];
+
+  return async (ctx: any, next: any) => {
+    const message = ctx.message?.text;
+    const isVia_bot = ctx.message?.via_bot;
+    const sender = findSender(ctx);
+
+    if (isVia_bot) return true;
+    const isUserActive = await registrationService.isUserActive(sender.id);
+    console.log('user status ', isUserActive);
+    if (isUserActive) return next();
+    if (!isUserActive) {
+    }
+    if (message && mainMenus.includes(message)) {
+      return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
     }
 
     return next();

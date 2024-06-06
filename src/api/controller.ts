@@ -248,6 +248,33 @@ export async function updateAdminStatus(req: Request, res: Response) {
     });
   }
 }
+export async function updateUserStatus(req: Request, res: Response) {
+  try {
+    const { userId, status: userStatus, reason } = req.body;
+    const { status, message } = await ApiService.updateUserStatus({
+      userId,
+      status: userStatus,
+      reason,
+    });
+
+    if (status == 'fail') {
+      return res.status(400).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+    return res.status(200).json({
+      status,
+      message,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
 
 export async function deleteAdmin(req: Request, res: Response) {
   try {

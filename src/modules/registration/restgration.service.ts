@@ -33,6 +33,21 @@ class RegistrationService {
       return false;
     }
   }
+  async isUserActive(tgId: string): Promise<boolean> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          tg_id: tgId.toString(),
+        },
+      });
+
+      if (user?.status == 'ACTIVE') return true;
+      return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
 
   async registerUser(createUserDto: CreateUserDto) {
     try {

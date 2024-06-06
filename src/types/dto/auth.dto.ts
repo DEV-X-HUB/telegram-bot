@@ -17,6 +17,11 @@ export type UpdateAdminStatusDto = {
   adminId: string;
   status: 'ACTIVE' | 'INACTIVE';
 };
+export type UpdateUserStatusDto = {
+  userId: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  reason?: string;
+};
 
 export interface DeleteAdminDto {
   adminId: string;

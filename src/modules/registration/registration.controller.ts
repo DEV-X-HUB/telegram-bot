@@ -255,6 +255,8 @@ class RegistrationController {
             age: parseInt(state.age),
             chat_id: state.chat_id.toString(),
             display_name: null,
+            status: 'ACTIVE',
+            inactive_reason: '',
           };
 
           const response = await registrationService.registerUser(createUserDto);

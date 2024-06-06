@@ -38,7 +38,6 @@ export default () => {
   stage.use(checkAndRedirectToScene());
   bot.use(session());
   bot.use(stage.middleware());
-  // bot.use(checkAndRedirectToScene());
 
   const commands = [
     { name: 'start', description: 'Start the bot' },

@@ -7,6 +7,8 @@ import {
 import { registrationValidator } from '../../utils/validator/registration-validator';
 import { calculateAge } from '../../utils/helpers/date';
 import config from '../../config/config';
+import CreateUserDto from '../../types/dto/create-user.dto';
+import { Context } from 'telegraf';
 
 import { Markup } from 'telegraf';
 import { areEqaul, extractElements, getSectionName, isInInlineOption } from '../../utils/helpers/string';
@@ -14,13 +16,12 @@ import { areEqaul, extractElements, getSectionName, isInInlineOption } from '../
 import ProfileFormatter from './profile-formatter';
 import ProfileService from './profile.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
-import CreateUserDto from '../../types/dto/create-user.dto';
+import PostService from '../post/post.service';
+import { PostCategory } from '../../types/params';
+
 const profileService = new ProfileService();
 const profileFormatter = new ProfileFormatter();
 
-import { Context } from 'telegraf';
-import PostService from '../post/post.service';
-import { PostCategory } from '../../types/params';
 class ProfileController {
   constructor() {}
   saveToState(ctx: any, userData: any) {
@@ -365,6 +366,7 @@ class ProfileController {
 
   async sendMessage(ctx: any, receiver_id: string, message: string) {
     const sender = findSender(ctx);
+
     const userData = await profileService.getProfileDataWithTgId(sender.id);
 
     if (userData?.display_name == null) {
@@ -374,6 +376,7 @@ class ProfileController {
   }
   async replyToMessage(ctx: any, receiver_id: string, message: string) {
     const sender = findSender(ctx);
+
     const userData = await profileService.getProfileDataWithTgId(sender.id);
 
     if (userData?.display_name == null) {
