@@ -353,6 +353,10 @@ class QuestionPostSectionAController {
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
 
+      if (areEqaul(messageText, 'back', true)) {
+        ctx.wizard.state.editField = null;
+        return ctx.replyWithHTML(...section1AFormatter.editPreview(state));
+      }
       // validate data
       const validationMessage = postValidator(editField, messageText);
       if (validationMessage != 'valid') return await ctx.reply(validationMessage);
@@ -370,6 +374,10 @@ class QuestionPostSectionAController {
     };
     const callbackMessage = callbackQuery.data;
 
+    if (areEqaul(callbackMessage, 'back', true)) {
+      ctx.wizard.state.editField = null;
+      return ctx.replyWithHTML(...section1AFormatter.editPreview(state));
+    }
     if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
       await deleteMessageWithCallback(ctx);
       await ctx.replyWithHTML(...section1AFormatter.preview(state), { parse_mode: 'HTML' });
@@ -410,7 +418,7 @@ class QuestionPostSectionAController {
   async editPhoto(ctx: any) {
     imageWaiting = true;
     let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+
     let timer = setTimeout(
       () => {
         if (!imagesNumberReached && imageWaiting) {
@@ -420,12 +428,10 @@ class QuestionPostSectionAController {
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
 
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
-      await deleteMessage(ctx, {
-        message_id: (parseInt(messageText.message_id) - 1).toString(),
-        chat_id: messageText.chat.id,
-      });
       ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
       clearTimeout(timer);
       return ctx.wizard.back();
