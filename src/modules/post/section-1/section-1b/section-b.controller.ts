@@ -17,7 +17,10 @@ import { displayDialog } from '../../../../ui/dialog';
 import { parseDateString } from '../../../../utils/helpers/date';
 import PostService from '../../post.service';
 import config from '../../../../config/config';
+import RegistrationService from '../../../registration/restgration.service';
+import { getCountryCodeByName } from '../../../../utils/helpers/country-list';
 
+const registrationService = new RegistrationService();
 const sectionBFormatter = new SectionBFormatter();
 const profileService = new ProfileService();
 let imagesUploaded: any[] = [];
@@ -186,6 +189,7 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async enterOriginlaLocation(ctx: any) {
+    const sender = findSender(ctx);
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...sectionBFormatter.dateOfExpire());
@@ -195,34 +199,47 @@ class QuestionPostSectionBController {
     // assign the location to the state
     ctx.wizard.state.location = message;
     await deleteKeyboardMarkup(ctx, sectionBFormatter.messages.chooseWoredaPrompt);
-    await ctx.reply(...sectionBFormatter.woredaListDisplay());
+    const userCountry = await registrationService.getUserCountry(sender.id);
+    const countryCode = getCountryCodeByName(userCountry as string);
+
+    ctx.wizard.state.currentRound = 0;
+    ctx.wizard.state.countryCode = countryCode;
+
+    await deleteMessageWithCallback(ctx);
+    ctx.reply(...(await sectionBFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
     return ctx.wizard.next();
   }
-  async choooseWoreda(ctx: any) {
-    console.log(ctx.wizard.state, 'state in section 1b');
+
+  async chooseCity(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    const mainCategory = ctx.wizard.state.main_category;
 
     if (!callbackQuery) return ctx.reply(sectionBFormatter.messages.useButtonError);
 
-    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
-      if (!areEqaul(mainCategory, 'main_4', true)) {
-        deleteMessageWithCallback(ctx);
-        ctx.reply(...sectionBFormatter.originalLocation());
-        return ctx.wizard.back();
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          ctx.reply(...sectionBFormatter.originalLocation());
+          return ctx.wizard.back();
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(
+          ...(await sectionBFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound)),
+        );
       }
-      ctx.reply(...sectionBFormatter.urgencyOptionDisplay());
-      deleteMessageWithCallback(ctx);
-      return ctx.wizard.selectStep(6); // go back to urgency
-    }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await sectionBFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound)),
+        );
+      }
 
-    if (isInInlineOption(callbackQuery.data, sectionBFormatter.woredaList)) {
-      ctx.wizard.state.woreda = callbackQuery.data;
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...sectionBFormatter.descriptionDisplay());
-      return ctx.wizard.next();
+      default:
+        ctx.wizard.state.currentRound = 0;
+        ctx.wizard.state.city = callbackQuery.data;
+        await ctx.reply(...sectionBFormatter.descriptionDisplay());
+        return ctx.wizard.next();
     }
-    return ctx.reply('Unknown option. Please choose a valid option.');
   }
 
   async enterDescription(ctx: any) {
@@ -322,7 +339,7 @@ class QuestionPostSectionBController {
             last_digit: ctx.wizard.state.last_digit as string,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
-            woreda: ctx.wizard.state.woreda,
+            city: ctx.wizard.state.woreda,
             notify_option: ctx.wizard.state.notify_option,
             category: 'Section 1B',
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
@@ -548,6 +565,37 @@ class QuestionPostSectionBController {
       return ctx.wizard.back();
     }
   }
+  async editCity(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+
+    if (!callbackQuery) return ctx.reply(sectionBFormatter.messages.useButtonError);
+
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          await ctx.replyWithHTML(...sectionBFormatter.editPreview(ctx.wizard.state));
+          return ctx.wizard.selectStep(9);
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(
+          ...(await sectionBFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound)),
+        );
+      }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await sectionBFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound)),
+        );
+      }
+
+      default:
+        ctx.wizard.state.currentRound = 0;
+        ctx.wizard.state.city = callbackQuery.data;
+        await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state));
+        return ctx.wizard.selectStep(8);
+    }
+  }
   async postedReview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
@@ -566,7 +614,7 @@ class QuestionPostSectionBController {
           last_digit: ctx.wizard.state.last_digit as string,
           location: ctx.wizard.state.location as string,
           photo: ctx.wizard.state.photo,
-          woreda: ctx.wizard.state.woreda,
+          city: ctx.wizard.state.woreda,
           notify_option: ctx.wizard.state.notify_option,
           category: 'Section 1B',
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,

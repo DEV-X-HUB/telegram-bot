@@ -16,10 +16,10 @@ const PostSectionAScene = new Scenes.WizardScene(
   postSectionAController.preview,
   postSectionAController.editData,
   postSectionAController.editPhoto,
+  postSectionAController.editCity,
   postSectionAController.postReview,
   postSectionAController.adjustNotifySetting,
   postSectionAController.mentionPreviousPost,
-  postSectionAController.editCity,
 );
 PostSectionAScene.use(restartScene('Post-Section-1'));
 

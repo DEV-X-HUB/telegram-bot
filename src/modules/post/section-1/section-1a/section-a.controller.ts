@@ -49,13 +49,13 @@ class QuestionPostSectionAController {
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
       ctx.wizard.state.arbr_value = callbackQuery.data;
       ctx.wizard.state.category = 'Section 1A';
-      ctx.wizard.state.currentRound = 0;
       const userCountry = await registrationService.getUserCountry(sender.id);
       const countryCode = getCountryCodeByName(userCountry as string);
 
+      ctx.wizard.state.currentRound = 0;
       ctx.wizard.state.countryCode = countryCode;
-      await deleteMessageWithCallback(ctx);
 
+      await deleteMessageWithCallback(ctx);
       ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
       return ctx.wizard.next();
     }
@@ -274,8 +274,8 @@ class QuestionPostSectionAController {
                 caption: caption as string,
               });
             }
-
-            return ctx.wizard.selectStep(11);
+            // jump to post preview
+            return ctx.wizard.selectStep(12);
           } else {
             ctx.reply(...section1AFormatter.postingError());
             if (parseInt(ctx.wizard.state.postingAttempt) >= 2) {
@@ -294,12 +294,12 @@ class QuestionPostSectionAController {
           ctx.wizard.state.status = 'Cancelled';
           await deleteMessageWithCallback(ctx);
           await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state, 'Cancelled'));
-          return ctx.wizard.selectStep(11);
+          return ctx.wizard.selectStep(12);
         }
         case 'notify_settings': {
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section1AFormatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
-          return ctx.wizard.selectStep(12);
+          return ctx.wizard.selectStep(13);
         }
         case 'mention_previous_post': {
           // fetch previous posts of the user
@@ -313,7 +313,7 @@ class QuestionPostSectionAController {
           for (const post of posts as any) {
             await ctx.replyWithHTML(...section1AFormatter.displayPreviousPostsList(post));
           }
-          return ctx.wizard.selectStep(13);
+          return ctx.wizard.selectStep(14);
         }
 
         case 'remove_mention_previous_post': {
@@ -399,10 +399,10 @@ class QuestionPostSectionAController {
 
       if (callbackQuery.data == 'city') {
         await ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
-        return ctx.wizard.selectStep(14);
+        return ctx.wizard.selectStep(11);
       }
       await ctx.replyWithHTML(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
-      if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
+      if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.selectStep(10);
       return;
     }
 
@@ -459,6 +459,43 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
   }
+  async editCity(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+
+    if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
+
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          await ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
+          return ctx.wizard.selectStep(9);
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(
+          ...(await section1AFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await section1AFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+
+      default:
+        ctx.wizard.state.currentRound = 0;
+        ctx.wizard.state.city = callbackQuery.data;
+        await ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
+        return ctx.wizard.selectStep(9);
+    }
+  }
   async postReview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return;
@@ -481,7 +518,8 @@ class QuestionPostSectionAController {
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, section1AFormatter.messages.postResubmit);
+
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -494,8 +532,8 @@ class QuestionPostSectionAController {
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
+        await displayDialog(ctx, section1AFormatter.messages.postCancelled);
 
-        await ctx.reply('Cancelled');
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],
@@ -537,7 +575,6 @@ class QuestionPostSectionAController {
   async mentionPreviousPost(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return;
-    console.log(ctx.wizard.state, 'sdfdsafasdf');
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
         await deleteMessageWithCallback(ctx);
@@ -553,43 +590,6 @@ class QuestionPostSectionAController {
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
-    }
-  }
-  async editCity(ctx: any) {
-    const callbackQuery = ctx.callbackQuery;
-
-    if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
-
-    deleteMessageWithCallback(ctx);
-    switch (callbackQuery.data) {
-      case 'back': {
-        if (ctx.wizard.state.currentRound == 0) {
-          await ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
-          return ctx.wizard.selectStep(9);
-        }
-        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
-        return ctx.reply(
-          ...(await section1AFormatter.chooseCityFormatter(
-            ctx.wizard.state.countryCode,
-            ctx.wizard.state.currentRound,
-          )),
-        );
-      }
-      case 'next': {
-        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
-        return ctx.reply(
-          ...(await section1AFormatter.chooseCityFormatter(
-            ctx.wizard.state.countryCode,
-            ctx.wizard.state.currentRound,
-          )),
-        );
-      }
-
-      default:
-        ctx.wizard.state.currentRound = 0;
-        ctx.wizard.state.city = callbackQuery.data;
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
-        return ctx.wizard.selectStep(8);
     }
   }
 }

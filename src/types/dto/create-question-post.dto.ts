@@ -34,7 +34,7 @@ export interface CreatePostService1BDto {
   condition: string;
   id_first_option: string;
   location: string;
-  woreda: string;
+  city: string;
   last_digit: string;
   photo: string[];
   issue_date?: Date;
@@ -50,7 +50,7 @@ export interface CreatePostService1CDto {
   arbr_value: string;
   id_first_option: string;
   paper_stamp: string;
-  woreda: string;
+  city: string;
   last_digit: string;
   service_type_1: string;
   service_type_2: string;
