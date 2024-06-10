@@ -23,12 +23,41 @@ const registrationService = new RegistrationService();
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
 
-let imageWaiting = false;
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
+type ImageCounter = {
+  id: number;
+  waiting: boolean;
+};
 class QuestionPostSectionAController {
+  imageCounter: ImageCounter[] = [];
+  imageTimer: any;
   constructor() {}
+
+  setImageWaiting(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) return;
+    this.imageTimer = setTimeout(
+      () => {
+        this.sendImageWaitingPrompt(ctx);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
+    this.imageCounter.push({ id: sender.id, waiting: true });
+  }
+  clearImageWaiting(id: number) {
+    this.imageCounter = this.imageCounter.filter(({ id: counterId }) => counterId != id);
+  }
+
+  isWaitingImages(id: number): boolean {
+    return this.imageCounter.find(({ id: counterId }) => counterId == id) ? true : false;
+  }
+  async sendImageWaitingPrompt(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, section1AFormatter.messages.imageWaitingMsg);
+  }
 
   async start(ctx: any) {
     await deleteKeyboardMarkup(ctx, section1AFormatter.messages.arBrPromt);
@@ -136,7 +165,6 @@ class QuestionPostSectionAController {
       return ctx.wizard.back();
     }
     const validationMessage = postValidator('location', message);
-    console.log(validationMessage);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     // assign the location to the state
@@ -158,24 +186,16 @@ class QuestionPostSectionAController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    imageWaiting = true;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached && imageWaiting) {
-          ctx.reply(`Waiting for ${imagesNumber} photos `);
-        }
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
-
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
+
+    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+
+    this.setImageWaiting(ctx);
+
     if (message && areEqaul(message, 'back', true)) {
-      imageWaiting = false;
+      this.clearImageWaiting(sender.id);
       ctx.reply(...section1AFormatter.descriptionDisplay());
-      clearTimeout(timer);
       return ctx.wizard.back();
     }
 
@@ -187,9 +207,7 @@ class QuestionPostSectionAController {
 
     // Check if all images received
     if (imagesUploaded.length == imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
-      imageWaiting = false;
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -252,7 +270,6 @@ class QuestionPostSectionAController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             await displayDialog(ctx, section1AFormatter.messages.postSuccessMsg);
-            ctx.reply(...section1AFormatter.postingSuccessful());
             await deleteMessageWithCallback(ctx);
 
             const elements = extractElements<string>(ctx.wizard.state.photo);
@@ -416,24 +433,15 @@ class QuestionPostSectionAController {
     }
   }
   async editPhoto(ctx: any) {
-    imageWaiting = true;
-    let imagesNumberReached = false;
-
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached && imageWaiting) {
-          ctx.reply(`Waiting for ${imagesNumber} photos `);
-        }
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
+    const sender = findSender(ctx);
+    this.setImageWaiting(ctx);
 
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
 
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
       ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
@@ -445,9 +453,7 @@ class QuestionPostSectionAController {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
-      imageWaiting = false;
+      this.clearImageWaiting(sender.id);
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state
@@ -514,7 +520,7 @@ class QuestionPostSectionAController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) await ctx.reply(section1AFormatter.messages.resubmitError);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
@@ -528,7 +534,6 @@ class QuestionPostSectionAController {
         });
       }
       case 'cancel_post': {
-        console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');

@@ -6,6 +6,7 @@ import { NotifyOption } from '../../../../types/params';
 import PostFormatter from '../../post.formmater';
 
 class Post1AFormatter {
+  imagesNumber = 4;
   categories: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
   bIDiOption: TableInlineKeyboardButtons;
@@ -25,13 +26,15 @@ class Post1AFormatter {
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
     postErroMsg: 'Post Error',
     postCancelled: 'Post Cancelled',
-    postResubmit: 'Post Resubmiited',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
 
   constructor() {
