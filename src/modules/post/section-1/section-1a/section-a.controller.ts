@@ -19,17 +19,13 @@ import { CreatePostService1ADto } from '../../../../types/dto/create-question-po
 import PostService from '../../post.service';
 import RegistrationService from '../../../registration/restgration.service';
 import { getCountryCodeByName } from '../../../../utils/helpers/country-list';
+import { ImageCounter } from '../../../../types/params';
 const registrationService = new RegistrationService();
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
-const imagesNumber = 4;
 
-type ImageCounter = {
-  id: number;
-  waiting: boolean;
-};
 class QuestionPostSectionAController {
   imageCounter: ImageCounter[] = [];
   imageTimer: any;
@@ -190,10 +186,13 @@ class QuestionPostSectionAController {
     const message = ctx?.message?.text;
 
     if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
-
     this.setImageWaiting(ctx);
 
     if (message && areEqaul(message, 'back', true)) {
+      await deleteMessage(ctx, {
+        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
+        chat_id: ctx.message.chat.id,
+      });
       this.clearImageWaiting(sender.id);
       ctx.reply(...section1AFormatter.descriptionDisplay());
       return ctx.wizard.back();
@@ -206,7 +205,7 @@ class QuestionPostSectionAController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length == imagesNumber) {
+    if (imagesUploaded.length == section1AFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
@@ -434,8 +433,8 @@ class QuestionPostSectionAController {
   }
   async editPhoto(ctx: any) {
     const sender = findSender(ctx);
-    this.setImageWaiting(ctx);
 
+    this.setImageWaiting(ctx);
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
 
     const messageText = ctx.message?.text;
@@ -452,7 +451,7 @@ class QuestionPostSectionAController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length === imagesNumber) {
+    if (imagesUploaded.length === section1AFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 

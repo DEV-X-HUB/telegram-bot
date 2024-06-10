@@ -6,6 +6,7 @@ import { NotifyOption } from '@prisma/client';
 import PostFormatter from '../../post.formmater';
 
 class Post1BFormatter {
+  imagesNumber = 4;
   categories: TableMarkupKeyboardButtons;
   urgency: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
@@ -33,15 +34,19 @@ class Post1BFormatter {
     chosseWoredaPrompt: 'Please Choose Your Woreda',
     lastDigitPrompt: 'Enter Last Digit',
     locationPrompt: 'Enter sub city and location',
+
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
-
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
     postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   constructor() {
     this.categories = [
