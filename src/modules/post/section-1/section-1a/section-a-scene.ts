@@ -7,7 +7,7 @@ const PostSectionAScene = new Scenes.WizardScene(
   'Post-SectionA',
   postSectionAController.start,
   postSectionAController.arBrOption,
-  postSectionAController.choooseWoreda,
+  postSectionAController.chooseCity,
   postSectionAController.IDFirstOption,
   postSectionAController.enterLastDigit,
   postSectionAController.enterLocation,
@@ -19,6 +19,7 @@ const PostSectionAScene = new Scenes.WizardScene(
   postSectionAController.postReview,
   postSectionAController.adjustNotifySetting,
   postSectionAController.mentionPreviousPost,
+  postSectionAController.editCity,
 );
 PostSectionAScene.use(restartScene('Post-Section-1'));
 

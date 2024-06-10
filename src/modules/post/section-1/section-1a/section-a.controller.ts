@@ -17,10 +17,13 @@ import ProfileService from '../../../profile/profile.service';
 import { displayDialog } from '../../../../ui/dialog';
 import { CreatePostService1ADto } from '../../../../types/dto/create-question-post.dto';
 import PostService from '../../post.service';
-
+import RegistrationService from '../../../registration/restgration.service';
+import { getCountryCodeByName } from '../../../../utils/helpers/country-list';
+const registrationService = new RegistrationService();
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
 
+let imageWaiting = false;
 let imagesUploaded: any[] = [];
 const imagesNumber = 4;
 
@@ -35,7 +38,7 @@ class QuestionPostSectionAController {
 
   async arBrOption(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-
+    const sender = findSender(ctx);
     if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
 
     if (areEqaul(callbackQuery.data, 'back', true)) {
@@ -46,50 +49,63 @@ class QuestionPostSectionAController {
     if (isInInlineOption(callbackQuery.data, section1AFormatter.arBrOption)) {
       ctx.wizard.state.arbr_value = callbackQuery.data;
       ctx.wizard.state.category = 'Section 1A';
+      ctx.wizard.state.currentRound = 0;
+      const userCountry = await registrationService.getUserCountry(sender.id);
+      const countryCode = getCountryCodeByName(userCountry as string);
+
+      ctx.wizard.state.countryCode = countryCode;
       await deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.woredaListDisplay());
+
+      ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
       return ctx.wizard.next();
     }
     return ctx.reply('Unknown option. Please choose a valid option.');
   }
-  async choooseWoreda(ctx: any) {
-    const message = ctx.message?.text;
+  async chooseCity(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
-    if (!callbackQuery) {
-      if (message && areEqaul(message, 'back', true)) {
-        ctx.reply(...section1AFormatter.arBrOptionDisplay());
-        return ctx.wizard.back();
-      }
-    }
-    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.arBrOptionDisplay());
-      return ctx.wizard.back();
-    }
+    if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
 
-    if (isInInlineOption(callbackQuery.data, section1AFormatter.woredaList)) {
-      ctx.wizard.state.woreda = callbackQuery.data;
-      deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.bIDIOptionDisplay());
-      return ctx.wizard.next();
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          ctx.reply(...section1AFormatter.arBrOptionDisplay());
+          return ctx.wizard.back();
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(
+          ...(await section1AFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await section1AFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+
+      default:
+        ctx.wizard.state.currentRound = 0;
+        ctx.wizard.state.city = callbackQuery.data;
+        await ctx.reply(...section1AFormatter.bIDIOptionDisplay());
+        return ctx.wizard.next();
     }
-    return ctx.reply('Unknown option. Please choose a valid option.');
   }
   async IDFirstOption(ctx: any) {
-    const message = ctx.message?.text;
     const callbackQuery = ctx.callbackQuery;
 
-    if (!callbackQuery) {
-      if (message && areEqaul(message, 'back', true)) {
-        ctx.reply(...section1AFormatter.woredaListDisplay());
-        return ctx.wizard.back();
-      }
-      return ctx.reply('Unknown option. Please use buttons to choose .');
-    }
+    if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
+
     if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      ctx.reply(...section1AFormatter.woredaListDisplay());
+      ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
       return ctx.wizard.back();
     }
 
@@ -143,10 +159,13 @@ class QuestionPostSectionAController {
   }
   async attachPhoto(ctx: any) {
     let imagesNumberReached = false;
+    imageWaiting = true;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached && imageWaiting) {
+          ctx.reply(`Waiting for ${imagesNumber} photos `);
+        }
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -154,6 +173,7 @@ class QuestionPostSectionAController {
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
+      imageWaiting = false;
       ctx.reply(...section1AFormatter.descriptionDisplay());
       clearTimeout(timer);
       return ctx.wizard.back();
@@ -169,6 +189,7 @@ class QuestionPostSectionAController {
     if (imagesUploaded.length == imagesNumber) {
       clearTimeout(timer);
       imagesNumberReached = true;
+      imageWaiting = false;
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -187,6 +208,7 @@ class QuestionPostSectionAController {
       imagesUploaded = [];
       ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
       ctx.reply(...section1AFormatter.previewCallToAction());
+
       return ctx.wizard.next();
     }
   }
@@ -218,7 +240,7 @@ class QuestionPostSectionAController {
             last_digit: ctx.wizard.state.last_digit as string,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
-            woreda: ctx.wizard.state.woreda,
+            city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
 
             category: 'Section 1A',
@@ -317,7 +339,7 @@ class QuestionPostSectionAController {
     const fileds = [
       'arbr_value',
       'id_first_option',
-      'woreda',
+      'city',
       'last_digit',
       'location',
       'description',
@@ -366,6 +388,11 @@ class QuestionPostSectionAController {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
+
+      if (callbackQuery.data == 'city') {
+        await ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+        return ctx.wizard.selectStep(14);
+      }
       await ctx.replyWithHTML(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
@@ -381,11 +408,14 @@ class QuestionPostSectionAController {
     }
   }
   async editPhoto(ctx: any) {
+    imageWaiting = true;
     let imagesNumberReached = false;
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
     let timer = setTimeout(
       () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
+        if (!imagesNumberReached && imageWaiting) {
+          ctx.reply(`Waiting for ${imagesNumber} photos `);
+        }
       },
       parseInt(config.image_upload_minute.toString()) * 60 * 1000,
     );
@@ -411,6 +441,7 @@ class QuestionPostSectionAController {
     if (imagesUploaded.length === imagesNumber) {
       clearTimeout(timer);
       imagesNumberReached = true;
+      imageWaiting = false;
       await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
 
       // Save the images to the state
@@ -435,7 +466,7 @@ class QuestionPostSectionAController {
           location: ctx.wizard.state.location as string,
           notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,
-          woreda: ctx.wizard.state.woreda,
+          city: ctx.wizard.state.city,
           category: 'Section 1A',
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
@@ -516,6 +547,43 @@ class QuestionPostSectionAController {
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
         return ctx.wizard.selectStep(8);
       }
+    }
+  }
+  async editCity(ctx: any) {
+    const callbackQuery = ctx.callbackQuery;
+
+    if (!callbackQuery) return ctx.reply(section1AFormatter.messages.useButtonError);
+
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.currentRound == 0) {
+          await ctx.replyWithHTML(...section1AFormatter.editPreview(ctx.wizard.state));
+          return ctx.wizard.selectStep(9);
+        }
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+        return ctx.reply(
+          ...(await section1AFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+      case 'next': {
+        ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+        return ctx.reply(
+          ...(await section1AFormatter.chooseCityFormatter(
+            ctx.wizard.state.countryCode,
+            ctx.wizard.state.currentRound,
+          )),
+        );
+      }
+
+      default:
+        ctx.wizard.state.currentRound = 0;
+        ctx.wizard.state.city = callbackQuery.data;
+        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
+        return ctx.wizard.selectStep(8);
     }
   }
 }

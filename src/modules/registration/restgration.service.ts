@@ -61,6 +61,10 @@ class RegistrationService {
       return { success: false, message: 'unknown error', data: null };
     }
   }
+  async getUserCountry(tg_id: string) {
+    const user = await prisma.user.findFirst({ where: { tg_id: tg_id.toString() } });
+    return user?.country;
+  }
 
   async createUser(createUserDto: CreateUserDto) {
     try {

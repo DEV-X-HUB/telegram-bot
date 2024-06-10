@@ -3,6 +3,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import config from '../../../../config/config';
 import { NotifyOption } from '@prisma/client';
+import PostFormatter from '../../post.formmater';
 
 class Post1BFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -364,6 +365,10 @@ class Post1BFormatter {
   }
   woredaListDisplay() {
     return [this.messages.chooseWoredaPrompt, InlineKeyboardButtons(this.woredaList)];
+  }
+
+  async chooseCityFormatter(countryCode: string, currentRound: any) {
+    return new PostFormatter().chooseCityFormatter(countryCode, currentRound);
   }
 
   locationDisplay() {

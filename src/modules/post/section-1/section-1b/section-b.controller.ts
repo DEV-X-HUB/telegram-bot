@@ -199,6 +199,7 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async choooseWoreda(ctx: any) {
+    console.log(ctx.wizard.state, 'state in section 1b');
     const callbackQuery = ctx.callbackQuery;
     const mainCategory = ctx.wizard.state.main_category;
 

@@ -21,7 +21,9 @@ const postFormmatter = new PostFormmatter();
 const roundSize = 10;
 import { Context, Markup } from 'telegraf';
 class PostController {
-  constructor() {}
+  constructor() {
+    postFormmatter.chooseCityFormatter('et', 1);
+  }
 
   static async handleSearch(ctx: any) {
     const query = ctx?.update?.inline_query?.query;

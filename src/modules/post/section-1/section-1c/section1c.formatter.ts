@@ -3,7 +3,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import config from '../../../../config/config';
 import { NotifyOption } from '../../../../types/params';
 import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
-
+import PostFormatter from '../../post.formmater';
 class Post1CFormatter {
   arBrOption: TableInlineKeyboardButtons;
   paperStampOption: TableInlineKeyboardButtons;
@@ -164,6 +164,9 @@ class Post1CFormatter {
   }
   woredaListDisplay() {
     return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList)];
+  }
+  async chooseCityFormatter(countryCode: string, currentRound: any) {
+    return new PostFormatter().chooseCityFormatter(countryCode, currentRound);
   }
   serviceType1Display() {
     return ['Please Choose Service Type 1', InlineKeyboardButtons(this.serviceType1)];

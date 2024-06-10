@@ -18,7 +18,7 @@ export interface CreatePostService1ADto {
   arbr_value: string;
   id_first_option: string;
   location: string;
-  woreda: string;
+  city: string;
   last_digit: string;
   photo: string[];
 

@@ -3,6 +3,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import config from '../../../../config/config';
 import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
+import PostFormatter from '../../post.formmater';
 
 class Post1AFormatter {
   categories: TableMarkupKeyboardButtons;
@@ -119,6 +120,10 @@ class Post1AFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
+  async chooseCityFormatter(countryCode: string, currentRound: any) {
+    return new PostFormatter().chooseCityFormatter(countryCode, currentRound);
+  }
+
   notifyOptionDisplay(notifyOption: NotifyOption) {
     return [
       this.messages.notifyOptionPrompt,
@@ -141,7 +146,7 @@ class Post1AFormatter {
   }
 
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton:</b> ${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton:</b> ${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
@@ -212,7 +217,7 @@ class Post1AFormatter {
 
         [
           { text: 'Location', cbString: 'location' },
-          { text: 'Woreda', cbString: 'woreda' },
+          { text: 'City', cbString: 'city' },
         ],
         [
           { text: 'Last Digit', cbString: 'last_digit' },
