@@ -171,7 +171,7 @@ model Service1B {
   issue_date                  DateTime? 
   expire_date                 DateTime? 
   location                    String? 
-  woreda                      String 
+  city                      String 
   photo                       String[] 
   post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
 }
@@ -182,7 +182,7 @@ model Service1C {
   arbr_value                  String
   paper_stamp                 String 
   id_first_option             String 
-  woreda                      String 
+  city                      String 
   service_type_1              String 
   service_type_2              String 
   service_type_3              String 

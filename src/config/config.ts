@@ -24,9 +24,7 @@ export default {
     expires_in: process.env.JWT_EXPIRES_IN,
   },
   upload_image_number: process.env.IMAGE_UPLOADED_NUMBER,
-  // image_upload_minute: process.env.IMAGE_UPLOADED_MINUTE || 3,
-  image_upload_minute: 1,
-
+  image_upload_minute: process.env.IMAGE_UPLOADED_MINUTE || 3,
   monthThreshold: 7,
 
   email_host: process.env.EMAIL_HOST,
