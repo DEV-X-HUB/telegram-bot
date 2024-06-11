@@ -24,8 +24,6 @@ import { ImageCounter } from '../../../../types/params';
 const registrationService = new RegistrationService();
 const sectionBFormatter = new SectionBFormatter();
 const profileService = new ProfileService();
-let imagesUploaded: any[] = [];
-const imagesNumber = 4;
 
 class QuestionPostSectionBController {
   imageCounter: ImageCounter[] = [];
@@ -300,6 +298,8 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
+    let imagesUploaded: any[] = [];
+
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     this.setImageWaiting(ctx);
@@ -319,7 +319,7 @@ class QuestionPostSectionBController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length == imagesNumber) {
+    if (imagesUploaded.length == sectionBFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
@@ -580,6 +580,7 @@ class QuestionPostSectionBController {
     }
   }
   async editPhoto(ctx: any) {
+    let imagesUploaded: any[] = [];
     const sender = findSender(ctx);
     const messageText = ctx.message?.text;
     this.setImageWaiting(ctx);
@@ -603,7 +604,7 @@ class QuestionPostSectionBController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length === imagesNumber) {
+    if (imagesUploaded.length == sectionBFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
 
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
