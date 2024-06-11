@@ -25,6 +25,7 @@ const registrationService = new RegistrationService();
 const sectionBFormatter = new SectionBFormatter();
 const profileService = new ProfileService();
 
+let imagesUploaded: any[] = [];
 class QuestionPostSectionBController {
   imageCounter: ImageCounter[] = [];
   imageTimer: any;
@@ -112,7 +113,6 @@ class QuestionPostSectionBController {
       const mainCategory = ctx.wizard.state.main_category;
 
       if (areEqaul(mainCategory, 'main_10', true)) {
-        console.log('yeah equel  ');
         deleteMessageWithCallback(ctx);
         ctx.reply(...sectionBFormatter.mainCategoryOption());
         return ctx.wizard.selectStep(2);
@@ -298,8 +298,6 @@ class QuestionPostSectionBController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    let imagesUploaded: any[] = [];
-
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
     this.setImageWaiting(ctx);
@@ -321,8 +319,6 @@ class QuestionPostSectionBController {
     // Check if all images received
     if (imagesUploaded.length == sectionBFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
-      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       const user = await profileService.getProfileByTgId(sender.id);
@@ -580,7 +576,6 @@ class QuestionPostSectionBController {
     }
   }
   async editPhoto(ctx: any) {
-    let imagesUploaded: any[] = [];
     const sender = findSender(ctx);
     const messageText = ctx.message?.text;
     this.setImageWaiting(ctx);

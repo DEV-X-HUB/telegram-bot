@@ -4,7 +4,11 @@ import Bot from '../loaders/bot';
 async function displayDialog(ctx: any, displayMessage: string) {
   const bot = Bot();
   if (bot != null) {
-    return await ctx.answerCbQuery(displayMessage, { show_alert: true });
+    try {
+      return await ctx.answerCbQuery(displayMessage, { show_alert: true });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 

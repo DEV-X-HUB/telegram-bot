@@ -24,6 +24,7 @@ const registrationService = new RegistrationService();
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
 
+let imagesUploaded: any[] = [];
 class QuestionPostSectionAController {
   imageCounter: ImageCounter[] = [];
   imageTimer: any;
@@ -175,8 +176,6 @@ class QuestionPostSectionAController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    let imagesUploaded: any[] = [];
-
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
 
@@ -430,7 +429,6 @@ class QuestionPostSectionAController {
     }
   }
   async editPhoto(ctx: any) {
-    let imagesUploaded: any[] = [];
     const sender = findSender(ctx);
 
     this.setImageWaiting(ctx);
