@@ -547,9 +547,9 @@ class PostFormatter {
   // }
 
   // choose city based on the selected country
-  async chooseCityFormatter(countryCode: string, currentRound: any) {
+  chooseCityFormatter(countryCode: string, currentRound: any) {
     let cities: any[] = [];
-    const citiesExtracted = await getCitiesOfCountry(countryCode);
+    const citiesExtracted = getCitiesOfCountry(countryCode);
     if (citiesExtracted) cities = citiesExtracted;
     const { cityList, lastRound } = iterateCities(cities, 30, parseInt(currentRound));
 

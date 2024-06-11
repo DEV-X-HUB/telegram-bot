@@ -81,7 +81,7 @@ class QuestionPostSectionAController {
       ctx.wizard.state.countryCode = countryCode;
 
       await deleteMessageWithCallback(ctx);
-      ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+      ctx.reply(...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound));
       return ctx.wizard.next();
     }
     return ctx.reply('Unknown option. Please choose a valid option.');
@@ -100,19 +100,13 @@ class QuestionPostSectionAController {
         }
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
         return ctx.reply(
-          ...(await section1AFormatter.chooseCityFormatter(
-            ctx.wizard.state.countryCode,
-            ctx.wizard.state.currentRound,
-          )),
+          ...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound),
         );
       }
       case 'next': {
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
         return ctx.reply(
-          ...(await section1AFormatter.chooseCityFormatter(
-            ctx.wizard.state.countryCode,
-            ctx.wizard.state.currentRound,
-          )),
+          ...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound),
         );
       }
 
@@ -130,7 +124,8 @@ class QuestionPostSectionAController {
 
     if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
       deleteMessageWithCallback(ctx);
-      ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+      ctx.wizard.state.currentRound = 0;
+      ctx.reply(...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound));
       return ctx.wizard.back();
     }
 
@@ -414,7 +409,10 @@ class QuestionPostSectionAController {
       );
 
       if (callbackQuery.data == 'city') {
-        await ctx.reply(...(await section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, 0)));
+        ctx.wizard.state.currentRound = 0;
+        await ctx.reply(
+          ...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound),
+        );
         return ctx.wizard.selectStep(11);
       }
       await ctx.replyWithHTML(...((await section1AFormatter.editFieldDispay(callbackMessage)) as any));
@@ -478,19 +476,13 @@ class QuestionPostSectionAController {
         }
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
         return ctx.reply(
-          ...(await section1AFormatter.chooseCityFormatter(
-            ctx.wizard.state.countryCode,
-            ctx.wizard.state.currentRound,
-          )),
+          ...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound),
         );
       }
       case 'next': {
         ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
         return ctx.reply(
-          ...(await section1AFormatter.chooseCityFormatter(
-            ctx.wizard.state.countryCode,
-            ctx.wizard.state.currentRound,
-          )),
+          ...section1AFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound),
         );
       }
 
@@ -560,18 +552,21 @@ class QuestionPostSectionAController {
         ctx.wizard.state.notify_option = 'none';
         await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
+        await displayDialog(ctx, section1AFormatter.messages.notifySettingChanged);
         return ctx.wizard.selectStep(8);
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
         await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
+        await displayDialog(ctx, section1AFormatter.messages.notifySettingChanged);
         return ctx.wizard.selectStep(8);
       }
       case 'notify_follower': {
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
         await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
+        await displayDialog(ctx, section1AFormatter.messages.notifySettingChanged);
         return ctx.wizard.selectStep(8);
       }
     }

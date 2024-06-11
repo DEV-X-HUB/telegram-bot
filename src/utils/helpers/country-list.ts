@@ -44,8 +44,8 @@ export const getCountryCodeByName = (countryName: string) => {
 };
 
 // fetch city list based on the selected country
-export const getCitiesOfCountry = async (countryCode: string) => {
-  const cityList = await City.getCitiesOfCountry(countryCode);
+export const getCitiesOfCountry = (countryCode: string) => {
+  const cityList = City.getCitiesOfCountry(countryCode);
   return cityList;
 };
 

@@ -27,6 +27,7 @@ class Post1AFormatter {
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
       'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+    notifySettingChanged: 'Notify Setting Updated',
     postErroMsg: 'Post Error',
     postCancelled: 'Post Cancelled',
     postResubmit: 'Post Re Submited',
@@ -125,7 +126,7 @@ class Post1AFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
-  async chooseCityFormatter(countryCode: string, currentRound: any) {
+  chooseCityFormatter(countryCode: string, currentRound: any) {
     return new PostFormatter().chooseCityFormatter(countryCode, currentRound);
   }
 
