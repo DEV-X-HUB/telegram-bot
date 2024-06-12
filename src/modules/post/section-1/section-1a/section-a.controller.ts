@@ -450,7 +450,7 @@ class QuestionPostSectionAController {
     // Check if all images received
     if (imagesUploaded.length === section1AFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
+      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
