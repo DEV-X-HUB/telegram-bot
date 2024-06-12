@@ -1,4 +1,4 @@
-import { IssueDateSchema, locationSchema, titleSchema } from '../../types/schemas/post-schema';
+import { ExpireDateSchema, IssueDateSchema, locationSchema, titleSchema } from '../../types/schemas/post-schema';
 import DateSchema, {
   DescriptionSchema,
   ConfirmationYearSchema,
@@ -16,7 +16,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
     }
 
     case 'expire_date': {
-      schema = IssueDateSchema;
+      schema = ExpireDateSchema;
       break;
     }
     case 'last_digit': {
