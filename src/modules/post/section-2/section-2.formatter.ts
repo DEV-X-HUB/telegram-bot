@@ -12,15 +12,15 @@ class Post2Formatter {
     enterTitlePrompt: 'Enter Title',
     typePrompt1: '',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPromp: 'Attach a photo',
     useButtonError: 'Please use Buttons to select options',
     mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
+    noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong, please try again',
-    notifyOptionPrompt: 'Select who can be notified this question',
+    notifyOptionPrompt: 'Select who can be notified this post',
   };
   constructor() {
     this.typeOptions = [

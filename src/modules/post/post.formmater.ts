@@ -36,10 +36,10 @@ class PostFormatter {
     [{ text: '✅ Post', cbString: 'post_answer' }],
   ];
   messages = {
-    noQuestionTitle: '**No question found mathcing your query**',
-    noQuestionDesc: 'Click here to ask a question',
+    noQuestionTitle: '**No post found mathcing your query**',
+    noQuestionDesc: 'Click here to ask a post',
     NoQuestionMessageText: 'Click the button below  to ask ',
-    allQuestionsMsg: 'Click the button below  to list the questions ',
+    allQuestionsMsg: 'Click the button below  to list the posts ',
     useButtonError: 'use buttons to select  ',
     selectCategoryMessage: 'Select category...',
     selectTimeStampMessage: 'Select timeframe...',

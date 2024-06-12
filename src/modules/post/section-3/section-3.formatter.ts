@@ -12,7 +12,7 @@ class Section3Formatter {
     titlePrompt: 'What is the title?',
     useButtonError: 'Please use Buttons to select options',
     categoryPrompt: 'Please Choose on category from the options',
-    notifyOptionPrompt: 'Select who can be notified this question',
+    notifyOptionPrompt: 'Select who can be notified this post',
     reviewPrompt: 'Preview your post and press once you are done',
     optionPrompt: 'Please Choose on category from the options',
     attachPhotoPrompt: 'Attach one photo',
@@ -20,7 +20,7 @@ class Section3Formatter {
     postSuccessMsg: 'Posted Successfully',
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
+    noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong, please try again',
   };
   constructor() {

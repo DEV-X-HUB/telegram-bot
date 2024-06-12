@@ -15,7 +15,7 @@ class Post1BFormatter {
   messages = {
     dateOfIssuePrompt: 'Date of Issue mm/yyyy',
     dateOfExpirePrompt: 'Date of Expire mm/yyyy',
-    notifyOptionPrompt: 'Select who can be notified this question',
+    notifyOptionPrompt: 'Select who can be notified this post',
     biDiPrompt: 'Please Choose ID first Icon',
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     chooseWoredaPrompt: 'Please Choose Your Woreda',
@@ -35,11 +35,11 @@ class Post1BFormatter {
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
+    noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong, please try again',
   };
   constructor() {

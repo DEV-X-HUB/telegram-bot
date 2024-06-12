@@ -6,8 +6,8 @@ const locationMaxLetters = 20;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    const wordCount = value.trim().split(/\s+/).length;
-    return wordCount <= maxWords;
+    const charactersCount = value.length;
+    return charactersCount <= maxWords;
   },
   {
     message: `description must not exceed ${maxWords} words`,

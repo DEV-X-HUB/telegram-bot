@@ -9,7 +9,7 @@ class ConstructionFormatter {
   messages = {
     useButtonError: 'Please use buttons to select options',
     unknowOptionError: 'Unknown Option!',
-    notifyOptionPrompt: 'Select who can be notified this question',
+    notifyOptionPrompt: 'Select who can be notified this post',
     sizePrompt: 'Please specify the size',
     locationPrompt: 'Please enter your location',
     companyExpriencePrompt: 'Please choose of the company',
@@ -20,11 +20,11 @@ class ConstructionFormatter {
     attachPhotoPrompt: 'Attach four images with diffrent angle',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
+    noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong',
   };
   sizeOption: TableInlineKeyboardButtons = [
