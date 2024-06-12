@@ -111,7 +111,6 @@ class QuestionPostSection1CController {
       ctx.wizard.state.countryCode = countryCode;
       deleteMessageWithCallback(ctx);
 
-      await deleteMessageWithCallback(ctx);
       ctx.reply(...section1cFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound));
       return ctx.wizard.next();
     }
@@ -360,9 +359,8 @@ class QuestionPostSection1CController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.wizard.state.status = 'Pending';
-            await deleteMessageWithCallback(ctx);
-
             await displayDialog(ctx, section1cFormatter.messages.postSuccessMsg);
+            await deleteMessageWithCallback(ctx);
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = section1cFormatter.preview(ctx.wizard.state, 'submitted');
             if (elements) {
@@ -517,7 +515,7 @@ class QuestionPostSection1CController {
           ...section1cFormatter.chooseCityFormatter(ctx.wizard.state.countryCode, ctx.wizard.state.currentRound),
         );
         // jump to edit city
-        return ctx.wizard.selectStep(17);
+        return ctx.wizard.selectStep(15);
       }
 
       await ctx.replyWithHTML(...((await section1cFormatter.editFieldDispay(callbackMessage)) as any), {
@@ -557,7 +555,7 @@ class QuestionPostSection1CController {
     // Check if all images received
     if (imagesUploaded.length == section1cFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
+      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
