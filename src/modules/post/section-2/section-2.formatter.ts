@@ -20,8 +20,6 @@ class Post2Formatter {
     useButtonError: 'Please use Buttons to select options',
 
     reviewPrompt: 'Preview your post and press once you are done',
-    postSuccessMsg:
-      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
     notifyOptionPrompt: 'Select who can be notified this question',
     notifySettingChanged: 'Notify Setting Updated',
     postErroMsg: 'Post Error',
