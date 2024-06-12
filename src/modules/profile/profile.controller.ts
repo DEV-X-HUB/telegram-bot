@@ -87,8 +87,7 @@ class ProfileController {
 
           for (const post of posts) {
             const sectionName = getSectionName(post.category) as PostCategory;
-
-            if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+            if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
               await replyUserPostPreviewWithContext({
                 ctx,
                 photoURl: (post as any)[sectionName].photo[0],

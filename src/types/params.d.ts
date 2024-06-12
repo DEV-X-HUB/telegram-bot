@@ -35,3 +35,8 @@ export type ContactLink = {
   name: string;
   link: string;
 };
+
+export type ImageCounter = {
+  id: number;
+  waiting: boolean;
+};

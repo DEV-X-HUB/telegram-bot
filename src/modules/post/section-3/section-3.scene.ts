@@ -4,18 +4,18 @@ import { restartScene } from '../../../middleware/check-command';
 
 const section3Controller = new Section3Controller();
 const Section3Scene = new Scenes.WizardScene(
-  'Post-Question-Section-3',
-  section3Controller.start,
-  section3Controller.chooseBirthOrMarital,
-  section3Controller.enterTitle,
-  section3Controller.enterDescription,
-  section3Controller.attachPhoto,
-  section3Controller.preview,
-  section3Controller.editData,
-  section3Controller.editPhoto,
-  section3Controller.postReview,
-  section3Controller.adjustNotifySetting,
-  section3Controller.mentionPreviousPost,
+  'Post-Section-3',
+  section3Controller.start.bind(section3Controller),
+  section3Controller.chooseBirthOrMarital.bind(section3Controller),
+  section3Controller.enterTitle.bind(section3Controller),
+  section3Controller.enterDescription.bind(section3Controller),
+  section3Controller.attachPhoto.bind(section3Controller),
+  section3Controller.preview.bind(section3Controller),
+  section3Controller.editData.bind(section3Controller),
+  section3Controller.editPhoto.bind(section3Controller),
+  section3Controller.postReview.bind(section3Controller),
+  section3Controller.adjustNotifySetting.bind(section3Controller),
+  section3Controller.mentionPreviousPost.bind(section3Controller),
 );
 
 Section3Scene.use(restartScene('Post-Section-3'));

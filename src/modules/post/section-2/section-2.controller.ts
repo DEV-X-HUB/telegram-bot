@@ -17,6 +17,7 @@ import { displayDialog } from '../../../ui/dialog';
 import { CreatePostService2Dto } from '../../../types/dto/create-question-post.dto';
 import PostController from '../post.controller';
 import config from '../../../config/config';
+import { ImageCounter } from '../../../types/params';
 const section2Formatter = new Section2Formatter();
 const profileService = new ProfileService();
 
@@ -24,7 +25,31 @@ let imagesUploaded: any[] = [];
 const imagesNumber = 1;
 
 class PostSection2Controller {
-  constructor() {}
+  imageCounter: ImageCounter[] = [];
+  imageTimer: any;
+  setImageWaiting(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) return;
+    this.imageTimer = setTimeout(
+      () => {
+        this.sendImageWaitingPrompt(ctx);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
+    this.imageCounter.push({ id: sender.id, waiting: true });
+  }
+  clearImageWaiting(id: number) {
+    this.imageCounter = this.imageCounter.filter(({ id: counterId }) => counterId != id);
+  }
+
+  isWaitingImages(id: number): boolean {
+    return this.imageCounter.find(({ id: counterId }) => counterId == id) ? true : false;
+  }
+  async sendImageWaitingPrompt(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, section2Formatter.messages.imageWaitingMsg);
+  }
 
   async start(ctx: any) {
     await deleteKeyboardMarkup(ctx, section2Formatter.messages.typePrompt);
@@ -100,20 +125,15 @@ class PostSection2Controller {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
-
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
+
+    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+    this.setImageWaiting(ctx);
+
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section2Formatter.enterDescriptionDisplay());
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
@@ -124,9 +144,8 @@ class PostSection2Controller {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length == imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length == section2Formatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
@@ -185,36 +204,35 @@ class PostSection2Controller {
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            ctx.reply(...section2Formatter.postingSuccessful());
-            await deleteMessageWithCallback(ctx);
 
             await displayDialog(ctx, section2Formatter.messages.postSuccessMsg);
-            const elements = extractElements<string>(ctx.wizard.state.photo);
-            const [caption, button] = section2Formatter.preview(ctx.wizard.state, 'submitted');
-            if (elements) {
-              // if array of elelement has many photos
-              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
 
-              await replyPostPreview({
-                ctx,
-                photoURl: elements.lastElement,
-                caption: caption as string,
-              });
+            await deleteMessageWithCallback(ctx);
+            if (ctx.wizard.state.photo.length > 0) {
+              const elements = extractElements<string>(ctx.wizard.state.photo);
+              const [caption, button] = section2Formatter.preview(ctx.wizard.state, 'submitted');
+              if (elements) {
+                // if array of elelement has many photos
+                await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
+
+                await replyPostPreview({
+                  ctx,
+                  photoURl: elements.lastElement,
+                  caption: caption as string,
+                });
+              } else {
+                // if array of  has one  photo
+                await replyPostPreview({
+                  ctx,
+                  photoURl: ctx.wizard.state.photo[0],
+                  caption: caption as string,
+                });
+              }
             } else {
-              // if array of  has one  photo
-              await replyPostPreview({
-                ctx,
-                photoURl: ctx.wizard.state.photo[0],
-                caption: caption as string,
+              await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state, 'submitted'), {
+                parse_mode: 'HTML',
               });
             }
-
-            // await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state, 'submitted'), {
-            //   parse_mode: 'HTML',
-            // });
-
-            // post it to the channel
-            await PostController.postToChannel(ctx, config.channel_id, response?.data?.post_id);
 
             return ctx.wizard.selectStep(8);
           } else {
@@ -304,6 +322,11 @@ class PostSection2Controller {
     };
     const callbackMessage = callbackQuery.data;
 
+    if (areEqaul(callbackMessage, 'back', true)) {
+      ctx.wizard.state.editField = null;
+      return ctx.replyWithHTML(...section2Formatter.editPreview(state));
+    }
+
     if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
       await deleteMessageWithCallback(ctx);
       await ctx.replyWithHTML(...section2Formatter.preview(state));
@@ -337,23 +360,15 @@ class PostSection2Controller {
     }
   }
   async editPhoto(ctx: any) {
-    let imagesNumberReached = false;
+    const sender = findSender(ctx);
+
+    this.setImageWaiting(ctx);
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
 
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
-      await deleteMessage(ctx, {
-        message_id: (parseInt(messageText.message_id) - 1).toString(),
-        chat_id: messageText.chat.id,
-      });
       ctx.reply(...section2Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
@@ -365,16 +380,16 @@ class PostSection2Controller {
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, 'Here are the images you uploaded');
+      this.clearImageWaiting(sender.id);
+
+      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
 
       // empty the images array
       // imagesUploaded.length = 0;
-      ctx.reply(...section2Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      ctx.replyWithHTML(...section2Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
   }
@@ -397,7 +412,7 @@ class PostSection2Controller {
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, section2Formatter.messages.postResubmit);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -406,12 +421,11 @@ class PostSection2Controller {
         });
       }
       case 'cancel_post': {
-        console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
-        await ctx.reply('Cancelled');
+        await displayDialog(ctx, section2Formatter.messages.postCancelled);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],
@@ -432,17 +446,20 @@ class PostSection2Controller {
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
+        await displayDialog(ctx, section2Formatter.messages.notifySettingChanged);
         await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(5);
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
+        await displayDialog(ctx, section2Formatter.messages.notifySettingChanged);
         await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(5);
       }
       case 'notify_follower': {
+        await displayDialog(ctx, section2Formatter.messages.notifySettingChanged);
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
         await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });

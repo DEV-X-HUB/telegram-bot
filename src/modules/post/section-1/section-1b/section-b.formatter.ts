@@ -3,8 +3,10 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import config from '../../../../config/config';
 import { NotifyOption } from '@prisma/client';
+import PostFormatter from '../../post.formmater';
 
 class Post1BFormatter {
+  imagesNumber = 4;
   categories: TableMarkupKeyboardButtons;
   urgency: TableMarkupKeyboardButtons;
   arBrOption: TableInlineKeyboardButtons;
@@ -13,12 +15,14 @@ class Post1BFormatter {
   backOption: TableMarkupKeyboardButtons;
   woredaList: TableInlineKeyboardButtons;
   messages = {
+    inValidInput: 'Invalid Input',
     dateOfIssuePrompt: 'Date of Issue mm/yyyy',
     dateOfExpirePrompt: 'Date of Expire mm/yyyy',
     notifyOptionPrompt: 'Select who can be notified this post',
     biDiPrompt: 'Please Choose ID first Icon',
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     chooseWoredaPrompt: 'Please Choose Your Woreda',
+    chooseCityPrompt: 'Please choose your city',
     originalLocationPrompt: 'Original Location ',
     invalidDateErrorPrompt: 'Invalid Date format',
     categoriesPrompt: 'Please Choose main category',
@@ -32,15 +36,20 @@ class Post1BFormatter {
     chosseWoredaPrompt: 'Please Choose Your Woreda',
     lastDigitPrompt: 'Enter Last Digit',
     locationPrompt: 'Enter sub city and location',
+
     attachPhotoPrompt: 'Attach four photos ',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
       'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
-
     postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    notifySettingChanged: 'Notify Setting Updated',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   constructor() {
     this.categories = [
@@ -332,7 +341,7 @@ class Post1BFormatter {
     return MarkupButtons(this.backOption, oneTime);
   }
   InsertTiteDisplay() {
-    return ['Insert Title ?', this.goBackButton(true)];
+    return ['Insert Title ?', this.goBackButton(false)];
   }
   mainCategoryOption() {
     return [this.messages.categoriesPrompt, InlineKeyboardButtons(this.categories)];
@@ -354,16 +363,20 @@ class Post1BFormatter {
     return [this.messages.conditonPrompt, InlineKeyboardButtons(this.urgency)];
   }
   dateOfIssue() {
-    return [this.messages.dateOfIssuePrompt, this.goBackButton(true)];
+    return [this.messages.dateOfIssuePrompt, this.goBackButton(false)];
   }
   dateOfExpire() {
-    return [this.messages.dateOfExpirePrompt, , this.goBackButton(true)];
+    return [this.messages.dateOfExpirePrompt, , this.goBackButton(false)];
   }
   originalLocation() {
-    return [this.messages.originalLocationPrompt, , this.goBackButton(true)];
+    return [this.messages.originalLocationPrompt, , this.goBackButton(false)];
   }
   woredaListDisplay() {
     return [this.messages.chooseWoredaPrompt, InlineKeyboardButtons(this.woredaList)];
+  }
+
+  chooseCityFormatter(countryCode: string, currentRound: any) {
+    return new PostFormatter().chooseCityFormatter(countryCode, currentRound);
   }
 
   locationDisplay() {
@@ -401,8 +414,8 @@ class Post1BFormatter {
 
   getDetailData(state: any) {
     if (areEqaul(state.main_category, 'main_4'))
-      return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n<b>${state.title}</b> \n\n<b>Condtition:</b> ${state.condition}  \n\n<b>Date of Issue:</b> ${state.date_of_issue} \n\n<b>Date of Expire:</b> ${state.date_of_expire} \n\n<b>Original Location:</b> ${state.location}\n\nWoreda: ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
-    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n${state.title}  \n\n<b>Condition:</b> ${state.condition}\n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+      return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n<b>${state.title}</b> \n\n<b>Condtition:</b> ${state.condition}  \n\n<b>Date of Issue:</b> ${typeof state.issue_date == 'string' ? state.issue_date : new Date(state.expire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric' })} \n\n<b>Date of Expire:</b> ${typeof state.expire_date == 'string' ? state.expire_date : new Date(state.expire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric' })} \n\n<b>Original Location:</b> ${state.location}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>${state.sub_category}</b>\n________________\n\n${state.title}  \n\n<b>Condition:</b> ${state.condition}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
@@ -483,7 +496,7 @@ class Post1BFormatter {
 
             [
               { text: 'Condition', cbString: 'condition' },
-              { text: 'Woreda', cbString: 'woreda' },
+              { text: 'City', cbString: 'city' },
             ],
 
             [
@@ -491,7 +504,7 @@ class Post1BFormatter {
               { text: 'Description', cbString: 'description' },
             ],
             [
-              { text: 'photo', cbString: 'photo' },
+              { text: 'Photo', cbString: 'photo' },
               { text: 'Cancel', cbString: 'cancel' },
             ],
             [{ text: 'Done', cbString: 'editing_done' }],
@@ -504,7 +517,7 @@ class Post1BFormatter {
 
             [
               { text: 'Condition', cbString: 'condition' },
-              { text: 'Woreda', cbString: 'woreda' },
+              { text: 'City', cbString: 'city' },
             ],
 
             [
@@ -512,7 +525,7 @@ class Post1BFormatter {
               { text: 'Description', cbString: 'description' },
             ],
             [
-              { text: 'photo', cbString: 'photo' },
+              { text: 'Photo', cbString: 'photo' },
               { text: 'Cancel', cbString: 'cancel' },
             ],
             [{ text: 'Done', cbString: 'editing_done' }],
@@ -523,9 +536,11 @@ class Post1BFormatter {
   async editFieldDispay(editFiled: string, extra?: string) {
     switch (editFiled) {
       case 'condition': {
-        if (extra && extra == 'opse') return this.urgencyOptionDisplay();
-        if (extra && extra == 'urgency') return this.urgencyOptionDisplay();
+        if (extra && 'opse'.includes(extra.trim())) return this.OpSeCondtionOptionDisplay();
+        if (extra && extra.includes('urgent')) return this.urgencyOptionDisplay();
       }
+      case 'title':
+        return this.InsertTiteDisplay();
       case 'main_category':
         return this.mainCategoryOption();
       case 'sub_category':
@@ -548,7 +563,7 @@ class Post1BFormatter {
       case 'photo':
         return this.photoDisplay();
       case 'cancel':
-        return await this.goBackButton();
+        return this.goBackButton();
       default:
         return ['none'];
     }
