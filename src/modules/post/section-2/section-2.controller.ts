@@ -322,6 +322,11 @@ class PostSection2Controller {
     };
     const callbackMessage = callbackQuery.data;
 
+    if (areEqaul(callbackMessage, 'back', true)) {
+      ctx.wizard.state.editField = null;
+      return ctx.replyWithHTML(...section2Formatter.editPreview(state));
+    }
+
     if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
       await deleteMessageWithCallback(ctx);
       await ctx.replyWithHTML(...section2Formatter.preview(state));
@@ -362,10 +367,6 @@ class PostSection2Controller {
 
     const messageText = ctx.message?.text;
     if (messageText && areEqaul(messageText, 'back', true)) {
-      await deleteMessage(ctx, {
-        message_id: (parseInt(messageText.message_id) - 1).toString(),
-        chat_id: messageText.chat.id,
-      });
       ctx.reply(...section2Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
@@ -442,7 +443,6 @@ class PostSection2Controller {
   async adjustNotifySetting(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return;
-    console.log(callbackQuery.data);
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';

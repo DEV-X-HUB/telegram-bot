@@ -583,10 +583,6 @@ class QuestionPostSectionBController {
     if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
 
     if (messageText && areEqaul(messageText, 'back', true)) {
-      await deleteMessage(ctx, {
-        message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-        chat_id: ctx.message.chat.id,
-      });
       ctx.replyWithHTML(...sectionBFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
       this.clearImageWaiting(sender.id);
       return ctx.wizard.back();

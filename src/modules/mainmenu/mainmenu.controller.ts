@@ -31,7 +31,7 @@ class MainMenuController {
       case 'Service 3': {
         ctx.scene.leave();
 
-        return ctx.scene.enter('Post-Question-Section-3');
+        return ctx.scene.enter('Post-Section-3');
       }
       case 'Profile': {
         ctx.scene.leave();
@@ -39,7 +39,7 @@ class MainMenuController {
       }
       case 'Service 4': {
         ctx.scene.leave();
-        return ctx.scene.enter('Post-Question-Section-4');
+        return ctx.scene.enter('Post-Section-4');
       }
       case 'Browse': {
         ctx?.scene?.leave();

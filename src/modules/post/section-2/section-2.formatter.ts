@@ -157,10 +157,7 @@ class Post2Formatter {
     return [
       this.getPreviewData(state),
       InlineKeyboardButtons([
-        [
-          { text: 'Type', cbString: 'type' },
-          { text: 'Title', cbString: 'title' },
-        ],
+        [{ text: 'Title', cbString: 'title' }],
 
         [
           { text: 'Description', cbString: 'description' },
