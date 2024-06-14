@@ -26,6 +26,11 @@ class ConstructionFormatter {
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong',
+    notifySettingChanged: 'Notify Setting Updated',
+
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
   };
   sizeOption: TableInlineKeyboardButtons = [
     [

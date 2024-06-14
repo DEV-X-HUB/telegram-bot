@@ -284,10 +284,9 @@ class QuestionPostSectionConstructionController {
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            console.log('Posting successful');
-            await ctx.reply(...constructionFormatter.postingSuccessful());
+
+            await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
-            await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = constructionFormatter.preview(ctx.wizard.state, 'submitted');
             if (elements) {
@@ -545,11 +544,11 @@ class QuestionPostSectionConstructionController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) await ctx.reply(constructionFormatter.messages.resubmitError);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, constructionFormatter.messages.postResubmit);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -563,7 +562,7 @@ class QuestionPostSectionConstructionController {
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
-        await ctx.reply('Cancelled');
+        await displayDialog(ctx, constructionFormatter.messages.postCancelled);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],
