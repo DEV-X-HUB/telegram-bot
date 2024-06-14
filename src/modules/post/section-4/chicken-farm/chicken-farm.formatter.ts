@@ -22,6 +22,11 @@ class ChickenFarmFormatter {
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    notifySettingChanged: 'Notify Setting Updated',
+    postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
   };
   constructor() {
     this.estimatedCapitalOption = [
