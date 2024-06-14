@@ -221,7 +221,7 @@ class Section3Controller {
             ctx.wizard.state.post_main_id = response?.data?.post_id;
 
             await deleteMessageWithCallback(ctx);
-            await displayDialog(ctx, section3Formatter.messages.postSuccessMsg);
+            await displayDialog(ctx, section3Formatter.messages.postSuccessMsg, true);
             if (ctx.wizard.state.photo.length > 0) {
               const elements = extractElements<string>(ctx.wizard.state.photo);
               const [caption, button] = section3Formatter.preview(ctx.wizard.state, 'submitted');

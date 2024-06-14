@@ -359,7 +359,7 @@ class QuestionPostSection1CController {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.wizard.state.status = 'Pending';
-            await displayDialog(ctx, section1cFormatter.messages.postSuccessMsg);
+            await displayDialog(ctx, section1cFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = section1cFormatter.preview(ctx.wizard.state, 'submitted');

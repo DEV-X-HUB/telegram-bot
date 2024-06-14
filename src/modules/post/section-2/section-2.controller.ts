@@ -205,7 +205,7 @@ class PostSection2Controller {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
 
-            await displayDialog(ctx, section2Formatter.messages.postSuccessMsg);
+            await displayDialog(ctx, section2Formatter.messages.postSuccessMsg, true);
 
             await deleteMessageWithCallback(ctx);
             if (ctx.wizard.state.photo.length > 0) {
@@ -251,6 +251,7 @@ class PostSection2Controller {
         }
         case 'cancel': {
           ctx.wizard.state.status = 'Cancelled';
+          await displayDialog(ctx, section2Formatter.messages.postCancelled);
           await deleteMessageWithCallback(ctx);
           await ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state, 'Cancelled'), {
             parse_mode: 'HTML',

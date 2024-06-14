@@ -262,7 +262,7 @@ class QuestionPostSectionAController {
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            await displayDialog(ctx, section1AFormatter.messages.postSuccessMsg);
+            await displayDialog(ctx, section1AFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
 
             const elements = extractElements<string>(ctx.wizard.state.photo);
