@@ -84,7 +84,7 @@ class Section3Controller {
   }
 
   async enterTitle(ctx: any) {
-    const message = ctx.message.text;
+    const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
       return ctx.wizard.back();
@@ -140,6 +140,7 @@ class Section3Controller {
     if (message && areEqaul(message, 'skip', true)) {
       this.clearImageWaiting(sender.id);
       ctx.wizard.state.photo = [];
+      ctx.wizard.state.status = 'preview';
       await deleteKeyboardMarkup(ctx);
       ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.next();
