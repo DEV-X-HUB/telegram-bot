@@ -544,7 +544,7 @@ class QuestionPostSectionConstructionController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply(constructionFormatter.messages.resubmitError);
+        if (!response?.success) await await displayDialog(ctx, constructionFormatter.messages.resubmitError);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
@@ -560,7 +560,7 @@ class QuestionPostSectionConstructionController {
         console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
-        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+        if (!deleted) return await displayDialog(ctx, constructionFormatter.messages.postErroMsg);
 
         await displayDialog(ctx, constructionFormatter.messages.postCancelled);
         return ctx.editMessageReplyMarkup({

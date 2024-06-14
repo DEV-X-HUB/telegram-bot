@@ -234,12 +234,12 @@ class ManufactureController {
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            await ctx.reply(...manufactureFormatter.postingSuccessful());
+
+            await displayDialog(ctx, manufactureFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, manufactureFormatter.messages.postSuccessMsg);
+            // await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
+            //   parse_mode: 'HTML',
+            // });
 
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = manufactureFormatter.preview(ctx.wizard.state, 'submitted');
@@ -520,11 +520,11 @@ class ManufactureController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) await displayDialog(ctx, manufactureFormatter.messages.postErroMsg);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, manufactureFormatter.messages.postResubmit);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -536,9 +536,8 @@ class ManufactureController {
         console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
-        if (!deleted) return await ctx.reply('Unable to cancel the post ');
-
-        await ctx.reply('Cancelled');
+        if (!deleted) return await displayDialog(ctx, manufactureFormatter.messages.postErroMsg);
+        await displayDialog(ctx, manufactureFormatter.messages.postCancelled);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],

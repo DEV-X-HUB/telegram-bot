@@ -30,6 +30,9 @@ class ManufactureFormatter {
     somethingWentWrong: 'Something went wrong',
     postSuccessMsg:
       'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
   };
   constructor() {
     this.estimatedCapitalOption = [
