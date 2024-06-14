@@ -12,4 +12,16 @@ async function displayDialog(ctx: any, displayMessage: string) {
   }
 }
 
-export { displayDialog };
+// Display modal dialog with a message
+async function displayModal(ctx: any, displayMessage: string) {
+  const bot = Bot();
+  if (bot != null) {
+    try {
+      return await ctx.answerCbQuery(displayMessage, true);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+export { displayDialog, displayModal };
