@@ -45,11 +45,12 @@ class Post1BFormatter {
     postCancelled: 'Post Cancelled',
     notifySettingChanged: 'Notify Setting Updated',
     postResubmit: 'Post Re Submited',
-    resubmitError: 'Post Re Submited',
+    resubmitError: 'Unable to resubmit post',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong, please try again',
     imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
+    deletePostErrorMsg: 'Unable to delete post',
   };
   constructor() {
     this.categories = [

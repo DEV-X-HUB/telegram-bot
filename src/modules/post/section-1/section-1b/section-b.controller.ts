@@ -13,7 +13,7 @@ import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import { CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
-import { displayDialog } from '../../../../ui/dialog';
+import { displayDialog, displayModal } from '../../../../ui/dialog';
 import { parseDateString } from '../../../../utils/helpers/date';
 import PostService from '../../post.service';
 import config from '../../../../config/config';
@@ -425,10 +425,12 @@ class QuestionPostSectionBController {
         case 'cancel': {
           ctx.wizard.state.status = 'Cancelled';
           await deleteMessageWithCallback(ctx);
+          await displayModal(ctx, sectionBFormatter.messages.postCancelled);
           await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state, 'Cancelled'), {
             parse_mode: 'HTML',
           });
-          // hump to post preview
+
+          // jump to post preview
           return ctx.wizard.selectStep(18);
         }
         case 'notify_settings': {
@@ -665,12 +667,12 @@ class QuestionPostSectionBController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) await ctx.reply(sectionBFormatter.messages.resubmitError);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
         ctx.wizard.state.status = 'Pending';
-        await displayDialog(ctx, sectionBFormatter.messages.postCancelled);
+        await displayModal(ctx, sectionBFormatter.messages.postResubmit);
 
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
@@ -681,9 +683,9 @@ class QuestionPostSectionBController {
       }
       case 'cancel_post': {
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1B');
-        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+        if (!deleted) return await ctx.reply(sectionBFormatter.messages.deletePostErrorMsg);
 
-        await displayDialog(ctx, sectionBFormatter.messages.postCancelled);
+        await displayModal(ctx, sectionBFormatter.messages.postCancelled);
 
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
@@ -704,27 +706,28 @@ class QuestionPostSectionBController {
     if (!callbackQuery) return await ctx.reply(sectionBFormatter.messages.useButtonError);
     switch (callbackQuery.data) {
       case 'notify_none': {
+        console.log('NONE');
         ctx.wizard.state.notify_option = 'none';
         await deleteMessageWithCallback(ctx);
 
+        await displayModal(ctx, sectionBFormatter.messages.notifySettingChanged);
         await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
         return ctx.wizard.selectStep(14);
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
         await deleteMessageWithCallback(ctx);
 
+        await displayModal(ctx, sectionBFormatter.messages.notifySettingChanged);
         await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
         return ctx.wizard.selectStep(14);
       }
       case 'notify_follower': {
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
 
+        await displayModal(ctx, sectionBFormatter.messages.notifySettingChanged);
         await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
         return ctx.wizard.selectStep(14);
       }
     }
