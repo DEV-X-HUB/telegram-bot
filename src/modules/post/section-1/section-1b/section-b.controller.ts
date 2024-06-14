@@ -13,7 +13,7 @@ import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import { CreatePostService1BDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
-import { displayDialog, displayModal } from '../../../../ui/dialog';
+import { displayDialog } from '../../../../ui/dialog';
 import { parseDateString } from '../../../../utils/helpers/date';
 import PostService from '../../post.service';
 import config from '../../../../config/config';
@@ -384,9 +384,10 @@ class QuestionPostSectionBController {
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             ctx.wizard.state.status = 'Pending';
 
+            await displayDialog(ctx, sectionBFormatter.messages.postSuccessMsg, true);
+
             await deleteMessageWithCallback(ctx);
 
-            await displayDialog(ctx, sectionBFormatter.messages.postSuccessMsg);
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = sectionBFormatter.preview(ctx.wizard.state, 'submitted');
             if (elements) {
@@ -425,7 +426,7 @@ class QuestionPostSectionBController {
         case 'cancel': {
           ctx.wizard.state.status = 'Cancelled';
           await deleteMessageWithCallback(ctx);
-          await displayModal(ctx, sectionBFormatter.messages.postCancelled);
+          await displayDialog(ctx, sectionBFormatter.messages.postCancelled);
           await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state, 'Cancelled'), {
             parse_mode: 'HTML',
           });
@@ -672,7 +673,7 @@ class QuestionPostSectionBController {
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
         ctx.wizard.state.status = 'Pending';
-        await displayModal(ctx, sectionBFormatter.messages.postResubmit);
+        await displayDialog(ctx, sectionBFormatter.messages.postResubmit);
 
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
@@ -685,7 +686,7 @@ class QuestionPostSectionBController {
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1B');
         if (!deleted) return await ctx.reply(sectionBFormatter.messages.deletePostErrorMsg);
 
-        await displayModal(ctx, sectionBFormatter.messages.postCancelled);
+        await displayDialog(ctx, sectionBFormatter.messages.postCancelled);
 
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
@@ -710,7 +711,7 @@ class QuestionPostSectionBController {
         ctx.wizard.state.notify_option = 'none';
         await deleteMessageWithCallback(ctx);
 
-        await displayModal(ctx, sectionBFormatter.messages.notifySettingChanged);
+        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
         await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(14);
       }
@@ -718,7 +719,7 @@ class QuestionPostSectionBController {
         ctx.wizard.state.notify_option = 'friend';
         await deleteMessageWithCallback(ctx);
 
-        await displayModal(ctx, sectionBFormatter.messages.notifySettingChanged);
+        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
         await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(14);
       }
@@ -726,7 +727,7 @@ class QuestionPostSectionBController {
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
 
-        await displayModal(ctx, sectionBFormatter.messages.notifySettingChanged);
+        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
         await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         return ctx.wizard.selectStep(14);
       }
