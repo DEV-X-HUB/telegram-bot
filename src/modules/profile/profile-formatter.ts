@@ -36,11 +36,18 @@ class ProfileFormatter {
   ];
   backButtonCallback = [[{ text: 'Back', cbString: `back` }]];
   editOptionsButtons = [
-    [{ text: ' Edit Name', cbString: `display_name` }],
-    [{ text: 'Edit Bio', cbString: `bio` }],
-    [{ text: 'Edit Gender', cbString: `gender` }],
-    [{ text: 'Edit Age', cbString: `age` }],
-    [{ text: 'Edit Country', cbString: `country` }],
+    [
+      { text: ' Name', cbString: `display_name` },
+      { text: ' Bio', cbString: `bio` },
+    ],
+    [
+      { text: ' Email', cbString: `email` },
+      { text: ' Gender', cbString: `gender` },
+    ],
+    [
+      { text: ' Age', cbString: `age` },
+      { text: ' Country', cbString: `country` },
+    ],
     [{ text: 'Back', cbString: `back` }],
   ];
   settingButtons = [
@@ -87,6 +94,7 @@ class ProfileFormatter {
   postActions(post_id: string, status: PostUpdateStatus) {
     if (status == 'pending')
       return [
+        [{ text: 'View Detail', cbString: '', url: `${config.bot_url}?start=postDetail_${post_id}`, isUrl: true }],
         [
           {
             text: 'Cancel',
@@ -97,6 +105,7 @@ class ProfileFormatter {
 
     if (status == 'open') {
       return [
+        [{ text: 'View Detail', cbString: '', url: `${config.bot_url}?start=postDetail_${post_id}`, isUrl: true }],
         [
           {
             text: 'Close',
@@ -108,6 +117,7 @@ class ProfileFormatter {
 
     if (status == 'close') {
       return [
+        [{ text: 'View Detail', cbString: '', url: `${config.bot_url}?start=postDetail_${post_id}`, isUrl: true }],
         [
           {
             text: 'Open',
@@ -117,6 +127,7 @@ class ProfileFormatter {
       ];
     }
     return [
+      [{ text: 'View Detail', cbString: '', url: `${config.bot_url}?start=postDetail_${post_id}`, isUrl: true }],
       [
         {
           text: 'Open',
@@ -232,6 +243,8 @@ class ProfileFormatter {
     switch (editFiled) {
       case 'country':
         return this.chooseCountryFormatter();
+      case 'email':
+        return [this.messages.emailPrompt, this.goBackButton()];
       case 'age':
         return [this.messages.agePrompt, this.goBackButton()];
       case 'display_name':
@@ -243,6 +256,9 @@ class ProfileFormatter {
       default:
         return [this.messages.namePrompt, this.goBackButton()];
     }
+  }
+  updateProfileMessage(filed: string) {
+    return `Your profile is updated with new  ${filed.toUpperCase()} value !`;
   }
 
   formateFollowersList(followers: any[]) {
@@ -362,7 +378,7 @@ class ProfileFormatter {
   }
   emailFormatter(editing?: boolean) {
     // if the email is bieng edidted skip button is not shown
-    return [`Please enter your personal Email `, this.goBackButton(editing ? false : true)];
+    return [this.messages.emailPrompt, this.goBackButton(editing ? false : true)];
   }
 
   async chooseCountryFormatter() {

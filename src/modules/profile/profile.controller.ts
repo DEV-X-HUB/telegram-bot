@@ -19,6 +19,7 @@ import MainMenuController from '../mainmenu/mainmenu.controller';
 import PostService from '../post/post.service';
 import { PostCategory } from '../../types/params';
 import { profileValidator } from '../../utils/validator/profile-validator';
+import { displayDialog } from '../../ui/dialog';
 
 const profileService = new ProfileService();
 const profileFormatter = new ProfileFormatter();
@@ -254,8 +255,10 @@ class ProfileController {
     if (!callbackQuery) return ctx.reply(profileFormatter.messages.useButtonError);
 
     deleteMessageWithCallback(ctx);
-    if (areEqaul(callbackQuery.data, 'back', true))
+    if (areEqaul(callbackQuery.data, 'back', true)) {
+      ctx.wizard.state.activity = 'preview';
       return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    }
     ctx.wizard.state.activity = 'profile_edit_editing';
     ctx.wizard.state.editField = callbackQuery.data;
     return ctx.reply(...(await profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender)));
@@ -311,7 +314,9 @@ class ProfileController {
                 age: parseInt(state.userData.age.toString()),
               });
               deleteMessageWithCallback(ctx);
+
               this.saveToState(ctx, newData);
+              await displayDialog(ctx, profileFormatter.updateProfileMessage('country'));
               return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
           }
         }
@@ -344,6 +349,7 @@ class ProfileController {
           deleteMessageWithCallback(ctx);
           this.saveToState(ctx, newData);
           ctx.wizard.state.activity = 'preview';
+          await displayDialog(ctx, profileFormatter.updateProfileMessage(state.editField));
           return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
       }
     }
@@ -376,6 +382,7 @@ class ProfileController {
     });
     this.saveToState(ctx, newData);
     ctx.wizard.state.activity = 'preview';
+    await displayDialog(ctx, profileFormatter.updateProfileMessage(state.editField));
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
   async followingList(ctx: any) {

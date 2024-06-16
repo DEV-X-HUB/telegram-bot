@@ -133,7 +133,7 @@ class RegistrationFormatter {
   }
   emailFormatter(editing?: boolean) {
     // if the email is bieng edidted skip button is not shown
-    return [`Please enter your personal Email `, this.goBackButton(editing ? false : true)];
+    return [this.messages.emailPrompt, this.goBackButton(editing ? false : true)];
   }
 
   async chooseCountryFormatter(editing?: boolean) {
