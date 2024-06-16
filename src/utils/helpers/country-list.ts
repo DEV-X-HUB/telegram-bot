@@ -19,8 +19,8 @@ export const getSelectedCoutryList = () => {
   return selectedCountries;
 };
 
-export const getFilteredCoutryList = async (countryCodes: string[]) => {
-  const countryList = await getAllCountries();
+export const getFilteredCoutryList = (countryCodes: string[]) => {
+  const countryList = getAllCountries();
   return countryList.filter((country) => {
     return countryCodes.some((countryCode) => {
       return areEqaul(countryCode, country.isoCode, true);

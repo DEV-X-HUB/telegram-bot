@@ -17,9 +17,11 @@ import PostFormatter from '../post/post.formmater';
 type PostUpdateStatus = 'open' | 'close' | 'cancel' | 'pending';
 
 class ProfileFormatter {
+  textEditFields = ['age', 'display_name', 'email'];
+  buttonEditFields = ['gender', 'country'];
   postFormtter;
   countries: any[] = [];
-  countryCodes: any[] = ['et'];
+  countryCodes: any[] = ['et', 'ke', 'ug', 'tz'];
   previewButtons = [
     [{ text: '✏️ Edit Profile', cbString: `edit_profile` }],
     [{ text: 'My Posts', cbString: `my_posts` }],
@@ -37,6 +39,8 @@ class ProfileFormatter {
     [{ text: ' Edit Name', cbString: `display_name` }],
     [{ text: 'Edit Bio', cbString: `bio` }],
     [{ text: 'Edit Gender', cbString: `gender` }],
+    [{ text: 'Edit Age', cbString: `age` }],
+    [{ text: 'Edit Country', cbString: `country` }],
     [{ text: 'Back', cbString: `back` }],
   ];
   settingButtons = [
@@ -64,6 +68,7 @@ class ProfileFormatter {
     countryPrompt: ' Please choose your country ',
     cityPrompt: ' Please choose your City ',
     settingPrompt: ' Customize your experience',
+    agePrompt: 'Please  your age as a number between 14 - 100 OR enter your date of Birth in dd/mm/yyyy format ',
 
     postFetchError: 'Unable to fetch your posts',
     noPostMsg: 'Your have not posted any thing yet !',
@@ -197,7 +202,7 @@ class ProfileFormatter {
   }
 
   formatePreview(userData: any) {
-    const header = `${userData.display_name || `Anonymous${areEqaul(userData.gender, 'male', true) ? '👨‍🦱' : ' 👧'}`}   | ${userData.followers} Followers | ${userData.followings} Followings\n`;
+    const header = `${userData.display_name || `Anonymous`} ${`${areEqaul(userData.gender, 'male', true) ? ' 👨‍🦱' : ' 👧'}`}   | ${userData.followers} Followers | ${userData.followings} Followings\n`;
     const gap = '---------------------------------------\n';
     const qaStat = `Posted ${userData.posts} Posts, Joined ${formatDateFromIsoString(userData.created_at)}\n`;
     const bio = `\nBio: ${userData.bio || 'none'}`;
@@ -223,14 +228,18 @@ class ProfileFormatter {
     ];
   }
 
-  editPrompt(editFiled: string, gender: string) {
+  editPrompt(editFiled: string, extra?: string) {
     switch (editFiled) {
+      case 'country':
+        return this.chooseCountryFormatter();
+      case 'age':
+        return [this.messages.agePrompt, this.goBackButton()];
       case 'display_name':
         return [this.messages.namePrompt, this.goBackButton()];
       case 'bio':
         return [this.messages.bioPrompt, this.goBackButton()];
       case 'gender':
-        return [this.messages.genderPrompt, InlineKeyboardButtons(this.genderOpton(gender))];
+        return [this.messages.genderPrompt, InlineKeyboardButtons(this.genderOpton(extra as string))];
       default:
         return [this.messages.namePrompt, this.goBackButton()];
     }
@@ -356,8 +365,8 @@ class ProfileFormatter {
     return [`Please enter your personal Email `, this.goBackButton(editing ? false : true)];
   }
 
-  async chooseCountryFormatter(editing?: boolean) {
-    const countries = await getFilteredCoutryList(this.countryCodes);
+  async chooseCountryFormatter() {
+    const countries = getFilteredCoutryList(this.countryCodes);
     return [
       'Please choose your country',
       InlineKeyboardButtons([
@@ -373,7 +382,7 @@ class ProfileFormatter {
   // choose city based on the selected country
   async chooseCityFormatter(countryCode: string, currentRound: any) {
     let cities: any[] = [];
-    const citiesExtracted = await getCitiesOfCountry(countryCode);
+    const citiesExtracted = getCitiesOfCountry(countryCode);
     if (citiesExtracted) cities = citiesExtracted;
     const { cityList, lastRound } = iterateCities(cities, 30, parseInt(currentRound));
 
@@ -434,26 +443,7 @@ class ProfileFormatter {
       ]),
     ];
   }
-  async editFiledDispay(editFiled: string, extraKey?: string) {
-    switch (editFiled) {
-      case 'first_name':
-        return this.firstNameformatter();
-      case 'last_name':
-        return this.lastNameformatter();
-      case 'age':
-        return this.ageFormatter();
-      case 'gender':
-        return this.chooseGenderFormatter();
-      case 'country':
-        return await this.chooseCountryFormatter();
-      case 'city':
-        return await this.chooseCityFormatter(extraKey || '', 0);
-      case 'email':
-        return await this.emailFormatter(true);
-      default:
-        return ['none'];
-    }
-  }
+
   registrationError() {
     return [`Unable to register you please try again`];
   }

@@ -137,7 +137,7 @@ class RegistrationFormatter {
   }
 
   async chooseCountryFormatter(editing?: boolean) {
-    const countries = await getFilteredCoutryList(this.countryCodes);
+    const countries = getFilteredCoutryList(this.countryCodes);
     return [
       'Please choose your country',
       InlineKeyboardButtons([
