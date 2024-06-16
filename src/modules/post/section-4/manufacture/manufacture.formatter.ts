@@ -5,6 +5,7 @@ import { NotifyOption } from '../../../../types/params';
 import config from '../../../../config/config';
 
 class ManufactureFormatter {
+  imagesNumber = 4;
   estimatedCapitalOption: TableInlineKeyboardButtons;
   numberOfWorkerOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
@@ -33,6 +34,7 @@ class ManufactureFormatter {
     postCancelled: 'Post Cancelled',
     postResubmit: 'Post Re Submited',
     resubmitError: 'Post Re Submited',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   constructor() {
     this.estimatedCapitalOption = [

@@ -141,7 +141,8 @@ class Section3Controller {
       this.clearImageWaiting(sender.id);
       ctx.wizard.state.photo = [];
       ctx.wizard.state.status = 'preview';
-      await deleteKeyboardMarkup(ctx);
+
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.next();
     }
@@ -158,7 +159,7 @@ class Section3Controller {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
-      await deleteKeyboardMarkup(ctx);
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
       // Find the user
 
@@ -341,7 +342,8 @@ class Section3Controller {
       if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;
-      await deleteKeyboardMarkup(ctx);
+
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       return ctx.replyWithHTML(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
@@ -404,7 +406,7 @@ class Section3Controller {
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
 
     if (messageText && (areEqaul(messageText, 'skip', true) || areEqaul(messageText, 'back', true))) {
-      await deleteKeyboardMarkup(ctx);
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       ctx.reply(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
 
       this.clearImageWaiting(sender.id);
@@ -422,7 +424,8 @@ class Section3Controller {
     if (imagesUploaded.length === section3Formatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      await deleteKeyboardMarkup(ctx);
+
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
@@ -446,7 +449,7 @@ class Section3Controller {
           description: ctx.wizard.state.description,
           category: 'Section 3',
           notify_option: ctx.wizard.state.notify_option,
-          previous_post_id: ctx.wizard.state.post_id,
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
         if (!response?.success) return await ctx.reply('Unable to resubmite');

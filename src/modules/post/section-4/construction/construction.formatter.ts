@@ -5,6 +5,7 @@ import config from '../../../../config/config';
 import { NotifyOption } from '../../../../types/params';
 
 class ConstructionFormatter {
+  imagesNumber = 4;
   inlineBackButton: TableInlineKeyboardButtons;
   messages = {
     useButtonError: 'Please use buttons to select options',
@@ -31,6 +32,7 @@ class ConstructionFormatter {
     postCancelled: 'Post Cancelled',
     postResubmit: 'Post Re Submited',
     resubmitError: 'Post Re Submited',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   sizeOption: TableInlineKeyboardButtons = [
     [
