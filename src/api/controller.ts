@@ -6,10 +6,11 @@ import PostController from '../modules/post/post.controller';
 import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 import { PostStatus } from '@prisma/client';
+import { PostCategory } from '../types/params';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
-  console.log(message);
+
   if (status == 'success') {
     await sendEmail(
       config.super_admin_email as string,
@@ -21,8 +22,7 @@ import { PostStatus } from '@prisma/client';
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
-  const round = req.params.round;
-  const { status, data, message } = await ApiService.getPosts(parseInt(round) || 1);
+  const { status, data, message } = await ApiService.getPosts();
   if (status == 'fail') {
     res.status(500).json({
       status,
@@ -36,7 +36,7 @@ export const getPosts = async (req: Request, res: Response) => {
 };
 
 export const getPostsByStatus = async (req: Request, res: Response) => {
-  const { round, status } = req.params;
+  const { status } = req.params;
 
   if (!status) {
     return res.status(400).json({
@@ -45,11 +45,32 @@ export const getPostsByStatus = async (req: Request, res: Response) => {
     });
   }
 
-  const {
+  const { status: fetchStatus, data, message } = await ApiService.getPostsByStatus(status as PostStatus);
+
+  if (fetchStatus === 'fail') {
+    return res.status(500).json({
+      status: fetchStatus,
+      message,
+    });
+  }
+
+  return res.status(200).json({
     status: fetchStatus,
     data,
-    message,
-  } = await ApiService.getPostsByStatus(parseInt(round) || 1, status as PostStatus);
+  });
+};
+
+export const getPostsByCategory = async (req: Request, res: Response) => {
+  const { status } = req.params;
+
+  if (!status) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Status parameter is required',
+    });
+  }
+
+  const { status: fetchStatus, data, message } = await ApiService.getPostsByCategory(status as PostCategory);
 
   if (fetchStatus === 'fail') {
     return res.status(500).json({
