@@ -15,11 +15,10 @@ import {
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import generateOTP from '../utils/generatePassword';
+import { PostCategory } from '../types/params';
 
 class ApiService {
   static async getPosts(round: number = 1): Promise<ResponseWithData> {
-    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
-    const postCount = await prisma.post.count();
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -42,29 +41,19 @@ class ApiService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
-        skip,
-        take: parseInt(config.number_of_result || '5'),
       });
 
       return {
         status: 'success',
         message: 'post fetched successfully',
-        data: { posts: posts, nextRound: posts.length == postCount ? round : round + 1, total: postCount },
+        data: posts,
       };
     } catch (error: any) {
       console.error('Error searching questions:', error);
       return { status: 'fail', message: error?.message, data: null };
     }
   }
-  static async getPostsByStatus(round: number = 1, status: PostStatus): Promise<ResponseWithData> {
-    const resultsPerPage = parseInt(config.number_of_result || '5');
-    const skip = (round - 1) * resultsPerPage;
-    const postCount = await prisma.post.count({
-      where: {
-        status: status as PostStatus,
-      },
-    });
-
+  static async getPostsByStatus(status: PostStatus): Promise<ResponseWithData> {
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -83,18 +72,47 @@ class ApiService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
-        skip,
-        take: resultsPerPage,
       });
 
       return {
         status: 'success',
         message: 'Posts fetched successfully',
-        data: {
-          posts,
-          nextRound: posts.length === postCount ? round : round + 1,
-          total: postCount,
+        data: posts,
+      };
+    } catch (error: any) {
+      console.error('Error fetching posts:', error);
+      return {
+        status: 'fail',
+        message: error?.message,
+        data: null,
+      };
+    }
+  }
+  static async getPostsByCategory(category: PostCategory): Promise<ResponseWithData> {
+    try {
+      const posts = await prisma.post.findMany({
+        where: {
+          category,
         },
+        include: {
+          user: {
+            select: { id: true, display_name: true },
+          },
+          Service1A: true,
+          Service1B: true,
+          Service1C: true,
+          Service2: true,
+          Service3: true,
+          Service4ChickenFarm: true,
+          Service4Manufacture: true,
+          Service4Construction: true,
+        },
+      });
+
+      return {
+        status: 'success',
+        message: 'Posts fetched successfully',
+        data: posts,
       };
     } catch (error: any) {
       console.error('Error fetching posts:', error);
@@ -107,8 +125,6 @@ class ApiService {
   }
 
   static async getUserPosts(userId: string, round: number): Promise<ResponseWithData> {
-    const skip = ((round - 1) * parseInt(config.number_of_result || '5')) as number;
-    const postCount = await prisma.post.count();
     try {
       const posts = await prisma.post.findMany({
         where: {
@@ -131,14 +147,12 @@ class ApiService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
-        skip,
-        take: parseInt(config.number_of_result || '5'),
       });
 
       return {
         status: 'success',
         message: 'post fetched successfully',
-        data: { posts: posts, nextRound: posts.length == postCount ? round : round + 1, total: postCount },
+        data: posts,
       };
     } catch (error: any) {
       console.error('Error searching questions:', error);
@@ -236,7 +250,6 @@ class ApiService {
   }
   static async createAdmin(createAdminDto: CreateAdminDto): Promise<ResponseWithData> {
     const { first_name, last_name, email, password, role } = createAdminDto;
-    console.log(createAdminDto);
 
     if (!first_name || !last_name || !email || !password) {
       return {

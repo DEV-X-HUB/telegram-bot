@@ -18,6 +18,8 @@ import ProfileService from './profile.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import PostService from '../post/post.service';
 import { PostCategory } from '../../types/params';
+import { profileValidator } from '../../utils/validator/profile-validator';
+import { displayDialog } from '../../ui/dialog';
 
 const profileService = new ProfileService();
 const profileFormatter = new ProfileFormatter();
@@ -31,6 +33,10 @@ class ProfileController {
       display_name: userData?.display_name,
       bio: userData?.bio,
       gender: userData?.gender,
+      country: userData?.country,
+      city: userData?.city,
+      age: userData?.age,
+      email: userData?.email,
       notify_option: userData?.notify_option,
       followers: userData?.followers.length,
       followings: userData?.followings.length,
@@ -87,8 +93,7 @@ class ProfileController {
 
           for (const post of posts) {
             const sectionName = getSectionName(post.category) as PostCategory;
-
-            if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+            if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
               await replyUserPostPreviewWithContext({
                 ctx,
                 photoURl: (post as any)[sectionName].photo[0],
@@ -250,46 +255,134 @@ class ProfileController {
     if (!callbackQuery) return ctx.reply(profileFormatter.messages.useButtonError);
 
     deleteMessageWithCallback(ctx);
-    if (areEqaul(callbackQuery.data, 'back', true)) return this.preview(ctx);
+    if (areEqaul(callbackQuery.data, 'back', true)) {
+      ctx.wizard.state.activity = 'preview';
+      return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    }
     ctx.wizard.state.activity = 'profile_edit_editing';
     ctx.wizard.state.editField = callbackQuery.data;
-    return ctx.reply(...profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender));
+    return ctx.reply(...(await profileFormatter.editPrompt(callbackQuery.data, ctx.wizard.state.userData.gender)));
   }
+
   async editProfileEditField(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     const message = ctx.message;
+
     const state = ctx.wizard.state;
     if (callbackQuery) {
-      state.userData.gender = callbackQuery.data;
-      const newData = await profileService.updateProfile(state.userData.id, {
-        bio: state.userData.bio,
-        gender: state.userData.gender,
-        display_name: state.userData.display_name,
-      });
-      deleteMessageWithCallback(ctx);
-      this.saveToState(ctx, newData);
-      ctx.wizard.state.activity = 'preview';
+      switch (state.editField) {
+        case 'city': {
+          switch (callbackQuery.data) {
+            case 'back': {
+              if (ctx.wizard.state.currentRound == 0) {
+                ctx.wizard.state.editField = 'country';
+                deleteMessageWithCallback(ctx);
+                return ctx.reply(...(await profileFormatter.chooseCountryFormatter()));
+              }
+              ctx.wizard.state.currentRound = ctx.wizard.state.currentRound - 1;
+              deleteMessageWithCallback(ctx);
+              return ctx.reply(
+                ...(await profileFormatter.chooseCityFormatter(
+                  ctx.wizard.state.countryCode,
+                  ctx.wizard.state.currentRound,
+                )),
+              );
+            }
+            case 'next': {
+              ctx.wizard.state.currentRound = ctx.wizard.state.currentRound + 1;
+              deleteMessageWithCallback(ctx);
+              return ctx.reply(
+                ...(await profileFormatter.chooseCityFormatter(
+                  ctx.wizard.state.countryCode,
+                  ctx.wizard.state.currentRound,
+                )),
+              );
+            }
 
-      return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+            default:
+              ctx.wizard.state.userData[state.editField] = callbackQuery.data;
+              ctx.wizard.state.currentRound = 0;
+              ctx.wizard.state.activity = 'preview';
+
+              const newData = await profileService.updateProfile(state.userData.id, {
+                bio: state.userData.bio,
+                gender: state.userData.gender,
+                display_name: state.userData.display_name,
+                city: state.userData.city,
+                country: state.userData.country,
+                email: state.userData.email,
+                age: parseInt(state.userData.age.toString()),
+              });
+              deleteMessageWithCallback(ctx);
+
+              this.saveToState(ctx, newData);
+              await displayDialog(ctx, profileFormatter.updateProfileMessage('country'));
+              return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+          }
+        }
+        case 'country': {
+          const [countryCode, country] = callbackQuery.data.split(':');
+          ctx.wizard.state.countryCode = countryCode;
+          ctx.wizard.state.userData[state.editField] = country;
+          ctx.wizard.state.editField = 'city';
+          ctx.wizard.state.currentRound = 0;
+          await deleteMessageWithCallback(ctx);
+          return ctx.reply(...(await profileFormatter.chooseCityFormatter(countryCode, 0)));
+        }
+
+        case 'back': {
+          ctx.wizard.state.activity = 'profile_edit_option_view';
+          return ctx.reply(...profileFormatter.editOptions());
+        }
+
+        default:
+          ctx.wizard.state.userData[state.editField] = callbackQuery.data;
+          const newData = await profileService.updateProfile(state.userData.id, {
+            bio: state.userData.bio,
+            gender: state.userData.gender,
+            display_name: state.userData.display_name,
+            city: state.userData.city,
+            country: state.userData.country,
+            email: state.userData.email,
+            age: parseInt(state.userData.age.toString()),
+          });
+          deleteMessageWithCallback(ctx);
+          this.saveToState(ctx, newData);
+          ctx.wizard.state.activity = 'preview';
+          await displayDialog(ctx, profileFormatter.updateProfileMessage(state.editField));
+          return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+      }
     }
 
-    if (areEqaul(message.text, 'back', true)) {
-      return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
+    if (message?.text && areEqaul(message?.text, 'back', true)) {
+      ctx.wizard.state.activity = 'profile_edit_option_view';
+      return ctx.reply(...profileFormatter.editOptions());
     }
+
     if (state.editField == 'display_name') {
       const { status, isDisplayNameTaken, message: errorMsg } = await profileService.isDisplayNameTaken(message.text);
 
       if (status == 'fail') return ctx.reply(errorMsg);
       if (isDisplayNameTaken) return ctx.reply(profileFormatter.messages.displayNameTakenMsg);
     }
-    state.userData[state.editField] = message.text;
+
+    const validationMessage = profileValidator(state.editField, message.text);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+    if (state.editField == 'age') state.userData[state.editField] = calculateAge(ctx.message.text);
+    else state.userData[state.editField] = message.text;
+
     const newData = await profileService.updateProfile(state.userData.id, {
       bio: state.userData.bio,
       gender: state.userData.gender,
       display_name: state.userData.display_name,
+      city: state.userData.city,
+      country: state.userData.country,
+      email: state.userData.email,
+      age: parseInt(state.userData.age.toString()),
     });
     this.saveToState(ctx, newData);
     ctx.wizard.state.activity = 'preview';
+    await displayDialog(ctx, profileFormatter.updateProfileMessage(state.editField));
     return ctx.reply(...profileFormatter.preview(ctx.wizard.state.userData));
   }
   async followingList(ctx: any) {
@@ -371,7 +464,7 @@ class ProfileController {
 
     if (userData?.display_name == null) {
       ctx.wizard.state.activity = 'update_display_name';
-      return await ctx.reply(...profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender));
+      return ctx.reply(...(await profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender)));
     }
   }
   async replyToMessage(ctx: any, receiver_id: string, message: string) {
@@ -381,7 +474,7 @@ class ProfileController {
 
     if (userData?.display_name == null) {
       ctx.wizard.state.activity = 'update_display_name';
-      return await ctx.reply(...profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender));
+      return ctx.reply(...(await profileFormatter.editPrompt('display_name', ctx.wizard.state.userData.gender)));
     }
   }
 

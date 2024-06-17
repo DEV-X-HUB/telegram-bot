@@ -6,8 +6,8 @@ const locationMaxLetters = 20;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    const wordCount = value.trim().split(/\s+/).length;
-    return wordCount <= maxWords;
+    const charactersCount = value.length;
+    return charactersCount <= maxWords;
   },
   {
     message: `description must not exceed ${maxWords} words`,
@@ -109,17 +109,51 @@ export const ConfirmationYearSchema = z
 
 export const IssueDateSchema = z
   .string()
-  .regex(/^\d{1,2}\/\d{4}$/)
-  .refine(
-    (value) => {
-      const [month, year] = value.split('/');
-      const isValidDate = !isNaN(Date.parse(`${year}-${month}-${1}`));
-      return isValidDate;
-    },
-    {
-      message: 'Invalid date format ',
-    },
-  );
+  .regex(/^(0?[1-9]|1[0-2])\/\d{4}$/)
+  .refine((value) => {
+    const [month, year] = value.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    if (parseInt(year) > currentYear) {
+      return false;
+    }
+    if (parseInt(year) === currentYear && parseInt(month) > currentMonth) {
+      return false;
+    }
+
+    // check if the year gap isnot more than 100 years
+    if (currentYear - parseInt(year) > 100) {
+      return false;
+    }
+
+    return true;
+  });
+
+export const ExpireDateSchema = z
+  .string()
+  .regex(/^(0?[1-9]|1[0-2])\/\d{4}$/)
+  .refine((value) => {
+    const [month, year] = value.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+
+    if (parseInt(year) < currentYear) {
+      return false;
+    }
+    if (parseInt(year) === currentYear && parseInt(month) < currentMonth) {
+      return false;
+    }
+
+    // check if the year gap isnot more than 100 years
+    if (parseInt(year) - currentYear > 100) {
+      return false;
+    }
+
+    return true;
+  });
+
 export const DateSchema = z
   .string()
   .regex(/^\d{2}\/\d{1,2}\/\d{4}$/)

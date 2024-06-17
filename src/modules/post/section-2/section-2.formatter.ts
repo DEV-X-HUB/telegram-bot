@@ -5,6 +5,7 @@ import { NotifyOption } from '@prisma/client';
 import { areEqaul, trimParagraph } from '../../../utils/helpers/string';
 
 class Post2Formatter {
+  imagesNumber = 1;
   backOption: TableMarkupKeyboardButtons;
   typeOptions: TableInlineKeyboardButtons;
   messages = {
@@ -12,15 +13,23 @@ class Post2Formatter {
     enterTitlePrompt: 'Enter Title',
     typePrompt1: '',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
     attachPhotoPromp: 'Attach a photo',
     useButtonError: 'Please use Buttons to select options',
-    mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
-    somethingWentWrong: 'Something went wrong, please try again',
+
+    reviewPrompt: 'Preview your post and press once you are done',
     notifyOptionPrompt: 'Select who can be notified this question',
+    notifySettingChanged: 'Notify Setting Updated',
+    postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
+    mentionPost: 'Select post to mention',
+    noPreviousPosts: "You don't have any approved post before.",
+    somethingWentWrong: 'Something went wrong, please try again',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   constructor() {
     this.typeOptions = [
@@ -131,13 +140,24 @@ class Post2Formatter {
   }
 
   editPreview(state: any) {
+    if (state.service_type == 'amendment')
+      return [
+        this.getPreviewData(state),
+        InlineKeyboardButtons([
+          [
+            { text: 'Title', cbString: 'title' },
+            { text: 'Description', cbString: 'description' },
+          ],
+          [
+            { text: 'Cancel', cbString: 'cancel' },
+            { text: 'Done', cbString: 'editing_done' },
+          ],
+        ]),
+      ];
     return [
       this.getPreviewData(state),
       InlineKeyboardButtons([
-        [
-          { text: 'Type', cbString: 'type' },
-          { text: 'Title', cbString: 'title' },
-        ],
+        [{ text: 'Title', cbString: 'title' }],
 
         [
           { text: 'Description', cbString: 'description' },
@@ -156,7 +176,7 @@ class Post2Formatter {
       case 'service_type':
         return this.typeOptionsDisplay();
       case 'title':
-        return this.enterDescriptionDisplay();
+        return this.enterTiteDisplay();
       case 'description':
         return this.enterDescriptionDisplay();
 

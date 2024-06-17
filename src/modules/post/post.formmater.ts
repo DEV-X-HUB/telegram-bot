@@ -16,6 +16,7 @@ import ConstructionFormatter from './section-4/construction/construction.formatt
 import Post2Formatter from './section-2/section-2.formatter';
 import Section3Formatter from './section-3/section-3.formatter';
 import { timeStamp } from 'console';
+import { getCitiesOfCountry, iterateCities } from '../../utils/helpers/country-list';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
@@ -36,14 +37,17 @@ class PostFormatter {
     [{ text: '✅ Post', cbString: 'post_answer' }],
   ];
   messages = {
-    noQuestionTitle: '**No question found mathcing your query**',
-    noQuestionDesc: 'Click here to ask a question',
+    noQuestionTitle: '**No post found mathcing your query**',
+    noQuestionDesc: 'Click here to ask a post',
     NoQuestionMessageText: 'Click the button below  to ask ',
-    allQuestionsMsg: 'Click the button below  to list the questions ',
+    allQuestionsMsg: 'Click the button below  to list the posts ',
     useButtonError: 'use buttons to select  ',
     selectCategoryMessage: 'Select category...',
     selectTimeStampMessage: 'Select timeframe...',
+    chooseCityPrompt: 'Please choose your city',
   };
+
+  constructor() {}
 
   // Buttons to filter by status
   filterByStatusButtons(status: any) {
@@ -135,8 +139,6 @@ class PostFormatter {
       // this.filterByTimeframeChooseButtons('all'),
     ];
   }
-
-  constructor() {}
 
   filterByStatusOptionDisplay(status: string) {
     return [
@@ -543,6 +545,41 @@ class PostFormatter {
   //       return constructionFormatter.getPreviewData(post);
   //   }
   // }
+
+  // choose city based on the selected country
+  chooseCityFormatter(countryCode: string, currentRound: any) {
+    let cities: any[] = [];
+    const citiesExtracted = getCitiesOfCountry(countryCode);
+    if (citiesExtracted) cities = citiesExtracted;
+    const { cityList, lastRound } = iterateCities(cities, 30, parseInt(currentRound));
+
+    if (cityList)
+      return [
+        this.messages.chooseCityPrompt,
+        InlineKeyboardButtons(
+          // map the country list to the buttons
+          [
+            ...cityList.map((city) => [{ text: city.name, cbString: city.name }]),
+
+            [{ text: 'Other', cbString: 'Other' }],
+            !lastRound ? [{ text: '➡️ Next', cbString: 'next' }] : [],
+            [{ text: '⬅️ Back', cbString: 'back' }],
+          ],
+        ),
+        InlineKeyboardButtons(
+          // map the country list to the buttons
+          [[{ text: 'Other', cbString: 'Other' }]],
+        ),
+      ];
+
+    return [
+      'Unable to find cities',
+      InlineKeyboardButtons(
+        // map the country list to the buttons
+        [[{ text: 'Back', cbString: 'back' }], [{ text: 'Other', cbString: 'Other' }]],
+      ),
+    ];
+  }
 }
 
 export default PostFormatter;

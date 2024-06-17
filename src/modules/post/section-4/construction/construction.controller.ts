@@ -8,30 +8,49 @@ import {
 } from '../../../../utils/helpers/chat';
 import { areEqaul, extractElements, isInInlineOption } from '../../../../utils/helpers/string';
 
-import QuestionPostSectionConstructionFormmater from './construction.formatter';
-import QuestionService from '../../post.service';
 import { postValidator } from '../../../../utils/validator/post-validaor';
 import { displayDialog } from '../../../../ui/dialog';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
-import Section4ConstructionService from './construction.service';
+
 import ConstructionFormatter from './construction.formatter';
 import PostService from '../../post.service';
-import {
-  CreatePostService4ChickenFarmDto,
-  CreatePostService4ConstructionDto,
-  CreatePostService4ManufactureDto,
-} from '../../../../types/dto/create-question-post.dto';
+import { CreatePostService4ConstructionDto } from '../../../../types/dto/create-question-post.dto';
 import ProfileService from '../../../profile/profile.service';
 import config from '../../../../config/config';
+import { ImageCounter } from '../../../../types/params';
 const constructionFormatter = new ConstructionFormatter();
 
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
-const imagesNumber = 4;
 
 class QuestionPostSectionConstructionController {
   constructor() {}
+  imageCounter: ImageCounter[] = [];
+  imageTimer: any;
+  setImageWaiting(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) return;
+    this.imageTimer = setTimeout(
+      () => {
+        this.sendImageWaitingPrompt(ctx);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
+    this.imageCounter.push({ id: sender.id, waiting: true });
+  }
+  clearImageWaiting(id: number) {
+    this.imageCounter = this.imageCounter.filter(({ id: counterId }) => counterId != id);
+  }
+
+  isWaitingImages(id: number): boolean {
+    return this.imageCounter.find(({ id: counterId }) => counterId == id) ? true : false;
+  }
+  async sendImageWaitingPrompt(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, constructionFormatter.messages.imageWaitingMsg);
+  }
 
   async start(ctx: any) {
     await ctx.reply(...constructionFormatter.chooseSizeDisplay());
@@ -188,19 +207,22 @@ class QuestionPostSectionConstructionController {
     return ctx.wizard.next();
   }
   async attachPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
-
+    const sender = findSender(ctx);
     const message = ctx?.message?.text;
+
+    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+    this.setImageWaiting(ctx);
+
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...constructionFormatter.descriptionDisplay());
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
+      return ctx.wizard.back();
+    }
+
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...constructionFormatter.descriptionDisplay());
+
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
@@ -211,9 +233,8 @@ class QuestionPostSectionConstructionController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length == imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length == constructionFormatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -284,10 +305,9 @@ class QuestionPostSectionConstructionController {
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            console.log('Posting successful');
-            await ctx.reply(...constructionFormatter.postingSuccessful());
+
+            await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
-            await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg);
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = constructionFormatter.preview(ctx.wizard.state, 'submitted');
             if (elements) {
@@ -477,22 +497,26 @@ class QuestionPostSectionConstructionController {
     }
   }
   async editPhoto(ctx: any) {
-    let imagesNumberReached = false;
+    const sender = findSender(ctx);
+
+    this.setImageWaiting(ctx);
     if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
+
     const messageText = ctx.message?.text;
+    if (messageText && areEqaul(messageText, 'back', true)) {
+      ctx.reply(...constructionFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      this.clearImageWaiting(sender.id);
+      return ctx.wizard.back();
+    }
+
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
         message_id: (parseInt(messageText.message_id) - 1).toString(),
         chat_id: messageText.chat.id,
       });
       ctx.replyWithHTML(...constructionFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
+
       return ctx.wizard.back();
     }
 
@@ -503,9 +527,9 @@ class QuestionPostSectionConstructionController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length === imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length === constructionFormatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
+
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
@@ -545,11 +569,11 @@ class QuestionPostSectionConstructionController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) await await displayDialog(ctx, constructionFormatter.messages.resubmitError);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, constructionFormatter.messages.postResubmit);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -561,9 +585,9 @@ class QuestionPostSectionConstructionController {
         console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
-        if (!deleted) return await ctx.reply('Unable to cancel the post ');
+        if (!deleted) return await displayDialog(ctx, constructionFormatter.messages.postErroMsg);
 
-        await ctx.reply('Cancelled');
+        await displayDialog(ctx, constructionFormatter.messages.postCancelled);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],

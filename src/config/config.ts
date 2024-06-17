@@ -25,7 +25,6 @@ export default {
   },
   upload_image_number: process.env.IMAGE_UPLOADED_NUMBER,
   image_upload_minute: process.env.IMAGE_UPLOADED_MINUTE || 3,
-
   monthThreshold: 7,
 
   email_host: process.env.EMAIL_HOST,

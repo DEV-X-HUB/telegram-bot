@@ -146,12 +146,14 @@ class ChickenFarmController {
             ctx.wizard.state.post_main_id = response?.data?.post_id;
             // await deleteMessageWithCallback(ctx);
 
-            await ctx.reply(...chickenFarmFormatter.postingSuccessful());
+            // await ctx.reply(...chickenFarmFormatter.postingSuccessful());
+
+            await displayDialog(ctx, chickenFarmFormatter.messages.postSuccessMsg, true);
+
             await deleteMessageWithCallback(ctx);
             await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state, 'submitted'), {
               parse_mode: 'HTML',
             });
-            await displayDialog(ctx, 'Posted succesfully');
 
             return ctx.wizard.selectStep(8);
 
@@ -363,7 +365,7 @@ class ChickenFarmController {
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, chickenFarmFormatter.messages.postResubmit);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -378,7 +380,8 @@ class ChickenFarmController {
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
-        await ctx.reply('Cancelled');
+        await displayDialog(ctx, chickenFarmFormatter.messages.postCancelled);
+
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],

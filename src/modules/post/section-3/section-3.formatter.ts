@@ -5,6 +5,7 @@ import { NotifyOption } from '../../../types/params';
 import { areEqaul, trimParagraph } from '../../../utils/helpers/string';
 
 class Section3Formatter {
+  imagesNumber = 1;
   birthOrMaritalOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
   messages = {
@@ -12,16 +13,23 @@ class Section3Formatter {
     titlePrompt: 'What is the title?',
     useButtonError: 'Please use Buttons to select options',
     categoryPrompt: 'Please Choose on category from the options',
-    notifyOptionPrompt: 'Select who can be notified this question',
-    reviewPrompt: 'Preview your post and press once you are done',
     optionPrompt: 'Please Choose on category from the options',
     attachPhotoPrompt: 'Attach one photo',
+    attachPhotoPromptWithSkip: 'Attach one photo  or click skip ',
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
-    postSuccessMsg: 'Posted Successfully',
+    reviewPrompt: 'Preview your post and press once you are done',
+    postSuccessMsg:
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+    notifyOptionPrompt: 'Select who can be notified this question',
+    notifySettingChanged: 'Notify Setting Updated',
     postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
     mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
+    noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   constructor() {
     this.birthOrMaritalOption = [
@@ -42,11 +50,19 @@ class Section3Formatter {
   descriptionPrompt() {
     return [this.messages.descriptionPrompt];
   }
-  photoPrompt() {
-    return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
+  photoPrompt(withSkip?: boolean) {
+    if (withSkip) return [this.messages.attachPhotoPromptWithSkip, this.goBackButton(true, withSkip)];
+    return [this.messages.attachPhotoPrompt, this.goBackButton(true)];
   }
 
-  goBackButton(oneTime: boolean = true) {
+  goBackButton(oneTime: boolean = true, withSkip?: boolean) {
+    if (withSkip)
+      return MarkupButtons([
+        [
+          { text: 'Back', cbString: 'back' },
+          { text: 'Skip', cbString: 'skip' },
+        ],
+      ]);
     return MarkupButtons(this.backOption, oneTime);
   }
 
@@ -98,7 +114,7 @@ class Section3Formatter {
     ];
   }
 
-  async editFieldDisplay(editField: string) {
+  async editFieldDisplay(editField: string, extra?: boolean) {
     switch (editField) {
       case 'birth_or_marital':
         return this.birthOrMaritalOptionDisplay();
@@ -107,7 +123,7 @@ class Section3Formatter {
       case 'description':
         return this.descriptionPrompt();
       case 'photo':
-        return this.photoPrompt();
+        return this.photoPrompt(extra);
       default:
         return this.displayError();
     }

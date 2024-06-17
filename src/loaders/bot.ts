@@ -29,7 +29,7 @@ export default () => {
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
   bot.use(devlopmentMode());
-  bot.use(checkUserInChannelandPromtJoin());
+  // bot.use(checkUserInChannelandPromtJoin());
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 

@@ -147,12 +147,12 @@ export function checkRegistration(skipProfile: boolean = false) {
     }
     const isUserActive = await registrationService.isUserActive(sender.id);
 
-    if (!isUserActive) {
-      // prevent inactive user form posting
-      if (message && postMenus.includes(message)) {
-        return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
-      }
-    }
+    // if (!isUserActive) {
+    //   // prevent inactive user form posting
+    //   if (message && postMenus.includes(message)) {
+    //     return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
+    //   }
+    // }
 
     if (message && mainMenus.includes(message)) {
       if (skipProfile && message == 'Profile') return next();

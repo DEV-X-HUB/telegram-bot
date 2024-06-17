@@ -38,13 +38,16 @@ export function formatDateFromIsoString(dateString: string): string {
 
 export const parseDateString = (dateString: string) => {
   // Split the date string by '/'
+  let date;
   const parts = dateString.split('/');
 
   const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1;
+  const month = parseInt(parts[1], 10);
   const year = parseInt(parts[2], 10);
 
   // Create a new Date object with extracted day, month, and year
-  const date = new Date(year, month, day);
+  if (year) date = new Date(year, month - 1, day);
+  date = new Date(month, day - 1, 1);
+
   return date;
 };

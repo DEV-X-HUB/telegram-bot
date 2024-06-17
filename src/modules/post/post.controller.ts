@@ -21,7 +21,9 @@ const postFormmatter = new PostFormmatter();
 const roundSize = 10;
 import { Context, Markup } from 'telegraf';
 class PostController {
-  constructor() {}
+  constructor() {
+    postFormmatter.chooseCityFormatter('et', 1);
+  }
 
   static async handleSearch(ctx: any) {
     const query = ctx?.update?.inline_query?.query;
@@ -228,7 +230,7 @@ class PostController {
     if (!success || !post) return ctx.reply('error while');
     const sectionName = getSectionName(post.category) as PostCategory;
 
-    if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+    if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
       const elements = extractElements<string>((post as any)[sectionName].photo);
       if (elements) {
         // if array of elelement has many photos

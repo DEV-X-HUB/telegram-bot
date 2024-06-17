@@ -1,5 +1,6 @@
 import config from '../../../config/config';
 import { CreatePostService3Dto } from '../../../types/dto/create-question-post.dto';
+import { ImageCounter } from '../../../types/params';
 import { displayDialog } from '../../../ui/dialog';
 import {
   deleteKeyboardMarkup,
@@ -10,6 +11,7 @@ import {
   sendMediaGroup,
 } from '../../../utils/helpers/chat';
 import { areEqaul, extractElements, isInInlineOption, isInMarkUPOption } from '../../../utils/helpers/string';
+import { postValidator } from '../../../utils/validator/post-validaor';
 import MainMenuController from '../../mainmenu/mainmenu.controller';
 import ProfileService from '../../profile/profile.service';
 import PostService from '../post.service';
@@ -18,12 +20,36 @@ import Section3Formatter from './section-3.formatter';
 const section3Formatter = new Section3Formatter();
 
 let imagesUploaded: any[] = [];
-const imagesNumber = 1;
 
 const profileService = new ProfileService();
 
 class Section3Controller {
   constructor() {}
+  imageCounter: ImageCounter[] = [];
+  imageTimer: any;
+  setImageWaiting(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) return;
+    this.imageTimer = setTimeout(
+      () => {
+        this.sendImageWaitingPrompt(ctx);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
+    this.imageCounter.push({ id: sender.id, waiting: true });
+  }
+  clearImageWaiting(id: number) {
+    this.imageCounter = this.imageCounter.filter(({ id: counterId }) => counterId != id);
+  }
+
+  isWaitingImages(id: number): boolean {
+    return this.imageCounter.find(({ id: counterId }) => counterId == id) ? true : false;
+  }
+  async sendImageWaitingPrompt(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, section3Formatter.messages.imageWaitingMsg);
+  }
   async start(ctx: any) {
     ctx.wizard.state.category = 'Section3';
     await deleteKeyboardMarkup(ctx, 'choose an option');
@@ -58,7 +84,7 @@ class Section3Controller {
   }
 
   async enterTitle(ctx: any) {
-    const message = ctx.message.text;
+    const message = ctx?.message?.text;
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
       return ctx.wizard.back();
@@ -77,70 +103,65 @@ class Section3Controller {
     }
 
     ctx.wizard.state.description = message;
-    console.log('description', ctx.wizard.state.description);
 
-    await ctx.reply(...section3Formatter.photoPrompt());
+    await ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
     return ctx.wizard.next();
   }
 
   async attachPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
-
-    // Find the uer that is sending the message
     const sender = findSender(ctx);
-
-    console.log('being received');
-
     const message = ctx?.message?.text;
+
+    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+    this.setImageWaiting(ctx);
+
     if (message && areEqaul(message, 'back', true)) {
+      await deleteKeyboardMarkup(ctx, section3Formatter.messages.descriptionPrompt);
       ctx.reply(...section3Formatter.descriptionPrompt());
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
+    const user = await profileService.getProfileByTgId(sender.id);
+    if (user) {
+      ctx.wizard.state.user = {
+        id: user.id,
+        display_name: user.display_name,
+      };
+    }
+    if (!user) return await ctx.reply(...section3Formatter.somethingWentWrong());
+
+    ctx.wizard.state.user = {
+      id: user?.id,
+      display_name: user?.display_name,
+    };
+    ctx.wizard.state.notify_option = user?.notify_option || 'none';
+
+    if (message && areEqaul(message, 'skip', true)) {
+      this.clearImageWaiting(sender.id);
+      ctx.wizard.state.photo = [];
+      ctx.wizard.state.status = 'preview';
+
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
+      ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
+      return ctx.wizard.next();
+    }
+
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...section3Formatter.photoPrompt());
+    if (!ctx.message.photo)
+      return ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length == imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length == section3Formatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
-
-      const mediaGroup = imagesUploaded.map((image: any) => ({
-        media: image,
-        type: 'photo',
-        caption: image == imagesUploaded[0] ? 'Here is the image you uploaded' : '',
-      }));
-
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
+      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
       // Find the user
-      const user = await profileService.getProfileByTgId(sender.id);
-      if (user) {
-        ctx.wizard.state.user = {
-          id: user.id,
-          display_name: user.display_name,
-        };
-      }
-      if (!user) return await ctx.reply(...section3Formatter.somethingWentWrong());
-
-      ctx.wizard.state.user = {
-        id: user?.id,
-        display_name: user?.display_name,
-      };
-      ctx.wizard.state.notify_option = user?.notify_option || 'none';
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
@@ -156,15 +177,15 @@ class Section3Controller {
 
   async preview(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log('here is the callback');
     const user = findSender(ctx);
-
-    console.log(callbackQuery);
 
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
-        await ctx.reply(...section3Formatter.photoPrompt(), section3Formatter.goBackButton());
+        await ctx.reply(
+          ...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'),
+          section3Formatter.goBackButton(),
+        );
         return ctx.wizard.back();
       }
       await ctx.reply('....');
@@ -198,36 +219,36 @@ class Section3Controller {
           const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
 
           if (response?.success) {
-            console.log(response.data);
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            ctx.reply(...section3Formatter.postingSuccessful());
+
             await deleteMessageWithCallback(ctx);
+            await displayDialog(ctx, section3Formatter.messages.postSuccessMsg, true);
+            if (ctx.wizard.state.photo.length > 0) {
+              const elements = extractElements<string>(ctx.wizard.state.photo);
+              const [caption, button] = section3Formatter.preview(ctx.wizard.state, 'submitted');
+              if (elements) {
+                // if array of elelement has many photos
+                await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
 
-            await displayDialog(ctx, section3Formatter.messages.postSuccessMsg);
-            const elements = extractElements<string>(ctx.wizard.state.photo);
-            const [caption, button] = section3Formatter.preview(ctx.wizard.state, 'submitted');
-            if (elements) {
-              // if array of elelement has many photos
-              await sendMediaGroup(ctx, elements.firstNMinusOne, 'Images Uploaded with post');
-
-              await replyPostPreview({
-                ctx,
-                photoURl: elements.lastElement,
-                caption: caption as string,
-              });
+                await replyPostPreview({
+                  ctx,
+                  photoURl: elements.lastElement,
+                  caption: caption as string,
+                });
+              } else {
+                // if array of  has one  photo
+                await replyPostPreview({
+                  ctx,
+                  photoURl: ctx.wizard.state.photo[0],
+                  caption: caption as string,
+                });
+              }
             } else {
-              // if array of  has one  photo
-              await replyPostPreview({
-                ctx,
-                photoURl: ctx.wizard.state.photo[0],
-                caption: caption as string,
+              await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'submitted'), {
+                parse_mode: 'HTML',
               });
             }
-
-            // await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'submitted'), {
-            //   parse_mode: 'HTML',
-            // });
 
             // jump to posted review
             return ctx.wizard.selectStep(8);
@@ -251,14 +272,14 @@ class Section3Controller {
           }
         }
 
-        // case 'cancel': {
-        //   ctx.wizard.state.status = 'Cancelled';
-        //   await deleteMessageWithCallback(ctx);
-        //   await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'Cancelled'), {
-        //     parse_mode: 'HTML',
-        //   });
-        //   return ctx.wizard.selectStep(18);
-        // }
+        case 'cancel': {
+          ctx.wizard.state.status = 'Cancelled';
+          await deleteMessageWithCallback(ctx);
+          await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state, 'Cancelled'), {
+            parse_mode: 'HTML',
+          });
+          return ctx.wizard.selectStep(8);
+        }
         case 'notify_settings': {
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section3Formatter.notifyOptionDisplay(ctx.wizard.state.notify_option));
@@ -311,15 +332,18 @@ class Section3Controller {
       const messageText = ctx.message.text;
       if (!editField) return await ctx.reply('invalid input ');
 
-      // const validationMessage = questionPostValidator(ctx.wizard.state.editField, ctx.message.text);
-      // if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+      if (areEqaul(messageText, 'back', true)) {
+        ctx.wizard.state.editField = null;
+
+        return ctx.replyWithHTML(...section3Formatter.editPreview(state));
+      }
+
+      const validationMessage = postValidator(editField, messageText);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
       ctx.wizard.state[editField] = messageText;
-      await deleteKeyboardMarkup(ctx);
-      // await deleteMessage(ctx, {
-      //   message_id: (parseInt(ctx.message.message_id) - 1).toString(),
-      //   chat_id: ctx.message.chat.id,
-      // });
+
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       return ctx.replyWithHTML(...section3Formatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
@@ -331,31 +355,18 @@ class Section3Controller {
     };
     const callbackMessage = callbackQuery.data;
 
-    if (callbackMessage == 'post_data') {
-      console.log('Posted Successfully');
-      return ctx.reply(...section3Formatter.postingSuccessful());
-      // registration
-      // api call for registration
-      // const response = await QuestionService.createQuestionPost(ctx.wizard.state, callbackQuery.from.id);
+    if (areEqaul(callbackMessage, 'back', true)) {
+      ctx.wizard.state.editField = null;
+      return ctx.replyWithHTML(...section3Formatter.editPreview(state));
+    }
 
-      // if (response.success) {
-      //   ctx.wizard.state.status = 'pending';
-      //   await deleteMessageWithCallback(ctx);
-      //   await ctx.reply(...postingFormatter.postingSuccessful());
-      //   return ctx.scene.enter('start');
-      // }
-
-      const registrationAttempt = parseInt(ctx.wizard.state.registrationAttempt);
-
-      // ctx.reply(...postingFormatter.postingError());
-      if (registrationAttempt >= 2) {
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
-      return (ctx.wizard.state.registrationAttempt = registrationAttempt ? registrationAttempt + 1 : 1);
-    } else if (callbackMessage == 'editing_done') {
-      // await deleteMessageWithCallback(ctx);
-
+    if (callbackMessage == 'editing_done' || callbackMessage == 'cancel_edit') {
+      await deleteMessageWithCallback(ctx);
+      await ctx.replyWithHTML(...section3Formatter.preview(state));
+      return ctx.wizard.back();
+    }
+    if (callbackMessage == 'editing_done') {
+      await deleteMessageWithCallback(ctx);
       await ctx.replyWithHTML(...section3Formatter.preview(state));
       return ctx.wizard.back();
     }
@@ -367,7 +378,12 @@ class Section3Controller {
         ctx.wizard.state.previousMessageData.chat_id,
         ctx.wizard.state.previousMessageData.message_id,
       );
-      await ctx.reply(...((await section3Formatter.editFieldDisplay(callbackMessage)) as any));
+      await ctx.reply(
+        ...((await section3Formatter.editFieldDisplay(
+          callbackMessage,
+          ctx.wizard.state.birth_or_marital == 'birth',
+        )) as any),
+      );
       if (areEqaul(callbackQuery.data, 'photo', true)) return ctx.wizard.next();
       return;
     }
@@ -383,45 +399,34 @@ class Section3Controller {
   }
 
   async editPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
+    const sender = findSender(ctx);
     const messageText = ctx.message?.text;
-    if (messageText && areEqaul(messageText, 'back', true)) {
-      await deleteMessage(ctx, {
-        message_id: (parseInt(messageText.message_id) - 1).toString(),
-        chat_id: messageText.chat.id,
-      });
+
+    this.setImageWaiting(ctx);
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+
+    if (messageText && (areEqaul(messageText, 'skip', true) || areEqaul(messageText, 'back', true))) {
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
       ctx.reply(...section3Formatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
-      clearTimeout(timer);
+
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...section3Formatter.photoPrompt());
+    if (!ctx.message.photo)
+      return ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length === imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length === section3Formatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
-      const mediaGroup = imagesUploaded.map((image: any) => ({
-        media: image,
-        type: 'photo',
-        caption: image == imagesUploaded[0] ? 'Here are the images you uploaded' : '',
-      }));
-
-      await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
-
+      await deleteKeyboardMarkup(ctx, section3Formatter.preview(ctx.wizard.state)[0] as string);
+      await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
 
@@ -444,14 +449,15 @@ class Section3Controller {
           description: ctx.wizard.state.description,
           category: 'Section 3',
           notify_option: ctx.wizard.state.notify_option,
-          previous_post_id: ctx.wizard.state.post_id,
+          previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) return await ctx.reply('Unable to resubmite');
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, section3Formatter.messages.postResubmit);
+
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -460,12 +466,12 @@ class Section3Controller {
         });
       }
       case 'cancel_post': {
-        console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id, 'Section 1A');
 
         if (!deleted) return await ctx.reply('Unable to cancel the post ');
 
-        await ctx.reply('Cancelled');
+        await displayDialog(ctx, section3Formatter.messages.postCancelled);
+
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],
@@ -487,6 +493,7 @@ class Section3Controller {
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
+        await displayDialog(ctx, section3Formatter.messages.notifySettingChanged);
         await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
 
@@ -495,12 +502,14 @@ class Section3Controller {
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
+        await displayDialog(ctx, section3Formatter.messages.notifySettingChanged);
         await deleteMessageWithCallback(ctx);
         await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
         // jump to preview
         return ctx.wizard.selectStep(5);
       }
       case 'notify_follower': {
+        await displayDialog(ctx, section3Formatter.messages.notifySettingChanged);
         await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
         await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
@@ -512,7 +521,6 @@ class Section3Controller {
   async mentionPreviousPost(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) return;
-    console.log(ctx.wizard.state, 'sdfdsafasdf');
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
         await deleteMessageWithCallback(ctx);
