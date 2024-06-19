@@ -49,7 +49,7 @@ class QuestionPostSectionConstructionController {
   }
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
-    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, constructionFormatter.messages.imageWaitingMsg);
+    if (this.isWaitingImages(sender.id)) await ctx.reply(constructionFormatter.messages.imageWaitingMsg);
   }
 
   async start(ctx: any) {

@@ -48,7 +48,7 @@ class Section3Controller {
   }
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
-    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, section3Formatter.messages.imageWaitingMsg);
+    if (this.isWaitingImages(sender.id)) await ctx.reply(section3Formatter.messages.imageWaitingMsg);
   }
   async start(ctx: any) {
     ctx.wizard.state.category = 'Section3';

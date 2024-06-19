@@ -32,6 +32,7 @@ class QuestionPostSectionAController {
 
   setImageWaiting(ctx: any) {
     const sender = findSender(ctx);
+   
     if (this.isWaitingImages(sender.id)) return;
     this.imageTimer = setTimeout(
       () => {
@@ -43,6 +44,7 @@ class QuestionPostSectionAController {
     this.imageCounter.push({ id: sender.id, waiting: true });
   }
   clearImageWaiting(id: number) {
+  
     this.imageCounter = this.imageCounter.filter(({ id: counterId }) => counterId != id);
   }
 
@@ -51,7 +53,7 @@ class QuestionPostSectionAController {
   }
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
-    if (this.isWaitingImages(sender.id)) await displayDialog(ctx, section1AFormatter.messages.imageWaitingMsg);
+    if (this.isWaitingImages(sender.id)) await ctx.reply(section1AFormatter.messages.imageWaitingMsg);
   }
 
   async start(ctx: any) {
