@@ -180,7 +180,6 @@ class PostSection2Controller {
         if (ctx.wizard.state.service_type == 'amendment') return ctx.wizard.selectStep(3);
         return ctx.wizard.back();
       }
-      await ctx.reply('....');
     } else {
       const state = ctx.wizard.state;
 
