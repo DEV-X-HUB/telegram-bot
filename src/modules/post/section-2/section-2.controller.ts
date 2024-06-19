@@ -44,11 +44,14 @@ class PostSection2Controller {
   }
 
   isWaitingImages(id: number): boolean {
-    return this.imageCounter.find(({ id: counterId }) => counterId == id) ? true : false;
+    const exists = this.imageCounter.find(({ id: counterId }) => counterId == id);
+    return exists != undefined;
   }
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
-    if (this.isWaitingImages(sender.id)) await ctx.reply(section2Formatter.messages.imageWaitingMsg);
+    if (this.isWaitingImages(sender.id)) {
+      await ctx.reply(section2Formatter.messages.imageWaitingMsg);
+    }
   }
 
   async start(ctx: any) {

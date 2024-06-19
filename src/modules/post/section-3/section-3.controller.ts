@@ -44,7 +44,8 @@ class Section3Controller {
   }
 
   isWaitingImages(id: number): boolean {
-    return this.imageCounter.find(({ id: counterId }) => counterId == id) ? true : false;
+    const exists = this.imageCounter.find(({ id: counterId }) => counterId == id);
+    return exists != undefined;
   }
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
