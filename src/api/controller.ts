@@ -61,16 +61,16 @@ export const getPostsByStatus = async (req: Request, res: Response) => {
 };
 
 export const getPostsByCategory = async (req: Request, res: Response) => {
-  const { status } = req.params;
+  const { category } = req.params;
 
-  if (!status) {
+  if (!category) {
     return res.status(400).json({
       status: 'fail',
       message: 'Status parameter is required',
     });
   }
 
-  const { status: fetchStatus, data, message } = await ApiService.getPostsByCategory(status as PostCategory);
+  const { status: fetchStatus, data, message } = await ApiService.getPostsByCategory(category as PostCategory);
 
   if (fetchStatus === 'fail') {
     return res.status(500).json({
