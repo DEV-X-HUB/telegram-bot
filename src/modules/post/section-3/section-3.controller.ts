@@ -297,7 +297,7 @@ class Section3Controller {
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...section3Formatter.mentionPostMessage());
           for (const post of posts as any) {
-            await ctx.reply(...section3Formatter.displayPreviousPostsList(post));
+            await ctx.replyWithHTML(...section3Formatter.displayPreviousPostsList(post));
           }
 
           // jump to mention previous post
@@ -490,34 +490,32 @@ class Section3Controller {
 
   async adjustNotifySetting(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    let notify_option = '';
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
-        await displayDialog(ctx, section3Formatter.messages.notifySettingChanged);
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-
-        // jump to preview
-        return ctx.wizard.selectStep(5);
+        notify_option = 'none';
+        break;
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
-        await displayDialog(ctx, section3Formatter.messages.notifySettingChanged);
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        // jump to preview
-        return ctx.wizard.selectStep(5);
+        notify_option = 'friends';
+        break;
       }
       case 'notify_follower': {
-        await displayDialog(ctx, section3Formatter.messages.notifySettingChanged);
-        await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
-        await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        // jump to preview
-        return ctx.wizard.selectStep(5);
+        notify_option = 'followers';
+        break;
       }
     }
+    await displayDialog(
+      ctx,
+      section3Formatter.messages.notifySettingChanged.concat(` to  ${notify_option.toUpperCase()}`),
+    );
+    await deleteMessageWithCallback(ctx);
+    await ctx.replyWithHTML(...section3Formatter.preview(ctx.wizard.state));
+    return ctx.wizard.selectStep(5);
   }
   async mentionPreviousPost(ctx: any) {
     const callbackQuery = ctx.callbackQuery;

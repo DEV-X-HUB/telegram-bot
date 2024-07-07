@@ -705,34 +705,32 @@ class QuestionPostSectionBController {
   }
   async adjustNotifySetting(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    if (!callbackQuery) return await ctx.reply(sectionBFormatter.messages.useButtonError);
+    let notify_option = '';
+    if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 'notify_none': {
-        console.log('NONE');
         ctx.wizard.state.notify_option = 'none';
-        await deleteMessageWithCallback(ctx);
-
-        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
-        await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.selectStep(14);
+        notify_option = 'none';
+        break;
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
-        await deleteMessageWithCallback(ctx);
-
-        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
-        await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.selectStep(14);
+        notify_option = 'friends';
+        break;
       }
       case 'notify_follower': {
-        await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
-
-        await displayDialog(ctx, sectionBFormatter.messages.notifySettingChanged);
-        await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.selectStep(14);
+        notify_option = 'followers';
+        break;
       }
     }
+    await displayDialog(
+      ctx,
+      sectionBFormatter.messages.notifySettingChanged.concat(` to  ${notify_option.toUpperCase()}`),
+    );
+    await deleteMessageWithCallback(ctx);
+    await ctx.replyWithHTML(...sectionBFormatter.preview(ctx.wizard.state));
+    return ctx.wizard.selectStep(14);
   }
   async mentionPreviousPost(ctx: any) {
     const state = ctx.wizard.state;

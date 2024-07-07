@@ -25,6 +25,7 @@ class ManufactureFormatter {
     postingSuccess:
       'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
+    notifySettingChanged: 'Notify Setting Updated',
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved post before.",

@@ -177,8 +177,6 @@ class ChickenFarmController {
         // }
 
         case 'mention_previous_post': {
-          console.log('mention_previous_post1');
-          await ctx.reply('mention_previous_post');
           // fetch previous posts of the user
           const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
           if (!success || !posts) {
@@ -194,7 +192,7 @@ class ChickenFarmController {
           await deleteMessageWithCallback(ctx);
           await ctx.reply(...chickenFarmFormatter.mentionPostMessage());
           for (const post of posts as any) {
-            await ctx.reply(...chickenFarmFormatter.displayPreviousPostsList(post));
+            await ctx.replyWithHTML(...chickenFarmFormatter.displayPreviousPostsList(post));
           }
 
           return ctx.wizard.next();
@@ -398,27 +396,32 @@ class ChickenFarmController {
   }
   async adjustNotifySetting(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    let notify_option = '';
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.selectStep(5);
+        notify_option = 'none';
+        break;
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.selectStep(5);
+        notify_option = 'friends';
+        break;
       }
       case 'notify_follower': {
-        await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
-        await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        return ctx.wizard.selectStep(5);
+        notify_option = 'followers';
+        break;
       }
     }
+    await displayDialog(
+      ctx,
+      chickenFarmFormatter.messages.notifySettingChanged.concat(` to  ${notify_option.toUpperCase()}`),
+    );
+    await deleteMessageWithCallback(ctx);
+    await ctx.replyWithHTML(...chickenFarmFormatter.preview(ctx.wizard.state));
+    return ctx.wizard.selectStep(5);
   }
 }
 

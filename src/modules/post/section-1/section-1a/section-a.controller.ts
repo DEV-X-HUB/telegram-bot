@@ -547,30 +547,32 @@ class QuestionPostSectionAController {
   }
   async adjustNotifySetting(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    let notify_option = '';
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
-        await displayDialog(ctx, section1AFormatter.messages.notifySettingChanged);
-        return ctx.wizard.selectStep(8);
+        notify_option = 'none';
+        break;
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
-        await displayDialog(ctx, section1AFormatter.messages.notifySettingChanged);
-        return ctx.wizard.selectStep(8);
+        notify_option = 'friends';
+        break;
       }
       case 'notify_follower': {
-        await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
-        await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
-        await displayDialog(ctx, section1AFormatter.messages.notifySettingChanged);
-        return ctx.wizard.selectStep(8);
+        notify_option = 'followers';
+        break;
       }
     }
+    await displayDialog(
+      ctx,
+      section1AFormatter.messages.notifySettingChanged.concat(` to  ${notify_option.toUpperCase()}`),
+    );
+    await deleteMessageWithCallback(ctx);
+    await ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
+    return ctx.wizard.selectStep(8);
   }
   async mentionPreviousPost(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
