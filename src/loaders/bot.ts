@@ -19,8 +19,8 @@ const mainMenuService = new MainMenuService();
 let bot: Telegraf<Context> | null = null;
 
 const checkUserInitializer = () => {
-  console.log('checking leaft user');
-  mainMenuService.checkLeftUsersFromchannel(bot);
+  console.log('checking left user');
+  mainMenuService.checkUsersInchannel(bot, true);
 };
 
 export default () => {
@@ -52,7 +52,6 @@ export default () => {
 
   schedule.scheduleJob('0 0 * * *', checkUserInitializer);
 
-  checkUserInitializer();
   setCommands(commands);
   dbConnecion;
 
