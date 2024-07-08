@@ -1,7 +1,7 @@
 import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
-import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
+import { areEqaul, formatNumberWithCommas, trimParagraph } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 import PostFormatter from '../../post.formmater';
 
@@ -152,11 +152,11 @@ class Post1AFormatter {
   }
 
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton:</b> ${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option?.toLocaleUpperCase()} \n\n<b>Sp. Locaton:</b> ${state.location} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${state.last_digit} ${state.id_first_option}\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option}\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   noPostsErrorMessage() {
