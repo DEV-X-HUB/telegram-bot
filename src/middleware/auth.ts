@@ -46,7 +46,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
 }
 
 export const devlopmentMode = () => {
-  const testUsers = [6715664411, 1497684446, 5821852558, 727495712, 6668727233];
+  const testUsers = [6715664411, 1497684446, 5821852558, 727495712, 6668727233, 7065907617];
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
     if (config.env == 'production') next();
@@ -81,7 +81,7 @@ export function checkUserInChannelandPromtJoin() {
 export const registerationSkips = (ctx: any) => {
   const skipQueries = [
     'searchedPosts',
-    'browse',
+    '/browse',
     'post_detail',
     '/start',
     '/restart',
