@@ -19,7 +19,8 @@ const mainMenuService = new MainMenuService();
 let bot: Telegraf<Context> | null = null;
 
 const checkUserInitializer = () => {
-  mainMenuService.checkUsersInchannel(bot);
+  console.log('checking leaft user');
+  mainMenuService.checkLeftUsersFromchannel(bot);
 };
 
 export default () => {
@@ -29,7 +30,7 @@ export default () => {
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
   bot.use(devlopmentMode());
-  // bot.use(checkUserInChannelandPromtJoin());
+  bot.use(checkUserInChannelandPromtJoin());
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 
@@ -51,6 +52,7 @@ export default () => {
 
   schedule.scheduleJob('0 0 * * *', checkUserInitializer);
 
+  checkUserInitializer();
   setCommands(commands);
   dbConnecion;
 
