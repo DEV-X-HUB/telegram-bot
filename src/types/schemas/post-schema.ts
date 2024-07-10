@@ -4,12 +4,12 @@ import config from '../../config/config';
 const maxWords = parseInt(config.desc_word_length as string) || 45;
 const locationMaxLetters = 20;
 
-const descriptionMaxLetters = 300;
+const descriptionMaxLetters = 315;
 const descriptionMaxWordLength = 15;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    // check that thee number of words in the description is less than 45 and total number of characters is less than 300 and each word is less than 15 characters
+    // check that thee number of words in the description is less than 45 and total number of characters is less than 315 and each word is less than 15 characters
     const words = value.trim().split(/\s+/);
     const wordCount = words.length;
     const characters = value.length;
