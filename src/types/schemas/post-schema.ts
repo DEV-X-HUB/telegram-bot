@@ -15,11 +15,6 @@ const descriptionMaxWords = 45;
 const descriptionMaxWordLength = 15;
 const descriptionMaxLetters = 315;
 
-// sector validation datas
-const sectorMaxWords = 7;
-const sectorMaxWordLength = 15;
-const sectorMaxLetters = 100;
-
 export const DescriptionSchema = z.string().refine(
   (value) => {
     return validateString(value, maxWords, descriptionMaxLetters);
@@ -193,13 +188,13 @@ export const locationSchema = z.string().refine(
     message: `location must not exceed ${locationMaxLetters} letters and should not contain any special characters or emoji`,
   },
 );
-export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
-export const sectorSchema = z.string().refine(
+// export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
+export const titleSchema = z.string().refine(
   (value) => {
-    return validateString(value, sectorMaxWords, sectorMaxLetters);
+    return validateString(value, titleMaxWords, titleMaxLetters);
   },
   {
-    message: `Sector must not exceed ${maxWords} words and ${sectorMaxLetters} characters and each word should not exceed ${sectorMaxWordLength} characters`,
+    message: `It must not exceed ${maxWords} words and ${titleMaxLetters} characters, and each word should not exceed ${titleMaxWordLength} characters`,
   },
 );
 
