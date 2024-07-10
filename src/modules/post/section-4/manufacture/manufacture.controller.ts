@@ -13,6 +13,7 @@ import {
   sendMediaGroup,
 } from '../../../../utils/helpers/chat';
 import { areEqaul, extractElements, isInInlineOption, isInMarkUPOption } from '../../../../utils/helpers/string';
+import { postValidator } from '../../../../utils/validator/post-validaor';
 import MainMenuController from '../../../mainmenu/mainmenu.controller';
 import ProfileService from '../../../profile/profile.service';
 import PostService from '../../post.service';
@@ -108,6 +109,9 @@ class ManufactureController {
       await ctx.reply(...manufactureFormatter.enterpriseNamePrompt());
       return ctx.wizard.back();
     }
+
+    const validationMessage = postValidator('description', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.description = message;
 
