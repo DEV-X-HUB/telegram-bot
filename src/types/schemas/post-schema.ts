@@ -22,7 +22,7 @@ const sectorMaxLetters = 100;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    return validateString(value, maxWords, descriptionMaxLetters, descriptionMaxWordLength);
+    return validateString(value, maxWords, descriptionMaxLetters);
   },
   {
     message: `description must not exceed ${maxWords} words and ${descriptionMaxLetters} characters and each word should not exceed ${descriptionMaxWordLength} characters`,
@@ -124,17 +124,51 @@ export const ConfirmationYearSchema = z
 
 export const IssueDateSchema = z
   .string()
-  .regex(/^\d{1,2}\/\d{4}$/)
-  .refine(
-    (value) => {
-      const [month, year] = value.split('/');
-      const isValidDate = !isNaN(Date.parse(`${year}-${month}-${1}`));
-      return isValidDate;
-    },
-    {
-      message: 'Invalid date format ',
-    },
-  );
+  .regex(/^(0?[1-9]|1[0-2])\/\d{4}$/)
+  .refine((value) => {
+    const [month, year] = value.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    if (parseInt(year) > currentYear) {
+      return false;
+    }
+    if (parseInt(year) === currentYear && parseInt(month) > currentMonth) {
+      return false;
+    }
+
+    // check if the year gap isnot more than 100 years
+    if (currentYear - parseInt(year) > 100) {
+      return false;
+    }
+
+    return true;
+  });
+
+export const ExpireDateSchema = z
+  .string()
+  .regex(/^(0?[1-9]|1[0-2])\/\d{4}$/)
+  .refine((value) => {
+    const [month, year] = value.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+
+    if (parseInt(year) < currentYear) {
+      return false;
+    }
+    if (parseInt(year) === currentYear && parseInt(month) < currentMonth) {
+      return false;
+    }
+
+    // check if the year gap isnot more than 100 years
+    if (parseInt(year) - currentYear > 100) {
+      return false;
+    }
+
+    return true;
+  });
+
 export const DateSchema = z
   .string()
   .regex(/^\d{2}\/\d{1,2}\/\d{4}$/)
@@ -162,7 +196,7 @@ export const locationSchema = z.string().refine(
 export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
 export const sectorSchema = z.string().refine(
   (value) => {
-    return validateString(value, sectorMaxWords, sectorMaxLetters, sectorMaxWordLength);
+    return validateString(value, sectorMaxWords, sectorMaxLetters);
   },
   {
     message: `Sector must not exceed ${maxWords} words and ${sectorMaxLetters} characters and each word should not exceed ${sectorMaxWordLength} characters`,
