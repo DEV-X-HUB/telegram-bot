@@ -2,9 +2,10 @@ import { InlineKeyboardButtons, MarkupButtons } from '../../../../ui/button';
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../../../types/ui';
 import config from '../../../../config/config';
 import { NotifyOption } from '../../../../types/params';
-import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
-
+import { areEqaul, formatNumberWithCommas, trimParagraph } from '../../../../utils/helpers/string';
+import PostFormatter from '../../post.formmater';
 class Post1CFormatter {
+  imagesNumber = 4;
   arBrOption: TableInlineKeyboardButtons;
   paperStampOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
@@ -15,11 +16,15 @@ class Post1CFormatter {
   bIDiOption: TableInlineKeyboardButtons;
 
   messages = {
-    notifyOptionPrompt: 'Select who can be notified this question',
+    invalidOption: 'Unknown option. Please choose a valid option.',
+    invalidInput: 'Unknown Input. Please enter a valid input.',
+    notifyOptionPrompt: 'Select who can be notified this post',
     useButtonError: 'Please use Buttons to select options',
     categoryPrompt: 'Please Choose on category from the options',
+
     optionPrompt: 'Please Choose on category from the options',
     arBrPromt: 'Please Choose from two',
+    paperStampPromt: 'Please Choose Paper Stamp',
     chosseWoredaPrompt: 'Please Choose Your Woreda',
     biDiPrompt: 'Please Choose ID first Icon',
     lastDigitPrompt: 'Enter Last Digit',
@@ -30,10 +35,15 @@ class Post1CFormatter {
     postSuccessMsg:
       'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
+    notifySettingChanged: 'Notify Setting Updated',
     postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
 
   constructor() {
@@ -165,6 +175,9 @@ class Post1CFormatter {
   woredaListDisplay() {
     return ['Please Choose Your Woreda', InlineKeyboardButtons(this.woredaList)];
   }
+  chooseCityFormatter(countryCode: string, currentRound: any) {
+    return new PostFormatter().chooseCityFormatter(countryCode, currentRound);
+  }
   serviceType1Display() {
     return ['Please Choose Service Type 1', InlineKeyboardButtons(this.serviceType1)];
   }
@@ -193,7 +206,7 @@ class Post1CFormatter {
   }
   // <b> </b>
   getDetailData(state: any) {
-    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value.toLocaleUpperCase()}</b>\n\n<b>Paper Stamp:</b> ${state.paper_stamp} \n\n<b>Woreda:</b> ${state.woreda} \n\n<b>Service type 1 :</b> ${state.service_type_1} \n\n<b>Service type 2 :</b> ${state.service_type_2} \n\n<b>Service type 3 :</b> ${state.service_type_3} \n\n<b>Year of Confirmation:</b> ${state.confirmation_year}\n\n<b>Last digit:</b> ${state.last_digit}${state.id_first_option} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value.toLocaleUpperCase()}</b>\n\n<b>Paper Stamp:</b> ${state.paper_stamp} \n\n<b>City:</b> ${state.city} \n\n<b>Service type 1 :</b> ${state.service_type_1} \n\n<b>Service type 2 :</b> ${state.service_type_2} \n\n<b>Service type 3 :</b> ${state.service_type_3} \n\n<b>Year of Confirmation:</b> ${state.confirmation_year}\n\n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)}${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
@@ -252,7 +265,7 @@ class Post1CFormatter {
 
         [
           { text: 'BI/DI', cbString: 'id_first_option' },
-          { text: 'Woreda', cbString: 'woreda' },
+          { text: 'City', cbString: 'city' },
         ],
         [
           { text: 'Service Type 1', cbString: 'service_type_1' },

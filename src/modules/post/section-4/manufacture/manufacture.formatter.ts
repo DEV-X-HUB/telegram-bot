@@ -5,13 +5,14 @@ import { NotifyOption } from '../../../../types/params';
 import config from '../../../../config/config';
 
 class ManufactureFormatter {
+  imagesNumber = 4;
   estimatedCapitalOption: TableInlineKeyboardButtons;
   numberOfWorkerOption: TableInlineKeyboardButtons;
   backOption: TableMarkupKeyboardButtons;
   messages = {
     useButtonError: 'Please use buttons to select options',
     unknowOptionError: 'Unknown Option!',
-    notifyOptionPrompt: 'Select who can be notified this question',
+    notifyOptionPrompt: 'Select who can be notified this post',
     sectorPrompt: 'Specific sector for manufacture?',
     numberOfWorkerPrompt: 'Number of worker provide?',
     estimatedCapitalPrompt: 'What is the estimated capital?',
@@ -22,14 +23,19 @@ class ManufactureFormatter {
     inputError: 'Invalid input, please try again',
     reviewPrompt: 'Preview your post and press once you are done',
     postingSuccess:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
+    notifySettingChanged: 'Notify Setting Updated',
     postErroMsg: 'Post Error',
     mentionPost: 'Select post to mention',
-    noPreviousPosts: "You don't have any approved question before.",
+    noPreviousPosts: "You don't have any approved post before.",
     somethingWentWrong: 'Something went wrong',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
+    imageWaitingMsg: `Waiting for ${this.imagesNumber} photos`,
   };
   constructor() {
     this.estimatedCapitalOption = [

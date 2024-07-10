@@ -30,6 +30,9 @@ class RegistrationFormatter {
     emailPrompt: ' Please enter your personal Email ',
     countryPrompt: ' Please choose your country ',
     cityPrompt: ' Please choose your City ',
+    registerPrompt: 'Please register to use the service',
+    activationPrompt:
+      '<b>You are currently deactivated</b>\nYou are not allowed to  <b>post</b> or <b>message any one</b>.\n<i>Please contact help center use such services</i> ',
   };
 
   constructor() {
@@ -130,11 +133,11 @@ class RegistrationFormatter {
   }
   emailFormatter(editing?: boolean) {
     // if the email is bieng edidted skip button is not shown
-    return [`Please enter your personal Email `, this.goBackButton(editing ? false : true)];
+    return [this.messages.emailPrompt, this.goBackButton(editing ? false : true)];
   }
 
   async chooseCountryFormatter(editing?: boolean) {
-    const countries = await getFilteredCoutryList(this.countryCodes);
+    const countries = getFilteredCoutryList(this.countryCodes);
     return [
       'Please choose your country',
       InlineKeyboardButtons([

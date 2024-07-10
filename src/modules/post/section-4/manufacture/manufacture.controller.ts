@@ -3,6 +3,7 @@ import {
   CreatePostService4ConstructionDto,
   CreatePostService4ManufactureDto,
 } from '../../../../types/dto/create-question-post.dto';
+import { ImageCounter } from '../../../../types/params';
 import { displayDialog } from '../../../../ui/dialog';
 import {
   deleteKeyboardMarkup,
@@ -26,9 +27,35 @@ const manufactureFormatter = new ManufactureFormatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
-const imagesNumber = 4;
 
 class ManufactureController {
+  imageCounter: ImageCounter[] = [];
+  imageTimer: any;
+  setImageWaiting(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) return;
+    this.imageTimer = setTimeout(
+      () => {
+        this.sendImageWaitingPrompt(ctx);
+      },
+      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
+    );
+
+    this.imageCounter.push({ id: sender.id, waiting: true });
+  }
+  clearImageWaiting(id: number) {
+    this.imageCounter = this.imageCounter.filter(({ id: counterId }) => counterId != id);
+  }
+
+  isWaitingImages(id: number): boolean {
+    const exists = this.imageCounter.find(({ id: counterId }) => counterId == id);
+    return exists != undefined;
+  }
+  async sendImageWaitingPrompt(ctx: any) {
+    const sender = findSender(ctx);
+    if (this.isWaitingImages(sender.id)) await ctx.reply(manufactureFormatter.messages.imageWaitingMsg);
+  }
+
   constructor() {}
   async start(ctx: any) {
     ctx.wizard.state.category = 'Manufacture';
@@ -120,21 +147,24 @@ class ManufactureController {
   }
 
   async attachPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
     const sender = findSender(ctx);
-    console.log('being received');
-
     const message = ctx?.message?.text;
+
+    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+    this.setImageWaiting(ctx);
+
     if (message && areEqaul(message, 'back', true)) {
       ctx.reply(...manufactureFormatter.descriptionPrompt());
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
+      return ctx.wizard.back();
+    }
+
+    this.setImageWaiting(ctx);
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+
+    if (message && areEqaul(message, 'back', true)) {
+      ctx.reply(...manufactureFormatter.descriptionPrompt());
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
@@ -145,9 +175,8 @@ class ManufactureController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length == imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length == manufactureFormatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
 
@@ -216,7 +245,6 @@ class ManufactureController {
         }
 
         case 'post_data': {
-          console.log('here you are');
           // api request to post the data
 
           const postDto: CreatePostService4ManufactureDto = {
@@ -238,12 +266,12 @@ class ManufactureController {
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
             ctx.wizard.state.post_main_id = response?.data?.post_id;
-            await ctx.reply(...manufactureFormatter.postingSuccessful());
+
+            await displayDialog(ctx, manufactureFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
-            await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
-              parse_mode: 'HTML',
-            });
-            await displayDialog(ctx, manufactureFormatter.messages.postSuccessMsg);
+            // await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state, 'submitted'), {
+            //   parse_mode: 'HTML',
+            // });
 
             const elements = extractElements<string>(ctx.wizard.state.photo);
             const [caption, button] = manufactureFormatter.preview(ctx.wizard.state, 'submitted');
@@ -458,22 +486,28 @@ class ManufactureController {
   }
 
   async editPhoto(ctx: any) {
-    let imagesNumberReached = false;
-    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
-    let timer = setTimeout(
-      () => {
-        if (!imagesNumberReached) ctx.reply(`Waiting for ${imagesNumber} photos `);
-      },
-      parseInt(config.image_upload_minute.toString()) * 60 * 1000,
-    );
+    const sender = findSender(ctx);
     const messageText = ctx.message?.text;
+
+    this.setImageWaiting(ctx);
+    if (ctx.message.document) return ctx.reply(`Please only upload compressed images`);
+
+    if (messageText && areEqaul(messageText, 'back', true)) {
+      ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
+      this.clearImageWaiting(sender.id);
+      return ctx.wizard.back();
+    }
+
+    // check if image is attached
+    if (!ctx.message.photo) return ctx.reply(...manufactureFormatter.photoPrompt());
+
     if (messageText && areEqaul(messageText, 'back', true)) {
       await deleteMessage(ctx, {
         message_id: (parseInt(messageText.message_id) - 1).toString(),
         chat_id: messageText.chat.id,
       });
       ctx.reply(...manufactureFormatter.editPreview(ctx.wizard.state), { parse_mode: 'HTML' });
-      clearTimeout(timer);
+      this.clearImageWaiting(sender.id);
       return ctx.wizard.back();
     }
 
@@ -484,9 +518,8 @@ class ManufactureController {
     imagesUploaded.push(ctx.message.photo[0].file_id);
 
     // Check if all images received
-    if (imagesUploaded.length === imagesNumber) {
-      clearTimeout(timer);
-      imagesNumberReached = true;
+    if (imagesUploaded.length === manufactureFormatter.imagesNumber) {
+      this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
@@ -524,11 +557,11 @@ class ManufactureController {
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
         const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-        if (!response?.success) await ctx.reply('Unable to resubmite');
+        if (!response?.success) await displayDialog(ctx, manufactureFormatter.messages.postErroMsg);
 
         ctx.wizard.state.post_id = response?.data?.id;
         ctx.wizard.state.post_main_id = response?.data?.post_id;
-        await ctx.reply('Resubmiited');
+        await displayDialog(ctx, manufactureFormatter.messages.postResubmit);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Cancel', callback_data: `cancel_post` }],
@@ -540,9 +573,8 @@ class ManufactureController {
         console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
-        if (!deleted) return await ctx.reply('Unable to cancel the post ');
-
-        await ctx.reply('Cancelled');
+        if (!deleted) return await displayDialog(ctx, manufactureFormatter.messages.postErroMsg);
+        await displayDialog(ctx, manufactureFormatter.messages.postCancelled);
         return ctx.editMessageReplyMarkup({
           inline_keyboard: [
             [{ text: 'Resubmit', callback_data: `re_submit_post` }],
@@ -559,30 +591,32 @@ class ManufactureController {
   }
   async adjustNotifySetting(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
+    let notify_option = '';
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 'notify_none': {
         ctx.wizard.state.notify_option = 'none';
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        // jump to preview
-        return ctx.wizard.selectStep(7);
+        notify_option = 'none';
+        break;
       }
       case 'notify_friend': {
         ctx.wizard.state.notify_option = 'friend';
-        await deleteMessageWithCallback(ctx);
-        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        // jump to preview
-        return ctx.wizard.selectStep(7);
+        notify_option = 'friends';
+        break;
       }
       case 'notify_follower': {
-        await deleteMessageWithCallback(ctx);
         ctx.wizard.state.notify_option = 'follower';
-        await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-        // jump to preview
-        return ctx.wizard.selectStep(7);
+        notify_option = 'followers';
+        break;
       }
     }
+    await displayDialog(
+      ctx,
+      manufactureFormatter.messages.notifySettingChanged.concat(` to  ${notify_option.toUpperCase()}`),
+    );
+    await deleteMessageWithCallback(ctx);
+    await ctx.replyWithHTML(...manufactureFormatter.preview(ctx.wizard.state));
+    return ctx.wizard.selectStep(7);
   }
 
   async mentionPreviousPost(ctx: any) {

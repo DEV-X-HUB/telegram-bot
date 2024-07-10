@@ -5,10 +5,12 @@ import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
 import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
+import { PostStatus } from '@prisma/client';
+import { PostCategory } from '../types/params';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
-  console.log(message);
+
   if (status == 'success') {
     await sendEmail(
       config.super_admin_email as string,
@@ -20,8 +22,7 @@ import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
-  const round = req.params.round;
-  const { status, data, message } = await ApiService.getPosts(parseInt(round));
+  const { status, data, message } = await ApiService.getPosts();
   if (status == 'fail') {
     res.status(500).json({
       status,
@@ -35,14 +36,7 @@ export const getPosts = async (req: Request, res: Response) => {
 };
 
 export const getPostsByStatus = async (req: Request, res: Response) => {
-  const { round, status } = req.params;
-
-  if (!round || isNaN(parseInt(round))) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Invalid round parameter',
-    });
-  }
+  const { status } = req.params;
 
   if (!status) {
     return res.status(400).json({
@@ -51,7 +45,32 @@ export const getPostsByStatus = async (req: Request, res: Response) => {
     });
   }
 
-  const { status: fetchStatus, data, message } = await ApiService.getPostsByStatus(parseInt(round), status);
+  const { status: fetchStatus, data, message } = await ApiService.getPostsByStatus(status as PostStatus);
+
+  if (fetchStatus === 'fail') {
+    return res.status(500).json({
+      status: fetchStatus,
+      message,
+    });
+  }
+
+  return res.status(200).json({
+    status: fetchStatus,
+    data,
+  });
+};
+
+export const getPostsByCategory = async (req: Request, res: Response) => {
+  const { category } = req.params;
+
+  if (!category) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Status parameter is required',
+    });
+  }
+
+  const { status: fetchStatus, data, message } = await ApiService.getPostsByCategory(category as PostCategory);
 
   if (fetchStatus === 'fail') {
     return res.status(500).json({
@@ -228,6 +247,33 @@ export async function updateAdminStatus(req: Request, res: Response) {
     const { status, message } = await ApiService.updateAdminStatus({
       adminId,
       status: adminStatus,
+    });
+
+    if (status == 'fail') {
+      return res.status(400).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+    return res.status(200).json({
+      status,
+      message,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+    });
+  }
+}
+export async function updateUserStatus(req: Request, res: Response) {
+  try {
+    const { userId, status: userStatus, reason } = req.body;
+    const { status, message } = await ApiService.updateUserStatus({
+      userId,
+      status: userStatus,
+      reason,
     });
 
     if (status == 'fail') {

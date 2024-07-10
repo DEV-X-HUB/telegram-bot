@@ -5,10 +5,15 @@ import ChatService from './chat.service';
 import MainMenuController from '../mainmenu/mainmenu.controller';
 import ProfileService from '../profile/profile.service';
 import { areEqaul } from '../../utils/helpers/string';
+import RegistrationService from '../registration/restgration.service';
+import RegistrationFormatter from '../registration/registration-formatter';
 
 const chatService = new ChatService();
 const profileService = new ProfileService();
 const profileFormatter = new ProfileFormatter();
+
+const registrationService = new RegistrationService();
+const registrationFormatter = new RegistrationFormatter();
 
 class ChatController {
   constructor() {}
@@ -34,6 +39,9 @@ class ChatController {
   async sendMessage(ctx: any) {
     const sender = findSender(ctx);
     let receiverId = null;
+
+    const isUserActive = await registrationService.isUserActive(sender.id);
+    if (!isUserActive) return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
     if (ctx.wizard.state.receiver_id) {
       receiverId = ctx.wizard.state.receiver_id;
     } else {
@@ -113,6 +121,9 @@ class ChatController {
 
   async replyToMessage(ctx: any) {
     const sender = findSender(ctx);
+
+    const isUserActive = await registrationService.isUserActive(sender.id);
+    if (!isUserActive) return ctx.replyWithHTML(registrationFormatter.messages.activationPrompt);
 
     let receiverId = null;
     if (ctx.wizard.state.receiver_id) {

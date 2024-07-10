@@ -33,6 +33,21 @@ class RegistrationService {
       return false;
     }
   }
+  async isUserActive(tgId: string): Promise<boolean> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          tg_id: tgId.toString(),
+        },
+      });
+
+      if (user?.status == 'ACTIVE') return true;
+      return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
 
   async registerUser(createUserDto: CreateUserDto) {
     try {
@@ -45,6 +60,10 @@ class RegistrationService {
       console.error(error);
       return { success: false, message: 'unknown error', data: null };
     }
+  }
+  async getUserCountry(tg_id: string) {
+    const user = await prisma.user.findFirst({ where: { tg_id: tg_id.toString() } });
+    return user?.country;
   }
 
   async createUser(createUserDto: CreateUserDto) {

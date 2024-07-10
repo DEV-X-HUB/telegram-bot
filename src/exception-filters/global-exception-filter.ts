@@ -1,7 +1,6 @@
 // Global Error Handler - geh
 
 import { NextFunction, Request, Response } from 'express';
-import AppError from '../types/error/app-error';
 import logger from '../utils/logger';
 import config from '../config/config';
 

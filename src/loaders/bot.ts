@@ -13,13 +13,14 @@ import { checkCallBacks } from '../middleware/check-callback';
 import ChatScene from '../modules/chat/chat.scene';
 import BrowsePostScene from '../modules/browse-post/browse-post.scene';
 import MainMenuService from '../modules/mainmenu/mainmenu-service';
-import schedule from 'node-schedule';
+import * as cron from 'cron';
 
 const mainMenuService = new MainMenuService();
 let bot: Telegraf<Context> | null = null;
 
 const checkUserInitializer = () => {
-  mainMenuService.checkUsersInchannel(bot);
+  console.log('checking left user');
+  mainMenuService.checkUsersInchannel(bot, true);
 };
 
 export default () => {
@@ -38,7 +39,6 @@ export default () => {
   stage.use(checkAndRedirectToScene());
   bot.use(session());
   bot.use(stage.middleware());
-  // bot.use(checkAndRedirectToScene());
 
   const commands = [
     { name: 'start', description: 'Start the bot' },
@@ -50,7 +50,14 @@ export default () => {
     { name: 'browse', description: 'Browse posts' },
   ];
 
-  schedule.scheduleJob('0 0 * * *', checkUserInitializer);
+  const job = new cron.CronJob(
+    '00 00 00  * * *',
+    checkUserInitializer,
+    null,
+    true /* Start the job right now */,
+    'default',
+    /* Time zone of this job. */
+  );
 
   setCommands(commands);
   dbConnecion;

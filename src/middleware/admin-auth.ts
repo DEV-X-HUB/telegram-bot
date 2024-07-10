@@ -27,11 +27,11 @@ export const authGuard = (req: RequestWithUser, res: Response, next: NextFunctio
 };
 
 // Middleware to check user role
-export const roleGuard = (requiredRole: string) => {
+export const roleGuard = (requiredRole: string[]) => {
   return (req: RequestWithUser, res: Response, next: NextFunction) => {
     const user = req.user as JwtAuthPayload;
 
-    if (user.role !== requiredRole) {
+    if (!requiredRole.includes(user.role)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 

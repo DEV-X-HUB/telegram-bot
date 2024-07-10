@@ -112,6 +112,10 @@ class ProfileService {
           gender: newData.gender,
           bio: newData.bio,
           display_name: newData.display_name,
+          age: newData.age,
+          email: newData.email,
+          country: newData.country,
+          city: newData.city,
         },
       });
       return await prisma.user.findUnique({
@@ -125,6 +129,7 @@ class ProfileService {
         },
       });
     } catch (error: any) {
+      console.log(error);
       return null;
       throw new Error(`Error updating profile: ${error.message}`);
     }

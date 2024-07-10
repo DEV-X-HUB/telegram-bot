@@ -13,15 +13,20 @@ class ChickenFarmFormatter {
     estimatedCapitalPrompt: 'What is the estimated capital?',
     enterpriseNamePrompt: 'Name for the small scale enterprise?',
     descriptionPrompt: 'Enter description maximimum 45 words',
-    notifyOptionPrompt: 'Select who can be notified this question',
+    notifyOptionPrompt: 'Select who can be notified this post',
     displayError: 'Invalid input, please try again',
     postSuccessMsg:
-      'Your question has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
+      'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',
 
     postingError: 'Posting failed',
     mentionPost: 'Select post to mention',
     noPreviousPosts: "You don't have any approved question before.",
     somethingWentWrong: 'Something went wrong, please try again',
+    notifySettingChanged: 'Notify Setting Updated',
+    postErroMsg: 'Post Error',
+    postCancelled: 'Post Cancelled',
+    postResubmit: 'Post Re Submited',
+    resubmitError: 'Post Re Submited',
   };
   constructor() {
     this.estimatedCapitalOption = [

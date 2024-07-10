@@ -1,4 +1,5 @@
 import { Country, State, City } from 'country-state-city';
+import as from 'country-state-city';
 import { areEqaul } from './string';
 
 // ffetch country list
@@ -17,8 +18,9 @@ const selectedCountries = [
 export const getSelectedCoutryList = () => {
   return selectedCountries;
 };
-export const getFilteredCoutryList = async (countryCodes: string[]) => {
-  const countryList = await getAllCountries();
+
+export const getFilteredCoutryList = (countryCodes: string[]) => {
+  const countryList = getAllCountries();
   return countryList.filter((country) => {
     return countryCodes.some((countryCode) => {
       return areEqaul(countryCode, country.isoCode, true);
@@ -26,14 +28,24 @@ export const getFilteredCoutryList = async (countryCodes: string[]) => {
   });
 };
 
-export const getAllCountries = async () => {
-  const countryList = await Country.getAllCountries();
+export const getAllCountries = () => {
+  const countryList = Country.getAllCountries();
   return countryList;
+};
+export const getCountryByName = (countryName: string) => {
+  const country = getAllCountries().find(
+    (country) => country.name.toLocaleLowerCase() == countryName.toLocaleLowerCase(),
+  );
+
+  return country;
+};
+export const getCountryCodeByName = (countryName: string) => {
+  return getCountryByName(countryName)?.isoCode;
 };
 
 // fetch city list based on the selected country
-export const getCitiesOfCountry = async (countryCode: string) => {
-  const cityList = await City.getCitiesOfCountry(countryCode);
+export const getCitiesOfCountry = (countryCode: string) => {
+  const cityList = City.getCitiesOfCountry(countryCode);
   return cityList;
 };
 

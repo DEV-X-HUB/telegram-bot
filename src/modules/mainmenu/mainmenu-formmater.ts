@@ -146,6 +146,12 @@ class MainmenuFormatter {
       urlButton('Join', `https://t.me/${config.channel_username}`),
     ];
   }
+  formatReJoinMessage(first_name: string) {
+    return [
+      `Hey ${first_name} 👋\nIt seems like you have left our channel,the channel is where we post questions asked by you and others,\n\nJoin using the button below!`,
+      urlButton('Join', `https://t.me/${config.channel_username}`),
+    ];
+  }
   formatFailedJoinCheck(message: string) {
     return [`<b>Failed to check user in channel</b>\n<i>${message}</i> \n<b>Please try again!</b>`];
   }

@@ -7,7 +7,7 @@ const mainMenuFormmater = new MainmenuFormatter();
 class MainMenuService {
   constructor() {}
 
-  async checkUsersInchannel(bot: any) {
+  async checkUsersInchannel(bot: any, checkRejoin?: boolean) {
     try {
       const users = await prisma.user.findMany({
         select: {
@@ -26,7 +26,9 @@ class MainMenuService {
             await messageJoinPrompt(
               bot,
               parseInt(chat_id),
-              mainMenuFormmater.formatJoinMessage(first_name)[0] as string,
+              checkRejoin
+                ? (mainMenuFormmater.formatReJoinMessage(first_name)[0] as string)
+                : (mainMenuFormmater.formatJoinMessage(first_name)[0] as string),
             );
           }
         }

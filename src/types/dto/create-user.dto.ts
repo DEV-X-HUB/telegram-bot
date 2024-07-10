@@ -11,6 +11,8 @@ interface CreateUserDto {
   country: string;
   chat_id: string;
   display_name: null;
+  status: 'ACTIVE';
+  inactive_reason: '';
 }
 
 export default CreateUserDto;
