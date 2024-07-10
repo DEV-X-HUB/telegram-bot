@@ -5,8 +5,20 @@ import { validateString } from '../../utils/helpers/string';
 const maxWords = parseInt(config.desc_word_length as string) || 45;
 const locationMaxLetters = 20;
 
-const descriptionMaxLetters = 315;
+// title validation datas
+const titleMaxWords = 7;
+const titleMaxWordLength = 15;
+const titleMaxLetters = 50;
+
+// description validation datas
+const descriptionMaxWords = 45;
 const descriptionMaxWordLength = 15;
+const descriptionMaxLetters = 315;
+
+// sector validation datas
+const sectorMaxWords = 7;
+const sectorMaxWordLength = 15;
+const sectorMaxLetters = 100;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
@@ -148,5 +160,13 @@ export const locationSchema = z.string().refine(
   },
 );
 export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
+export const sectorSchema = z.string().refine(
+  (value) => {
+    return validateString(value, sectorMaxWords, sectorMaxLetters, sectorMaxWordLength);
+  },
+  {
+    message: `Sector must not exceed ${maxWords} words and ${sectorMaxLetters} characters and each word should not exceed ${sectorMaxWordLength} characters`,
+  },
+);
 
 export default DateSchema;
