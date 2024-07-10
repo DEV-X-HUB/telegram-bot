@@ -116,7 +116,7 @@ export const trimParagraph = (paragraph: string, maxLength: number = 4): string 
 };
 
 // Check that thee number of words in the string is less than maxWords and total number of characters is less than maxLetters and each word is less than maxWordLength characters
-export const validateString = (value: string, maxWords: number, maxLetters: number, maxWordLength: number) => {
+export const validateString = (value: string, maxWords: number, maxLetters: number, maxWordLength: number = 15) => {
   const words = value.trim().split(/\s+/);
   const wordCount = words.length;
   const characters = value.length;
