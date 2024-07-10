@@ -1,16 +1,26 @@
 import z, { ZodError } from 'zod';
 import config from '../../config/config';
+import { validateString } from '../../utils/helpers/string';
 
 const maxWords = parseInt(config.desc_word_length as string) || 45;
 const locationMaxLetters = 20;
 
+// title validation datas
+const titleMaxWords = 7;
+const titleMaxWordLength = 15;
+const titleMaxLetters = 50;
+
+// description validation datas
+const descriptionMaxWords = 45;
+const descriptionMaxWordLength = 15;
+const descriptionMaxLetters = 315;
+
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    const charactersCount = value.length;
-    return charactersCount <= maxWords;
+    return validateString(value, maxWords, descriptionMaxLetters);
   },
   {
-    message: `description must not exceed ${maxWords} words`,
+    message: `description must not exceed ${maxWords} words and ${descriptionMaxLetters} characters and each word should not exceed ${descriptionMaxWordLength} characters`,
   },
 );
 
@@ -178,6 +188,14 @@ export const locationSchema = z.string().refine(
     message: `location must not exceed ${locationMaxLetters} letters and should not contain any special characters or emoji`,
   },
 );
-export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
+// export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
+export const titleSchema = z.string().refine(
+  (value) => {
+    return validateString(value, titleMaxWords, titleMaxLetters);
+  },
+  {
+    message: `It must not exceed ${maxWords} words and ${titleMaxLetters} characters, and each word should not exceed ${titleMaxWordLength} characters`,
+  },
+);
 
 export default DateSchema;

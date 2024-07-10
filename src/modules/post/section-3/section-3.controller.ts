@@ -91,6 +91,9 @@ class Section3Controller {
       return ctx.wizard.back();
     }
 
+    const validationMessage = postValidator('title', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     ctx.wizard.state.title = message;
     await ctx.reply(...section3Formatter.descriptionPrompt());
     return ctx.wizard.next();
@@ -102,6 +105,9 @@ class Section3Controller {
       ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
       return ctx.wizard.back();
     }
+
+    const validationMessage = postValidator('description', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.description = message;
 

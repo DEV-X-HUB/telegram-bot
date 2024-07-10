@@ -159,7 +159,12 @@ class QuestionPostSectionConstructionController {
         ctx.reply(...constructionFormatter.documentRequestDisplay());
         return ctx.wizard.selectStep(3); // jump to 4'th controller (document request type)
       }
+
       await deleteKeyboardMarkup(ctx, constructionFormatter.messages.landStatusPrompt);
+
+      const validationMessage = postValidator('location', message);
+      if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
       ctx.reply(...constructionFormatter.documentRequestDisplay());
       return ctx.wizard.back(); // jump to 4'th controller (document request type)
     }

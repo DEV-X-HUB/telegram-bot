@@ -37,9 +37,6 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
     case 'confirmation_year':
       schema = ConfirmationYearSchema;
       break;
-      // case 'photo':
-      //   schema = Array;
-      break;
   }
 
   try {
