@@ -119,7 +119,7 @@ export const trimParagraph = (paragraph: string, maxLength: number = 4): string 
 export const validateString = (value: string, maxWords: number, maxLetters: number, maxWordLength: number = 15) => {
   const words = value.trim().split(/\s+/);
   const wordCount = words.length;
-  const characters = value.length;
+  const characters = value.replace(/\s/g, '').length;
   const wordLength = words.map((word) => word.length);
   const wordLengthCheck = wordLength.every((word) => word <= maxWordLength);
   return wordCount <= maxWords && characters <= maxLetters && wordLengthCheck;
