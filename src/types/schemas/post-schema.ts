@@ -9,9 +9,6 @@ const descriptionMaxWordLength = 15;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    // const wordCount = value.trim().split(/\s+/).length;
-    // return wordCount <= maxWords;
-
     // check that thee number of words in the description is less than 45 and total number of characters is less than 300 and each word is less than 15 characters
     const words = value.trim().split(/\s+/);
     const wordCount = words.length;
