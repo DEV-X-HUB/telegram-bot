@@ -1,5 +1,6 @@
 import z, { ZodError } from 'zod';
 import config from '../../config/config';
+import { validateString } from '../../utils/helpers/string';
 
 const maxWords = parseInt(config.desc_word_length as string) || 45;
 const locationMaxLetters = 20;
@@ -9,16 +10,10 @@ const descriptionMaxWordLength = 15;
 
 export const DescriptionSchema = z.string().refine(
   (value) => {
-    // check that thee number of words in the description is less than 45 and total number of characters is less than 315 and each word is less than 15 characters
-    const words = value.trim().split(/\s+/);
-    const wordCount = words.length;
-    const characters = value.length;
-    const wordLength = words.map((word) => word.length);
-    const wordLengthCheck = wordLength.every((word) => word <= descriptionMaxWordLength);
-    return wordCount <= maxWords && characters <= descriptionMaxLetters && wordLengthCheck;
+    return validateString(value, maxWords, descriptionMaxLetters, descriptionMaxWordLength);
   },
   {
-    message: `description must not exceed ${maxWords} words and 300 characters and each word should not exceed 20 characters`,
+    message: `description must not exceed ${maxWords} words and ${descriptionMaxLetters} characters and each word should not exceed ${descriptionMaxWordLength} characters`,
   },
 );
 
