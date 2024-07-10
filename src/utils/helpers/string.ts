@@ -114,3 +114,13 @@ export const trimParagraph = (paragraph: string, maxLength: number = 4): string 
   }
   return words.slice(0, maxLength).join(' ') + '...';
 };
+
+// Check that thee number of words in the string is less than maxWords and total number of characters is less than maxLetters and each word is less than maxWordLength characters
+export const validateString = (value: string, maxWords: number, maxLetters: number, maxWordLength: number) => {
+  const words = value.trim().split(/\s+/);
+  const wordCount = words.length;
+  const characters = value.length;
+  const wordLength = words.map((word) => word.length);
+  const wordLengthCheck = wordLength.every((word) => word <= maxWordLength);
+  return wordCount <= maxWords && characters <= maxLetters && wordLengthCheck;
+};
