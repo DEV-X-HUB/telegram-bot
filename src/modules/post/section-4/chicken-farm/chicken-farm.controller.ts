@@ -35,6 +35,9 @@ class ChickenFarmController {
       return ctx.scene.leave();
     }
 
+    const validationMessage = postValidator('title', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     ctx.wizard.state.sector = message;
     await deleteKeyboardMarkup(ctx, 'What is the estimated capital?');
     await ctx.reply(...chickenFarmFormatter.estimatedCapitalPrompt());
@@ -68,6 +71,9 @@ class ChickenFarmController {
       return ctx.wizard.back();
     }
 
+    const validationMessage = postValidator('title', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     ctx.wizard.state.enterprise_name = message;
     await ctx.reply(...chickenFarmFormatter.descriptionPrompt());
     return ctx.wizard.next();
@@ -80,7 +86,6 @@ class ChickenFarmController {
       await ctx.reply(...chickenFarmFormatter.enterpriseNamePrompt());
       return ctx.wizard.back();
     }
-
 
     const validationMessage = postValidator('description', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);

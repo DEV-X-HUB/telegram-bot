@@ -71,6 +71,9 @@ class ManufactureController {
       return ctx.scene.leave();
     }
 
+    const validationMessage = postValidator('title', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
+
     ctx.wizard.state.sector = message;
     await deleteKeyboardMarkup(ctx, 'What is the estimated capital?');
     await ctx.reply(...manufactureFormatter.numberOfWorkerPrompt());
@@ -124,6 +127,9 @@ class ManufactureController {
       await ctx.reply(...manufactureFormatter.estimatedCapitalPrompt());
       return ctx.wizard.back();
     }
+
+    const validationMessage = postValidator('title', message);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
     ctx.wizard.state.enterprise_name = message;
     await ctx.reply(...manufactureFormatter.descriptionPrompt());
