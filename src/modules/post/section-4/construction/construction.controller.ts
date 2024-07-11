@@ -314,7 +314,8 @@ class QuestionPostSectionConstructionController {
 
             await displayDialog(ctx, constructionFormatter.messages.postSuccessMsg, true);
             await deleteMessageWithCallback(ctx);
-            const elements = extractElements<string>(ctx.wizard.state.photo);
+
+            const elements = ctx.wizard.state.photo ? extractElements<string>(ctx.wizard.state.photo) : null;
             const [caption, button] = constructionFormatter.preview(ctx.wizard.state, 'submitted');
             if (elements) {
               // if array of elelement has many photos
@@ -326,12 +327,7 @@ class QuestionPostSectionConstructionController {
                 caption: caption as string,
               });
             } else {
-              // if array of  has one  photo
-              await replyPostPreview({
-                ctx,
-                photoURl: ctx.wizard.state.photo[0],
-                caption: caption as string,
-              });
+              await ctx.replyWithHTML(...constructionFormatter.preview(ctx.wizard.state, 'submitted'));
             }
 
             // jump to posted review
