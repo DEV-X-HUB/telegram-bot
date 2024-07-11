@@ -717,6 +717,16 @@ class PostService {
         };
         break;
 
+      case 'Section 1C':
+        columnSpecificWhereCondition = {
+          Service1C: {
+            arbr_value:
+              !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
+            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+          },
+        };
+        break;
+
       case 'Section 3':
         columnSpecificWhereCondition = {
           Service3: {
@@ -768,6 +778,10 @@ class PostService {
               : undefined,
 
           ...columnSpecificWhereCondition,
+          // Service1A: {
+          // last_digit: { gte: 100, lte: 1000 },
+          // },
+
           // Service3: {
           //   birth_or_marital: {
           //     equals: 'all',
