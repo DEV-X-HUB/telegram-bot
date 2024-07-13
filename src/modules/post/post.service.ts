@@ -759,6 +759,33 @@ class PostService {
                   gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
                 }
               : undefined,
+          OR: [
+            {
+              Service1A: {
+                // conditionally check if ar_br is provided and not equals to 'all'
+                // arbr_value:
+                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+
+                id_first_option: { equals: query?.fields?.id_first_option },
+                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+              },
+            },
+            {
+              Service1B: {
+                id_first_option: { equals: query?.fields?.id_first_option },
+                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+              },
+            },
+            {
+              Service1C: {
+                // conditionally check if ar_br is provided and not equals to 'all'
+                // arbr_value:
+                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+                id_first_option: { equals: query?.fields?.id_first_option },
+                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+              },
+            },
+          ],
           // ...columnSpecificWhereCondition,
           // Service1A: {
           //   // conditionally check if ar_br is provided and not equals to 'all'
@@ -830,23 +857,26 @@ class PostService {
                 // arbr_value:
                 //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
 
+                id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
               },
             },
-
             {
               Service1B: {
+                id_first_option: { equals: query?.fields?.id_first_option },
+                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+              },
+            },
+            {
+              Service1C: {
+                // conditionally check if ar_br is provided and not equals to 'all'
+                // arbr_value:
+                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+                id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
               },
             },
           ],
-
-          // Service1C: {
-          //   // conditionally check if ar_br is provided and not equals to 'all'
-          //   // arbr_value:
-          //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-          //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          // },
 
           // Service3: {
           //   birth_or_marital: {
