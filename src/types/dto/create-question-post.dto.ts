@@ -19,7 +19,7 @@ export interface CreatePostService1ADto {
   id_first_option: string;
   location: string;
   city: string;
-  last_digit: string;
+  last_digit: number;
   photo: string[];
 
   description: string;
@@ -35,7 +35,7 @@ export interface CreatePostService1BDto {
   id_first_option: string;
   location: string;
   city: string;
-  last_digit: string;
+  last_digit: number;
   photo: string[];
   issue_date?: Date;
   expire_date?: Date;
@@ -51,7 +51,7 @@ export interface CreatePostService1CDto {
   id_first_option: string;
   paper_stamp: string;
   city: string;
-  last_digit: string;
+  last_digit: number;
   service_type_1: string;
   service_type_2: string;
   service_type_3: string;
