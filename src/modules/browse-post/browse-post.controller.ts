@@ -523,16 +523,16 @@ class BrowsePostController {
 
   async handleFilterSection3BirthMarital(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(`Maritalll: callbackQuery.data`);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
 
     if (callbackQuery.data.startsWith('filterBySection3BirthMarital')) {
       const section3BirthMaritalFilter = ctx.callbackQuery.data.split('_')[1];
+      console.log(`Maritalll: ${section3BirthMaritalFilter}`);
 
-      ctx.wizard.state.filterBy = {
-        ...ctx.wizard.state.filterBy,
+      ctx.wizard.state.filterBy.fields = {
+        ...ctx.wizard.state.filterBy.fields,
         birth_or_marital: section3BirthMaritalFilter,
       };
 

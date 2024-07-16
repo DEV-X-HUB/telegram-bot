@@ -663,6 +663,7 @@ class PostService {
     const arBrValue = query?.fields?.ar_br;
     const mainCategory = query?.fields?.main_category;
     const subCategory = query?.fields?.sub_category;
+    const birthOrMarital = query?.fields?.birth_or_marital;
 
     console.log(`LAST DIGIT ; ${query?.fields?.last_digit}`);
 
@@ -797,6 +798,11 @@ class PostService {
                 arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
               },
             },
+            {
+              Service3: {
+                birth_or_marital: birthOrMarital == 'all' ? undefined : { equals: birthOrMarital },
+              },
+            },
           ],
           // ...columnSpecificWhereCondition,
           // Service1A: {
@@ -893,6 +899,12 @@ class PostService {
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
                 city: cityName == 'all' ? undefined : { equals: cityName },
                 arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
+              },
+            },
+
+            {
+              Service3: {
+                birth_or_marital: birthOrMarital == 'all' ? undefined : { equals: birthOrMarital },
               },
             },
           ],
