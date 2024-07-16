@@ -659,6 +659,8 @@ class PostService {
     let lastDigitStartsFrom;
     let lastDigitUpTo;
 
+    const cityName = query?.fields?.city?.cityName;
+
     console.log(`LAST DIGIT ; ${query?.fields?.last_digit}`);
 
     if (String(query?.fields?.last_digit)?.startsWith('bi') || String(query?.fields?.last_digit)?.startsWith('di')) {
@@ -768,12 +770,14 @@ class PostService {
 
                 id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                city: cityName == 'all' ? undefined : { equals: cityName },
               },
             },
             {
               Service1B: {
                 id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                city: cityName == 'all' ? undefined : { equals: cityName },
               },
             },
             {
@@ -783,6 +787,7 @@ class PostService {
                 //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
                 id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                city: cityName == 'all' ? undefined : { equals: cityName },
               },
             },
           ],
@@ -859,12 +864,14 @@ class PostService {
 
                 id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                city: cityName == 'all' ? undefined : { equals: cityName },
               },
             },
             {
               Service1B: {
                 id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                city: cityName == 'all' ? undefined : { equals: cityName },
               },
             },
             {
@@ -874,6 +881,7 @@ class PostService {
                 //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
                 id_first_option: { equals: query?.fields?.id_first_option },
                 last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                city: cityName == 'all' ? undefined : { equals: cityName },
               },
             },
           ],

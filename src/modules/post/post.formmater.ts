@@ -547,7 +547,7 @@ class PostFormatter {
   // }
 
   // choose city based on the selected country
-  chooseCityFormatter(countryCode: string, currentRound: any) {
+  chooseCityFormatter(countryCode: string, currentRound: any, selectedCity?: string) {
     let cities: any[] = [];
     const citiesExtracted = getCitiesOfCountry(countryCode);
     if (citiesExtracted) cities = citiesExtracted;
@@ -559,7 +559,9 @@ class PostFormatter {
         InlineKeyboardButtons(
           // map the country list to the buttons
           [
-            ...cityList.map((city) => [{ text: city.name, cbString: city.name }]),
+            ...cityList.map((city) => [
+              { text: `${selectedCity === city.name ? '✅ ' : ''}${city.name}`, cbString: city.name },
+            ]),
 
             [{ text: 'Other', cbString: 'Other' }],
             !lastRound ? [{ text: '➡️ Next', cbString: 'next' }] : [],

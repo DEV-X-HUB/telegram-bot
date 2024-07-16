@@ -16,7 +16,7 @@ const BrowsePostScene = new Scenes.WizardScene(
   browsePostController.handleFilterSection2Type,
   browsePostController.handleFilterSection3BirthMarital,
   browsePostController.handleFilterSection4Type,
-  browsePostController.handleFilterByWoreda,
+  browsePostController.handleFilterByCity,
   browsePostController.handleFilterByLastDigit,
   browsePostController.handlefilterByLastDigitBIDI,
 );
