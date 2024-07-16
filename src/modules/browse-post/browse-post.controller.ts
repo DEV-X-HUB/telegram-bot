@@ -1,11 +1,14 @@
 // BrowsePostScene
 import { Context } from 'telegraf';
-import { deleteMessageWithCallback } from '../../utils/helpers/chat';
+import { deleteMessageWithCallback, findSender } from '../../utils/helpers/chat';
 import PostService from '../post/post.service';
 import BrowsePostFormatter from './browse-post.formatter';
 import config from '../../config/config';
+import { getCountryCodeByName } from '../../utils/helpers/country-list';
+import RegistrationService from '../registration/restgration.service';
 const browsePostFormatter = new BrowsePostFormatter();
 
+const registrationService = new RegistrationService();
 const postService = new PostService();
 
 class BrowsePostController {
@@ -26,7 +29,10 @@ class BrowsePostController {
         sub_category: 'all',
         birth_or_marital: 'all',
         service_type: 'all',
-        woreda: 'all',
+        city: {
+          cityName: 'all',
+          currentRound: 0,
+        },
         last_digit: 'all',
       },
     };
@@ -97,15 +103,31 @@ class BrowsePostController {
       return ctx.wizard.selectStep(3);
     }
 
-    // Filter by woreda
-    if (callbackQuery.data.startsWith('filterByWoreda')) {
-      // const woredaFilter = ctx.callbackQuery.data.split('_')[1];
+    // Filter by city
+    if (callbackQuery.data.startsWith('filterByCity')) {
+      // const cityFilter = `city_${ctx.callbackQuery.data.split('_')[1]}` || 'all';
 
-      const woredaFilter = `woreda_${ctx.callbackQuery.data.split('_')[2]}` || 'all';
-      console.log(`wwwww ${woredaFilter}`);
+      const sender = findSender(ctx);
+      const userCountry = await registrationService.getUserCountry(sender.id);
+      const countryCode = getCountryCodeByName(userCountry as string);
 
+      // const residenceCity = await registrationService.getUserCity(sender.id);
+
+      ctx.wizard.state.filterBy.fields.city = {
+        ...ctx.wizard.state.filterBy.fields.city,
+        countryCode: countryCode,
+        // cityName : 'All',
+        currentRound: 0,
+      };
       await deleteMessageWithCallback(ctx);
-      await ctx.reply(...browsePostFormatter.filterByWoredaOptionsDisplay());
+
+      await ctx.reply(
+        ...browsePostFormatter.chooseCityFormatter(
+          countryCode as string,
+          ctx.wizard.state.filterBy.fields.city.currentRound,
+          ctx.wizard.state.filterBy.fields.city?.cityName,
+        ),
+      );
       return ctx.wizard.selectStep(11);
     }
 
@@ -568,43 +590,54 @@ class BrowsePostController {
     }
   }
 
-  async handleFilterByWoreda(ctx: any) {
+  async handleFilterByCity(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
-    if (!callbackQuery) {
-      return ctx.reply(...browsePostFormatter.messages.useButtonError);
-    }
 
-    if (callbackQuery.data.startsWith('filterByWoreda')) {
-      const woredaFilter = `woreda_${ctx.callbackQuery.data.split('_')[2]}`;
-      console.log(`aaaaaa ${woredaFilter}`);
+    if (!callbackQuery) return ctx.reply(browsePostFormatter.messages.useButtonError);
 
-      ctx.wizard.state.filterBy = {
-        ...ctx.wizard.state.filterBy,
-        fields: {
-          ...ctx.wizard.state.filterBy.fields,
-          woreda: woredaFilter,
-          // woreda: generateWoredaDisplayName(woredaFilter),
-        },
-      };
+    deleteMessageWithCallback(ctx);
+    switch (callbackQuery.data) {
+      case 'back': {
+        if (ctx.wizard.state.filterBy.fields.city.currentRound == 0) {
+          return ctx.wizard.selectStep(0);
+        }
 
-      // Get posts by the selected category
-      const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-
-      await deleteMessageWithCallback(ctx);
-
-      if (!posts || posts.posts.length == 0) {
-        return ctx.reply(browsePostFormatter.messages.noPostError);
+        ctx.wizard.state.filterBy.fields.city.currentRound = ctx.wizard.state.filterBy.fields.city.currentRound - 1;
+        return ctx.reply(
+          ...browsePostFormatter.chooseCityFormatter(
+            ctx.wizard.state.filterBy.fields.city.countryCode,
+            ctx.wizard.state.filterBy.fields.city.currentRound,
+          ),
+        );
       }
 
-      ctx.replyWithHTML(
-        ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
-        {
-          parse_mode: 'HTML',
-        },
-      );
+      case 'next': {
+        ctx.wizard.state.filterBy.fields.city.currentRound = ctx.wizard.state.filterBy.fields.city.currentRound + 1;
+        return ctx.reply(
+          ...browsePostFormatter.chooseCityFormatter(
+            ctx.wizard.state.filterBy.fields.city.countryCode,
+            ctx.wizard.state.filterBy.fields.city.currentRound,
+          ),
+        );
+      }
 
-      return ctx.wizard.selectStep(1);
+      default:
+        ctx.wizard.state.filterBy.fields.city.currentRound = 0;
+        ctx.wizard.state.filterBy.fields.city.cityName = callbackQuery.data;
+        // fetch post with city
+        const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
+        if (!posts || posts.posts.length == 0) {
+          return ctx.reply(browsePostFormatter.messages.noPostError);
+        }
+
+        ctx.replyWithHTML(
+          ...browsePostFormatter.browsePostDisplay(posts.posts[0], ctx.wizard.state.filterBy, 1, posts.total),
+          {
+            parse_mode: 'HTML',
+          },
+        );
+
+        return ctx.wizard.selectStep(1);
     }
   }
 
@@ -677,35 +710,35 @@ class BrowsePostController {
   }
 }
 
-function generateWoredaDisplayName(woreda: string) {
-  switch (woreda) {
-    case 'woreda_1':
-      return 'Woreda 1';
+// function generateWoredaDisplayName(woreda: string) {
+//   switch (woreda) {
+//     case 'woreda_1':
+//       return 'Woreda 1';
 
-    case 'woreda_2':
-      return 'Woreda 2';
+//     case 'woreda_2':
+//       return 'Woreda 2';
 
-    case 'woreda_3':
-      return 'Woreda 3';
-    case 'woreda_4':
-      return 'Woreda 4';
+//     case 'woreda_3':
+//       return 'Woreda 3';
+//     case 'woreda_4':
+//       return 'Woreda 4';
 
-    case 'woreda_5':
-      return 'Woreda 5';
-    case 'woreda_6':
-      return 'Woreda 6';
-    case 'woreda_7':
-      return 'Woreda 7';
-    case 'woreda_8':
-      return 'Woreda 8';
-    case 'woreda_9':
-      return 'Woreda 9';
-    case 'woreda_10':
-      return 'Woreda 10';
+//     case 'woreda_5':
+//       return 'Woreda 5';
+//     case 'woreda_6':
+//       return 'Woreda 6';
+//     case 'woreda_7':
+//       return 'Woreda 7';
+//     case 'woreda_8':
+//       return 'Woreda 8';
+//     case 'woreda_9':
+//       return 'Woreda 9';
+//     case 'woreda_10':
+//       return 'Woreda 10';
 
-    default:
-      return 'all';
-  }
-}
+//     default:
+//       return 'all';
+//   }
+// }
 
 export default BrowsePostController;

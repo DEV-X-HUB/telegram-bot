@@ -13,6 +13,7 @@ import ChickenFarmFormatter from '../post/section-4/chicken-farm/chicken-farm.fo
 import ConstructionFormatter from '../post/section-4/construction/construction.formatter';
 import ManufactureFormatter from '../post/section-4/manufacture/manufacture.formatter';
 import { displayDialog } from '../../ui/dialog';
+import PostFormatter from '../post/post.formmater';
 
 const post1AFormatter = new Post1AFormatter();
 const post1BFormatter = new Post1BFormatter();
@@ -850,12 +851,29 @@ class BrowsePostFormatter {
     } else return [];
   }
 
-  filterByWoredaOptionsDisplay(selectedWoreda?: any) {
-    console.log(`oooo ${selectedWoreda}`);
+  // filterByWoredaOptionsDisplay(selectedWoreda?: any) {
+  //   console.log(`oooo ${selectedWoreda}`);
+  //   return [
+  //     this.messages.selectWoredaMessage,
+  //     InlineKeyboardButtons(this.filterByWoredaOptionsButton(selectedWoreda ? selectedWoreda : 'all')),
+  //   ];
+  // }
+
+  filterByCityButton(
+    cityName?: string,
+    // country_code: any,
+    // city_name: any
+  ) {
     return [
-      this.messages.selectWoredaMessage,
-      InlineKeyboardButtons(this.filterByWoredaOptionsButton(selectedWoreda ? selectedWoreda : 'all')),
+      {
+        text: `City - ${cityName || 'All'}`,
+        cbString: `filterByCity_${cityName}`,
+      },
     ];
+  }
+
+  chooseCityFormatter(countryCode: string, currentRound: any, selectedCity?: any) {
+    return new PostFormatter().chooseCityFormatter(countryCode, currentRound, selectedCity);
   }
 
   browsePostDisplay(post: any, filter?: any, currentPage?: number, totalPages?: number) {
@@ -869,8 +887,7 @@ class BrowsePostFormatter {
           this.filterByCategoryButton(filter?.category || 'all'),
           this.filterByTimeframeButton(filter?.timeframe || 'all'),
 
-          // display woreda filter optionally
-          this.filterByWoredaButton(post.category, filter?.fields?.woreda),
+          this.filterByCityButton(filter?.fields?.city?.cityName),
 
           // display last digit filter optionally
           this.filterByLastDigit(post.category, filter?.fields?.last_digit),
