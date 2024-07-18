@@ -95,7 +95,7 @@ class ManufactureService {
       const newPost = await this.createPost(
         {
           description: postData.description,
-          category: 'Service4Manufacture',
+          category: postData.category,
           notify_option: postData.notify_option,
         },
         tg_id,
