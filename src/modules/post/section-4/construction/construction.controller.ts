@@ -242,7 +242,6 @@ class QuestionPostSectionConstructionController {
     if (imagesUploaded.length == constructionFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
 
       const mediaGroup = imagesUploaded.map((image: any) => ({
         media: image,
@@ -258,16 +257,15 @@ class QuestionPostSectionConstructionController {
 
       // empty the images array
       imagesUploaded = [];
-      deleteKeyboardMarkup(ctx);
+      // deleteKeyboardMarkup(ctx);
       ctx.replyWithHTML(...constructionFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
-      ctx.reply(...constructionFormatter.previewCallToAction());
+      // ctx.reply(...constructionFormatter.previewCallToAction());
       return ctx.wizard.next();
     }
   }
   async preview(ctx: any) {
     const user = findSender(ctx);
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       const message = ctx.message.text;
       if (message == 'Back') {
@@ -287,8 +285,6 @@ class QuestionPostSectionConstructionController {
         }
 
         case 'post_data': {
-          console.log('here you are');
-
           // api request to post the data
           const postDto: CreatePostService4ConstructionDto = {
             construction_size: ctx.wizard.state.size,
@@ -304,9 +300,6 @@ class QuestionPostSectionConstructionController {
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
           };
           const response = await PostService.createCategoryPost(postDto, callbackQuery.from.id);
-          console.log(response);
-          // console.log(response);
-          // ctx.reply(...constructionFormatter.postingSuccessful());
 
           if (response?.success) {
             ctx.wizard.state.post_id = response?.data?.id;
@@ -366,8 +359,6 @@ class QuestionPostSectionConstructionController {
         }
 
         case 'mention_previous_post': {
-          console.log('mention_previous_post1');
-          await ctx.reply('mention_previous_post');
           // fetch previous posts of the user
           const { posts, success, message } = await PostService.getUserPostsByTgId(user.id);
           if (!success || !posts) {
@@ -419,7 +410,6 @@ class QuestionPostSectionConstructionController {
 
   async mentionPreviousPost(ctx: any) {
     const state = ctx.wizard.state;
-    console.log(state);
     const callbackQuery = ctx.callbackQuery;
     if (callbackQuery) {
       if (areEqaul(callbackQuery.data, 'back', true)) {
@@ -566,7 +556,7 @@ class QuestionPostSectionConstructionController {
           location: ctx.wizard.state.location,
           photo: ctx.wizard.state.photo,
           description: ctx.wizard.state.description,
-          category: 'Section4Construction',
+          category: ctx.wizard.state.category,
           notify_option: ctx.wizard.state.notify_option,
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };
@@ -584,7 +574,6 @@ class QuestionPostSectionConstructionController {
         });
       }
       case 'cancel_post': {
-        console.log(ctx.wizard.state);
         const deleted = await PostService.deletePostById(ctx.wizard.state.post_main_id);
 
         if (!deleted) return await displayDialog(ctx, constructionFormatter.messages.postErroMsg);

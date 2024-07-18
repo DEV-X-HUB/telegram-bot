@@ -21,7 +21,6 @@ import PostService from '../../post.service';
 
 import ManufactureFormatter from './manufacture.formatter';
 import ManufactureService from './manufacture.service';
-import Section4ManufactureService from './manufacture.service';
 const manufactureFormatter = new ManufactureFormatter();
 
 const profileService = new ProfileService();
@@ -264,7 +263,6 @@ class ManufactureController {
             notify_option: ctx.wizard.state.notify_option,
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
           };
-
           const response = await ManufactureService.createManufacturePost(postDto, callbackQuery.from.id);
           // console.log(response);
           // ctx.reply(...constructionFormatter.postingSuccessful());

@@ -22,7 +22,7 @@ const profileService = new ProfileService();
 class ChickenFarmController {
   constructor() {}
   async start(ctx: any) {
-    ctx.wizard.state.category = 'Chicken Farm';
+    ctx.wizard.state.category = 'ChickenFarm';
 
     await ctx.reply(...chickenFarmFormatter.sectorPrompt());
     return ctx.wizard.next();

@@ -28,17 +28,17 @@ class QuestionPostSection4Controller {
       case 'manufacture': {
         await deleteMessageWithCallback(ctx);
         ctx.scene.leave();
-        return ctx.scene.enter('Post-Question-Section4-Manufacture');
+        return ctx.scene.enter('Post-Section4-Manufacture');
       }
       case 'construction': {
         ctx.scene.leave();
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('Post-Question-SectionB-Construction');
+        return ctx.scene.enter('Post-SectionB-Construction');
       }
       case 'chicken-farm': {
         ctx.scene.leave();
         await deleteMessageWithCallback(ctx);
-        return ctx.scene.enter('Post-Question-Section4-Chicken-Farm');
+        return ctx.scene.enter('Post-Section4-Chicken-Farm');
       }
       default:
         return ctx.reply('Unknown option. Please choose a valid option.');

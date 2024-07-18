@@ -4,7 +4,7 @@ import { restartScene } from '../../../../middleware/check-command';
 
 const constructionController = new QuestionPostSectionConstructionController();
 const ConstructionScene = new Scenes.WizardScene(
-  'Post-Question-SectionB-Construction',
+  'Post-SectionB-Construction',
   constructionController.start.bind(constructionController),
   constructionController.chooseConstructionSize.bind(constructionController),
   constructionController.chooseCompanyExpience.bind(constructionController),

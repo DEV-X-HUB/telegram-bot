@@ -181,7 +181,7 @@ class PostService {
           break;
         }
 
-        case 'Chicken Farm': {
+        case 'ChickenFarm': {
           const { description, category, notify_option, previous_post_id, ...createCategoryPostDto } =
             postDto as CreatePostService4ChickenFarmDto;
           post = await prisma.service4ChickenFarm.create({
