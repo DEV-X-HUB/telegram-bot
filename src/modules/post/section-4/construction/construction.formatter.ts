@@ -124,12 +124,7 @@ class ConstructionFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
-  // construction_size         String?
-  // company_experience        String?
-  // document_request_type     String?
-  // land_size
   getDetailData(state: any) {
-    console.log(state);
     if (areEqaul(state.construction_size, 'small', true))
       return `${state?.mention_post_data ? `Related from: \n\n<i>${state?.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Location</b>: ${state.location}  \n\n<b>Experience</b>: ${state.company_experience} \n\n<b>Document</b>: ${state.document_request_type}\n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
 

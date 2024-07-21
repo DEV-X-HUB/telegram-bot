@@ -67,10 +67,10 @@ class QuestionPostSectionConstructionController {
       return ctx.reply(...constructionFormatter.messages.unknowOptionError);
 
     ctx.wizard.state.category = 'Construction';
-    ctx.wizard.state.size = callbackQuery.data;
+    ctx.wizard.state.construction_size = callbackQuery.data;
     await deleteMessageWithCallback(ctx);
 
-    if (areEqaul(ctx.wizard.state.size, 'big', true)) {
+    if (areEqaul(ctx.wizard.state.construction_size, 'big', true)) {
       ctx.reply(...constructionFormatter.landSizeDisplay());
       return ctx.wizard.selectStep(4); // jump to 5'th controller (land size)
     }
@@ -154,7 +154,7 @@ class QuestionPostSectionConstructionController {
   async enterLocation(ctx: any) {
     const message = ctx.message?.text;
     if (message && areEqaul(message, 'back', true)) {
-      if (areEqaul(ctx.wizard.state.size, 'small', true)) {
+      if (areEqaul(ctx.wizard.state.construction_size, 'small', true)) {
         await deleteKeyboardMarkup(ctx, constructionFormatter.messages.documentRequestTypePrompt);
         ctx.reply(...constructionFormatter.documentRequestDisplay());
         return ctx.wizard.selectStep(3); // jump to 4'th controller (document request type)
@@ -203,7 +203,7 @@ class QuestionPostSectionConstructionController {
     ctx.wizard.state.status = 'preview';
     ctx.wizard.state.notify_option = user?.notify_option || 'none';
 
-    if (areEqaul(ctx.wizard.state.size, 'small', true)) {
+    if (areEqaul(ctx.wizard.state.construction_size, 'small', true)) {
       deleteKeyboardMarkup(ctx);
       ctx.replyWithHTML(...constructionFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       ctx.reply(...constructionFormatter.previewCallToAction());
@@ -287,7 +287,7 @@ class QuestionPostSectionConstructionController {
         case 'post_data': {
           // api request to post the data
           const postDto: CreatePostService4ConstructionDto = {
-            construction_size: ctx.wizard.state.size,
+            construction_size: ctx.wizard.state.construction_size,
             company_experience: ctx.wizard.state.company_experience,
             document_request_type: ctx.wizard.state.document_request_type,
             land_size: ctx.wizard.state.land_size,
@@ -548,7 +548,7 @@ class QuestionPostSectionConstructionController {
     switch (callbackQuery.data) {
       case 're_submit_post': {
         const postDto: CreatePostService4ConstructionDto = {
-          construction_size: ctx.wizard.state.size,
+          construction_size: ctx.wizard.state.construction_size,
           company_experience: ctx.wizard.state.company_experience,
           document_request_type: ctx.wizard.state.document_request_type,
           land_size: ctx.wizard.state.land_size,
