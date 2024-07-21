@@ -310,7 +310,7 @@ class PostFormatter {
         });
       }
 
-      case 'Chicken Farm':
+      case 'ChickenFarm':
         return chickenFarmFormatter.getDetailData({
           description: post.description,
           status: post.status,
@@ -319,7 +319,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Manufacture':
+      case 'Manufacture':
         return manufactureFormatter.getDetailData({
           description: post.description,
           status: post.status,
@@ -328,7 +328,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Construction':
+      case 'Construction':
         return constructionFormatter.getDetailData({
           description: post.description,
           status: post.status,

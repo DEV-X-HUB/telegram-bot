@@ -90,7 +90,7 @@ class BrowsePostFormatter {
       'Section 1C',
       'Section 2',
       'Section 3',
-      'Chicken Farm',
+      'ChickenFarm',
       'Manufacture',
       'Construction',
     ];
@@ -1016,7 +1016,7 @@ class BrowsePostFormatter {
         });
       }
 
-      case 'Chicken Farm':
+      case 'ChickenFarm':
         return chickenFarmFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -1025,7 +1025,7 @@ class BrowsePostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Manufacture':
+      case 'Manufacture':
         return manufactureFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -1034,7 +1034,7 @@ class BrowsePostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Construction':
+      case 'Construction':
         return constructionFormatter.getPreviewData({
           description: post.description,
           status: post.status,

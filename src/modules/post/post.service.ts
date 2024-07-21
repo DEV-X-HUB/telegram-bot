@@ -651,7 +651,7 @@ class PostService {
     // only one post per page
     const pageSize = 1;
     const { category, status, timeframe } = query;
-    console.log(query.fields);
+    console.log(query, 'query ');
 
     let formattedTimeframe: any;
 
@@ -749,194 +749,230 @@ class PostService {
         };
         break;
 
-      default:
+      case 'all':
         columnSpecificWhereCondition = {};
+        break;
+      default:
+        columnSpecificWhereCondition = {
+          category,
+        };
     }
 
     try {
+      /****  I don't understant this code man  */
+      // const totalCount = await prisma.post.count({
+      //   where: {
+      //     // filter by status if status is provided and not equals to 'all'
+      //     status: status && status !== 'all' ? { equals: status } : undefined,
+      //     category: category && category !== 'all' ? { equals: category } : undefined,
+      //     created_at:
+      //       timeframe && timeframe !== 'all'
+      //         ? {
+      //             gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+      //           }
+      //         : undefined,
+      //     OR: [
+      //       {
+      //         Service1A: {
+      //           // conditionally check if ar_br is provided and not equals to 'all'
+      //           // arbr_value:
+      //           //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+
+      //           id_first_option: { equals: query?.fields?.id_first_option },
+      //           last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //           city: cityName == 'all' ? undefined : { equals: cityName },
+      //           arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
+      //         },
+      //       },
+      //       {
+      //         Service1B: {
+      //           id_first_option: { equals: query?.fields?.id_first_option },
+      //           last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //           city: cityName == 'all' ? undefined : { equals: cityName },
+      //           main_category: mainCategory == 'all' ? undefined : { equals: mainCategory },
+      //           sub_category: subCategory == 'all' ? undefined : { equals: subCategory },
+      //         },
+      //       },
+      //       {
+      //         Service1C: {
+      //           // conditionally check if ar_br is provided and not equals to 'all'
+      //           // arbr_value:
+      //           //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+      //           id_first_option: { equals: query?.fields?.id_first_option },
+      //           last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //           city: cityName == 'all' ? undefined : { equals: cityName },
+      //           arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
+      //         },
+      //       },
+      //       {
+      //         Service3: {
+      //           birth_or_marital: birthOrMarital == 'all' ? undefined : { equals: birthOrMarital },
+      //         },
+      //       },
+      //     ],
+      //     // ...columnSpecificWhereCondition,
+      //     // Service1A: {
+      //     //   // conditionally check if ar_br is provided and not equals to 'all'
+      //     //   // arbr_value:
+      //     //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+
+      //     //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //     // },
+
+      //     // OR: [
+      //     // {
+      //     //   Service1A: {
+      //     //     // conditionally check if ar_br is provided and not equals to 'all'
+      //     //     // arbr_value:
+      //     //     //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+
+      //     //     last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //     //   },
+      //     // },
+
+      //     //   {
+      //     //     Service1B: {
+      //     //       last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //     //     },
+      //     //   },
+      //     // ],
+
+      //     // Service1B: {
+      //     //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //     // },
+
+      //     // Service1C: {
+      //     //   // conditionally check if ar_br is provided and not equals to 'all'
+      //     //   // arbr_value:
+      //     //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+      //     //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //     // },
+      //   },
+      // });
+
+      /****  but this works  */
       const totalCount = await prisma.post.count({
-        where: {
-          // filter by status if status is provided and not equals to 'all'
-          status: status && status !== 'all' ? { equals: status } : undefined,
-          category: category && category !== 'all' ? { equals: category } : undefined,
-          created_at:
-            timeframe && timeframe !== 'all'
-              ? {
-                  gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
-                }
-              : undefined,
-          OR: [
-            {
-              Service1A: {
-                // conditionally check if ar_br is provided and not equals to 'all'
-                // arbr_value:
-                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-
-                id_first_option: { equals: query?.fields?.id_first_option },
-                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                city: cityName == 'all' ? undefined : { equals: cityName },
-                arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
-              },
-            },
-            {
-              Service1B: {
-                id_first_option: { equals: query?.fields?.id_first_option },
-                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                city: cityName == 'all' ? undefined : { equals: cityName },
-                main_category: mainCategory == 'all' ? undefined : { equals: mainCategory },
-                sub_category: subCategory == 'all' ? undefined : { equals: subCategory },
-              },
-            },
-            {
-              Service1C: {
-                // conditionally check if ar_br is provided and not equals to 'all'
-                // arbr_value:
-                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-                id_first_option: { equals: query?.fields?.id_first_option },
-                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                city: cityName == 'all' ? undefined : { equals: cityName },
-                arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
-              },
-            },
-            {
-              Service3: {
-                birth_or_marital: birthOrMarital == 'all' ? undefined : { equals: birthOrMarital },
-              },
-            },
-          ],
-          // ...columnSpecificWhereCondition,
-          // Service1A: {
-          //   // conditionally check if ar_br is provided and not equals to 'all'
-          //   // arbr_value:
-          //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-
-          //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          // },
-
-          // OR: [
-          // {
-          //   Service1A: {
-          //     // conditionally check if ar_br is provided and not equals to 'all'
-          //     // arbr_value:
-          //     //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-
-          //     last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          //   },
-          // },
-
-          //   {
-          //     Service1B: {
-          //       last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          //     },
-          //   },
-          // ],
-
-          // Service1B: {
-          //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          // },
-
-          // Service1C: {
-          //   // conditionally check if ar_br is provided and not equals to 'all'
-          //   // arbr_value:
-          //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-          //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          // },
-        },
+        where: { ...columnSpecificWhereCondition },
       });
 
       const totalPages = Math.ceil(totalCount / pageSize);
       const skip = (page - 1) * pageSize;
 
+      /****  I don't understant this code man  */
+      // const posts = await prisma.post.findMany({
+      //   where: {
+      //     // filter by status if status is provided and not equals to 'all'
+      //     status: status && status !== 'all' ? { equals: status } : undefined,
+      //     category: category && category !== 'all' ? { equals: category } : undefined,
+      //     created_at:
+      //       timeframe && timeframe !== 'all'
+      //         ? {
+      //             gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
+      //           }
+      //         : undefined,
+
+      //     // ...columnSpecificWhereCondition,
+      //     // Service1A: {
+      //     //   // conditionally check if ar_br is provided and not equals to 'all'
+      //     //   // arbr_value:
+      //     //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+
+      //     //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //     // },
+
+      //     OR: [
+      //       {
+      //         Service1A: {
+      //           // conditionally check if ar_br is provided and not equals to 'all'
+      //           // arbr_value:
+      //           //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+
+      //           id_first_option: { equals: query?.fields?.id_first_option },
+      //           last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //           city: cityName == 'all' ? undefined : { equals: cityName },
+      //           arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
+      //         },
+      //       },
+      //       {
+      //         Service1B: {
+      //           id_first_option: { equals: query?.fields?.id_first_option },
+      //           last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //           city: cityName == 'all' ? undefined : { equals: cityName },
+      //           main_category: mainCategory == 'all' ? undefined : { equals: mainCategory },
+      //           sub_category: subCategory == 'all' ? undefined : { equals: subCategory },
+      //         },
+      //       },
+      //       {
+      //         Service1C: {
+      //           // conditionally check if ar_br is provided and not equals to 'all'
+      //           // arbr_value:
+      //           //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
+      //           id_first_option: { equals: query?.fields?.id_first_option },
+      //           last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+      //           city: cityName == 'all' ? undefined : { equals: cityName },
+      //           arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
+      //         },
+      //       },
+
+      //       {
+      //         Service3: {
+      //           birth_or_marital: birthOrMarital == 'all' ? undefined : { equals: birthOrMarital },
+      //         },
+      //       },
+      //     ],
+
+      //     // Service3: {
+      //     //   birth_or_marital: {
+      //     //     equals: 'all',
+      //     //   },
+      //     // },
+
+      //     // Service1A: {
+      //     // arbr_value:
+      //     //   query?.fields?.ar_br || query?.fields?.ar_br != 'all' ? { equals: query?.fields?.ar_br } : undefined,
+      //     // },
+
+      //     // Service1B: {
+      //     //   main_category:
+      //     //     query?.fields?.main_category || query?.fields?.main_category != 'all'
+      //     //       ? { equals: query?.fields?.main_category }
+      //     //       : undefined,
+      //     //   sub_category:
+      //     //     query?.fields?.sub_category || query?.fields?.sub_category != 'all'
+      //     //       ? { equals: query?.fields?.sub_category }
+      //     //       : undefined,
+      //     // },
+      //     // Service3: {
+      //     //   birth_or_marital:
+      //     //     query?.fields?.birth_or_marital || query?.fields?.birth_or_marital != 'all'
+      //     //       ? { equals: query?.fields?.birth_or_marital }
+      //     //       : undefined,
+      //     // },
+      //   },
+      //   include: {
+      //     user: {
+      //       select: {
+      //         id: true,
+      //         display_name: true,
+      //       },
+      //     },
+
+      //     Service1A: true,
+      //     Service1B: true,
+      //     Service1C: true,
+      //     Service2: true,
+      //     Service3: true,
+      //     Service4ChickenFarm: true,
+      //     Service4Manufacture: true,
+      //     Service4Construction: true,
+      //   },
+      //   skip,
+      //   take: 1,
+      // });
+
+      /****  but this works  */
       const posts = await prisma.post.findMany({
-        where: {
-          // filter by status if status is provided and not equals to 'all'
-          status: status && status !== 'all' ? { equals: status } : undefined,
-          category: category && category !== 'all' ? { equals: category } : undefined,
-          created_at:
-            timeframe && timeframe !== 'all'
-              ? {
-                  gte: new Date(new Date().getTime() - parseInt(formattedTimeframe) * 60000),
-                }
-              : undefined,
-
-          // ...columnSpecificWhereCondition,
-          // Service1A: {
-          //   // conditionally check if ar_br is provided and not equals to 'all'
-          //   // arbr_value:
-          //   //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-
-          //   last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          // },
-
-          OR: [
-            {
-              Service1A: {
-                // conditionally check if ar_br is provided and not equals to 'all'
-                // arbr_value:
-                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-
-                id_first_option: { equals: query?.fields?.id_first_option },
-                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                city: cityName == 'all' ? undefined : { equals: cityName },
-                arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
-              },
-            },
-            {
-              Service1B: {
-                id_first_option: { equals: query?.fields?.id_first_option },
-                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                city: cityName == 'all' ? undefined : { equals: cityName },
-                main_category: mainCategory == 'all' ? undefined : { equals: mainCategory },
-                sub_category: subCategory == 'all' ? undefined : { equals: subCategory },
-              },
-            },
-            {
-              Service1C: {
-                // conditionally check if ar_br is provided and not equals to 'all'
-                // arbr_value:
-                //   query?.fields?.ar_br == 'all' || !query?.fields?.ar_br ? undefined : { equals: query?.fields?.ar_br },
-                id_first_option: { equals: query?.fields?.id_first_option },
-                last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                city: cityName == 'all' ? undefined : { equals: cityName },
-                arbr_value: arBrValue == 'all' ? undefined : { equals: arBrValue },
-              },
-            },
-
-            {
-              Service3: {
-                birth_or_marital: birthOrMarital == 'all' ? undefined : { equals: birthOrMarital },
-              },
-            },
-          ],
-
-          // Service3: {
-          //   birth_or_marital: {
-          //     equals: 'all',
-          //   },
-          // },
-
-          // Service1A: {
-          // arbr_value:
-          //   query?.fields?.ar_br || query?.fields?.ar_br != 'all' ? { equals: query?.fields?.ar_br } : undefined,
-          // },
-
-          // Service1B: {
-          //   main_category:
-          //     query?.fields?.main_category || query?.fields?.main_category != 'all'
-          //       ? { equals: query?.fields?.main_category }
-          //       : undefined,
-          //   sub_category:
-          //     query?.fields?.sub_category || query?.fields?.sub_category != 'all'
-          //       ? { equals: query?.fields?.sub_category }
-          //       : undefined,
-          // },
-          // Service3: {
-          //   birth_or_marital:
-          //     query?.fields?.birth_or_marital || query?.fields?.birth_or_marital != 'all'
-          //       ? { equals: query?.fields?.birth_or_marital }
-          //       : undefined,
-          // },
-        },
+        where: { ...columnSpecificWhereCondition },
         include: {
           user: {
             select: {

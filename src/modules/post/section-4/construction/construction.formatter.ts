@@ -124,19 +124,23 @@ class ConstructionFormatter {
     return [this.messages.attachPhotoPrompt, this.goBackButton(false)];
   }
 
+  // construction_size         String?
+  // company_experience        String?
+  // document_request_type     String?
+  // land_size
   getDetailData(state: any) {
-    console.log(state)
-    if (areEqaul(state.size, 'small', true))
-      return `${state?.mention_post_data ? `Related from: \n\n<i>${state?.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location}  \n\n<b>Experience</b>: ${state.company_experience} \n\n<b>Document</b>: ${state.document_request_type}\n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+    console.log(state);
+    if (areEqaul(state.construction_size, 'small', true))
+      return `${state?.mention_post_data ? `Related from: \n\n<i>${state?.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Location</b>: ${state.location}  \n\n<b>Experience</b>: ${state.company_experience} \n\n<b>Document</b>: ${state.document_request_type}\n\n<b>Description</b>: ${state.description}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
 
-    return `${state?.mention_post_data ? `Related from: \n\n<i>${state?.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\n<b>Location</b>: ${state.location}\n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
+    return `${state?.mention_post_data ? `Related from: \n\n<i>${state?.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category} </b>\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Land size</b>: ${state.land_size}\n\n<b>Location</b>: ${state.location}\n\n<b>Description</b>: ${state.description} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    if (areEqaul(state.size, 'small', true))
-      return `<b>#${state.category} </b>\n________________\n\n<b>${state.size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${trimParagraph(state.description)}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+    if (areEqaul(state.construction_size, 'small', true))
+      return `<b>#${state.category} </b>\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${trimParagraph(state.description)}\n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
 
-    return `#${state.category}\n________________\n\n<b>${state.size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${trimParagraph(state.description)} \n\n<b> By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
+    return `#${state.category}\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${trimParagraph(state.description)} \n\n<b> By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
   }
 
   preview(state: any, submitState: string = 'preview') {
@@ -199,7 +203,7 @@ class ConstructionFormatter {
   editPreview(state: any) {
     return [
       this.getPreviewData(state),
-      areEqaul(state.size, 'small', true)
+      areEqaul(state.construction_size, 'small', true)
         ? InlineKeyboardButtons([
             [
               { text: 'Location', cbString: 'location' },
