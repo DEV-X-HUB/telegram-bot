@@ -665,16 +665,12 @@ class PostService {
     const subCategory = query?.fields?.sub_category;
     const birthOrMarital = query?.fields?.birth_or_marital;
 
-    console.log(`LAST DIGIT ; ${query?.fields?.last_digit}`);
-
     if (String(query?.fields?.last_digit)?.startsWith('bi') || String(query?.fields?.last_digit)?.startsWith('di')) {
       lastDigit = query?.fields?.last_digit;
       lastDigitStartsFrom = Number(query?.fields?.last_digit?.split('-')[1]);
       lastDigitUpTo = Number(query?.fields?.last_digit?.split('-')[2]);
       console.log(`last digit ${typeof lastDigit} ${typeof lastDigitStartsFrom} ${typeof lastDigitUpTo}`);
     } else lastDigit = 'all';
-
-    console.log('dddddddddddd');
 
     switch (timeframe) {
       case 'today': {

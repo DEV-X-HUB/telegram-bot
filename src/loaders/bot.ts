@@ -14,6 +14,8 @@ import ChatScene from '../modules/chat/chat.scene';
 import BrowsePostScene from '../modules/browse-post/browse-post.scene';
 import MainMenuService from '../modules/mainmenu/mainmenu-service';
 import * as cron from 'cron';
+import botErrorFilter from '../exception-filters/bot-error.filter';
+import botActivityInterceptor from '../interceptor/bot-activity.interceptor';
 
 const mainMenuService = new MainMenuService();
 let bot: Telegraf<Context> | null = null;
@@ -29,6 +31,7 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
+  bot.use(botActivityInterceptor());
   bot.use(devlopmentMode());
   bot.use(checkUserInChannelandPromtJoin());
 
@@ -39,6 +42,7 @@ export default () => {
   stage.use(checkAndRedirectToScene());
   bot.use(session());
   bot.use(stage.middleware());
+  bot.catch(botErrorFilter);
 
   const commands = [
     { name: 'start', description: 'Start the bot' },

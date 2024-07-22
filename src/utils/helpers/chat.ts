@@ -2,6 +2,7 @@ import config from '../../config/config';
 
 import { Context } from 'telegraf';
 import { trimParagraph } from './string';
+import { MessageTrace } from '../../types/params';
 
 export const deleteMessage = async (ctx: any, messageData: { message_id: string; chat_id: string }) => {
   await ctx.telegram.deleteMessage(messageData.chat_id, messageData.message_id);
@@ -36,6 +37,21 @@ export const findSender = (ctx: any) => {
   if (ctx?.message) sender = ctx?.message?.from;
   if (ctx?.update.inline_query) sender = ctx?.update.inline_query?.from;
   return sender;
+};
+export const getMessage = (ctx: any): MessageTrace => {
+  let message: MessageTrace = {
+    messsageType: 'unknown',
+    value: '',
+  };
+  if (ctx?.callbackQuery) message = { messsageType: 'callback', value: ctx?.callbackQuery.data };
+
+  if (ctx?.inline_query) message = { messsageType: 'inline_query', value: ctx?.inline_query };
+
+  if (ctx?.message) message = { messsageType: 'text', value: ctx?.message.text };
+  if (ctx?.update.inline_query)
+    message = { messsageType: 'update_inline_query', value: ctx?.update.inline_query.query };
+
+  return message;
 };
 
 export const sendMediaGroup = async (ctx: any, phtos: any[], caption: string = 'Here are the images you uploaded') => {
