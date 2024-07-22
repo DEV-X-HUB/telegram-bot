@@ -5,6 +5,8 @@ import config from './config/config';
 
 import APIRouter from './api/routes';
 import cors from 'cors';
+import APIErrorFilter from './exception-filters/api-error.filter';
+import APIActivityInterceptor from './interceptor/api-activity.interceptor';
 const app = Express();
 app.use(cors());
 const ignite = () => {
@@ -16,7 +18,9 @@ const ignite = () => {
     app.use(Express.urlencoded({ extended: true }));
 
     // ROUTES
+    app.use(APIActivityInterceptor);
     app.use('/admin', APIRouter);
+    app.use(APIErrorFilter);
 
     const server = app.listen(config.port, () => {
       console.log(`bot is running on port ${config.port}`);

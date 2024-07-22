@@ -1,4 +1,3 @@
-import { findSender } from '../../utils/helpers/chat';
 import MainmenuFormatter from './mainmenu-formmater';
 
 const mainMenuFormatter = new MainmenuFormatter();
@@ -7,10 +6,7 @@ class MainMenuController {
     return ctx.reply(...mainMenuFormatter.chooseServiceDisplay(1));
   }
   static async chooseOption(ctx: any) {
-    const sender = findSender(ctx);
     const option = ctx?.message?.text;
-
-    console.log(option, 'option in main menu');
 
     switch (option) {
       case 'Go Back': {

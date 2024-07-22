@@ -135,7 +135,7 @@ class MainmenuFormatter {
     },
   ];
   constructor() {}
-  chooseServiceDisplay(round: number) {
+  chooseServiceDisplay(round: any) {
     if (round == 2) return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptionsSecondRound)];
     else return [this.messages.selectOptionPrompt, MarkupButtons(this.mainMenuOptionsFristRound)];
   }
