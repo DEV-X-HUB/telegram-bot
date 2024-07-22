@@ -39,3 +39,17 @@ export type ImageCounter = {
   id: number;
   waiting: boolean;
 };
+
+export type StackTraceInfo = {
+  fileName: string;
+  row: string;
+  errorType: string;
+  col: string;
+};
+
+export type MessageTrace = {
+  messsageType: string;
+  value: string;
+};
+
+export type LoggerType = 'API' | 'BOT';
