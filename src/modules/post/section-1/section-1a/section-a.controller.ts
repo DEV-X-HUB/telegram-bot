@@ -25,6 +25,8 @@ const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
+
 class QuestionPostSectionAController {
   imageCounter: ImageCounter[] = [];
   imageTimer: any;
@@ -198,7 +200,10 @@ class QuestionPostSectionAController {
     if (!ctx.message.photo) return ctx.reply(...section1AFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section1AFormatter.imagesNumber) {
@@ -215,6 +220,8 @@ class QuestionPostSectionAController {
         };
       }
       ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo_url = imagesUploadedURL;
+
       ctx.wizard.state.status = 'previewing';
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
       // empty the images array
@@ -253,6 +260,7 @@ class QuestionPostSectionAController {
             last_digit: Number(ctx.wizard.state.last_digit) as number,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
 
@@ -447,7 +455,12 @@ class QuestionPostSectionAController {
     if (!ctx.message.photo) return ctx.reply(...section1AFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    // Add the image to the array
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length === section1AFormatter.imagesNumber) {
@@ -456,6 +469,7 @@ class QuestionPostSectionAController {
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo_url = imagesUploadedURL;
 
       // empty the images array
       // imagesUploaded.length = 0;
@@ -507,6 +521,7 @@ class QuestionPostSectionAController {
           location: ctx.wizard.state.location as string,
           notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           city: ctx.wizard.state.city,
           category: 'Section 1A',
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,

@@ -16,7 +16,6 @@ const botActivityInterceptor = () => {
         telegramId: sender.id,
         timestamp: new Date().toISOString(),
       };
-      console.log(ctx);
 
       activityLogger.log('', {
         ...loggerResponse,

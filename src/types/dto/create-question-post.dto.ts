@@ -21,6 +21,7 @@ export interface CreatePostService1ADto {
   city: string;
   last_digit: number;
   photo: string[];
+  photo_url: string[];
 
   description: string;
   category: string;
@@ -37,6 +38,7 @@ export interface CreatePostService1BDto {
   city: string;
   last_digit: number;
   photo: string[];
+  photo_url: string[];
   issue_date?: Date;
   expire_date?: Date;
 
@@ -57,6 +59,7 @@ export interface CreatePostService1CDto {
   service_type_3: string;
   confirmation_year: string;
   photo: string[];
+  photo_url: string[];
 
   description: string;
   category: string;
@@ -68,6 +71,7 @@ export interface CreatePostService3Dto {
   birth_or_marital: string;
   title: string;
   photo: string[];
+  photo_url: string[];
 
   description: string;
   category: string;
@@ -81,6 +85,7 @@ export interface CreatePostService4ManufactureDto {
   estimated_capital: string;
   enterprise_name: string;
   photo: string[];
+  photo_url: string[];
 
   description: string;
   category: string;
@@ -96,6 +101,7 @@ export interface CreatePostService4ConstructionDto {
   land_status?: string;
   location: string;
   photo: string[];
+  photo_url: string[];
 
   description: string;
   category: string;
@@ -117,6 +123,7 @@ export interface CreatePostService2Dto {
   service_type: string;
   title: string;
   photo: string[];
+  photo_url: string[];
 
   description: string;
   category: string;

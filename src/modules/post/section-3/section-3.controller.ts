@@ -20,6 +20,7 @@ import Section3Formatter from './section-3.formatter';
 const section3Formatter = new Section3Formatter();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
 
 const profileService = new ProfileService();
 
@@ -159,7 +160,11 @@ class Section3Controller {
       return ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section3Formatter.imagesNumber) {
@@ -219,6 +224,7 @@ class Section3Controller {
             title: ctx.wizard.state.title,
             description: ctx.wizard.state.description,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             notify_option: ctx.wizard.state.notify_option,
             category: 'Section 3',
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
@@ -425,7 +431,11 @@ class Section3Controller {
       return ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length === section3Formatter.imagesNumber) {
@@ -453,6 +463,7 @@ class Section3Controller {
           birth_or_marital: ctx.wizard.state.birth_or_marital,
           title: ctx.wizard.state.title,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           description: ctx.wizard.state.description,
           category: 'Section 3',
           notify_option: ctx.wizard.state.notify_option,

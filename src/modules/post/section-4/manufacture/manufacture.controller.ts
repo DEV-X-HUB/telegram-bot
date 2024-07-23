@@ -26,6 +26,7 @@ const manufactureFormatter = new ManufactureFormatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
 
 class ManufactureController {
   imageCounter: ImageCounter[] = [];
@@ -177,7 +178,10 @@ class ManufactureController {
     if (!ctx.message.photo) return ctx.reply(...manufactureFormatter.photoPrompt());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == manufactureFormatter.imagesNumber) {
@@ -259,6 +263,7 @@ class ManufactureController {
             enterprise_name: ctx.wizard.state.enterprise_name,
             description: ctx.wizard.state.description,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             category: ctx.wizard.state.category,
             notify_option: ctx.wizard.state.notify_option,
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
@@ -412,7 +417,6 @@ class ManufactureController {
     const callbackMessage = callbackQuery.data;
 
     if (callbackMessage == 'post_data') {
-      console.log('here you are');
       // api request to post the data
       const response = await ManufactureService.createManufacturePost(
         {
@@ -422,7 +426,8 @@ class ManufactureController {
           enterprise_name: state.enterprise_name as string,
           description: state.description as string,
           photo: state.photo,
-          category: 'Section4manufacture',
+          photo_url: ctx.wizard.state.photo_url,
+          category: 'Manufacture',
           notify_option: state.notify_option,
         },
         callbackQuery.from.id,
@@ -519,7 +524,10 @@ class ManufactureController {
     if (!ctx.message.photo) return ctx.reply(...manufactureFormatter.photoPrompt());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length === manufactureFormatter.imagesNumber) {
@@ -556,6 +564,7 @@ class ManufactureController {
           enterprise_name: ctx.wizard.state.enterprise_name,
           description: ctx.wizard.state.description,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           category: ctx.wizard.state.category,
           notify_option: ctx.wizard.state.notify_option,
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,

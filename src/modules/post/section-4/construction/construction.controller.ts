@@ -23,6 +23,7 @@ const constructionFormatter = new ConstructionFormatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
 
 class QuestionPostSectionConstructionController {
   constructor() {}
@@ -236,7 +237,10 @@ class QuestionPostSectionConstructionController {
     if (!ctx.message.photo) return ctx.reply(...constructionFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == constructionFormatter.imagesNumber) {
@@ -294,6 +298,7 @@ class QuestionPostSectionConstructionController {
             land_status: ctx.wizard.state.land_status,
             location: ctx.wizard.state.location,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             description: ctx.wizard.state.description,
             category: ctx.wizard.state.category,
             notify_option: ctx.wizard.state.notify_option,
@@ -516,7 +521,10 @@ class QuestionPostSectionConstructionController {
     if (!ctx.message.photo) return ctx.reply(...constructionFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length === constructionFormatter.imagesNumber) {
@@ -555,6 +563,7 @@ class QuestionPostSectionConstructionController {
           land_status: ctx.wizard.state.land_status,
           location: ctx.wizard.state.location,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           description: ctx.wizard.state.description,
           category: ctx.wizard.state.category,
           notify_option: ctx.wizard.state.notify_option,
