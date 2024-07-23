@@ -26,6 +26,7 @@ const sectionBFormatter = new SectionBFormatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
 class QuestionPostSectionBController {
   imageCounter: ImageCounter[] = [];
   imageTimer: any;
@@ -315,7 +316,11 @@ class QuestionPostSectionBController {
     if (!ctx.message.photo) return ctx.reply(...sectionBFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == sectionBFormatter.imagesNumber) {
@@ -373,6 +378,7 @@ class QuestionPostSectionBController {
             last_digit: Number(ctx.wizard.state.last_digit) as number,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
             category: 'Section 1B',
@@ -596,7 +602,11 @@ class QuestionPostSectionBController {
     if (!ctx.message.photo) return ctx.reply(...sectionBFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == sectionBFormatter.imagesNumber) {
@@ -663,6 +673,7 @@ class QuestionPostSectionBController {
           last_digit: Number(ctx.wizard.state.last_digit) as number,
           location: ctx.wizard.state.location as string,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           city: ctx.wizard.state.city,
           notify_option: ctx.wizard.state.notify_option,
           category: 'Section 1B',

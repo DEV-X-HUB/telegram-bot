@@ -25,6 +25,7 @@ const profileService = new ProfileService();
 const registrationService = new RegistrationService();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
 class QuestionPostSection1CController {
   imageCounter: ImageCounter[] = [];
   imageTimer: any;
@@ -290,7 +291,11 @@ class QuestionPostSection1CController {
     if (!ctx.message.photo) return ctx.reply(...section1cFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section1cFormatter.imagesNumber) {
@@ -348,6 +353,7 @@ class QuestionPostSection1CController {
             paper_stamp: ctx.wizard.state.paper_stamp as string,
             confirmation_year: ctx.wizard.state.confirmation_year as string,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
             category: 'Section 1C',
@@ -550,7 +556,10 @@ class QuestionPostSection1CController {
     if (!ctx.message.photo) return ctx.reply(...section1cFormatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section1cFormatter.imagesNumber) {
@@ -614,6 +623,7 @@ class QuestionPostSection1CController {
           confirmation_year: ctx.wizard.state.confirmation_year as string,
           paper_stamp: ctx.wizard.state.paper_stamp as string,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           city: ctx.wizard.state.city,
           notify_option: ctx.wizard.state.notify_option,
           category: 'Section 1C',

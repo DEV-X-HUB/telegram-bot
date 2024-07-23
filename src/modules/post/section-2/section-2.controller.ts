@@ -22,6 +22,7 @@ const section2Formatter = new Section2Formatter();
 const profileService = new ProfileService();
 
 let imagesUploaded: any[] = [];
+let imagesUploadedURL: any[] = [];
 const imagesNumber = 1;
 
 class PostSection2Controller {
@@ -145,6 +146,10 @@ class PostSection2Controller {
 
     // Add the image to the array
     imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section2Formatter.imagesNumber) {
@@ -198,6 +203,7 @@ class PostSection2Controller {
             service_type: ctx.wizard.state.service_type as string,
             notify_option: ctx.wizard.state.notify_option,
             photo: ctx.wizard.state.photo,
+            photo_url: ctx.wizard.state.photo_url,
             category: 'Section 2',
             previous_post_id: ctx.wizard.state.mention_post_id || undefined,
           };
@@ -379,7 +385,10 @@ class PostSection2Controller {
     if (!ctx.message.photo) return ctx.reply(...section2Formatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
+    const photo_id = ctx.message.photo[0].file_id;
+    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
+    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length === imagesNumber) {
@@ -407,6 +416,7 @@ class PostSection2Controller {
           service_type: ctx.wizard.state.service_type as string,
           notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,
+          photo_url: ctx.wizard.state.photo_url,
           category: 'Section 2',
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
         };

@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,17 +8,17 @@ datasource db {
 }
 
 enum PostStatus {
-  open 
-  closed 
+  open
+  closed
   pending
   rejected
 }
+
 enum NotifyOption {
-  none 
-  follower 
+  none
+  follower
   friend
 }
-
 
 enum AdminRole {
   SUPER_ADMIN
@@ -36,72 +35,65 @@ enum UserStatus {
   INACTIVE
 }
 
-
 model User {
-  id            String  @id @default(uuid()) // UUID type for user_id
-  username      String?  @unique
-  first_name    String // Required first name
-  last_name     String // Required last name
-  age           Int // Required age
-  phone_number  String  @unique // Unique phone number
-  tg_id         String  @unique // Unique tg_id
-  email         String? // Optional email
-  country       String? // Optional country
-  city          String? // Optional city
-  gender        String? // Optional gender
-  display_name  String? // Optional display name
-  bio           String? // Optional bio
-  status        UserStatus  @default(ACTIVE)
-  inactive_reason String?  @default("")
-  notify_option NotifyOption   @default(none)
+  id              String       @id @default(uuid()) // UUID type for user_id
+  username        String?      @unique
+  first_name      String // Required first name
+  last_name       String // Required last name
+  age             Int // Required age
+  phone_number    String       @unique // Unique phone number
+  tg_id           String       @unique // Unique tg_id
+  email           String? // Optional email
+  country         String? // Optional country
+  city            String? // Optional city
+  gender          String? // Optional gender
+  display_name    String? // Optional display name
+  bio             String? // Optional bio
+  status          UserStatus   @default(ACTIVE)
+  inactive_reason String?      @default("")
+  notify_option   NotifyOption @default(none)
 
-  followings Follows[]  @relation("Following")
-  followers  Follows[]  @relation("Follower")
+  followings Follows[] @relation("Following")
+  followers  Follows[] @relation("Follower")
   posts      Post[]
-  created_at  DateTime   @default(now())
+  created_at DateTime  @default(now())
 
-
-  blocked_users      String[] 
-  chat_id            String // Optional bio
-  sender_messages    Message[] @relation("MessageSender")
-  receiver_messages  Message[] @relation("MessageReceiver")
+  blocked_users     String[]
+  chat_id           String // Optional bio
+  sender_messages   Message[] @relation("MessageSender")
+  receiver_messages Message[] @relation("MessageReceiver")
 }
 
-
-
-
 model Admin {
-  id            String    @id @default(uuid()) // UUID type for user_id
-  first_name    String    // Required first name
-  last_name     String    // Required last name
-  email         String     @unique// Optional email
+  id         String @id @default(uuid()) // UUID type for user_id
+  first_name String // Required first name
+  last_name  String // Required last name
+  email      String @unique // Optional email
 
-  password      String     // Required password
-  role          AdminRole
-  status        AdminStatus @default(ACTIVE)
-  created_at    DateTime    @default(now())
-  otp           Otp[]
+  password   String // Required password
+  role       AdminRole
+  status     AdminStatus @default(ACTIVE)
+  created_at DateTime    @default(now())
+  otp        Otp[]
 }
 
 model Otp {
-  id            String     @id @default(uuid()) // UUID type for user_id
-  admin_id      String     @unique
-  otp           String     // Required otp
-  otp_expires   DateTime   // Required expires
-  created_at    DateTime   @default(now())
-  isVerified    Boolean    @default(false)
-  admin         Admin      @relation(fields: [admin_id], references: [id])
+  id          String   @id @default(uuid()) // UUID type for user_id
+  admin_id    String   @unique
+  otp         String // Required otp
+  otp_expires DateTime // Required expires
+  created_at  DateTime @default(now())
+  isVerified  Boolean  @default(false)
+  admin       Admin    @relation(fields: [admin_id], references: [id])
 }
 
-
-
 model Message {
-  id         String   @id @default(uuid())
+  id          String   @id @default(uuid())
   sender_id   String
   receiver_id String
-  content    String
-  type       String     @default("message")
-  createdAt  DateTime @default(now())
+  content     String
+  type        String   @default("message")
+  createdAt   DateTime @default(now())
 
   sender   User @relation("MessageSender", fields: [sender_id], references: [id])
   receiver User @relation("MessageReceiver", fields: [receiver_id], references: [id])
@@ -109,143 +101,139 @@ model Message {
 
 model Follows {
   id           String @id @default(uuid())
-  follower_id  String 
+  follower_id  String
   following_id String
   follower     User   @relation("Follower", fields: [following_id], references: [id])
   following    User   @relation("Following", fields: [follower_id], references: [id])
+
   @@unique([follower_id, following_id])
 }
 
-
-
 model Post {
-  id           String   @id @default(uuid()) 
-  description  String
-  status       PostStatus   @default(pending)
-  category     String
-  notify_option NotifyOption   @default(none)
-  
-  previous_post       Post?       @relation(name: "PreviousPost", fields: [previous_post_id], references: [id]) 
-  previous_post_id    String?     @unique
-  next_post           Post?       @relation(name: "PreviousPost")
+  id            String       @id @default(uuid())
+  description   String
+  status        PostStatus   @default(pending)
+  category      String
+  notify_option NotifyOption @default(none)
 
-  user        User     @relation(fields: [user_id], references: [id]) 
-  user_id     String
-  created_at  DateTime   @default(now())
-  
+  previous_post    Post?   @relation(name: "PreviousPost", fields: [previous_post_id], references: [id])
+  previous_post_id String? @unique
+  next_post        Post?   @relation(name: "PreviousPost")
+
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  created_at DateTime @default(now())
+
   // Define relation with categories and sub categories models
-  Service1A   Service1A? 
-  Service1B   Service1B?
-  Service1C   Service1C?
-  Service2    Service2?
-  Service3    Service3?
-  Service4ChickenFarm Service4ChickenFarm?
-  Service4Manufacture Service4Manufacture?
+  Service1A            Service1A?
+  Service1B            Service1B?
+  Service1C            Service1C?
+  Service2             Service2?
+  Service3             Service3?
+  Service4ChickenFarm  Service4ChickenFarm?
+  Service4Manufacture  Service4Manufacture?
   Service4Construction Service4Construction?
 }
 
-
-
-
 model Service1A {
-  id                String   @id @default(uuid()) 
-  post_id           String   @unique
-  arbr_value        String 
-  id_first_option   String 
-  location          String 
-  city            String 
-  last_digit        Int
-  photo             String[] 
-  post              Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id              String   @id @default(uuid())
+  post_id         String   @unique
+  arbr_value      String
+  id_first_option String
+  location        String
+  city            String
+  last_digit      Int
+  photo           String[]
+  photo_url       String[]
+  post            Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
 
 model Service1B {
-  id                          String   @id @default(uuid()) 
-  post_id                     String   @unique
-  title                       String 
-  main_category               String 
-  sub_category                String 
-  id_first_option             String 
-  last_digit                  Int
-  condition                   String 
-  issue_date                  DateTime? 
-  expire_date                 DateTime? 
-  location                    String? 
-  city                      String 
-  photo                       String[] 
-  post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id              String    @id @default(uuid())
+  post_id         String    @unique
+  title           String
+  main_category   String
+  sub_category    String
+  id_first_option String
+  last_digit      Int
+  condition       String
+  issue_date      DateTime?
+  expire_date     DateTime?
+  location        String?
+  city            String
+  photo           String[]
+  photo_url       String[]
+  post            Post      @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
 
 model Service1C {
-  id                          String   @id @default(uuid()) 
-  post_id                     String   @unique
-  arbr_value                  String
-  paper_stamp                 String 
-  id_first_option             String 
-  city                      String 
-  service_type_1              String 
-  service_type_2              String 
-  service_type_3              String 
-  last_digit                  Int
-  confirmation_year           String
-  photo                       String[] 
-  post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id                String   @id @default(uuid())
+  post_id           String   @unique
+  arbr_value        String
+  paper_stamp       String
+  id_first_option   String
+  city              String
+  service_type_1    String
+  service_type_2    String
+  service_type_3    String
+  last_digit        Int
+  confirmation_year String
+  photo             String[]
+  photo_url         String[]
+  post              Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
+
 model Service2 {
-  id                          String   @id @default(uuid()) 
-  post_id                     String   @unique
-  service_type                String
-  title                       String 
-  photo                       String[] @default([])
-  post                        Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id           String   @id @default(uuid())
+  post_id      String   @unique
+  service_type String
+  title        String
+  photo        String[] @default([])
+  photo_url    String[] @default([])
+  post         Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
-
-
 
 model Service3 {
-  id                     String   @id @default(uuid())
-  post_id                String   @unique
-  birth_or_marital       String
-  title                  String
-  photo                  String[] // Required array of photo URLs
-
-  post                  Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id               String   @id @default(uuid())
+  post_id          String   @unique
+  birth_or_marital String
+  title            String
+  photo            String[] // Required array of photo URLs
+  photo_url        String[]
+  post             Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
-
 
 model Service4ChickenFarm {
-
-  id                      String   @id @default(uuid()) 
-  post_id                 String   @unique
-  sector                  String
-  estimated_capital       String
-  enterprise_name         String
-  post                    Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
-
+  id                String @id @default(uuid())
+  post_id           String @unique
+  sector            String
+  estimated_capital String
+  enterprise_name   String
+  post              Post   @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
-
 
 model Service4Manufacture {
-  id                        String   @id @default(uuid()) 
-  post_id                   String   @unique
-  sector                    String
-  number_of_workers         Int
-  estimated_capital         String
-  enterprise_name           String
-  photo                     String[] @default([])
-  post                      Post     @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id                String   @id @default(uuid())
+  post_id           String   @unique
+  sector            String
+  number_of_workers Int
+  estimated_capital String
+  enterprise_name   String
+  photo             String[] @default([])
+  photo_url         String[] @default([])
+  post              Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
 
-
 model Service4Construction {
-  id                        String   @id @default(uuid())
-  post_id                   String   @unique
-  construction_size         String?
-  company_experience        String?
-  document_request_type     String?
-  land_size                 String?
-  land_status               String?
-  location                  String
-  photo                     String[] // Required array of photo URLs
-  post                      Post @relation(fields: [post_id], references: [id],onDelete: Cascade)
+  id                    String   @id @default(uuid())
+  post_id               String   @unique
+  construction_size     String?
+  company_experience    String?
+  document_request_type String?
+  land_size             String?
+  land_status           String?
+  location              String
+  photo                 String[] // Required array of photo URLs
+  photo_url             String[] // Required array of photo URLs
+  post                  Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
