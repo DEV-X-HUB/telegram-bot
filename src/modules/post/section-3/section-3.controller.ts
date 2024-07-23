@@ -177,6 +177,7 @@ class Section3Controller {
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo_url = imagesUploadedURL;
       ctx.wizard.state.status = 'preview';
 
       // empty the images array
@@ -446,6 +447,7 @@ class Section3Controller {
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo_url = imagesUploadedURL;
 
       // empty the images array
       // imagesUploaded.length = 0;

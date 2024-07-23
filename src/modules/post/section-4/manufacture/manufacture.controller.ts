@@ -216,6 +216,7 @@ class ManufactureController {
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo_url = imagesUploadedURL;
 
       // empty the images array
       imagesUploaded = [];
@@ -544,6 +545,7 @@ class ManufactureController {
 
       // Save the images to the state
       ctx.wizard.state.photo = imagesUploaded;
+      ctx.wizard.state.photo_url = imagesUploadedURL;
 
       // empty the images array
       // imagesUploaded.length = 0;
