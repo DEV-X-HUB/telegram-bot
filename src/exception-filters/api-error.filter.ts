@@ -32,7 +32,7 @@ const APIErrorFilter = (exception: any, request: Request, response: Response, ne
     ...stackInfo,
     ...loggerResponse,
   });
-  response.status(exception.getStatus()).json({
+  response.status(statusCode).json({
     statusCode,
     message,
     status,
