@@ -104,7 +104,6 @@ class PostService {
 
   static async createCategoryPost(postDto: CreateCategoryPostDto, tg_id: string) {
     try {
-      console.log(postDto);
       const { description, category, notify_option, previous_post_id } = postDto;
       const postData = await this.createPost(
         {

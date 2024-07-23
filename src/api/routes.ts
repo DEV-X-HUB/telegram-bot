@@ -20,7 +20,7 @@ import {
 import { authGuard, roleGuard } from '../middleware/admin-auth';
 const router = express.Router();
 
-// router.use(authGuard);
+router.use(authGuard);
 
 // post routes
 router.get('/posts/', getPosts);
