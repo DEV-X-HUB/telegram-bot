@@ -21,13 +21,6 @@ class ApiService {
   static async getPosts(round: number = 1): Promise<ResponseWithData> {
     try {
       const posts = await prisma.post.findMany({
-        where: {
-          status: {
-            not: {
-              // equals: 'pending',
-            },
-          },
-        },
         include: {
           user: {
             select: { id: true, display_name: true },
