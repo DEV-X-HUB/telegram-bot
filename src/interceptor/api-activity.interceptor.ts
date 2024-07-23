@@ -1,14 +1,13 @@
 // Global Error Handler - geh
 
 import { NextFunction, Request, Response } from 'express';
-import WinstonErrorLogger from '../utils/logger/error.logger';
-import parseStackTrace from '../utils/helpers/stack-tracer';
 
 import { v4 as uuid } from 'uuid';
+import WinstonActivityLogger from '../utils/logger/activity-logger';
 
 // Global Error Handler
 const APIActivityInterceptor = (request: Request, response: Response, next: NextFunction) => {
-  const activityLogger = new WinstonErrorLogger('API');
+  const activityLogger = new WinstonActivityLogger('API');
   let stackInfo: any;
 
   //   console.log(response);
@@ -47,19 +46,6 @@ const APIActivityInterceptor = (request: Request, response: Response, next: Next
   });
 
   next();
-  //   if (err instanceof Error) {
-  //     stackInfo = parseStackTrace(err?.stack as string);
-  //   }
-
-  //   errorLogger.log('', {
-  //     ...stackInfo,
-  //     ...loggerResponse,
-  //   });
-  //   response.status(err.getStatus()).json({
-  //     statusCode,
-  //     message,
-  //     status,
-  //   });
 };
 
 // Export GEH
