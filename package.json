@@ -18,6 +18,7 @@
   "main": "dist/index.js",
   "packageManager": "pnpm@7.5.1",
   "dependencies": {
+    "@types/nodemailer",
     "@prisma/client": "^5.11.0",
     "@telegraf/session": "^2.0.0-beta.7",
     "@telegraf/types": "^7.1.0",
