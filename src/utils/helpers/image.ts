@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import axios from 'axios';
 import { dirname, join, resolve } from 'path';
-import { CleanUpImagesParams, SaveImageParams } from '../../types/params';
+import { CleanUpImagesParams, SaveImageParams, SaveImageReturnType } from '../../types/params';
 
 /**
  * Saves images to the specified folder and returns their paths.
@@ -10,7 +10,7 @@ import { CleanUpImagesParams, SaveImageParams } from '../../types/params';
  * @param fileLinks - An array of file url from .
  * @returns An array of file paths where the images are stored.
  */
-export const saveImages = async ({ folderName, fileIds, fileLinks }: SaveImageParams): Promise<string[]> => {
+export const saveImages = async ({ folderName, fileIds, fileLinks }: SaveImageParams): Promise<SaveImageReturnType> => {
   const folderPath = resolve(process.cwd(), 'uploads', 'images', folderName);
   await fs.ensureDir(folderPath);
 
@@ -24,12 +24,12 @@ export const saveImages = async ({ folderName, fileIds, fileLinks }: SaveImagePa
       await fs.writeFile(filePath, response.data);
       filePaths.push(filePath);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving images:', error);
-    throw error;
+    return { filePaths, status: 'fail', msg: error.message };
   }
   console.log(filePaths);
-  return filePaths;
+  return { filePaths, status: 'success', msg: '' };
 };
 
 export const cleanUpImages = async ({ filePaths }: CleanUpImagesParams): Promise<void> => {

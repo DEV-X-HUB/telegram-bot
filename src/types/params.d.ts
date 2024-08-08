@@ -53,5 +53,6 @@ export type MessageTrace = {
 };
 
 export type SaveImageParams = { folderName: string; fileIds: string[]; fileLinks: string[] };
+export type SaveImageReturnType = { status: 'success' | 'fail'; filePaths: string[]; msg: string };
 export type CleanUpImagesParams = { filePaths: string[] };
 export type LoggerType = 'API' | 'BOT';
