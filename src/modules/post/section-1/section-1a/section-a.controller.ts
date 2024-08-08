@@ -20,6 +20,7 @@ import PostService from '../../post.service';
 import RegistrationService from '../../../registration/restgration.service';
 import { getCountryCodeByName } from '../../../../utils/helpers/country-list';
 import { ImageCounter } from '../../../../types/params';
+import { saveImages } from '../../../../utils/helpers/image';
 const registrationService = new RegistrationService();
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
@@ -253,6 +254,11 @@ class QuestionPostSectionAController {
         }
 
         case 'post_data': {
+          const filePath = await saveImages({
+            fileIds: ctx.wizard.state.photo,
+            fileLinks: ctx.wizard.state.photo_url,
+            folderName: 'service-1a',
+          });
           const postDto: CreatePostService1ADto = {
             id_first_option: ctx.wizard.state.id_first_option as string,
             arbr_value: ctx.wizard.state.arbr_value as string,
@@ -260,7 +266,8 @@ class QuestionPostSectionAController {
             last_digit: Number(ctx.wizard.state.last_digit) as number,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
-            photo_url: ctx.wizard.state.photo_url,
+            // photo_url: ctx.wizard.state.photo_url,
+            photo_url: filePath,
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
 
@@ -517,7 +524,7 @@ class QuestionPostSectionAController {
           id_first_option: ctx.wizard.state.id_first_option as string,
           arbr_value: ctx.wizard.state.arbr_value as string,
           description: ctx.wizard.state.description as string,
-          last_digit: ctx.wizard.state.last_digit as number,
+          last_digit: Number(ctx.wizard.state.last_digit) as number,
           location: ctx.wizard.state.location as string,
           notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,

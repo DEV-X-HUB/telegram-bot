@@ -52,4 +52,6 @@ export type MessageTrace = {
   value: string;
 };
 
+export type SaveImageParams = { folderName: string; fileIds: string[]; fileLinks: string[] };
+export type CleanUpImagesParams = { filePaths: string[] };
 export type LoggerType = 'API' | 'BOT';
