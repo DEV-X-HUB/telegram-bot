@@ -259,7 +259,7 @@ class QuestionPostSectionAController {
             fileLinks: ctx.wizard.state.photo_url,
             folderName: 'service-1a',
           });
-          if (status == 'fail') return await ctx.reply(msg);
+          if (status == 'fail') return await ctx.reply('Unable to download the image please try again');
           const postDto: CreatePostService1ADto = {
             id_first_option: ctx.wizard.state.id_first_option as string,
             arbr_value: ctx.wizard.state.arbr_value as string,
