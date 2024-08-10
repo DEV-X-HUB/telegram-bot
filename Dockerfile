@@ -3,6 +3,7 @@ FROM node:20-alpine
 
 # Set the working directory
 WORKDIR /bae-bot
+ARG NODE_ENV=postgresql://tg-bot_owner:************@ep-still-paper-a56afpeg-pooler.us-east-2.aws.neon.tech/tg-bot?sslmode=require
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
