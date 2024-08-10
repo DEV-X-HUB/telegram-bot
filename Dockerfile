@@ -18,9 +18,9 @@ COPY . .
 RUN npm install
 
 # Build the application
-RUN npx prisma generate
+# RUN npx prisma generate
 
-RUN npx prisma db push 
+# RUN npx prisma db push 
 
 RUN npm run build
 
