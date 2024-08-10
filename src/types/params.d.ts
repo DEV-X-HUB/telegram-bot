@@ -51,6 +51,18 @@ export type MessageTrace = {
   messsageType: string;
   value: string;
 };
+export type ValidateStringParam = {
+  value: string;
+  wordLength: number;
+  textName: string?;
+  wordSize?: number;
+  letterSize?: number?;
+};
+
+export type ValidateStringReturnType = {
+  isValid: boolean;
+  errorMessage?: string;
+};
 
 export type SaveImageParams = { folderName: string; fileIds: string[]; fileLinks: string[] };
 export type SaveImageReturnType = { status: 'success' | 'fail'; filePaths: string[]; msg: string };

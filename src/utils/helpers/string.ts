@@ -1,5 +1,6 @@
 import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../types/ui';
 import config from '../../config/config';
+import { ValidateStringParam } from '../../types/params';
 
 export const areEqaul = (text1: string, text2: string, ignoreCase?: boolean) => {
   if (ignoreCase) return text1.toLocaleLowerCase().trim() == text2.toLocaleLowerCase().trim();
@@ -117,12 +118,37 @@ export const trimParagraph = (paragraph: string, maxLength: number = 4): string 
   return words.slice(0, maxLength).join(' ') + '...';
 };
 
-// Check that thee number of words in the string is less than maxWords and total number of characters is less than maxLetters and each word is less than maxWordLength characters
-export const validateString = (value: string, maxWords: number, maxLetters: number, maxWordLength: number = 15) => {
-  const words = value.trim().split(/\s+/);
-  const wordCount = words.length;
-  const characters = value.replace(/\s/g, '').length;
-  const wordLength = words.map((word) => word.length);
-  const wordLengthCheck = wordLength.every((word) => word <= maxWordLength);
-  return wordCount <= maxWords && characters <= maxLetters && wordLengthCheck;
+// Check that thee number of words in the string is less than wordLength and total number of characters is less than letterSize and each word is less than wordSize characters
+
+export const validateString = ({
+  value,
+  wordLength,
+  textName,
+  wordSize = 15,
+  letterSize,
+}: ValidateStringParam): { isValid: boolean; errorMessage?: string } => {
+  wordSize = wordSize || 15;
+  letterSize = letterSize || wordLength * wordSize;
+  // Remove leading/trailing whitespace and empty words
+  const trimmedValue = value.trim().replace(/\s\s+/g, ' '); // Replace multiple spaces with single spaces
+
+  // Split into trimmed words and check word count
+  const words = trimmedValue.split(' ').filter((word) => word.length > 0); // Filter out empty words
+  if (words.length > wordLength) {
+    return { isValid: false, errorMessage: `${textName} exceeds maximum word limit of ${wordLength}` };
+  }
+
+  // Check character length without spaces
+  const characters = trimmedValue.replace(/\s/g, '').length;
+  if (characters > letterSize) {
+    return { isValid: false, errorMessage: `${textName} exceeds maximum character limit of ${letterSize}` };
+  }
+
+  // Check individual word lengths
+  const wordLengthCheck = words.every((word) => word.length <= wordSize);
+  if (!wordLengthCheck) {
+    return { isValid: false, errorMessage: `Individual word length exceeds maximum of ${wordSize} character` };
+  }
+
+  return { isValid: true }; // All checks passed
 };

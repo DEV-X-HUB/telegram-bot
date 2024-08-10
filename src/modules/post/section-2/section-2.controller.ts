@@ -90,6 +90,8 @@ class PostSection2Controller {
       ctx.reply(...section2Formatter.typeOptionsDisplay());
       return ctx.wizard.back();
     }
+    const validationMessage = postValidator('title', text);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.title = text;
     ctx.reply(...section2Formatter.enterDescriptionDisplay());
     return ctx.wizard.next();

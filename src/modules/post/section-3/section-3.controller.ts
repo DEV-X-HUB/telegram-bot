@@ -91,7 +91,6 @@ class Section3Controller {
       ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
       return ctx.wizard.back();
     }
-
     const validationMessage = postValidator('title', message);
     if (validationMessage != 'valid') return await ctx.reply(validationMessage);
 
