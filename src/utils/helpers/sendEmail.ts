@@ -16,7 +16,7 @@ const mailConfig = {
 const transporter = nodemailer.createTransport(mailConfig as any);
 
 async function sendEmail(to: string, subject: string, html: string) {
-  transporter.verify(function (error, success) {
+  transporter.verify(function (error: any, success: any) {
     if (error) {
       console.log(error);
     } else {
