@@ -147,9 +147,9 @@ class PostSection2Controller {
     if (!ctx.message.photo) return ctx.reply(...section2Formatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
     const photo_id = ctx.message.photo[0].file_id;
     const photo_url = await ctx.telegram.getFileLink(photo_id);
+    imagesUploaded.push(photo_id);
     imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received

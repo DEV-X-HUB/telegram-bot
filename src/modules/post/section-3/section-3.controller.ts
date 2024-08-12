@@ -61,27 +61,22 @@ class Section3Controller {
 
   async chooseBirthOrMarital(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-
+    if (!callbackQuery) return await ctx.reply(...section3Formatter.displayError());
     // if the user is using the inline keyboard
-    if (callbackQuery) {
-      if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
-        deleteMessageWithCallback(ctx);
 
-        // leave this scene a
-        ctx.scene.leave();
-        return MainMenuController.onStart(ctx);
-      }
+    if (callbackQuery.data && areEqaul(callbackQuery.data, 'back', true)) {
+      deleteMessageWithCallback(ctx);
 
-      if (isInInlineOption(callbackQuery.data, section3Formatter.birthOrMaritalOption)) {
-        ctx.wizard.state.birth_or_marital = callbackQuery.data;
-        deleteMessageWithCallback(ctx);
-        ctx.reply(...section3Formatter.titlePrompt());
-        return ctx.wizard.next();
-      }
-    } else {
-      await ctx.reply(...section3Formatter.displayError());
-      // stay on the same step
-      // return ctx.wizard.steps[ctx.wizard.cursor](ctx);
+      // leave this scene a
+      ctx.scene.leave();
+      return MainMenuController.onStart(ctx);
+    }
+
+    if (isInInlineOption(callbackQuery.data, section3Formatter.birthOrMaritalOption)) {
+      ctx.wizard.state.birth_or_marital = callbackQuery.data;
+      deleteMessageWithCallback(ctx);
+      ctx.reply(...section3Formatter.titlePrompt());
+      return ctx.wizard.next();
     }
   }
 
@@ -102,7 +97,7 @@ class Section3Controller {
   async enterDescription(ctx: any) {
     const message = ctx.message.text;
     if (message && areEqaul(message, 'back', true)) {
-      ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
+      ctx.reply(...section3Formatter.titlePrompt());
       return ctx.wizard.back();
     }
 

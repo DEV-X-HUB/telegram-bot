@@ -228,7 +228,7 @@ class QuestionPostSectionAController {
       // empty the images array
       imagesUploaded = [];
       ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
-      ctx.reply(...section1AFormatter.previewCallToAction());
+      ctx.replyWithHTML(...section1AFormatter.previewCallToAction());
 
       return ctx.wizard.next();
     }
