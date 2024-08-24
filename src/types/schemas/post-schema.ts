@@ -5,8 +5,32 @@ const locationMaxLetters = 20;
 const descriptionWordLength = 45;
 const titleWordLength = 5;
 
-export const TextSchema = ({ wordLength = 15, textName }: { wordLength: number; textName: string }) =>
+export const TextSchema = ({
+  wordLength = 15,
+  textName,
+  allowSpecialCharacter = false,
+}: {
+  wordLength: number;
+  textName: string;
+  allowSpecialCharacter?: boolean;
+}) =>
   z.string().refine((value) => {
+    if (!allowSpecialCharacter) {
+      const hasSpecialCharacters = /[^\w\s]/.test(value);
+      if (hasSpecialCharacters)
+        throw new ZodError([
+          {
+            code: 'too_small',
+            minimum: 4,
+            type: 'string',
+            inclusive: true,
+            exact: false,
+            message: `Special character and imojies are not allowed for ${textName}`,
+            path: [],
+          },
+        ]);
+    }
+
     const { isValid, errorMessage } = validateString({ value, textName, wordLength });
     if (!isValid)
       throw new ZodError([
@@ -25,9 +49,15 @@ export const TextSchema = ({ wordLength = 15, textName }: { wordLength: number; 
     return isValid;
   });
 
-export const descriptionSchema = TextSchema({ textName: 'Description', wordLength: descriptionWordLength });
+export const descriptionSchema = TextSchema({
+  textName: 'Description',
+  wordLength: descriptionWordLength,
+  allowSpecialCharacter: true,
+});
 
 export const titleSchema = TextSchema({ textName: 'Title', wordLength: titleWordLength });
+
+export const locationSchema = TextSchema({ textName: 'Sub city or Location', wordLength: locationMaxLetters });
 
 export const lastDititSchema = z.string().refine(
   (value) => {
@@ -182,14 +212,3 @@ export const DateSchema = z
       message: 'Invalid date format ',
     },
   );
-
-export const locationSchema = z.string().refine(
-  (value) => {
-    const lettersCount = value.replace(/[^a-zA-Z]/g, '').length;
-    const hasSpecialCharacters = /[^\w\s]/.test(value);
-    return lettersCount <= locationMaxLetters && !hasSpecialCharacters;
-  },
-  {
-    message: `location must not exceed ${locationMaxLetters} letters and should not contain any special characters or emoji`,
-  },
-);
