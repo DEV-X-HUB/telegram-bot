@@ -53,7 +53,7 @@ class Section3Controller {
     if (this.isWaitingImages(sender.id)) await ctx.reply(section3Formatter.messages.imageWaitingMsg);
   }
   async start(ctx: any) {
-    ctx.wizard.state.category = 'Section3';
+    ctx.wizard.state.category = 'Section 3';
     await deleteKeyboardMarkup(ctx, 'choose an option');
     await ctx.reply(...section3Formatter.birthOrMaritalOptionDisplay());
     return ctx.wizard.next();
