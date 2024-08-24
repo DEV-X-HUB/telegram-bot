@@ -312,7 +312,7 @@ class QuestionPostSection1CController {
       }
       ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.photo_url = imagesUploadedURL;
-      ctx.wizard.state.status = 'previewing';
+      ctx.wizard.state.status = 'preview';
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
       // empty the images array
       imagesUploaded = [];
