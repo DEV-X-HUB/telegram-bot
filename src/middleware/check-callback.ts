@@ -6,7 +6,8 @@ const profileController = new ProfileController();
 // Middleware to check if user entered command and redirect to its scene
 
 export const checkVoice = (ctx: any) => {
-  if ((ctx.message?.voice, 'voice')) return ctx.replyWithHTML('<b>Voice is not allowed input currenlty ! </b> ');
+  console.log(ctx.message);
+  if (ctx.message?.voice) return ctx.replyWithHTML('<b>Voice is not allowed input currenlty ! </b> ');
 };
 export function checkCallBacks() {
   return async (ctx: any, next: any) => {
