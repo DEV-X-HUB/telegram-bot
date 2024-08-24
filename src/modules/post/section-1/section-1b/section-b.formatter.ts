@@ -151,97 +151,97 @@ class Post1BFormatter {
     if (mainCategoryNumber.toString().trim() == '1')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
         ],
         [
-          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+          { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+          { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
         ],
         [{ text: `Back`, cbString: `Back` }],
       ];
     if (mainCategoryNumber.toString().trim() == '2')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
         ],
         [
-          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+          { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+          { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
         ],
         [
-          { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+          { text: `Sub${subCatagoryType}9`, cbString: `Sub${subCatagoryType}_9` },
           { text: `Back`, cbString: `Back` },
         ],
       ];
     if (mainCategoryNumber.toString().trim() == '3')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
         ],
         [
-          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+          { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+          { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
         ],
         [
-          { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+          { text: `Sub${subCatagoryType}9`, cbString: `Sub${subCatagoryType}_9` },
           { text: `Back`, cbString: `Back` },
         ],
       ];
     if (mainCategoryNumber.toString().trim() == '4')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
         ],
         [
-          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+          { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+          { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
         ],
         [{ text: `Back`, cbString: `Back` }],
       ];
     if (mainCategoryNumber.toString().trim() == '5')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
 
           { text: `Back`, cbString: `Back` },
         ],
@@ -249,91 +249,91 @@ class Post1BFormatter {
     if (mainCategoryNumber.toString().trim() == '6')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
         ],
         [
-          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+          { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+          { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
         ],
         [
-          { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+          { text: `Sub${subCatagoryType}9`, cbString: `Sub${subCatagoryType}_9` },
           { text: `Back`, cbString: `Back` },
         ],
       ];
     if (mainCategoryNumber.toString().trim() == '7')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
           { text: `Back`, cbString: `Back` },
         ],
       ];
     if (mainCategoryNumber.toString().trim() == '8')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-          { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
         ],
         [
-          { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-          { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+          { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+          { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
         ],
         [
-          { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-          { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+          { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+          { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
         ],
         [{ text: `Back`, cbString: `Back` }],
       ];
     if (mainCategoryNumber.toString().trim() == '9')
       return [
         [
-          { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-          { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+          { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+          { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
         ],
         [
-          { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
+          { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
           { text: `Back`, cbString: `Back` },
         ],
       ];
     return [
       [
-        { text: `#Sub${subCatagoryType}1`, cbString: `#Sub${subCatagoryType}_1` },
-        { text: `#Sub${subCatagoryType}2`, cbString: `#Sub${subCatagoryType}_2` },
+        { text: `Sub${subCatagoryType}1`, cbString: `Sub${subCatagoryType}_1` },
+        { text: `Sub${subCatagoryType}2`, cbString: `Sub${subCatagoryType}_2` },
       ],
       [
-        { text: `#Sub${subCatagoryType}3`, cbString: `#Sub${subCatagoryType}_3` },
-        { text: `#Sub${subCatagoryType}4`, cbString: `#Sub${subCatagoryType}_4` },
+        { text: `Sub${subCatagoryType}3`, cbString: `Sub${subCatagoryType}_3` },
+        { text: `Sub${subCatagoryType}4`, cbString: `Sub${subCatagoryType}_4` },
       ],
       [
-        { text: `#Sub${subCatagoryType}5`, cbString: `#Sub${subCatagoryType}_5` },
-        { text: `#Sub${subCatagoryType}6`, cbString: `#Sub${subCatagoryType}_6` },
+        { text: `Sub${subCatagoryType}5`, cbString: `Sub${subCatagoryType}_5` },
+        { text: `Sub${subCatagoryType}6`, cbString: `Sub${subCatagoryType}_6` },
       ],
       [
-        { text: `#Sub${subCatagoryType}7`, cbString: `#Sub${subCatagoryType}_7` },
-        { text: `#Sub${subCatagoryType}8`, cbString: `#Sub${subCatagoryType}_8` },
+        { text: `Sub${subCatagoryType}7`, cbString: `Sub${subCatagoryType}_7` },
+        { text: `Sub${subCatagoryType}8`, cbString: `Sub${subCatagoryType}_8` },
       ],
       [
-        { text: `#Sub${subCatagoryType}9`, cbString: `#Sub${subCatagoryType}_9` },
+        { text: `Sub${subCatagoryType}9`, cbString: `Sub${subCatagoryType}_9` },
         { text: `Back`, cbString: `Back` },
       ],
     ];
@@ -413,12 +413,12 @@ class Post1BFormatter {
 
   getDetailData(state: any) {
     if (areEqaul(state.main_category, 'main_4'))
-      return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#<b>${state.sub_category}</b>\n________________\n\n<b>${state.title}</b> \n\n<b>Condtition:</b> ${state.condition}  \n\n<b>Date of Issue:</b> ${typeof state.issue_date == 'string' ? state.issue_date : new Date(state.expire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric' })} \n\n<b>Date of Expire:</b> ${typeof state.expire_date == 'string' ? state.expire_date : new Date(state.expire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric' })} \n\n<b>Original Location:</b> ${state.location}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
-    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}#<b>${state.sub_category}</b>\n________________\n\n<b>${state.title}</b>  \n\n<b>Condition:</b> ${state.condition}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+      return `${state.mention_post_data ? `<i>Related from:</i> \n\n${state.mention_post_data}\n_____________________\n\n` : ''}#<b>${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b> \n\n<b>Condtition:</b> ${state.condition}  \n\n<b>Date of Issue:</b> ${typeof state.issue_date == 'string' ? state.issue_date : new Date(state.expire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric' })} \n\n<b>Date of Expire:</b> ${typeof state.expire_date == 'string' ? state.expire_date : new Date(state.expire_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric' })} \n\n<b>Original Location:</b> ${state.location}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}`;
+    return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}#<b>${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b>  \n\n<b>Condition:</b> ${state.condition}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.sub_category}</b>\n________________\n\n<b>${state.title}</b> }\n\n<b>Description:</b> ${trimParagraph(state.description)}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b> }\n\n<b>Description:</b> ${trimParagraph(state.description)}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
   // getDetailData
