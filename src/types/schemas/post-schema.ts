@@ -1,28 +1,63 @@
 import z, { ZodError } from 'zod';
-import config from '../../config/config';
 import { validateString } from '../../utils/helpers/string';
 
-const maxWords = parseInt(config.desc_word_length as string) || 45;
 const locationMaxLetters = 20;
+const descriptionWordLength = 45;
+const titleWordLength = 5;
 
-// title validation datas
-const titleMaxWords = 7;
-const titleMaxWordLength = 15;
-const titleMaxLetters = 50;
+export const TextSchema = ({
+  wordLength = 15,
+  textName,
+  allowSpecialCharacter = false,
+}: {
+  wordLength: number;
+  textName: string;
+  allowSpecialCharacter?: boolean;
+}) =>
+  z.string().refine((value) => {
+    if (!allowSpecialCharacter) {
+      const hasSpecialCharacters = /[^\w\s]/.test(value);
+      if (hasSpecialCharacters)
+        throw new ZodError([
+          {
+            code: 'too_small',
+            minimum: 4,
+            type: 'string',
+            inclusive: true,
+            exact: false,
+            message: `Special character and imojies are not allowed for ${textName}`,
+            path: [],
+          },
+        ]);
+    }
 
-// description validation datas
-const descriptionMaxWords = 45;
-const descriptionMaxWordLength = 15;
-const descriptionMaxLetters = 315;
+    const { isValid, errorMessage } = validateString({ value, textName, wordLength });
+    if (!isValid)
+      throw new ZodError([
+        {
+          code: 'too_small',
+          minimum: 4,
+          type: 'string',
+          inclusive: true,
+          exact: false,
+          message:
+            errorMessage ||
+            `${textName} must not exceed ${wordLength} words and ${wordLength * 15} characters and each word should not exceed ${wordLength} characters`,
+          path: [],
+        },
+      ]);
+    return isValid;
+  });
 
-export const DescriptionSchema = z.string().refine(
-  (value) => {
-    return validateString(value, maxWords, descriptionMaxLetters);
-  },
-  {
-    message: `description must not exceed ${maxWords} words and ${descriptionMaxLetters} characters and each word should not exceed ${descriptionMaxWordLength} characters`,
-  },
-);
+export const descriptionSchema = TextSchema({
+  textName: 'Description',
+  wordLength: descriptionWordLength,
+  allowSpecialCharacter: true,
+});
+
+export const titleSchema = TextSchema({ textName: 'Title', wordLength: titleWordLength });
+
+export const locationSchema = TextSchema({ textName: 'Sub city or Location', wordLength: locationMaxLetters });
 
 export const lastDititSchema = z.string().refine(
   (value) => {
@@ -177,25 +212,3 @@ export const DateSchema = z
       message: 'Invalid date format ',
     },
   );
-
-export const locationSchema = z.string().refine(
-  (value) => {
-    const lettersCount = value.replace(/[^a-zA-Z]/g, '').length;
-    const hasSpecialCharacters = /[^\w\s]/.test(value);
-    return lettersCount <= locationMaxLetters && !hasSpecialCharacters;
-  },
-  {
-    message: `location must not exceed ${locationMaxLetters} letters and should not contain any special characters or emoji`,
-  },
-);
-// export const titleSchema = z.string().max(35, 'Title can be exceed 35 charaters');
-export const titleSchema = z.string().refine(
-  (value) => {
-    return validateString(value, titleMaxWords, titleMaxLetters);
-  },
-  {
-    message: `It must not exceed ${maxWords} words and ${titleMaxLetters} characters, and each word should not exceed ${titleMaxWordLength} characters`,
-  },
-);
-
-export default DateSchema;

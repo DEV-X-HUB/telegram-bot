@@ -90,6 +90,8 @@ class PostSection2Controller {
       ctx.reply(...section2Formatter.typeOptionsDisplay());
       return ctx.wizard.back();
     }
+    const validationMessage = postValidator('title', text);
+    if (validationMessage != 'valid') return await ctx.reply(validationMessage);
     ctx.wizard.state.title = text;
     ctx.reply(...section2Formatter.enterDescriptionDisplay());
     return ctx.wizard.next();
@@ -116,7 +118,7 @@ class PostSection2Controller {
         };
       }
       ctx.wizard.state.photo = [];
-      ctx.wizard.state.status = 'previewing';
+      ctx.wizard.state.status = 'preview';
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
 
       ctx.replyWithHTML(...section2Formatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
@@ -145,7 +147,6 @@ class PostSection2Controller {
     if (!ctx.message.photo) return ctx.reply(...section2Formatter.photoDisplay());
 
     // Add the image to the array
-    imagesUploaded.push(ctx.message.photo[0].file_id);
     const photo_id = ctx.message.photo[0].file_id;
     const photo_url = await ctx.telegram.getFileLink(photo_id);
     imagesUploaded.push(photo_id);
@@ -155,7 +156,6 @@ class PostSection2Controller {
     if (imagesUploaded.length == section2Formatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       const user = await profileService.getProfileByTgId(sender.id);
@@ -167,7 +167,7 @@ class PostSection2Controller {
       }
       ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.photo_url = imagesUploadedURL;
-      ctx.wizard.state.status = 'previewing';
+      ctx.wizard.state.status = 'preview';
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
       // empty the images array
       imagesUploaded = [];

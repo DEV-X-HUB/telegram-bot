@@ -1,13 +1,25 @@
-import { ExpireDateSchema, IssueDateSchema, locationSchema, titleSchema } from '../../types/schemas/post-schema';
-import DateSchema, {
-  DescriptionSchema,
+import {
+  ExpireDateSchema,
+  IssueDateSchema,
+  locationSchema,
+  titleSchema,
+  descriptionSchema,
   ConfirmationYearSchema,
   lastDititSchema,
 } from '../../types/schemas/post-schema';
 
 type RegistrationValue = string | number | Date;
 
-export const postValidator = (fieldName: string, value: RegistrationValue) => {
+type ValidationFiled =
+  | 'issue_date'
+  | 'expire_date'
+  | 'last_digit'
+  | 'title'
+  | 'description'
+  | 'location'
+  | 'confirmation_year';
+
+export const postValidator = (fieldName: ValidationFiled, value: RegistrationValue) => {
   let schema = null;
   switch (fieldName) {
     case 'issue_date': {
@@ -28,7 +40,7 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
       break;
     }
     case 'description': {
-      schema = DescriptionSchema;
+      schema = descriptionSchema;
       break;
     }
     case 'location':
@@ -43,7 +55,6 @@ export const postValidator = (fieldName: string, value: RegistrationValue) => {
     // if (!schema) return 'No schema found';
     if (!schema) return true;
     schema.parse(value);
-
     return 'valid';
   } catch (error: any) {
     return error.errors[0].message;

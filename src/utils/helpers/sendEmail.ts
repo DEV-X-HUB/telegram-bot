@@ -16,16 +16,13 @@ const mailConfig = {
 const transporter = nodemailer.createTransport(mailConfig as any);
 
 async function sendEmail(to: string, subject: string, html: string) {
-  transporter.verify(function (error, success) {
+  transporter.verify(function (error: any, success: any) {
     if (error) {
       console.log(error);
     } else {
       console.log({ success });
-      console.log('Server is ready to take our messages');
     }
   });
-
-  console.log({ to, subject, html });
 
   const info = await transporter.sendMail({
     from: `"Do-not-reply" ${config.email}`,

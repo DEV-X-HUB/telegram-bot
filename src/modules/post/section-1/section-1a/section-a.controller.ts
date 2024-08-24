@@ -20,6 +20,7 @@ import PostService from '../../post.service';
 import RegistrationService from '../../../registration/restgration.service';
 import { getCountryCodeByName } from '../../../../utils/helpers/country-list';
 import { ImageCounter } from '../../../../types/params';
+import { saveImages } from '../../../../utils/helpers/image';
 const registrationService = new RegistrationService();
 const section1AFormatter = new Section1AFormatter();
 const profileService = new ProfileService();
@@ -222,12 +223,12 @@ class QuestionPostSectionAController {
       ctx.wizard.state.photo = imagesUploaded;
       ctx.wizard.state.photo_url = imagesUploadedURL;
 
-      ctx.wizard.state.status = 'previewing';
+      ctx.wizard.state.status = 'preview';
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
       // empty the images array
       imagesUploaded = [];
       ctx.replyWithHTML(...section1AFormatter.preview(ctx.wizard.state));
-      ctx.reply(...section1AFormatter.previewCallToAction());
+      ctx.replyWithHTML(...section1AFormatter.previewCallToAction());
 
       return ctx.wizard.next();
     }
@@ -253,6 +254,12 @@ class QuestionPostSectionAController {
         }
 
         case 'post_data': {
+          const { filePaths, status, msg } = await saveImages({
+            fileIds: ctx.wizard.state.photo,
+            fileLinks: ctx.wizard.state.photo_url,
+            folderName: 'service-1a',
+          });
+          if (status == 'fail') return await ctx.reply('Unable to download the image please try again');
           const postDto: CreatePostService1ADto = {
             id_first_option: ctx.wizard.state.id_first_option as string,
             arbr_value: ctx.wizard.state.arbr_value as string,
@@ -260,7 +267,8 @@ class QuestionPostSectionAController {
             last_digit: Number(ctx.wizard.state.last_digit) as number,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
-            photo_url: ctx.wizard.state.photo_url,
+            // photo_url: ctx.wizard.state.photo_url,
+            photo_url: filePaths,
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
 
@@ -513,15 +521,24 @@ class QuestionPostSectionAController {
     if (!callbackQuery) return;
     switch (callbackQuery.data) {
       case 're_submit_post': {
+        const { filePaths, status, msg } = await saveImages({
+          fileIds: ctx.wizard.state.photo,
+          fileLinks: ctx.wizard.state.photo_url,
+          folderName: 'service-1a',
+        });
+
+        if (status == 'fail') return await ctx.reply('Unable to download the image please try again');
+
         const postDto: CreatePostService1ADto = {
           id_first_option: ctx.wizard.state.id_first_option as string,
           arbr_value: ctx.wizard.state.arbr_value as string,
           description: ctx.wizard.state.description as string,
-          last_digit: ctx.wizard.state.last_digit as number,
+          last_digit: Number(ctx.wizard.state.last_digit) as number,
           location: ctx.wizard.state.location as string,
           notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,
-          photo_url: ctx.wizard.state.photo_url,
+          // photo_url: ctx.wizard.state.photo_url,
+          photo_url: filePaths,
           city: ctx.wizard.state.city,
           category: 'Section 1A',
           previous_post_id: ctx.wizard.state.mention_post_id || undefined,
