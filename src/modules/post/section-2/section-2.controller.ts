@@ -156,7 +156,6 @@ class PostSection2Controller {
     if (imagesUploaded.length == section2Formatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-      // console.log(file);
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       const user = await profileService.getProfileByTgId(sender.id);
