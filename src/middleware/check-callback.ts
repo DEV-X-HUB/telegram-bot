@@ -4,9 +4,14 @@ import PostController from '../modules/post/post.controller';
 
 const profileController = new ProfileController();
 // Middleware to check if user entered command and redirect to its scene
+
+export const checkVoice = (ctx: any) => {
+  if ((ctx.message?.voice, 'voice')) return ctx.replyWithHTML('<b>Voice is not allowed input currenlty ! </b> ');
+};
 export function checkCallBacks() {
   return async (ctx: any, next: any) => {
     try {
+      checkVoice(ctx);
       const callbackQuery = ctx?.callbackQuery;
       if (!callbackQuery) return next();
       const query = callbackQuery.data;
