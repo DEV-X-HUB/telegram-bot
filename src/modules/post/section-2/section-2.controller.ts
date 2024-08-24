@@ -153,7 +153,7 @@ class PostSection2Controller {
     imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
-    if (imagesUploaded.length >= section2Formatter.imagesNumber) {
+    if (imagesUploaded.length == section2Formatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
       const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
       // console.log(file);
