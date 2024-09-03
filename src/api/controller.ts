@@ -109,6 +109,55 @@ export const getPostDetail = async (req: Request, res: Response) => {
   }
 };
 
+export const getUsers = async (req: Request, res: Response) => {
+  const round = req.params.round;
+  try {
+    const { status, data, message } = await ApiService.getUsers(parseInt(round));
+    if (status == 'fail') {
+      return res.status(500).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+    return res.status(200).json({
+      status,
+      message,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+      data: null,
+    });
+  }
+};
+export const getUserDetail = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const { status, data, message } = await ApiService.getUser(id);
+    if (status == 'fail') {
+      return res.status(500).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+    return res.status(200).json({
+      status,
+      message,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+      data: null,
+    });
+  }
+};
+
 export const getUserPosts = async (req: Request, res: Response) => {
   const user_id = req.params.id;
   const round = req.params.round;

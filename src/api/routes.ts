@@ -9,7 +9,9 @@ import {
   getPosts,
   getPostsByCategory,
   getPostsByStatus,
+  getUserDetail,
   getUserPosts,
+  getUsers,
   loginAdmin,
   resetPassword,
   updateAdminStatus,
@@ -29,6 +31,8 @@ router.get('/posts/category/:category', getPostsByCategory);
 router.get('/posts/:id', getPostDetail);
 router.get('/posts/user/:userId', getUserPosts);
 router.put('/posts', updatePostStatus);
+router.get('/users/?round', getUsers);
+router.get('/user/?id', getUserDetail);
 router.delete('/posts/:id', deletePost);
 router.delete('/posts/user:id', deleteUserPosts);
 

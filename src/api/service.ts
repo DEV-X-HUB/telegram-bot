@@ -152,6 +152,41 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
+  static async getUsers(round: number): Promise<ResponseWithData> {
+    const pageSize = 10;
+    try {
+      const posts = await prisma.user.findMany({
+        where: {},
+        skip: (round - 1) * pageSize,
+        take: pageSize,
+      });
+
+      return {
+        status: 'success',
+        message: 'users fetched successfully',
+        data: posts,
+      };
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+      return { status: 'fail', message: error?.message, data: null };
+    }
+  }
+  static async getUser(id: string): Promise<ResponseWithData> {
+    try {
+      const user = await prisma.user.findMany({
+        where: { id },
+      });
+
+      return {
+        status: 'success',
+        message: 'user detail successfully',
+        data: user,
+      };
+    } catch (error: any) {
+      console.error('Error fetching user data :', error);
+      return { status: 'fail', message: error?.message, data: null };
+    }
+  }
 
   static async getPostById(postId: string): Promise<ResponseWithData> {
     try {
