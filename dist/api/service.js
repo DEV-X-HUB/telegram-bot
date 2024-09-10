@@ -159,6 +159,45 @@ class ApiService {
             }
         });
     }
+    static getUsers(round) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const pageSize = 10;
+            try {
+                const posts = yield db_connecion_1.default.user.findMany({
+                    where: {},
+                    skip: (round - 1) * pageSize,
+                    take: pageSize,
+                });
+                return {
+                    status: 'success',
+                    message: 'users fetched successfully',
+                    data: posts,
+                };
+            }
+            catch (error) {
+                console.error('Error fetching users:', error);
+                return { status: 'fail', message: error === null || error === void 0 ? void 0 : error.message, data: null };
+            }
+        });
+    }
+    static getUser(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield db_connecion_1.default.user.findFirst({
+                    where: { id },
+                });
+                return {
+                    status: 'success',
+                    message: 'user detail successfully',
+                    data: user,
+                };
+            }
+            catch (error) {
+                console.error('Error fetching user data :', error);
+                return { status: 'fail', message: error === null || error === void 0 ? void 0 : error.message, data: null };
+            }
+        });
+    }
     static getPostById(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -467,7 +506,7 @@ class ApiService {
                     },
                 });
                 return {
-                    status: 'fail',
+                    status: 'success',
                     message: `Admin status updated to ${status}`,
                 };
             }
@@ -484,12 +523,13 @@ class ApiService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, status, reason } = updateAdminStatus;
-                const admin = yield db_connecion_1.default.user.findFirst({
+                console.log(userId);
+                const user = yield db_connecion_1.default.user.findFirst({
                     where: {
                         id: userId,
                     },
                 });
-                if (!admin) {
+                if (!user) {
                     return {
                         status: 'fail',
                         message: 'user  not found',
@@ -505,7 +545,7 @@ class ApiService {
                     },
                 });
                 return {
-                    status: 'fail',
+                    status: 'success',
                     message: `User  status updated to ${status}`,
                 };
             }
