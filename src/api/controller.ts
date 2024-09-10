@@ -110,9 +110,9 @@ export const getPostDetail = async (req: Request, res: Response) => {
 };
 
 export const getUsers = async (req: Request, res: Response) => {
-  const round = req.params.round;
+  const round = req.query.round;
   try {
-    const { status, data, message } = await ApiService.getUsers(parseInt(round));
+    const { status, data, message } = await ApiService.getUsers(parseInt(round?.toString() || '1'));
     if (status == 'fail') {
       return res.status(500).json({
         status,
@@ -318,6 +318,7 @@ export async function updateAdminStatus(req: Request, res: Response) {
 }
 export async function updateUserStatus(req: Request, res: Response) {
   try {
+    console.log(req.body);
     const { userId, status: userStatus, reason } = req.body;
     const { status, message } = await ApiService.updateUserStatus({
       userId,

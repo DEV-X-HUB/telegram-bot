@@ -154,6 +154,7 @@ class ApiService {
   }
   static async getUsers(round: number): Promise<ResponseWithData> {
     const pageSize = 10;
+
     try {
       const posts = await prisma.user.findMany({
         where: {},
@@ -173,7 +174,7 @@ class ApiService {
   }
   static async getUser(id: string): Promise<ResponseWithData> {
     try {
-      const user = await prisma.user.findMany({
+      const user = await prisma.user.findFirst({
         where: { id },
       });
 
@@ -498,7 +499,7 @@ class ApiService {
       });
 
       return {
-        status: 'fail',
+        status: 'success',
         message: `Admin status updated to ${status}`,
       };
     } catch (error: any) {
@@ -512,14 +513,14 @@ class ApiService {
   static async updateUserStatus(updateAdminStatus: UpdateUserStatusDto): Promise<BareResponse> {
     try {
       const { userId, status, reason } = updateAdminStatus;
-
-      const admin = await prisma.user.findFirst({
+      console.log(userId);
+      const user = await prisma.user.findFirst({
         where: {
           id: userId,
         },
       });
 
-      if (!admin) {
+      if (!user) {
         return {
           status: 'fail',
           message: 'user  not found',
@@ -537,7 +538,7 @@ class ApiService {
       });
 
       return {
-        status: 'fail',
+        status: 'success',
         message: `User  status updated to ${status}`,
       };
     } catch (error: any) {
