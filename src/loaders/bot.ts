@@ -28,7 +28,7 @@ export default () => {
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
 
-  bot.use(checkUserInChannelandPromtJoin());
+  // bot.use(checkUserInChannelandPromtJoin());
 
   bot.on('inline_query', SearchQuestionController.handleSearch);
 

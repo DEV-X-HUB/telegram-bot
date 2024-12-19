@@ -10,15 +10,27 @@ const mainMenuFormmater = new MainMenuFormmater();
 
 const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
 
-//
-export async function checkUserInChannel(tg_id: number): Promise<ResponseWithData> {
+//Promise<ResponseWithData>
+export async function checkUserInChannel(tg_id: number) {
+  console.log('tg_id', tg_id);
+  console.log('chat_id', config.channel_id);
   try {
-    const response = await axios.get(`${baseUrl}/getChatMember`, {
-      params: {
-        chat_id: config.channel_id,
-        user_id: tg_id,
+    // const response = await axios.get(`${baseUrl}/getChatMember`, {
+    //   params: {
+    //     chat_id: config.channel_id,
+    //     user_id: tg_id,
+    //   },
+    // });
+
+    const res = await fetch(`${baseUrl}/getChatMember?chat_id=${config.channel_id}&user_id=${tg_id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       },
     });
+
+    const response = await res.json();
+    console.log('response', response);
 
     const isUserJoined =
       response.data.result.status === 'member' ||
@@ -31,7 +43,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
       message: 'success',
     };
   } catch (error: any) {
-    console.error(error);
+    // console.error(error);
     return {
       status: 'fail',
       data: false,
@@ -43,8 +55,12 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
 export function checkUserInChannelandPromtJoin() {
   return async (ctx: any, next: any) => {
     const sender = findSender(ctx);
+
+    // console.log(sender);
+
     try {
       const { status, data: isUserJoined, message } = await checkUserInChannel(sender.id);
+
       if (status == 'fail') return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(message || ''));
 
       if (!isUserJoined) {
@@ -53,7 +69,7 @@ export function checkUserInChannelandPromtJoin() {
         return next();
       }
     } catch (error: any) {
-      console.error(error.message);
+      // console.error(error.message);
       return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(error.message || ''));
     }
   };

@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
-  channel_username: process.env.CHANNEL_USERNAME || -1002088332003,
+  channel_username: process.env.CHANNEL_USERNAME,
   number_of_result: process.env.NUMBER_OF_RESULTS,
   bot_url: process.env.BOT_URL as string,
   bor_name: process.env.BOT_NAME,
