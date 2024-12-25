@@ -35,7 +35,6 @@ class PostController {
       return await ctx.answerInlineQuery([...postFormmatter.formatNoQuestionsErrorMessage()], {
         button: postFormmatter.seachQuestionTopBar(0, query),
       });
-
     return await ctx.answerInlineQuery([...postFormmatter.formatSearchQuestions(posts)], {
       button: postFormmatter.seachQuestionTopBar(posts.length, query),
       cache_time: 0,

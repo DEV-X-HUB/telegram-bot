@@ -37,7 +37,7 @@ class PostFormatter {
     [{ text: '✅ Post', cbString: 'post_answer' }],
   ];
   messages = {
-    noQuestionTitle: '**No post found mathcing your query**',
+    noQuestionTitle: 'No post found mathcing your query',
     noQuestionDesc: 'Click here to ask a post',
     NoQuestionMessageText: 'Click the button below  to ask ',
     allQuestionsMsg: 'Click the button below  to list the posts ',
@@ -163,8 +163,8 @@ class PostFormatter {
   questionOptionsButtons(questionId: string, withUrl?: boolean) {
     if (withUrl)
       return [
-        // navigate to the bot and start the bot with the command 'answer'
         { text: `Detail`, url: `${config.bot_url}?start=postDetail_${questionId}` },
+        // navigate to the bot and start the bot with the command 'answer'
         // { text: `Browse`, url: `${config.bot_url}?start=browse_${questionId}` },
       ];
     else
@@ -219,7 +219,7 @@ class PostFormatter {
         reply_markup: {
           inline_keyboard: [
             // navigate to the bot and start the bot with the command 'answer'
-            { text: `Make a post`, url: `${config.bot_url}?start` },
+            [{ text: `Make a post`, url: `${config.bot_url}?start` }],
           ],
         },
       },
