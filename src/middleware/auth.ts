@@ -23,7 +23,7 @@ export async function checkUserInChannel(tg_id: number): Promise<ResponseWithDat
         user_id: tg_id,
       },
     });
-
+    console.log(response.data.result);
     const isUserJoined =
       response.data.result.status === 'member' ||
       response.data.result.status === 'administrator' ||
