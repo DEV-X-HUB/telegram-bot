@@ -217,10 +217,7 @@ class PostFormatter {
           ],
         },
         reply_markup: {
-          inline_keyboard: [
-            // navigate to the bot and start the bot with the command 'answer'
-            [{ text: `Make a post`, url: `${config.bot_url}?start` }],
-          ],
+          inline_keyboard: [[{ text: `Make a post`, url: `${config.bot_url}?start` }]],
         },
       },
     ];
