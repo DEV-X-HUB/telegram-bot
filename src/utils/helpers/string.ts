@@ -3,8 +3,8 @@ import config from '../../config/config';
 import { ValidateStringParam } from '../../types/params';
 
 export const areEqaul = (text1: string, text2: string, ignoreCase?: boolean) => {
-  if (ignoreCase) return text1.toLocaleLowerCase().trim() == text2.toLocaleLowerCase().trim();
-  return text1.trim() == text2.trim();
+  if (ignoreCase) return text1?.toLocaleLowerCase().trim() == text2?.toLocaleLowerCase().trim();
+  return text1?.trim() == text2?.trim();
 };
 export const formatNumberWithCommas = (num: number): string => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');

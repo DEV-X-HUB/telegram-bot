@@ -69,14 +69,13 @@ class RegistrationController {
     const text = ctx.message.text;
     const chat_id = ctx.message.chat.id;
     const username = ctx.message.from.username;
-
     if (text && text == 'Cancel') {
       return ctx.reply(...registrationFormatter.shareContactWarning());
     } else if (contact) {
       ctx.wizard.state.phone_number = contact.phone_number;
+      ctx.wizard.state.chat_id = chat_id;
       if (username) {
         ctx.wizard.state.username = `https://t.me/${username}`;
-        ctx.wizard.state.chat_id = chat_id;
       }
       ctx.reply(...registrationFormatter.firstNameformatter());
       return ctx.wizard.next();
@@ -234,6 +233,7 @@ class RegistrationController {
       }
     } else {
       const state = ctx.wizard.state;
+      console.log(ctx.wizard.state);
       switch (callbackQuery.data) {
         case 'preview_edit': {
           ctx.wizard.state.editField = null;
