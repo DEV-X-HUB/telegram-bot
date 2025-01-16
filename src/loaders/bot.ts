@@ -30,7 +30,7 @@ export default () => {
   bot = new Telegraf(config.bot_token as string);
   bot.telegram.setWebhook(`${config.domain}/secret-path`);
   const stage = new Scenes.Stage([ProfileScene, ...QuestionPostScene, RegistrationScene, ChatScene, BrowsePostScene]);
-
+  console.log('latest');
   bot.use(botActivityInterceptor());
   // bot.use(devlopmentMode());
   bot.use(checkUserInChannelandPromtJoin());
