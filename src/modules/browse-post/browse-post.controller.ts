@@ -142,14 +142,10 @@ class BrowsePostController {
 
     // Pagination
     if (callbackQuery.data.startsWith('goToPage')) {
-      console.log(callbackQuery.data);
-
       const page = Number(callbackQuery.data.split('_')[1]);
-      console.log('qqqqqqqq');
-      console.log(page);
 
       const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy, page);
-      console.log(posts);
+
       await deleteMessageWithCallback(ctx);
 
       return await ctx.replyWithHTML(
@@ -160,7 +156,6 @@ class BrowsePostController {
 
   async handleFilterByCategory(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -181,7 +176,6 @@ class BrowsePostController {
         };
 
         const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-        console.log(posts);
 
         if (!posts || posts.posts.length == 0) {
           return ctx.reply(browsePostFormatter.messages.noPostError);
@@ -234,7 +228,6 @@ class BrowsePostController {
         };
 
         const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-        console.log(posts);
 
         if (!posts || posts.posts.length == 0) {
           return ctx.reply(browsePostFormatter.messages.noPostError);
@@ -258,7 +251,6 @@ class BrowsePostController {
       // };
 
       // const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-      // console.log(posts);
 
       // if (!posts || posts.posts.length == 0) {
       //   return ctx.reply(browsePostFormatter.messages.noPostError);
@@ -278,14 +270,12 @@ class BrowsePostController {
 
   async handleFilterByTimeframe(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
 
     if (callbackQuery.data.startsWith('filterByTimeframe')) {
       const timeframeFilter = ctx.callbackQuery.data.split('_')[1];
-      console.log(timeframeFilter);
 
       // update the state
       ctx.wizard.state.filterBy = {
@@ -314,14 +304,12 @@ class BrowsePostController {
   }
   async handleFilterSection1AWithARBR(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(`cb: ${callbackQuery.data}`);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
 
     if (callbackQuery.data.startsWith('filterSection1AWithARBR')) {
       const section1AWithARBRFilter = ctx.callbackQuery.data.split('_')[1];
-      console.log(section1AWithARBRFilter);
 
       ctx.wizard.state.filterBy = {
         ...ctx.wizard.state.filterBy,
@@ -333,7 +321,6 @@ class BrowsePostController {
 
       // Get posts by the selected category
       const posts = await postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);
-      console.log(posts);
 
       await deleteMessageWithCallback(ctx);
 
@@ -354,7 +341,6 @@ class BrowsePostController {
 
   async handleFilterBySection1BMain(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -362,7 +348,6 @@ class BrowsePostController {
     if (callbackQuery.data.startsWith('filterBySection1BMain')) {
       //append the value of main
       const section1BMainFilter = `main_${ctx.callbackQuery.data.split('_')[2]}`;
-      console.log(`filterrr ${section1BMainFilter}`);
 
       if (section1BMainFilter === 'all') {
         ctx.wizard.state.filterBy = {
@@ -407,7 +392,6 @@ class BrowsePostController {
 
   async handleFilterBySection1BSub(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -415,7 +399,6 @@ class BrowsePostController {
     if (callbackQuery.data.startsWith('filterBySection1BSub')) {
       // append the second and third array element
       const section1BSubFilter = `${ctx.callbackQuery.data.split('_')[1]}_${ctx.callbackQuery.data.split('_')[2]}`;
-      console.log(section1BSubFilter);
 
       ctx.wizard.state.filterBy = {
         ...ctx.wizard.state.filterBy,
@@ -447,7 +430,6 @@ class BrowsePostController {
 
   async handleFilterSection1CWithARBR(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -485,7 +467,6 @@ class BrowsePostController {
 
   async handleFilterSection2Type(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -529,7 +510,6 @@ class BrowsePostController {
 
     if (callbackQuery.data.startsWith('filterBySection3BirthMarital')) {
       const section3BirthMaritalFilter = ctx.callbackQuery.data.split('_')[1];
-      console.log(`Maritalll: ${section3BirthMaritalFilter}`);
 
       ctx.wizard.state.filterBy.fields = {
         ...ctx.wizard.state.filterBy.fields,
@@ -557,7 +537,6 @@ class BrowsePostController {
   }
   async handleFilterSection4Type(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -643,7 +622,6 @@ class BrowsePostController {
 
   async handleFilterByLastDigit(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
@@ -672,14 +650,12 @@ class BrowsePostController {
   async handlefilterByLastDigitBIDI(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
 
-    console.log(callbackQuery.data);
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
 
     if (callbackQuery.data.startsWith('filterByLastDigitBiDiOptions')) {
       const lastDigitFilter = ctx.callbackQuery.data.split('_')[1];
-      console.log('lastDigitFilter');
 
       ctx.wizard.state.filterBy = {
         ...ctx.wizard.state.filterBy,
