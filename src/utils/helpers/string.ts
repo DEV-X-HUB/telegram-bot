@@ -7,7 +7,7 @@ export const areEqaul = (text1: string, text2: string, ignoreCase?: boolean) => 
   return text1?.trim() == text2?.trim();
 };
 export const formatNumberWithCommas = (num: number): string => {
-  return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return num?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
 export const isInInlineOption = (text: string, options: TableInlineKeyboardButtons) => {
