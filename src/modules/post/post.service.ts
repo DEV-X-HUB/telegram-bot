@@ -767,7 +767,6 @@ class PostService {
             },
           ];
     }
-    console.log(columnSpecificWhereCondition);
     switch (status) {
       case 'all':
         columnSpecificWhereCondition.AND = [
@@ -804,22 +803,41 @@ class PostService {
         break;
       }
     }
-
-    columnSpecificWhereCondition.AND = [
-      ...(columnSpecificWhereCondition.AND as any),
-      { created_at: { gte: filterDate } },
-    ];
+    if (timeframe && timeframe !== 'all')
+      columnSpecificWhereCondition.AND = [
+        ...(columnSpecificWhereCondition.AND as any),
+        { created_at: { gte: filterDate } },
+      ];
 
     try {
       const totalCount = await prisma.post.count({
         where: { ...columnSpecificWhereCondition },
       });
-      console.log(query, columnSpecificWhereCondition, 'where condition');
+      console.log(query, JSON.stringify(columnSpecificWhereCondition), 'where condition');
 
       const totalPages = Math.ceil(totalCount / pageSize);
       const skip = (page - 1) * pageSize;
       const posts = await prisma.post.findMany({
-        where: { ...columnSpecificWhereCondition },
+        where: {
+          OR: [
+            {
+              Service1A: {
+                last_digit: { gte: 1001, lte: 5000 },
+              },
+            },
+            {
+              Service1B: {
+                last_digit: { gte: 1001, lte: 5000 },
+              },
+            },
+            {
+              Service1C: {
+                last_digit: { gte: 1001, lte: 5000 },
+              },
+            },
+          ],
+        },
+        // where: { ...columnSpecificWhereCondition },
         include: {
           user: {
             select: {
