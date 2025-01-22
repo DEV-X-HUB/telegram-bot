@@ -756,7 +756,7 @@ class PostService {
                 ],
               },
             ];
-          } else columnSpecificWhereCondition = {};
+          } else columnSpecificWhereCondition = { AND: [] };
         }
         break;
       default:
@@ -767,6 +767,7 @@ class PostService {
             },
           ];
     }
+    console.log(columnSpecificWhereCondition);
     switch (status) {
       case 'all':
         columnSpecificWhereCondition.AND = [
