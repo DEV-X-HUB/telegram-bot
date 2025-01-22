@@ -16,6 +16,7 @@ import {
 import { PostCategory } from '../../types/params';
 import { PostStatus, ResponseWithData } from '../../types/api';
 import config from '../../config/config';
+import { Prisma } from '@prisma/client';
 
 class PostService {
   constructor() {}
@@ -669,25 +670,34 @@ class PostService {
       lastDigitUpTo = Number(query?.fields?.last_digit?.split('-')[2]);
     } else lastDigit = 'all';
 
-    let columnSpecificWhereCondition: any = {};
+    let columnSpecificWhereCondition: Prisma.PostWhereInput = { AND: [] };
     switch (category) {
       case 'Section 1A':
-        columnSpecificWhereCondition = {
-          Service1A: {
-            arbr_value:
-              !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
+        columnSpecificWhereCondition.AND = [
+          {
+            Service1A: {
+              arbr_value:
+                !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
 
-            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+              last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+            },
           },
-        };
+        ];
         break;
       case 'Section 1B':
-        let a = await prisma.post.findMany({
-          where: {
-            category: category,
+        columnSpecificWhereCondition.AND = [
+          {
             Service1B: {
-              main_category: mainCategory,
-              sub_category: subCategory,
+              main_category:
+                !query?.fields?.main_category || query?.fields?.main_category == 'all'
+                  ? undefined
+                  : { equals: query?.fields?.main_category },
+              sub_category:
+                !query?.fields?.sub_category ||
+                query?.fields?.sub_category == 'all' ||
+                query?.fields?.main_category == 'all'
+                  ? undefined
+                  : { equals: query?.fields?.sub_category },
               city:
                 query?.fields?.city?.cityName !== 'all'
                   ? {
@@ -698,93 +708,75 @@ class PostService {
               last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
             },
           },
-        });
-        columnSpecificWhereCondition = {
-          Service1B: {
-            main_category:
-              !query?.fields?.main_category || query?.fields?.main_category == 'all'
-                ? undefined
-                : { equals: query?.fields?.main_category },
-            sub_category:
-              !query?.fields?.sub_category ||
-              query?.fields?.sub_category == 'all' ||
-              query?.fields?.main_category == 'all'
-                ? undefined
-                : { equals: query?.fields?.sub_category },
-            city:
-              query?.fields?.city?.cityName !== 'all'
-                ? {
-                    mode: 'insensitive',
-                    equals: query?.fields?.city?.cityName,
-                  }
-                : undefined,
-            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-          },
-        };
+        ];
         break;
 
       case 'Section 1C':
-        columnSpecificWhereCondition = {
-          Service1C: {
-            arbr_value:
-              !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
-            last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+        columnSpecificWhereCondition.AND = [
+          {
+            Service1C: {
+              arbr_value:
+                !query?.fields?.ar_br || query?.fields?.ar_br == 'all' ? undefined : { equals: query?.fields?.ar_br },
+              last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+            },
           },
-        };
+        ];
         break;
 
       case 'Section 3':
-        columnSpecificWhereCondition = {
-          Service3: {
-            birth_or_marital:
-              !query?.fields?.birth_or_marital || query?.fields?.birth_or_marital == 'all'
-                ? undefined
-                : { equals: query?.fields?.birth_or_marital },
-            city:
-              query?.fields?.city?.cityName !== 'all'
-                ? {
-                    mode: 'insensitive',
-                    equals: query?.fields?.city?.cityName,
-                  }
-                : undefined,
+        columnSpecificWhereCondition.AND = [
+          {
+            Service3: {
+              birth_or_marital:
+                !query?.fields?.birth_or_marital || query?.fields?.birth_or_marital == 'all'
+                  ? undefined
+                  : { equals: query?.fields?.birth_or_marital },
+            },
           },
-        };
+        ];
         break;
 
       case 'all':
         {
           if (lastDigitStartsFrom && lastDigitUpTo) {
-            columnSpecificWhereCondition = {
-              OR: [
-                {
-                  Service1A: {
-                    last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+            columnSpecificWhereCondition.AND = [
+              {
+                OR: [
+                  {
+                    Service1A: {
+                      last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                    },
+                    Service1B: {
+                      last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                    },
+                    Service1C: {
+                      last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                    },
                   },
-                  Service1B: {
-                    last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                  },
-                  Service1C: {
-                    last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                  },
-                },
-              ],
-            };
+                ],
+              },
+            ];
           } else columnSpecificWhereCondition = {};
         }
         break;
       default:
         if (category)
-          columnSpecificWhereCondition = {
-            category,
-          };
+          columnSpecificWhereCondition.AND = [
+            {
+              category,
+            },
+          ];
     }
     switch (status) {
       case 'all':
-        columnSpecificWhereCondition.status = { in: ['open', 'closed'] };
+        columnSpecificWhereCondition.AND = [
+          ...(columnSpecificWhereCondition.AND as any),
+          { status: { in: ['open', 'closed'] } },
+        ];
         break;
 
       case 'open':
-        columnSpecificWhereCondition.status = status;
+        columnSpecificWhereCondition.AND = [...(columnSpecificWhereCondition.AND as any), { status: status }];
         break;
 
       case 'closed':
@@ -792,7 +784,10 @@ class PostService {
         break;
 
       default:
-        columnSpecificWhereCondition.status = { in: ['open', 'closed'] };
+        columnSpecificWhereCondition.AND = [
+          ...(columnSpecificWhereCondition.AND as any),
+          { status: { in: ['open', 'closed'] } },
+        ];
     }
     switch (timeframe) {
       case 'today': {
@@ -808,16 +803,17 @@ class PostService {
         break;
       }
     }
-    if (timeframe && timeframe !== 'all')
-      columnSpecificWhereCondition.created_at = {
-        gte: filterDate,
-      };
+
+    columnSpecificWhereCondition.AND = [
+      ...(columnSpecificWhereCondition.AND as any),
+      { created_at: { gte: filterDate } },
+    ];
 
     try {
       const totalCount = await prisma.post.count({
         where: { ...columnSpecificWhereCondition },
       });
-      console.log(columnSpecificWhereCondition, 'where condition');
+      console.log(query, columnSpecificWhereCondition, 'where condition');
 
       const totalPages = Math.ceil(totalCount / pageSize);
       const skip = (page - 1) * pageSize;
