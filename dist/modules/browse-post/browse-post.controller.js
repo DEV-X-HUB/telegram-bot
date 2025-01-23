@@ -162,7 +162,7 @@ class BrowsePostController {
                 }
                 else if (categoryFilter === 'Section 2') {
                     yield (0, chat_1.deleteMessageWithCallback)(ctx);
-                    yield ctx.reply(...browsePostFormatter.filterBySection1CWithArBrDisplay(categoryFilter));
+                    yield ctx.reply(...browsePostFormatter.filterBySection2TypeDisplay(categoryFilter));
                     // jump to handler
                     return ctx.wizard.selectStep(8);
                 }
@@ -338,7 +338,7 @@ class BrowsePostController {
             if (!callbackQuery) {
                 return ctx.reply(...browsePostFormatter.messages.useButtonError);
             }
-            if (callbackQuery.data.startsWith('filterBySection2Type')) {
+            if (callbackQuery.data.startsWith('filterBySection2')) {
                 const section2TypeFilter = ctx.callbackQuery.data.split('_')[1];
                 ctx.wizard.state.filterBy = Object.assign(Object.assign({}, ctx.wizard.state.filterBy), { fields: Object.assign(Object.assign({}, ctx.wizard.state.filterBy.fields), { service_type: section2TypeFilter }) });
                 // Get posts by the selected category

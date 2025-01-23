@@ -662,6 +662,7 @@ class PostService {
     const arBrValue = query?.fields?.ar_br;
     const mainCategory = query?.fields?.main_category;
     const subCategory = query?.fields?.sub_category;
+    const servieType = query?.fields?.service_type;
     const birthOrMarital = query?.fields?.birth_or_marital;
 
     if (String(query?.fields?.last_digit)?.startsWith('bi') || String(query?.fields?.last_digit)?.startsWith('di')) {
@@ -726,6 +727,15 @@ class PostService {
                 !query?.fields?.birth_or_marital || query?.fields?.birth_or_marital == 'all'
                   ? undefined
                   : { equals: query?.fields?.birth_or_marital },
+            },
+          },
+        ];
+        break;
+      case 'Section 2':
+        columnSpecificWhereCondition.AND = [
+          servieType && {
+            Service2: {
+              service_type: servieType || {},
             },
           },
         ];

@@ -207,7 +207,7 @@ class BrowsePostController {
         return ctx.wizard.selectStep(7);
       } else if (categoryFilter === 'Section 2') {
         await deleteMessageWithCallback(ctx);
-        await ctx.reply(...browsePostFormatter.filterBySection1CWithArBrDisplay(categoryFilter));
+        await ctx.reply(...browsePostFormatter.filterBySection2TypeDisplay(categoryFilter));
         // jump to handler
         return ctx.wizard.selectStep(8);
       } else if (categoryFilter === 'Section 3') {
@@ -470,8 +470,7 @@ class BrowsePostController {
     if (!callbackQuery) {
       return ctx.reply(...browsePostFormatter.messages.useButtonError);
     }
-
-    if (callbackQuery.data.startsWith('filterBySection2Type')) {
+    if (callbackQuery.data.startsWith('filterBySection2')) {
       const section2TypeFilter = ctx.callbackQuery.data.split('_')[1];
 
       ctx.wizard.state.filterBy = {
