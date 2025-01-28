@@ -265,7 +265,7 @@ class BrowsePostController {
             if (callbackQuery.data.startsWith('filterBySection1BMain')) {
                 //append the value of main
                 const section1BMainFilter = `main_${ctx.callbackQuery.data.split('_')[2]}`;
-                if (section1BMainFilter === 'all') {
+                if (section1BMainFilter === 'all' || section1BMainFilter === 'main_10') {
                     ctx.wizard.state.filterBy = Object.assign(Object.assign({}, ctx.wizard.state.filterBy), { fields: Object.assign(Object.assign({}, ctx.wizard.state.filterBy.fields), { main_category: section1BMainFilter }) });
                     // Get posts by the selected category
                     const posts = yield postService.getAllPostsWithQuery(ctx.wizard.state.filterBy);

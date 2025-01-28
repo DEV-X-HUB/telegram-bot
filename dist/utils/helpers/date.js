@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseDateString = exports.formatDateFromIsoString = exports.calculateAge = void 0;
+exports.formatPostDate = exports.parseDateString = exports.formatDateFromIsoString = exports.calculateAge = void 0;
 const config_1 = __importDefault(require("../../config/config"));
 const calculateAge = (ageValue) => {
     if (ageValue.includes('/')) {
@@ -58,4 +58,43 @@ const parseDateString = (dateString) => {
     return date;
 };
 exports.parseDateString = parseDateString;
+const formatPostDate = (createdAt) => {
+    const now = new Date();
+    const createdAtDate = new Date(createdAt);
+    const diffInSeconds = Math.floor((now.getTime() - new Date(createdAtDate).getTime()) / 1000);
+    const secondsInMinute = 60;
+    const secondsInHour = 60 * secondsInMinute;
+    const secondsInDay = 24 * secondsInHour;
+    const secondsInWeek = 7 * secondsInDay;
+    const secondsInMonth = 30 * secondsInDay;
+    const secondsInYear = 365 * secondsInDay;
+    if (diffInSeconds < secondsInMinute) {
+        return `${diffInSeconds} seconds ago`;
+    }
+    else if (diffInSeconds < secondsInHour) {
+        const minutes = Math.floor(diffInSeconds / secondsInMinute);
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    }
+    else if (diffInSeconds < secondsInDay) {
+        const hours = Math.floor(diffInSeconds / secondsInHour);
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    }
+    else if (diffInSeconds < secondsInWeek) {
+        const days = Math.floor(diffInSeconds / secondsInDay);
+        return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
+    else if (diffInSeconds < secondsInMonth) {
+        const weeks = Math.floor(diffInSeconds / secondsInWeek);
+        return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+    }
+    else if (diffInSeconds < secondsInYear) {
+        const months = Math.floor(diffInSeconds / secondsInMonth);
+        return `${months} month${months > 1 ? 's' : ''} ago`;
+    }
+    else {
+        const years = Math.floor(diffInSeconds / secondsInYear);
+        return `${years} year${years > 1 ? 's' : ''} ago`;
+    }
+};
+exports.formatPostDate = formatPostDate;
 //# sourceMappingURL=date.js.map

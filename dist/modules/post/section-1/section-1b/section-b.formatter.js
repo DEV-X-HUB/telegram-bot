@@ -16,6 +16,7 @@ const button_1 = require("../../../../ui/button");
 const string_1 = require("../../../../utils/helpers/string");
 const config_1 = __importDefault(require("../../../../config/config"));
 const post_formmater_1 = __importDefault(require("../../post.formmater"));
+const date_1 = require("../../../../utils/helpers/date");
 class Post1BFormatter {
     constructor() {
         this.imagesNumber = 4;
@@ -410,7 +411,7 @@ class Post1BFormatter {
         return `${state.mention_post_data ? `<i>Related from: \n\n${state.mention_post_data}</i>\n_____________________\n\n` : ''}#<b>${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b>  \n\n<b>Condition:</b> ${state.condition}\n\n<b>City:</b> ${state.city} \n\n<b>Last digit:</b> ${(0, string_1.formatNumberWithCommas)(state.last_digit)} ${state.id_first_option.toLocaleUpperCase()} \n\n<b>Description:</b> ${state.description}  \n\n<b>By:</b> <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
     }
     getPreviewData(state) {
-        return `<b>#${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b> }\n\n<b>Description:</b> ${(0, string_1.trimParagraph)(state.description)}  \n\n<b>By:</b> <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+        return `<b>#${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b> }\n\n<b>Description:</b> ${(0, string_1.trimParagraph)(state.description)}  \n\n<b>By:</b> <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}\n<i>${(0, date_1.formatPostDate)(state.created_at)}</i> `;
     }
     // getDetailData
     // getPreviewData

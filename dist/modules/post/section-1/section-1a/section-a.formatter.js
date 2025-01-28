@@ -16,6 +16,7 @@ const button_1 = require("../../../../ui/button");
 const config_1 = __importDefault(require("../../../../config/config"));
 const string_1 = require("../../../../utils/helpers/string");
 const post_formmater_1 = __importDefault(require("../../post.formmater"));
+const date_1 = require("../../../../utils/helpers/date");
 class Post1AFormatter {
     constructor() {
         this.imagesNumber = 4;
@@ -157,7 +158,7 @@ class Post1AFormatter {
     }
     getPreviewData(state) {
         var _a;
-        return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${(_a = state.arbr_value) === null || _a === void 0 ? void 0 : _a.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${(0, string_1.formatNumberWithCommas)(state.last_digit)} ${state.id_first_option}\n<b>Description:</b> ${(0, string_1.trimParagraph)(state.description)} \n<b>By:</b> <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+        return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${(_a = state.arbr_value) === null || _a === void 0 ? void 0 : _a.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${(0, string_1.formatNumberWithCommas)(state.last_digit)} ${state.id_first_option}\n<b>Description:</b> ${(0, string_1.trimParagraph)(state.description)} \n<b>By:</b> <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}\n<i>${(0, date_1.formatPostDate)(state.created_at)}</i> `;
     }
     noPostsErrorMessage() {
         return [this.messages.noPreviousPosts];

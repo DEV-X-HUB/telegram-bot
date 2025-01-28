@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const button_1 = require("../../../../ui/button");
 const string_1 = require("../../../../utils/helpers/string");
 const config_1 = __importDefault(require("../../../../config/config"));
+const date_1 = require("../../../../utils/helpers/date");
 class ManufactureFormatter {
     constructor() {
         this.imagesNumber = 4;
@@ -103,7 +104,7 @@ class ManufactureFormatter {
     \n\n<b>Status</b> : ${state.status}`;
     }
     getPreviewData(state) {
-        return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${(0, string_1.trimParagraph)(state.description)} \n\n<b>By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+        return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${(0, string_1.trimParagraph)(state.description)} \n\n<b>By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}\n<i>${(0, date_1.formatPostDate)(state.created_at)}</i> `;
     }
     preview(state, submitState = 'preview') {
         return [

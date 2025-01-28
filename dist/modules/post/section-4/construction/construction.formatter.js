@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const button_1 = require("../../../../ui/button");
 const string_1 = require("../../../../utils/helpers/string");
 const config_1 = __importDefault(require("../../../../config/config"));
+const date_1 = require("../../../../utils/helpers/date");
 class ConstructionFormatter {
     constructor() {
         this.imagesNumber = 4;
@@ -135,8 +136,8 @@ class ConstructionFormatter {
     }
     getPreviewData(state) {
         if ((0, string_1.areEqaul)(state.construction_size, 'small', true))
-            return `<b>#${state.category} </b>\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${(0, string_1.trimParagraph)(state.description)}\n\n<b>By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
-        return `#${state.category}\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${(0, string_1.trimParagraph)(state.description)} \n\n<b> By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
+            return `<b>#${state.category} </b>\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Location</b>: ${state.location} \n\n<b>Description</b>: ${(0, string_1.trimParagraph)(state.description)}\n\n<b>By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}\n<i>${(0, date_1.formatPostDate)(state.created_at)}</i> `;
+        return `#${state.category}\n________________\n\n<b>${state.construction_size}</b> \n\n<b>Land size</b>: ${state.land_size} \n\n<b>Land Status</b>: ${state.land_status}\n\nDescription: ${(0, string_1.trimParagraph)(state.description)} \n\n<b> By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}\n<i>${(0, date_1.formatPostDate)(state.created_at)}</i> `;
     }
     preview(state, submitState = 'preview') {
         return [

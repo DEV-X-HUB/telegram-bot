@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const button_1 = require("../../../../ui/button");
 const config_1 = __importDefault(require("../../../../config/config"));
 const string_1 = require("../../../../utils/helpers/string");
+const date_1 = require("../../../../utils/helpers/date");
 class ChickenFarmFormatter {
     constructor() {
         this.messages = {
@@ -72,7 +73,7 @@ class ChickenFarmFormatter {
         return `${state.mention_post_data ? `Related from: \n\n<i>${state.mention_post_data}</i>\n_____________________\n\n` : ''}<b>#${state.category}</b>\n_______\n\n<b>Title </b>: ${state.sector}\n\n<b>Estimated Capital </b>: ${state.estimated_capital}\n\n<b>Enterprise Name </b>: ${state.enterprise_name} \n\n<b>Description</b>: ${state.description} \n\n\<b>By </b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status</b> : ${state.status}`;
     }
     getPreviewData(state) {
-        return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n<b>Description</b>: ${(0, string_1.trimParagraph)(state.description)} \n\n\<b>By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
+        return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n<b>Description</b>: ${(0, string_1.trimParagraph)(state.description)} \n\n\<b>By</b>: <a href="${config_1.default.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}\n<i>${(0, date_1.formatPostDate)(state.created_at)}</i> `;
     }
     noPostsErrorMessage() {
         return [this.messages.noPreviousPosts, (0, button_1.InlineKeyboardButtons)(this.inlineBackButton)];

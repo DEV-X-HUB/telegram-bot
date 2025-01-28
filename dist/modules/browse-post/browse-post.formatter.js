@@ -78,9 +78,10 @@ class BrowsePostFormatter {
             'Section 1C',
             'Section 2',
             'Section 3',
-            'ChickenFarm',
-            'Manufacture',
-            'Construction',
+            'Section 4',
+            // 'ChickenFarm',
+            // 'Manufacture',
+            // 'Construction',
         ];
         return categories.map((cat) => [
             {
