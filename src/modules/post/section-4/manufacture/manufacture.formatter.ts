@@ -3,6 +3,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 import config from '../../../../config/config';
+import { formatPostDate } from '../../../../utils/helpers/date';
 
 class ManufactureFormatter {
   imagesNumber = 4;
@@ -109,7 +110,7 @@ class ManufactureFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${trimParagraph(state.description)} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')} </b>\n\n________________\n\n<b>Title </b>: ${state.sector}\n\n<b>Enterprise Name</b>: ${state.enterprise_name} \n\n<b>Description</b>: ${trimParagraph(state.description)} \n\n<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n\n<b>Status</b> : ${state.status}\n<i>${formatPostDate(state.created_at)}</i> `;
   }
 
   preview(state: any, submitState: string = 'preview') {

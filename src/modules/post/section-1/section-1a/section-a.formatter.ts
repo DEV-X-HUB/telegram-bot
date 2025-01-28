@@ -4,6 +4,7 @@ import config from '../../../../config/config';
 import { areEqaul, formatNumberWithCommas, trimParagraph } from '../../../../utils/helpers/string';
 import { NotifyOption } from '../../../../types/params';
 import PostFormatter from '../../post.formmater';
+import { formatPostDate } from '../../../../utils/helpers/date';
 
 class Post1AFormatter {
   imagesNumber = 4;
@@ -156,7 +157,7 @@ class Post1AFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option}\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.arbr_value?.toLocaleUpperCase()}</b>  \n<b>Last digit:</b> ${formatNumberWithCommas(state.last_digit as number)} ${state.id_first_option}\n<b>Description:</b> ${trimParagraph(state.description)} \n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}\n<i>${formatPostDate(state.created_at)}</i> `;
   }
 
   noPostsErrorMessage() {

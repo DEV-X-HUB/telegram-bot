@@ -3,6 +3,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import config from '../../../../config/config';
 import { NotifyOption } from '../../../../types/params';
 import { areEqaul, trimParagraph } from '../../../../utils/helpers/string';
+import { formatPostDate } from '../../../../utils/helpers/date';
 
 class ChickenFarmFormatter {
   estimatedCapitalOption: TableInlineKeyboardButtons;
@@ -75,7 +76,7 @@ class ChickenFarmFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n<b>Description</b>: ${trimParagraph(state.description)} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}`;
+    return `<b>#${state.category}</b>\n_______\n\n<b>Title</b>: ${state.sector}\n\n<b>Description</b>: ${trimParagraph(state.description)} \n\n\<b>By</b>: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n <b>Status </b> : ${state.status}\n<i>${formatPostDate(state.created_at)}</i> `;
   }
 
   noPostsErrorMessage() {

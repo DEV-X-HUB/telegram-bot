@@ -534,6 +534,7 @@ class BrowsePostController {
       return ctx.wizard.selectStep(1);
     }
   }
+
   async handleFilterSection4Type(ctx: any) {
     const callbackQuery = ctx.callbackQuery;
     if (!callbackQuery) {

@@ -3,6 +3,7 @@ import { TableInlineKeyboardButtons, TableMarkupKeyboardButtons } from '../../..
 import config from '../../../config/config';
 import { NotifyOption } from '../../../types/params';
 import { areEqaul, trimParagraph } from '../../../utils/helpers/string';
+import { formatPostDate } from '../../../utils/helpers/date';
 
 class Section3Formatter {
   imagesNumber = 1;
@@ -71,7 +72,7 @@ class Section3Formatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Description:</b> ${trimParagraph(state.description)} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n\n________________\n\n<b>${state.birth_or_marital}</b>\n\n<b>Description:</b> ${trimParagraph(state.description)} \n\nBy: <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}\n<i>${formatPostDate(state.created_at)}</i> `;
   }
 
   preview(state: any, submitState: string = 'preview') {

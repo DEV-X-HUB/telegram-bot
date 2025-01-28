@@ -4,6 +4,7 @@ import { areEqaul, formatNumberWithCommas, trimParagraph } from '../../../../uti
 import config from '../../../../config/config';
 import { NotifyOption } from '@prisma/client';
 import PostFormatter from '../../post.formmater';
+import { formatPostDate } from '../../../../utils/helpers/date';
 
 class Post1BFormatter {
   imagesNumber = 4;
@@ -418,7 +419,7 @@ class Post1BFormatter {
   }
 
   getPreviewData(state: any) {
-    return `<b>#${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b> }\n\n<b>Description:</b> ${trimParagraph(state.description)}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
+    return `<b>#${state.sub_category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.title}</b> }\n\n<b>Description:</b> ${trimParagraph(state.description)}  \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}\n<i>${formatPostDate(state.created_at)}</i> `;
   }
 
   // getDetailData
