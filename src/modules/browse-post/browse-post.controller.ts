@@ -349,7 +349,7 @@ class BrowsePostController {
       //append the value of main
       const section1BMainFilter = `main_${ctx.callbackQuery.data.split('_')[2]}`;
 
-      if (section1BMainFilter === 'all') {
+      if (section1BMainFilter === 'all' || section1BMainFilter === 'main_10') {
         ctx.wizard.state.filterBy = {
           ...ctx.wizard.state.filterBy,
           fields: {
