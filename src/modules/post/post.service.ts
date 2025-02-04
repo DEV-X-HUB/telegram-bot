@@ -681,6 +681,13 @@ class PostService {
 
               last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
               id_first_option: lastDigit == 'all' ? undefined : { equals: lastDigit },
+              city:
+                cityName !== 'all'
+                  ? {
+                      mode: 'insensitive',
+                      equals: cityName,
+                    }
+                  : undefined,
             },
           },
         ];
@@ -714,6 +721,13 @@ class PostService {
               arbr_value: !arBrValue || arBrValue == 'all' ? undefined : { equals: arBrValue },
               last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
               id_first_option: lastDigit == 'all' ? undefined : { equals: lastDigit },
+              city:
+                cityName !== 'all'
+                  ? {
+                      mode: 'insensitive',
+                      equals: cityName,
+                    }
+                  : undefined,
             },
           },
         ];
