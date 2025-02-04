@@ -755,37 +755,68 @@ class PostService {
         ];
         break;
 
-      case 'all':
-        {
-          console.log(lastDigit, 'last digi t');
-          if (lastDigitStartsFrom && lastDigitUpTo && lastDigit !== 'all') {
-            columnSpecificWhereCondition.AND = [
+      case 'all': {
+        const conditions = [];
+
+        if (lastDigitStartsFrom && lastDigitUpTo && lastDigit !== 'all') {
+          conditions.push({
+            OR: [
               {
-                OR: [
-                  {
-                    Service1A: {
-                      id_first_option: lastDigit,
-                      last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                    },
-                  },
-                  {
-                    Service1B: {
-                      id_first_option: lastDigit,
-                      last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                    },
-                  },
-                  {
-                    Service1C: {
-                      id_first_option: lastDigit,
-                      last_digit: lastDigit == 'all' ? undefined : { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
-                    },
-                  },
-                ],
+                Service1A: {
+                  id_first_option: lastDigit,
+                  last_digit: { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                },
               },
-            ];
-          } else columnSpecificWhereCondition = { AND: [] };
+              {
+                Service1B: {
+                  id_first_option: lastDigit,
+                  last_digit: { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                },
+              },
+              {
+                Service1C: {
+                  id_first_option: lastDigit,
+                  last_digit: { gte: lastDigitStartsFrom, lte: lastDigitUpTo },
+                },
+              },
+            ],
+          });
         }
+
+        if (cityName && cityName !== 'all') {
+          conditions.push({
+            OR: [
+              {
+                Service1A: {
+                  city: {
+                    mode: 'insensitive',
+                    equals: cityName,
+                  },
+                },
+              },
+              {
+                Service1B: {
+                  city: {
+                    mode: 'insensitive',
+                    equals: cityName,
+                  },
+                },
+              },
+              {
+                Service1C: {
+                  city: {
+                    mode: 'insensitive',
+                    equals: cityName,
+                  },
+                },
+              },
+            ],
+          });
+        }
+
+        columnSpecificWhereCondition.AND = conditions as any;
         break;
+      }
       default:
         if (category)
           columnSpecificWhereCondition.AND = [
