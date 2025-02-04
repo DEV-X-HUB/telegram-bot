@@ -865,6 +865,7 @@ class PostService {
         },
         skip,
         take: 1,
+        orderBy: { created_at: 'desc' },
       });
 
       return {

@@ -575,8 +575,8 @@ class BrowsePostFormatter {
         const timeFrameDisplay = {
             all: 'All Time',
             today: 'Today',
-            last7: 'Last 7 days',
-            last30: 'Last 30 days',
+            week: 'Last 7 days',
+            month: 'Last 30 days',
         };
         // let timeFrameToDisplay;
         // switch (timeframe) {
