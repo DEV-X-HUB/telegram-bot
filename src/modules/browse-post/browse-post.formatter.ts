@@ -965,7 +965,6 @@ class BrowsePostFormatter {
   }
 
   getPostsPreview(post: any) {
-    console.log(`category : ${post.category}`);
     const sectionName = getSectionName(post.category) as PostCategory;
     switch (post.category) {
       case 'Section 1A':
@@ -1011,7 +1010,7 @@ class BrowsePostFormatter {
           description: post.description,
           status: post.status,
           category: post.category,
-          created_at: post.created,
+          created_at: post.created_at,
           user: post.user,
           ...post[sectionName],
         });

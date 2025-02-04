@@ -877,7 +877,6 @@ class BrowsePostFormatter {
         return buttons;
     }
     getPostsPreview(post) {
-        console.log(`category : ${post.category}`);
         const sectionName = (0, string_1.getSectionName)(post.category);
         switch (post.category) {
             case 'Section 1A':
@@ -890,7 +889,7 @@ class BrowsePostFormatter {
                 return post2Formatter.getPreviewData(Object.assign({ description: post.description, status: post.status, category: post.category, created_at: post.created_at, user: post.user }, post[sectionName]));
             }
             case 'Section 3': {
-                return section3Formatter.getPreviewData(Object.assign({ description: post.description, status: post.status, category: post.category, created_at: post.created, user: post.user }, post[sectionName]));
+                return section3Formatter.getPreviewData(Object.assign({ description: post.description, status: post.status, category: post.category, created_at: post.created_at, user: post.user }, post[sectionName]));
             }
             case 'ChickenFarm':
                 return chickenFarmFormatter.getPreviewData(Object.assign({ description: post.description, status: post.status, category: post.category, created_at: post.created_at, user: post.user }, post[sectionName]));
