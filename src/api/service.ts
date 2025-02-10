@@ -1,7 +1,9 @@
-import { PostStatus } from '@prisma/client';
+import { PostStatus, Prisma } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import prisma from '../loaders/db-connecion';
-import { BareResponse, ResponseWithData } from '../types/api';
+import { BareResponse, PostQuery, ResponseWithData, UserPostQuery, UserQuery } from '../types/api';
 import {
   CreateAdminDto,
   DeleteAdminDto,
@@ -12,15 +14,20 @@ import {
   UpdateUserStatusDto,
   VerifyResetOtpDto,
 } from '../types/dto/auth.dto';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import generateOTP from '../utils/generatePassword';
-import { PostCategory } from '../types/params';
+import { getPaginationInfo } from '../utils/helpers/paginator';
 
 class ApiService {
-  static async getPosts(round: number = 1): Promise<ResponseWithData> {
+  static async getPosts(query: PostQuery): Promise<ResponseWithData> {
+    const { page, itemsPerPage, status, category } = query;
     try {
+      let where: Prisma.PostWhereInput = {};
+      if (status) where.status = status;
+      if (category) where.category = category;
+      let paginator = getPaginationInfo({ page, itemsPerPage });
+      console.log(where, paginator);
       const posts = await prisma.post.findMany({
+        where,
         include: {
           user: {
             select: { id: true, display_name: true },
@@ -34,6 +41,7 @@ class ApiService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
+        ...paginator,
       });
 
       return {
@@ -46,12 +54,17 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
-  static async getPostsByStatus(status: PostStatus): Promise<ResponseWithData> {
+
+  static async getUserPosts(query: UserPostQuery): Promise<ResponseWithData> {
+    const { page, itemsPerPage, userId, status, category } = query;
+    let where: Prisma.PostWhereInput = { user_id: userId };
+    if (status) where.status = status;
+    if (category) where.category = category;
+
     try {
+      let paginator = getPaginationInfo({ page, itemsPerPage });
       const posts = await prisma.post.findMany({
-        where: {
-          status: status as PostStatus,
-        },
+        where,
         include: {
           user: {
             select: { id: true, display_name: true },
@@ -65,81 +78,7 @@ class ApiService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
-      });
-
-      return {
-        status: 'success',
-        message: 'Posts fetched successfully',
-        data: posts,
-      };
-    } catch (error: any) {
-      console.error('Error fetching posts:', error);
-      return {
-        status: 'fail',
-        message: error?.message,
-        data: null,
-      };
-    }
-  }
-  static async getPostsByCategory(category: PostCategory): Promise<ResponseWithData> {
-    try {
-      const posts = await prisma.post.findMany({
-        where: {
-          category,
-        },
-        include: {
-          user: {
-            select: { id: true, display_name: true },
-          },
-          Service1A: true,
-          Service1B: true,
-          Service1C: true,
-          Service2: true,
-          Service3: true,
-          Service4ChickenFarm: true,
-          Service4Manufacture: true,
-          Service4Construction: true,
-        },
-      });
-
-      return {
-        status: 'success',
-        message: 'Posts fetched successfully',
-        data: posts,
-      };
-    } catch (error: any) {
-      console.error('Error fetching posts:', error);
-      return {
-        status: 'fail',
-        message: error?.message,
-        data: null,
-      };
-    }
-  }
-
-  static async getUserPosts(userId: string, round: number): Promise<ResponseWithData> {
-    try {
-      const posts = await prisma.post.findMany({
-        where: {
-          status: {
-            not: {
-              // equals: 'pending',
-            },
-          },
-        },
-        include: {
-          user: {
-            select: { id: true, display_name: true },
-          },
-          Service1A: true,
-          Service1B: true,
-          Service1C: true,
-          Service2: true,
-          Service3: true,
-          Service4ChickenFarm: true,
-          Service4Manufacture: true,
-          Service4Construction: true,
-        },
+        ...paginator,
       });
 
       return {
@@ -152,14 +91,16 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
-  static async getUsers(round: number): Promise<ResponseWithData> {
-    const pageSize = 10;
+
+  static async getUsers({ status, ...query }: UserQuery): Promise<ResponseWithData> {
+    let paginator = getPaginationInfo(query);
+    let where: Prisma.UserWhereInput = {};
+    if (status) where.status = status;
 
     try {
       const posts = await prisma.user.findMany({
-        where: {},
-        skip: (round - 1) * pageSize,
-        take: pageSize,
+        where,
+        ...paginator,
       });
 
       return {
@@ -172,6 +113,7 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
+
   static async getUser(id: string): Promise<ResponseWithData> {
     try {
       const user = await prisma.user.findFirst({

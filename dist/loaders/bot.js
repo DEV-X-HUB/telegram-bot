@@ -58,7 +58,7 @@ exports.default = () => {
     console.log('latest');
     bot.use((0, bot_activity_interceptor_1.default)());
     // bot.use(devlopmentMode());
-    // bot.use(checkUserInChannelandPromtJoin());
+    bot.use((0, auth_1.checkUserInChannelandPromtJoin)());
     bot.on('inline_query', post_controller_1.default.handleSearch);
     stage.use((0, auth_1.checkRegistration)());
     stage.use((0, check_callback_1.checkCallBacks)());

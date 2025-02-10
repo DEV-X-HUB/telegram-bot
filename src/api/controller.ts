@@ -7,6 +7,7 @@ import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 import { PostStatus } from '@prisma/client';
 import { PostCategory } from '../types/params';
+import { PostQuery, UserPostQuery, UserQuery } from '../types/api';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
@@ -22,7 +23,13 @@ import { PostCategory } from '../types/params';
 
 // express function to handle the request
 export const getPosts = async (req: Request, res: Response) => {
-  const { status, data, message } = await ApiService.getPosts();
+  const { status: postStatus, category, page, itemsPerPage } = req.query;
+  const { status, data, message } = await ApiService.getPosts({
+    status: postStatus,
+    category,
+    page,
+    itemsPerPage,
+  } as PostQuery);
   if (status == 'fail') {
     res.status(500).json({
       status,
@@ -32,56 +39,6 @@ export const getPosts = async (req: Request, res: Response) => {
   return res.status(200).json({
     status,
     data: data,
-  });
-};
-
-export const getPostsByStatus = async (req: Request, res: Response) => {
-  const { status } = req.params;
-
-  if (!status) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Status parameter is required',
-    });
-  }
-
-  const { status: fetchStatus, data, message } = await ApiService.getPostsByStatus(status as PostStatus);
-
-  if (fetchStatus === 'fail') {
-    return res.status(500).json({
-      status: fetchStatus,
-      message,
-    });
-  }
-
-  return res.status(200).json({
-    status: fetchStatus,
-    data,
-  });
-};
-
-export const getPostsByCategory = async (req: Request, res: Response) => {
-  const { category } = req.params;
-
-  if (!category) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Status parameter is required',
-    });
-  }
-
-  const { status: fetchStatus, data, message } = await ApiService.getPostsByCategory(category as PostCategory);
-
-  if (fetchStatus === 'fail') {
-    return res.status(500).json({
-      status: fetchStatus,
-      message,
-    });
-  }
-
-  return res.status(200).json({
-    status: fetchStatus,
-    data,
   });
 };
 
@@ -110,9 +67,13 @@ export const getPostDetail = async (req: Request, res: Response) => {
 };
 
 export const getUsers = async (req: Request, res: Response) => {
-  const round = req.query.round;
+  const { status: userStatus, page, itemsPerPage } = req.query;
   try {
-    const { status, data, message } = await ApiService.getUsers(parseInt(round?.toString() || '1'));
+    const { status, data, message } = await ApiService.getUsers({
+      status: userStatus,
+      page,
+      itemsPerPage,
+    } as UserQuery);
     if (status == 'fail') {
       return res.status(500).json({
         status,
@@ -159,10 +120,17 @@ export const getUserDetail = async (req: Request, res: Response) => {
 };
 
 export const getUserPosts = async (req: Request, res: Response) => {
-  const user_id = req.params.id;
-  const round = req.params.round;
+  const userId = req.params.id;
+  const { status: postStatus, category, page, itemsPerPage } = req.query;
+
   try {
-    const { status, data, message } = await ApiService.getUserPosts(user_id, parseInt(round));
+    const { status, data, message } = await ApiService.getUserPosts({
+      status: postStatus,
+      category,
+      page,
+      itemsPerPage,
+      userId,
+    } as UserPostQuery);
     if (status == 'fail') {
       return res.status(500).json({
         status,

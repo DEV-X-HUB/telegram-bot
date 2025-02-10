@@ -10,8 +10,6 @@ const router = express_1.default.Router();
 // router.use(authGuard);
 // post routes
 router.get('/posts/', controller_1.getPosts);
-router.get('/posts/status/:status', controller_1.getPostsByStatus);
-router.get('/posts/category/:category', controller_1.getPostsByCategory);
 router.get('/posts/:id', controller_1.getPostDetail);
 router.get('/posts/user/:userId', controller_1.getUserPosts);
 router.put('/posts', controller_1.updatePostStatus);

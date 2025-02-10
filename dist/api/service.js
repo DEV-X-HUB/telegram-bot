@@ -8,21 +8,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = __importDefault(require("../config/config"));
-const db_connecion_1 = __importDefault(require("../loaders/db-connecion"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = __importDefault(require("../config/config"));
+const db_connecion_1 = __importDefault(require("../loaders/db-connecion"));
 const generatePassword_1 = __importDefault(require("../utils/generatePassword"));
+const paginator_1 = require("../utils/helpers/paginator");
 class ApiService {
-    static getPosts() {
-        return __awaiter(this, arguments, void 0, function* (round = 1) {
+    static getPosts(query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { page, itemsPerPage, status, category } = query;
             try {
-                const posts = yield db_connecion_1.default.post.findMany({
-                    include: {
+                let where = {};
+                if (status)
+                    where.status = status;
+                if (category)
+                    where.category = category;
+                let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
+                console.log(where, paginator);
+                const posts = yield db_connecion_1.default.post.findMany(Object.assign({ where, include: {
                         user: {
                             select: { id: true, display_name: true },
                         },
@@ -34,8 +53,7 @@ class ApiService {
                         Service4ChickenFarm: true,
                         Service4Manufacture: true,
                         Service4Construction: true,
-                    },
-                });
+                    } }, paginator));
                 return {
                     status: 'success',
                     message: 'post fetched successfully',
@@ -48,14 +66,17 @@ class ApiService {
             }
         });
     }
-    static getPostsByStatus(status) {
+    static getUserPosts(query) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { page, itemsPerPage, userId, status, category } = query;
+            let where = { user_id: userId };
+            if (status)
+                where.status = status;
+            if (category)
+                where.category = category;
             try {
-                const posts = yield db_connecion_1.default.post.findMany({
-                    where: {
-                        status: status,
-                    },
-                    include: {
+                let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
+                const posts = yield db_connecion_1.default.post.findMany(Object.assign({ where, include: {
                         user: {
                             select: { id: true, display_name: true },
                         },
@@ -67,86 +88,7 @@ class ApiService {
                         Service4ChickenFarm: true,
                         Service4Manufacture: true,
                         Service4Construction: true,
-                    },
-                });
-                return {
-                    status: 'success',
-                    message: 'Posts fetched successfully',
-                    data: posts,
-                };
-            }
-            catch (error) {
-                console.error('Error fetching posts:', error);
-                return {
-                    status: 'fail',
-                    message: error === null || error === void 0 ? void 0 : error.message,
-                    data: null,
-                };
-            }
-        });
-    }
-    static getPostsByCategory(category) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const posts = yield db_connecion_1.default.post.findMany({
-                    where: {
-                        category,
-                    },
-                    include: {
-                        user: {
-                            select: { id: true, display_name: true },
-                        },
-                        Service1A: true,
-                        Service1B: true,
-                        Service1C: true,
-                        Service2: true,
-                        Service3: true,
-                        Service4ChickenFarm: true,
-                        Service4Manufacture: true,
-                        Service4Construction: true,
-                    },
-                });
-                return {
-                    status: 'success',
-                    message: 'Posts fetched successfully',
-                    data: posts,
-                };
-            }
-            catch (error) {
-                console.error('Error fetching posts:', error);
-                return {
-                    status: 'fail',
-                    message: error === null || error === void 0 ? void 0 : error.message,
-                    data: null,
-                };
-            }
-        });
-    }
-    static getUserPosts(userId, round) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const posts = yield db_connecion_1.default.post.findMany({
-                    where: {
-                        status: {
-                            not: {
-                            // equals: 'pending',
-                            },
-                        },
-                    },
-                    include: {
-                        user: {
-                            select: { id: true, display_name: true },
-                        },
-                        Service1A: true,
-                        Service1B: true,
-                        Service1C: true,
-                        Service2: true,
-                        Service3: true,
-                        Service4ChickenFarm: true,
-                        Service4Manufacture: true,
-                        Service4Construction: true,
-                    },
-                });
+                    } }, paginator));
                 return {
                     status: 'success',
                     message: 'post fetched successfully',
@@ -159,15 +101,15 @@ class ApiService {
             }
         });
     }
-    static getUsers(round) {
+    static getUsers(_a) {
         return __awaiter(this, void 0, void 0, function* () {
-            const pageSize = 10;
+            var { status } = _a, query = __rest(_a, ["status"]);
+            let paginator = (0, paginator_1.getPaginationInfo)(query);
+            let where = {};
+            if (status)
+                where.status = status;
             try {
-                const posts = yield db_connecion_1.default.user.findMany({
-                    where: {},
-                    skip: (round - 1) * pageSize,
-                    take: pageSize,
-                });
+                const posts = yield db_connecion_1.default.user.findMany(Object.assign({ where }, paginator));
                 return {
                     status: 'success',
                     message: 'users fetched successfully',

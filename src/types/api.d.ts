@@ -16,3 +16,19 @@ export interface JwtAuthPayload {
 export interface RequestWithUser extends Request {
   user?: any;
 }
+
+export interface PageQuery {
+  page?: number;
+  itemsPerPage?: number;
+}
+
+export interface PostQuery extends PageQuery {
+  status?: PostStatus;
+  category?: string;
+}
+export interface UserPostQuery extends PostQuery {
+  userId: string;
+}
+export interface UserQuery extends PageQuery {
+  status?: UserStatus;
+}

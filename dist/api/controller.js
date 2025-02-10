@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getUsers = exports.getPostDetail = exports.getPostsByCategory = exports.getPostsByStatus = exports.getPosts = void 0;
+exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getUsers = exports.getPostDetail = exports.getPosts = void 0;
 const config_1 = __importDefault(require("../config/config"));
 const service_1 = __importDefault(require("./service"));
 const bot_1 = __importDefault(require("../loaders/bot"));
@@ -27,7 +27,13 @@ const string_1 = require("../utils/helpers/string");
 }))();
 // express function to handle the request
 const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status, data, message } = yield service_1.default.getPosts();
+    const { status: postStatus, category, page, itemsPerPage } = req.query;
+    const { status, data, message } = yield service_1.default.getPosts({
+        status: postStatus,
+        category,
+        page,
+        itemsPerPage,
+    });
     if (status == 'fail') {
         res.status(500).json({
             status,
@@ -40,48 +46,6 @@ const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.getPosts = getPosts;
-const getPostsByStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status } = req.params;
-    if (!status) {
-        return res.status(400).json({
-            status: 'fail',
-            message: 'Status parameter is required',
-        });
-    }
-    const { status: fetchStatus, data, message } = yield service_1.default.getPostsByStatus(status);
-    if (fetchStatus === 'fail') {
-        return res.status(500).json({
-            status: fetchStatus,
-            message,
-        });
-    }
-    return res.status(200).json({
-        status: fetchStatus,
-        data,
-    });
-});
-exports.getPostsByStatus = getPostsByStatus;
-const getPostsByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { category } = req.params;
-    if (!category) {
-        return res.status(400).json({
-            status: 'fail',
-            message: 'Status parameter is required',
-        });
-    }
-    const { status: fetchStatus, data, message } = yield service_1.default.getPostsByCategory(category);
-    if (fetchStatus === 'fail') {
-        return res.status(500).json({
-            status: fetchStatus,
-            message,
-        });
-    }
-    return res.status(200).json({
-        status: fetchStatus,
-        data,
-    });
-});
-exports.getPostsByCategory = getPostsByCategory;
 const getPostDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const post_id = req.params.id;
     try {
@@ -108,9 +72,13 @@ const getPostDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.getPostDetail = getPostDetail;
 const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const round = req.query.round;
+    const { status: userStatus, page, itemsPerPage } = req.query;
     try {
-        const { status, data, message } = yield service_1.default.getUsers(parseInt((round === null || round === void 0 ? void 0 : round.toString()) || '1'));
+        const { status, data, message } = yield service_1.default.getUsers({
+            status: userStatus,
+            page,
+            itemsPerPage,
+        });
         if (status == 'fail') {
             return res.status(500).json({
                 status,
@@ -160,10 +128,16 @@ const getUserDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.getUserDetail = getUserDetail;
 const getUserPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user_id = req.params.id;
-    const round = req.params.round;
+    const userId = req.params.id;
+    const { status: postStatus, category, page, itemsPerPage } = req.query;
     try {
-        const { status, data, message } = yield service_1.default.getUserPosts(user_id, parseInt(round));
+        const { status, data, message } = yield service_1.default.getUserPosts({
+            status: postStatus,
+            category,
+            page,
+            itemsPerPage,
+            userId,
+        });
         if (status == 'fail') {
             return res.status(500).json({
                 status,

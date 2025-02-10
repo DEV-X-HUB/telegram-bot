@@ -7,8 +7,6 @@ import {
   forgotPassword,
   getPostDetail,
   getPosts,
-  getPostsByCategory,
-  getPostsByStatus,
   getUserDetail,
   getUserPosts,
   getUsers,
@@ -26,8 +24,6 @@ const router = express.Router();
 
 // post routes
 router.get('/posts/', getPosts);
-router.get('/posts/status/:status', getPostsByStatus);
-router.get('/posts/category/:category', getPostsByCategory);
 router.get('/posts/:id', getPostDetail);
 router.get('/posts/user/:userId', getUserPosts);
 router.put('/posts', updatePostStatus);
