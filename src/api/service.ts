@@ -29,9 +29,7 @@ class ApiService {
       const posts = await prisma.post.findMany({
         where,
         include: {
-          user: {
-            select: { id: true, display_name: true },
-          },
+          user: true,
           Service1A: true,
           Service1B: true,
           Service1C: true,
@@ -66,9 +64,7 @@ class ApiService {
       const posts = await prisma.post.findMany({
         where,
         include: {
-          user: {
-            select: { id: true, display_name: true },
-          },
+          user: true,
           Service1A: true,
           Service1B: true,
           Service1C: true,
@@ -136,12 +132,7 @@ class ApiService {
       const post = await prisma.post.findFirst({
         where: { id: postId },
         include: {
-          user: {
-            select: {
-              id: true,
-              display_name: true,
-            },
-          },
+          user: true,
           Service1A: true,
           Service1B: true,
           Service1C: true,

@@ -42,9 +42,7 @@ class ApiService {
                 let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
                 console.log(where, paginator);
                 const posts = yield db_connecion_1.default.post.findMany(Object.assign({ where, include: {
-                        user: {
-                            select: { id: true, display_name: true },
-                        },
+                        user: true,
                         Service1A: true,
                         Service1B: true,
                         Service1C: true,
@@ -77,9 +75,7 @@ class ApiService {
             try {
                 let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
                 const posts = yield db_connecion_1.default.post.findMany(Object.assign({ where, include: {
-                        user: {
-                            select: { id: true, display_name: true },
-                        },
+                        user: true,
                         Service1A: true,
                         Service1B: true,
                         Service1C: true,
@@ -146,12 +142,7 @@ class ApiService {
                 const post = yield db_connecion_1.default.post.findFirst({
                     where: { id: postId },
                     include: {
-                        user: {
-                            select: {
-                                id: true,
-                                display_name: true,
-                            },
-                        },
+                        user: true,
                         Service1A: true,
                         Service1B: true,
                         Service1C: true,
