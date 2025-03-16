@@ -31,8 +31,8 @@ const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { status, data, message } = yield service_1.default.getPosts({
         status: postStatus,
         category,
-        page,
-        itemsPerPage,
+        page: page || 1,
+        itemsPerPage: itemsPerPage || 10,
     });
     if (status == 'fail') {
         res.status(500).json({
@@ -76,8 +76,8 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { status, data, message } = yield service_1.default.getUsers({
             status: userStatus,
-            page,
-            itemsPerPage,
+            page: page || 1,
+            itemsPerPage: itemsPerPage || 10,
         });
         if (status == 'fail') {
             return res.status(500).json({
@@ -106,8 +106,8 @@ const getAdmins = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { status, data, message } = yield service_1.default.getAdmins({
             status: userStatus,
-            page,
-            itemsPerPage,
+            page: page || 1,
+            itemsPerPage: itemsPerPage || 10,
         });
         if (status == 'fail') {
             return res.status(500).json({
@@ -164,8 +164,8 @@ const getUserPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const { status, data, message } = yield service_1.default.getUserPosts({
             status: postStatus,
             category,
-            page,
-            itemsPerPage,
+            page: page || 1,
+            itemsPerPage: itemsPerPage || 10,
             userId,
         });
         if (status == 'fail') {

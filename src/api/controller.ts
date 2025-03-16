@@ -27,8 +27,8 @@ export const getPosts = async (req: Request, res: Response) => {
   const { status, data, message } = await ApiService.getPosts({
     status: postStatus,
     category,
-    page,
-    itemsPerPage,
+    page: page || 1,
+    itemsPerPage: itemsPerPage || 10,
   } as PostQuery);
   if (status == 'fail') {
     res.status(500).json({
@@ -71,8 +71,8 @@ export const getUsers = async (req: Request, res: Response) => {
   try {
     const { status, data, message } = await ApiService.getUsers({
       status: userStatus,
-      page,
-      itemsPerPage,
+      page: page || 1,
+      itemsPerPage: itemsPerPage || 10,
     } as UserQuery);
     if (status == 'fail') {
       return res.status(500).json({
@@ -100,8 +100,8 @@ export const getAdmins = async (req: Request, res: Response) => {
   try {
     const { status, data, message } = await ApiService.getAdmins({
       status: userStatus,
-      page,
-      itemsPerPage,
+      page: page || 1,
+      itemsPerPage: itemsPerPage || 10,
     } as UserQuery);
     if (status == 'fail') {
       return res.status(500).json({
@@ -156,8 +156,8 @@ export const getUserPosts = async (req: Request, res: Response) => {
     const { status, data, message } = await ApiService.getUserPosts({
       status: postStatus,
       category,
-      page,
-      itemsPerPage,
+      page: page || 1,
+      itemsPerPage: itemsPerPage || 10,
       userId,
     } as UserPostQuery);
     if (status == 'fail') {
