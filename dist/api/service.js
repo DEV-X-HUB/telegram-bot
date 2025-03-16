@@ -40,7 +40,7 @@ class ApiService {
                 if (category)
                     where.category = category;
                 let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
-                console.log(where, paginator);
+                const total = yield db_connecion_1.default.post.count({ where });
                 const posts = yield db_connecion_1.default.post.findMany(Object.assign({ where, include: {
                         user: true,
                         Service1A: true,
@@ -55,7 +55,14 @@ class ApiService {
                 return {
                     status: 'success',
                     message: 'post fetched successfully',
-                    data: posts,
+                    data: {
+                        posts,
+                        payload: {
+                            itemsPerPage,
+                            page,
+                            total,
+                        },
+                    },
                 };
             }
             catch (error) {
@@ -74,6 +81,7 @@ class ApiService {
                 where.category = category;
             try {
                 let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
+                const total = yield db_connecion_1.default.post.count({ where });
                 const posts = yield db_connecion_1.default.post.findMany(Object.assign({ where, include: {
                         user: true,
                         Service1A: true,
@@ -88,7 +96,14 @@ class ApiService {
                 return {
                     status: 'success',
                     message: 'post fetched successfully',
-                    data: posts,
+                    data: {
+                        posts,
+                        payload: {
+                            itemsPerPage,
+                            page,
+                            total,
+                        },
+                    },
                 };
             }
             catch (error) {
@@ -101,19 +116,58 @@ class ApiService {
         return __awaiter(this, void 0, void 0, function* () {
             var { status } = _a, query = __rest(_a, ["status"]);
             let paginator = (0, paginator_1.getPaginationInfo)(query);
+            const { page, itemsPerPage } = query;
             let where = {};
             if (status)
                 where.status = status;
+            const total = yield db_connecion_1.default.user.count({ where });
             try {
-                const posts = yield db_connecion_1.default.user.findMany(Object.assign({ where }, paginator));
+                const users = yield db_connecion_1.default.user.findMany(Object.assign({ where }, paginator));
                 return {
                     status: 'success',
                     message: 'users fetched successfully',
-                    data: posts,
+                    data: {
+                        users,
+                        payload: {
+                            itemsPerPage,
+                            page,
+                            total,
+                        },
+                    },
                 };
             }
             catch (error) {
                 console.error('Error fetching users:', error);
+                return { status: 'fail', message: error === null || error === void 0 ? void 0 : error.message, data: null };
+            }
+        });
+    }
+    static getAdmins(_a) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var { status } = _a, query = __rest(_a, ["status"]);
+            let paginator = (0, paginator_1.getPaginationInfo)(query);
+            const { page, itemsPerPage } = query;
+            let where = {};
+            if (status)
+                where.status = status;
+            const total = yield db_connecion_1.default.admin.count({ where });
+            try {
+                const admins = yield db_connecion_1.default.admin.findMany(Object.assign({ where }, paginator));
+                return {
+                    status: 'success',
+                    message: 'admins fetched successfully',
+                    data: {
+                        admins,
+                        payload: {
+                            itemsPerPage,
+                            page,
+                            total,
+                        },
+                    },
+                };
+            }
+            catch (error) {
+                console.error('Error fetching admins:', error);
                 return { status: 'fail', message: error === null || error === void 0 ? void 0 : error.message, data: null };
             }
         });

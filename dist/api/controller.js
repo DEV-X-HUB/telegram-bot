@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getUsers = exports.getPostDetail = exports.getPosts = void 0;
+exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getAdmins = exports.getUsers = exports.getPostDetail = exports.getPosts = void 0;
 const config_1 = __importDefault(require("../config/config"));
 const service_1 = __importDefault(require("./service"));
 const bot_1 = __importDefault(require("../loaders/bot"));
@@ -101,6 +101,36 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getUsers = getUsers;
+const getAdmins = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { status: userStatus, page, itemsPerPage } = req.query;
+    try {
+        const { status, data, message } = yield service_1.default.getAdmins({
+            status: userStatus,
+            page,
+            itemsPerPage,
+        });
+        if (status == 'fail') {
+            return res.status(500).json({
+                status,
+                message,
+                data: null,
+            });
+        }
+        return res.status(200).json({
+            status,
+            message,
+            data: data,
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            status: 'fail',
+            message: error.message,
+            data: null,
+        });
+    }
+});
+exports.getAdmins = getAdmins;
 const getUserDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     try {
