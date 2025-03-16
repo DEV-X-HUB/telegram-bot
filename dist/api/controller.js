@@ -12,20 +12,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getAdmins = exports.getUsers = exports.getPostDetail = exports.getPosts = void 0;
+exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getAdmins = exports.getUsers = exports.getPostDetail = exports.getPosts = exports.getPhotoUrls = void 0;
+const telegraf_1 = require("telegraf");
 const config_1 = __importDefault(require("../config/config"));
-const service_1 = __importDefault(require("./service"));
 const bot_1 = __importDefault(require("../loaders/bot"));
 const post_controller_1 = __importDefault(require("../modules/post/post.controller"));
 const sendEmail_1 = __importDefault(require("../utils/helpers/sendEmail"));
 const string_1 = require("../utils/helpers/string");
+const service_1 = __importDefault(require("./service"));
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const { status, message } = yield service_1.default.crateDefaultAdmin();
     if (status == 'success') {
         yield (0, sendEmail_1.default)(config_1.default.super_admin_email, 'Admin Account Created', (0, string_1.formatAccountCreationEmailMsg)(config_1.default.super_admin_password));
     }
 }))();
-// express function to handle the request
+const getPhotoUrls = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const bot = new telegraf_1.Telegraf(config_1.default.bot_token);
+        const fileIds = Object.entries(req.query);
+        const fileLinks = [];
+        for (const [key, fileId] of fileIds) {
+            try {
+                const fileLink = yield ((_a = bot.telegram) === null || _a === void 0 ? void 0 : _a.getFileLink(fileId));
+                fileLinks.push({ fileId, url: fileLink.href, success: true, key });
+            }
+            catch (error) {
+                console.log(error);
+                fileLinks.push({ fileId, success: false, message: 'Error fetching image' });
+            }
+        }
+        res.json({ success: true, files: fileLinks });
+    }
+    catch (error) {
+        console.error('Error processing request:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+});
+exports.getPhotoUrls = getPhotoUrls;
 const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { status: postStatus, category, page, itemsPerPage } = req.query;
     const { status, data, message } = yield service_1.default.getPosts({

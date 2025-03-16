@@ -21,6 +21,7 @@ router.put('/users/status', controller_1.updateUserStatus);
 // admin auth routes
 router.post('/auth/login', controller_1.loginAdmin);
 router.get('/admins', controller_1.getAdmins);
+router.get('/photos', controller_1.getPhotoUrls);
 router.post('/auth/create-admin', (0, admin_auth_1.roleGuard)(['SUPER_ADMIN']), controller_1.createAdmin);
 router.put('/auth/update-admin-status', (0, admin_auth_1.roleGuard)(['SUPER_ADMIN']), controller_1.updateAdminStatus);
 router.delete('/auth/delete-admin', (0, admin_auth_1.roleGuard)(['SUPER_ADMIN']), controller_1.deleteAdmin);

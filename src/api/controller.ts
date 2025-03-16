@@ -1,13 +1,12 @@
 import { Request, Response } from 'express';
+import { Telegraf } from 'telegraf';
 import config from '../config/config';
-import ApiService from './service';
 import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
+import { PostQuery, UserPostQuery, UserQuery } from '../types/api';
 import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
-import { PostStatus } from '@prisma/client';
-import { PostCategory } from '../types/params';
-import { PostQuery, UserPostQuery, UserQuery } from '../types/api';
+import ApiService from './service';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
@@ -21,7 +20,31 @@ import { PostQuery, UserPostQuery, UserQuery } from '../types/api';
   }
 })();
 
-// express function to handle the request
+export const getPhotoUrls = async (req: Request, res: Response) => {
+  try {
+    const bot = new Telegraf(config.bot_token as string);
+
+    const fileIds = Object.entries(req.query);
+
+    const fileLinks = [];
+
+    for (const [key, fileId] of fileIds) {
+      try {
+        const fileLink = await (bot as any).telegram?.getFileLink(fileId);
+        fileLinks.push({ fileId, url: fileLink.href, success: true, key });
+      } catch (error) {
+        console.log(error);
+        fileLinks.push({ fileId, success: false, message: 'Error fetching image' });
+      }
+    }
+
+    res.json({ success: true, files: fileLinks });
+  } catch (error) {
+    console.error('Error processing request:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
 export const getPosts = async (req: Request, res: Response) => {
   const { status: postStatus, category, page, itemsPerPage } = req.query;
   const { status, data, message } = await ApiService.getPosts({
