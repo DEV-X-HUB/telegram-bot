@@ -25,7 +25,8 @@ class ApiService {
       if (status) where.status = status;
       if (category) where.category = category;
       let paginator = getPaginationInfo({ page, itemsPerPage });
-      console.log(where, paginator);
+
+      const total = await prisma.post.count({ where });
       const posts = await prisma.post.findMany({
         where,
         include: {
@@ -45,7 +46,14 @@ class ApiService {
       return {
         status: 'success',
         message: 'post fetched successfully',
-        data: posts,
+        data: {
+          posts,
+          payload: {
+            itemsPerPage,
+            page,
+            total,
+          },
+        },
       };
     } catch (error: any) {
       console.error('Error searching questions:', error);
@@ -61,6 +69,7 @@ class ApiService {
 
     try {
       let paginator = getPaginationInfo({ page, itemsPerPage });
+      const total = await prisma.post.count({ where });
       const posts = await prisma.post.findMany({
         where,
         include: {
@@ -80,7 +89,14 @@ class ApiService {
       return {
         status: 'success',
         message: 'post fetched successfully',
-        data: posts,
+        data: {
+          posts,
+          payload: {
+            itemsPerPage,
+            page,
+            total,
+          },
+        },
       };
     } catch (error: any) {
       console.error('Error searching questions:', error);
@@ -90,11 +106,12 @@ class ApiService {
 
   static async getUsers({ status, ...query }: UserQuery): Promise<ResponseWithData> {
     let paginator = getPaginationInfo(query);
+    const { page, itemsPerPage } = query;
     let where: Prisma.UserWhereInput = {};
     if (status) where.status = status;
-
+    const total = await prisma.user.count({ where });
     try {
-      const posts = await prisma.user.findMany({
+      const users = await prisma.user.findMany({
         where,
         ...paginator,
       });
@@ -102,10 +119,47 @@ class ApiService {
       return {
         status: 'success',
         message: 'users fetched successfully',
-        data: posts,
+        data: {
+          users,
+          payload: {
+            itemsPerPage,
+            page,
+            total,
+          },
+        },
       };
     } catch (error: any) {
       console.error('Error fetching users:', error);
+      return { status: 'fail', message: error?.message, data: null };
+    }
+  }
+  static async getAdmins({ status, ...query }: UserQuery): Promise<ResponseWithData> {
+    let paginator = getPaginationInfo(query);
+    const { page, itemsPerPage } = query;
+    let where: Prisma.AdminWhereInput = {};
+    if (status) where.status = status;
+    const total = await prisma.admin.count({ where });
+
+    try {
+      const admins = await prisma.admin.findMany({
+        where,
+        ...paginator,
+      });
+
+      return {
+        status: 'success',
+        message: 'admins fetched successfully',
+        data: {
+          admins,
+          payload: {
+            itemsPerPage,
+            page,
+            total,
+          },
+        },
+      };
+    } catch (error: any) {
+      console.error('Error fetching admins:', error);
       return { status: 'fail', message: error?.message, data: null };
     }
   }

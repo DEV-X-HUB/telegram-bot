@@ -5,6 +5,7 @@ import {
   deletePost,
   deleteUserPosts,
   forgotPassword,
+  getAdmins,
   getPostDetail,
   getPosts,
   getUserDetail,
@@ -36,6 +37,7 @@ router.put('/users/status', updateUserStatus);
 
 // admin auth routes
 router.post('/auth/login', loginAdmin);
+router.get('/admins', getAdmins);
 router.post('/auth/create-admin', roleGuard(['SUPER_ADMIN']), createAdmin);
 router.put('/auth/update-admin-status', roleGuard(['SUPER_ADMIN']), updateAdminStatus);
 router.delete('/auth/delete-admin', roleGuard(['SUPER_ADMIN']), deleteAdmin);

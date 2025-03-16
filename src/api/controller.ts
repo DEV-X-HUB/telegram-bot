@@ -94,6 +94,35 @@ export const getUsers = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAdmins = async (req: Request, res: Response) => {
+  const { status: userStatus, page, itemsPerPage } = req.query;
+  try {
+    const { status, data, message } = await ApiService.getAdmins({
+      status: userStatus,
+      page,
+      itemsPerPage,
+    } as UserQuery);
+    if (status == 'fail') {
+      return res.status(500).json({
+        status,
+        message,
+        data: null,
+      });
+    }
+    return res.status(200).json({
+      status,
+      message,
+      data: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: (error as Error).message,
+      data: null,
+    });
+  }
+};
 export const getUserDetail = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
