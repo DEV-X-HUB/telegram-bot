@@ -55,7 +55,6 @@ exports.default = () => {
     bot = new telegraf_1.Telegraf(config_1.default.bot_token);
     bot.telegram.setWebhook(`${config_1.default.domain}/secret-path`);
     const stage = new telegraf_1.Scenes.Stage([profile_scene_1.default, ...post_scene_1.default, registration_scene_1.default, chat_scene_1.default, browse_post_scene_1.default]);
-    console.log('latest');
     bot.use((0, bot_activity_interceptor_1.default)());
     // bot.use(devlopmentMode());
     bot.use((0, auth_1.checkUserInChannelandPromtJoin)());

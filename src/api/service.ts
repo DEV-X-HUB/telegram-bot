@@ -150,7 +150,10 @@ class ApiService {
         status: 'success',
         message: 'admins fetched successfully',
         data: {
-          admins,
+          admins: admins.map((admin) => {
+            (admin as any).password = undefined;
+            return admin;
+          }),
           payload: {
             itemsPerPage,
             page,
