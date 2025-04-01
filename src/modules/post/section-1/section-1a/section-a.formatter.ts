@@ -24,7 +24,7 @@ class Post1AFormatter {
     lastDigitPrompt: 'Enter Last Digit',
     locationPrompt: 'Enter sub city and location',
     descriptionPrompt: `Enter Description maximum ${config.desc_word_length} words`,
-    attachPhotoPrompt: 'Attach four photos ',
+    attachPhotoPrompt: 'Attach  photos ',
     reviewPrompt: 'Preview your post and press once you are done',
     postSuccessMsg:
       'Your post has been submitted for approval. It will be posted on the channel as soon as it is approved by admins.',

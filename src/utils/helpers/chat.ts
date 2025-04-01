@@ -57,7 +57,7 @@ export const getMessage = (ctx: any): MessageTrace => {
 export const sendMediaGroup = async (ctx: any, phtos: any[], caption: string = 'Here are the images you uploaded') => {
   const mediaGroup = phtos.map((image: any) => ({
     media: image,
-    type: 'photo',
+    type: 'document',
     caption: caption,
   }));
   await ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
@@ -175,7 +175,7 @@ export const replyUserPostPreviewWithContext = async ({
   });
 };
 export const replyPostPreview = async ({ ctx, caption, photoURl }: { ctx: any; photoURl: string; caption: string }) => {
-  ctx.replyWithPhoto(photoURl, {
+  ctx.replyWithDocument(photoURl, {
     parse_mode: 'HTML',
     caption,
     reply_markup: {
@@ -204,7 +204,7 @@ export const sendMediaGroupToUser = async (
 ) => {
   const mediaGroup = photos.map((image: any) => ({
     media: image,
-    type: 'photo',
+    type: 'document',
     caption: caption,
   }));
   await ctx.telegram.sendMediaGroup(chatId, mediaGroup);
@@ -217,7 +217,7 @@ export const sendMediaGroupToChannel = async (
 ) => {
   const mediaGroup = photos.map((image: any) => ({
     media: image,
-    type: 'photo',
+    type: 'document',
     caption: caption,
   }));
   await ctx.telegram.sendMediaGroup(config.channel_id, mediaGroup);

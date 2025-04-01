@@ -274,7 +274,9 @@ class QuestionPostSection1CController {
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
 
-    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+    if (ctx.message.photo) return ctx.reply(`Please only upload un compressed images`);
+    // if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
+
     this.setImageWaiting(ctx);
 
     if (message && areEqaul(message, 'back', true)) {
@@ -290,12 +292,12 @@ class QuestionPostSection1CController {
     // check if image is attached
     if (!ctx.message.photo) return ctx.reply(...section1cFormatter.photoDisplay());
 
-    // Add the image to the array
+    // check if image is attached
+    if (!ctx.message.document) return ctx.reply(...section1cFormatter.photoDisplay());
 
-    const photo_id = ctx.message.photo[0].file_id;
-    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    // Add the image to the array
+    const photo_id = ctx.message.document.file_id;
     imagesUploaded.push(photo_id);
-    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section1cFormatter.imagesNumber) {
@@ -354,7 +356,7 @@ class QuestionPostSection1CController {
             paper_stamp: ctx.wizard.state.paper_stamp as string,
             confirmation_year: ctx.wizard.state.confirmation_year as string,
             photo: ctx.wizard.state.photo,
-            photo_url: ctx.wizard.state.photo_url,
+            photo_url: [],
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
             category: 'Section 1C',
@@ -625,7 +627,7 @@ class QuestionPostSection1CController {
           confirmation_year: ctx.wizard.state.confirmation_year as string,
           paper_stamp: ctx.wizard.state.paper_stamp as string,
           photo: ctx.wizard.state.photo,
-          photo_url: ctx.wizard.state.photo_url,
+          photo_url: [],
           city: ctx.wizard.state.city,
           notify_option: ctx.wizard.state.notify_option,
           category: 'Section 1C',

@@ -183,8 +183,9 @@ class QuestionPostSectionAController {
   async attachPhoto(ctx: any) {
     const sender = findSender(ctx);
     const message = ctx?.message?.text;
+    if (ctx.message.photo) return ctx.reply(`Please only upload un compressed images`);
+    // if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
 
-    if (ctx?.message?.document) return ctx.reply(`Please only upload compressed images`);
     this.setImageWaiting(ctx);
 
     if (message && areEqaul(message, 'back', true)) {
@@ -198,19 +199,15 @@ class QuestionPostSectionAController {
     }
 
     // check if image is attached
-    if (!ctx.message.photo) return ctx.reply(...section1AFormatter.photoDisplay());
+    if (!ctx.message.document) return ctx.reply(...section1AFormatter.photoDisplay());
 
     // Add the image to the array
-    const photo_id = ctx.message.photo[0].file_id;
-    const photo_url = await ctx.telegram.getFileLink(photo_id);
+    const photo_id = ctx.message.document.file_id;
     imagesUploaded.push(photo_id);
-    imagesUploadedURL.push(photo_url.href);
 
     // Check if all images received
     if (imagesUploaded.length == section1AFormatter.imagesNumber) {
       this.clearImageWaiting(sender.id);
-      const file = await ctx.telegram.getFile(ctx.message.photo[0].file_id);
-
       await sendMediaGroup(ctx, imagesUploaded, 'Here are the images you uploaded');
 
       const user = await profileService.getProfileByTgId(sender.id);
@@ -221,7 +218,6 @@ class QuestionPostSectionAController {
         };
       }
       ctx.wizard.state.photo = imagesUploaded;
-      ctx.wizard.state.photo_url = imagesUploadedURL;
 
       ctx.wizard.state.status = 'preview';
       ctx.wizard.state.notify_option = user?.notify_option || 'none';
@@ -254,12 +250,6 @@ class QuestionPostSectionAController {
         }
 
         case 'post_data': {
-          const { filePaths, status, msg } = await saveImages({
-            fileIds: ctx.wizard.state.photo,
-            fileLinks: ctx.wizard.state.photo_url,
-            folderName: 'service-1a',
-          });
-          if (status == 'fail') return await ctx.reply('Unable to download the image please try again');
           const postDto: CreatePostService1ADto = {
             id_first_option: ctx.wizard.state.id_first_option as string,
             arbr_value: ctx.wizard.state.arbr_value as string,
@@ -267,8 +257,7 @@ class QuestionPostSectionAController {
             last_digit: Number(ctx.wizard.state.last_digit) as number,
             location: ctx.wizard.state.location as string,
             photo: ctx.wizard.state.photo,
-            // photo_url: ctx.wizard.state.photo_url,
-            photo_url: filePaths,
+            photo_url: [],
             city: ctx.wizard.state.city,
             notify_option: ctx.wizard.state.notify_option,
 
@@ -537,7 +526,7 @@ class QuestionPostSectionAController {
           location: ctx.wizard.state.location as string,
           notify_option: ctx.wizard.state.notify_option,
           photo: ctx.wizard.state.photo,
-          // photo_url: ctx.wizard.state.photo_url,
+          // photo_url: [],
           photo_url: filePaths,
           city: ctx.wizard.state.city,
           category: 'Section 1A',

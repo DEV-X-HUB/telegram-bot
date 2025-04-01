@@ -23,25 +23,45 @@ import ApiService from './service';
 export const getPhotoUrls = async (req: Request, res: Response) => {
   try {
     const bot = new Telegraf(config.bot_token as string);
-
     const fileIds = Object.entries(req.query);
-
     const fileLinks = [];
 
     for (const [key, fileId] of fileIds) {
       try {
-        const fileLink = await (bot as any).telegram?.getFileLink(fileId);
-        fileLinks.push({ fileId, url: fileLink.href, success: true, key });
-      } catch (error) {
-        console.log(error);
-        fileLinks.push({ fileId, success: false, message: 'Error fetching image' });
+        // First try to get the file info to determine the best quality available
+        const fileInfo = await bot.telegram.getFile(fileId as string);
+
+        // Construct the direct download URL with the file_path
+        const fileUrl = `https://api.telegram.org/file/bot${config.bot_token}/${fileInfo.file_path}`;
+
+        fileLinks.push({
+          fileId,
+          url: fileUrl,
+          success: true,
+          key,
+          // Include additional file info if needed
+          fileSize: fileInfo.file_size,
+          filePath: fileInfo.file_path,
+        });
+      } catch (error: any) {
+        console.log('Error fetching file:', error);
+        fileLinks.push({
+          fileId,
+          success: false,
+          message: 'Error fetching image',
+          error: error.message,
+        });
       }
     }
 
     res.json({ success: true, files: fileLinks });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing request:', error);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
 
