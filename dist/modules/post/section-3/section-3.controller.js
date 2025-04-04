@@ -151,7 +151,7 @@ class Section3Controller {
             if (!ctx.message.photo)
                 return ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
             // Add the image to the array
-            const photo_id = ctx.message.photo[0].file_id;
+            const photo_id = ctx.message.photo[ctx.message.photo.length - 1].file_id;
             const photo_url = yield ctx.telegram.getFileLink(photo_id);
             imagesUploaded.push(photo_id);
             imagesUploadedURL.push(photo_url.href);
@@ -392,7 +392,7 @@ class Section3Controller {
             if (!ctx.message.photo)
                 return ctx.reply(...section3Formatter.photoPrompt(ctx.wizard.state.birth_or_marital == 'birth'));
             // Add the image to the array
-            const photo_id = ctx.message.photo[0].file_id;
+            const photo_id = ctx.message.photo[ctx.message.photo.length - 1].file_id;
             const photo_url = yield ctx.telegram.getFileLink(photo_id);
             imagesUploaded.push(photo_id);
             imagesUploadedURL.push(photo_url.href);

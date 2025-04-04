@@ -292,7 +292,7 @@ class QuestionPostSection1CController {
 
     // Add the image to the array
 
-    const photo_id = ctx.message.photo[0].file_id;
+    const photo_id = ctx.message.photo[ctx.message.photo.length - 1].file_id;
     const photo_url = await ctx.telegram.getFileLink(photo_id);
     imagesUploaded.push(photo_id);
     imagesUploadedURL.push(photo_url.href);
@@ -557,7 +557,7 @@ class QuestionPostSection1CController {
     if (!ctx.message.photo) return ctx.reply(...section1cFormatter.photoDisplay());
 
     // Add the image to the array
-    const photo_id = ctx.message.photo[0].file_id;
+    const photo_id = ctx.message.photo[ctx.message.photo.length - 1].file_id;
     const photo_url = await ctx.telegram.getFileLink(photo_id);
     imagesUploaded.push(photo_id);
     imagesUploadedURL.push(photo_url.href);
