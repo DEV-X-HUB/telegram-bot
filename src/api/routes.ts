@@ -42,7 +42,7 @@ router.get('/admins', getAdmins);
 router.get('/photos', getPhotoUrls);
 router.post('/auth/create-admin', roleGuard(['SUPER_ADMIN']), createAdmin);
 router.put('/auth/update-admin-status', roleGuard(['SUPER_ADMIN']), updateAdminStatus);
-router.delete('/auth/delete-admin', roleGuard(['SUPER_ADMIN']), deleteAdmin);
+router.delete('/auth/delete-admin/:id', roleGuard(['SUPER_ADMIN']), deleteAdmin);
 
 router.post('/auth/forgot', forgotPassword);
 router.post('/auth/verify', verifyResetOtp);
