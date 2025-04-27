@@ -233,6 +233,8 @@ const updatePostStatus = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const { status, message } = yield post_controller_1.default.sendPostToUser(bot, data);
         yield post_controller_1.default.postToChannel(bot, config_1.default.channel_id, data);
     }
+    if (postStatus === 'rejected')
+        yield post_controller_1.default.notifiyUser(bot, data, postStatus);
     return res.status(200).json({
         status: 'success',
         message: 'Post status updated',

@@ -287,6 +287,32 @@ class PostController {
                 yield (0, chat_1.messagePostPreview)(bot, config_1.default.channel_id, postFormmatter.getPostsPreview(post), post.id);
         });
     }
+    static notifiyUser(bot, post, postStatus) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!(postStatus == 'open' || postStatus == 'rejected'))
+                return;
+            const { status, recipientChatIds } = yield questionService.getFilteredRecipients([post.user_id], post.user.id);
+            if (status == 'fail')
+                return { status: 'fail', message: 'message not send to user , unable to find recipients chat id' };
+            if (recipientChatIds.length < 0)
+                return { status: 'fail', message: 'message not send to user, all recipients have blocked the user' };
+            const prefix = `<b>Your Post is ${postStatus === 'open' ? 'opened' : postStatus}</b>\n`;
+            const caption = postFormmatter.getFormattedQuestionPreview(post);
+            const sectionName = (0, string_1.getSectionName)(post.category);
+            for (const chatId of recipientChatIds) {
+                if (post[sectionName].photo && post[sectionName].photo[0]) {
+                    yield (0, chat_1.messagePostPreviewWithBot)({
+                        bot,
+                        post_id: post.id,
+                        chat_id: chatId.chat_id,
+                        photoURl: post[sectionName].photo[0],
+                        caption: prefix.concat(caption),
+                    });
+                }
+            }
+            return { status: 'success', message: 'message sent to user ' };
+        });
+    }
     static sendPostToUser(bot, post) {
         return __awaiter(this, void 0, void 0, function* () {
             const recipientsIds = [];

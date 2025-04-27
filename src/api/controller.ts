@@ -225,6 +225,8 @@ export const updatePostStatus = async (req: Request, res: Response) => {
     const { status, message } = await PostController.sendPostToUser(bot, data);
     await PostController.postToChannel(bot, config.channel_id, data);
   }
+  if (postStatus === 'rejected') await PostController.notifiyUser(bot, data, postStatus);
+
   return res.status(200).json({
     status: 'success',
     message: 'Post status updated',

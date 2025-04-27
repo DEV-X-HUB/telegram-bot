@@ -210,6 +210,7 @@ class ApiService {
       return { status: 'fail', message: error?.message, data: null };
     }
   }
+
   static async updatePostStatus(postId: string, status: PostStatus): Promise<ResponseWithData> {
     try {
       const post = await prisma.post.update({

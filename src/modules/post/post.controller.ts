@@ -1,3 +1,4 @@
+import { PostStatus } from '@prisma/client';
 import config from '../../config/config';
 import { PostCategory } from '../../types/params';
 import {
@@ -270,6 +271,34 @@ class PostController {
         caption: postFormmatter.getFormattedQuestionPreview(post) as string,
       });
     } else await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
+  }
+
+  static async notifiyUser(bot: any, post: any, postStatus: PostStatus) {
+    if (!(postStatus == 'open' || postStatus == 'rejected')) return;
+
+    const { status, recipientChatIds } = await questionService.getFilteredRecipients([post.user_id], post.user.id);
+
+    if (status == 'fail')
+      return { status: 'fail', message: 'message not send to user , unable to find recipients chat id' };
+
+    if (recipientChatIds.length < 0)
+      return { status: 'fail', message: 'message not send to user, all recipients have blocked the user' };
+    const prefix = `<b>Your Post is ${postStatus === 'open' ? 'opened' : postStatus}</b>\n`;
+    const caption = postFormmatter.getFormattedQuestionPreview(post) as string;
+    const sectionName = getSectionName(post.category) as PostCategory;
+    for (const chatId of recipientChatIds) {
+      if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+        await messagePostPreviewWithBot({
+          bot,
+          post_id: post.id,
+          chat_id: chatId.chat_id,
+          photoURl: (post as any)[sectionName].photo[0],
+          caption: prefix.concat(caption),
+        });
+      }
+    }
+
+    return { status: 'success', message: 'message sent to user ' };
   }
   static async sendPostToUser(bot: any, post: any) {
     const recipientsIds: string[] = [];
