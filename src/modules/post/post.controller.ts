@@ -10,6 +10,7 @@ import {
   sendMediaGroupToUser,
   replyDetailWithContext,
   messagePostPreview,
+  sendMessageNotificationOnPost,
 } from '../../utils/helpers/chat';
 import { areEqaul, extractElements, getSectionName } from '../../utils/helpers/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
@@ -274,7 +275,9 @@ class PostController {
   }
 
   static async notifiyUser(bot: any, post: any, postStatus: PostStatus) {
+    console.log({ postStatus });
     if (!(postStatus == 'open' || postStatus == 'rejected')) return;
+    const message = postStatus === 'open' ? 'Your post is approved' : 'Your post is rejected';
 
     const { status, recipientChatIds } = await questionService.getFilteredRecipients([post.user_id], post.user.id);
 
@@ -283,17 +286,15 @@ class PostController {
 
     if (recipientChatIds.length < 0)
       return { status: 'fail', message: 'message not send to user, all recipients have blocked the user' };
-    const prefix = `<b>Your Post is ${postStatus === 'open' ? 'opened' : postStatus}</b>\n`;
-    const caption = postFormmatter.getFormattedQuestionPreview(post) as string;
+
     const sectionName = getSectionName(post.category) as PostCategory;
     for (const chatId of recipientChatIds) {
       if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
-        await messagePostPreviewWithBot({
+        await sendMessageNotificationOnPost({
           bot,
+          message,
+          chatId: parseInt(chatId.chat_id),
           post_id: post.id,
-          chat_id: chatId.chat_id,
-          photoURl: (post as any)[sectionName].photo[0],
-          caption: prefix.concat(caption),
         });
       }
     }

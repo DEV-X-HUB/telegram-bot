@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMediaGroupToChannel = exports.sendMediaGroupToUser = exports.messageJoinPrompt = exports.replyPostPreview = exports.replyUserPostPreviewWithContext = exports.replyDetailWithContext = exports.messagePostPreviewWithBot = exports.messagePostPreview = exports.sendMessage = exports.hasCallbackQuery = exports.sendMediaGroup = exports.getMessage = exports.findSender = exports.deleteKeyboardMarkup = exports.deleteMessageWithCallback = exports.deleteMessage = void 0;
+exports.sendMediaGroupToChannel = exports.sendMediaGroupToUser = exports.messageJoinPrompt = exports.replyPostPreview = exports.replyUserPostPreviewWithContext = exports.replyDetailWithContext = exports.sendMessageNotificationOnPost = exports.messagePostPreviewWithBot = exports.messagePostPreview = exports.sendMessage = exports.hasCallbackQuery = exports.sendMediaGroup = exports.getMessage = exports.findSender = exports.deleteKeyboardMarkup = exports.deleteMessageWithCallback = exports.deleteMessage = void 0;
 const config_1 = __importDefault(require("../../config/config"));
 const string_1 = require("./string");
 const deleteMessage = (ctx, messageData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -115,14 +115,23 @@ const messagePostPreviewWithBot = (_a) => __awaiter(void 0, [_a], void 0, functi
     });
 });
 exports.messagePostPreviewWithBot = messagePostPreviewWithBot;
-const replyDetailWithContext = (_b) => __awaiter(void 0, [_b], void 0, function* ({ ctx, caption, photoURl, }) {
+const sendMessageNotificationOnPost = (_b) => __awaiter(void 0, [_b], void 0, function* ({ bot, message, chatId, post_id, }) {
+    return yield bot.telegram.sendMessage(chatId, message, {
+        parse_mode: 'HTML',
+        reply_markup: {
+            inline_keyboard: [[{ text: 'Show me', url: `${config_1.default.bot_url}?start=postDetail_${post_id}` }]],
+        },
+    });
+});
+exports.sendMessageNotificationOnPost = sendMessageNotificationOnPost;
+const replyDetailWithContext = (_c) => __awaiter(void 0, [_c], void 0, function* ({ ctx, caption, photoURl, }) {
     ctx.replyWithPhoto(photoURl, {
         parse_mode: 'HTML',
         caption,
     });
 });
 exports.replyDetailWithContext = replyDetailWithContext;
-const replyUserPostPreviewWithContext = (_c) => __awaiter(void 0, [_c], void 0, function* ({ ctx, caption, photoURl, post_id, status, }) {
+const replyUserPostPreviewWithContext = (_d) => __awaiter(void 0, [_d], void 0, function* ({ ctx, caption, photoURl, post_id, status, }) {
     ctx.replyWithPhoto(photoURl, {
         parse_mode: 'HTML',
         caption: (0, string_1.trimParagraph)(caption),
@@ -161,7 +170,7 @@ const replyUserPostPreviewWithContext = (_c) => __awaiter(void 0, [_c], void 0, 
     });
 });
 exports.replyUserPostPreviewWithContext = replyUserPostPreviewWithContext;
-const replyPostPreview = (_d) => __awaiter(void 0, [_d], void 0, function* ({ ctx, caption, photoURl }) {
+const replyPostPreview = (_e) => __awaiter(void 0, [_e], void 0, function* ({ ctx, caption, photoURl }) {
     ctx.replyWithPhoto(photoURl, {
         parse_mode: 'HTML',
         caption,

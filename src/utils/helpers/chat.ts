@@ -109,6 +109,25 @@ export const messagePostPreviewWithBot = async ({
   });
 };
 
+export const sendMessageNotificationOnPost = async ({
+  bot,
+  message,
+  chatId,
+  post_id,
+}: {
+  bot: any;
+  chatId: number;
+  message: string;
+  post_id: string;
+}) => {
+  return await bot.telegram.sendMessage(chatId, message, {
+    parse_mode: 'HTML',
+    reply_markup: {
+      inline_keyboard: [[{ text: 'Show me', url: `${config.bot_url}?start=postDetail_${post_id}` }]],
+    },
+  });
+};
+
 export const replyDetailWithContext = async ({
   ctx,
   caption,
