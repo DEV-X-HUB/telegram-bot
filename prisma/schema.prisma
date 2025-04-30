@@ -142,7 +142,7 @@ model Service1A {
   id_first_option String
   location        String
   city            String
-  last_digit      Int
+  last_digit      Float
   photo           String[]
   photo_url       String[]
   post            Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
@@ -155,7 +155,7 @@ model Service1B {
   main_category   String
   sub_category    String
   id_first_option String
-  last_digit      Int
+  last_digit      Float
   condition       String
   issue_date      DateTime?
   expire_date     DateTime?
@@ -176,7 +176,7 @@ model Service1C {
   service_type_1    String
   service_type_2    String
   service_type_3    String
-  last_digit        Int
+  last_digit        Float
   confirmation_year String
   photo             String[]
   photo_url         String[]
