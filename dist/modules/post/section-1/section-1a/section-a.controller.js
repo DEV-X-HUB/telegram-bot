@@ -262,7 +262,7 @@ class QuestionPostSectionAController {
                         if (status == 'fail')
                             return yield ctx.reply('Unable to download the image please try again');
                         const postDto = {
-                            id_first_option: ctx.wizard.state.id_first_option,
+                            id_first_option: ctx.wizard.state.id_first_option.toString(),
                             arbr_value: ctx.wizard.state.arbr_value,
                             description: ctx.wizard.state.description,
                             last_digit: Number(ctx.wizard.state.last_digit),
@@ -515,7 +515,7 @@ class QuestionPostSectionAController {
                     if (status == 'fail')
                         return yield ctx.reply('Unable to download the image please try again');
                     const postDto = {
-                        id_first_option: ctx.wizard.state.id_first_option,
+                        id_first_option: ctx.wizard.state.id_first_option.toString(),
                         arbr_value: ctx.wizard.state.arbr_value,
                         description: ctx.wizard.state.description,
                         last_digit: Number(ctx.wizard.state.last_digit),

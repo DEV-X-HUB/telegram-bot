@@ -262,7 +262,7 @@ class QuestionPostSectionAController {
           });
           if (status == 'fail') return await ctx.reply('Unable to download the image please try again');
           const postDto: CreatePostService1ADto = {
-            id_first_option: ctx.wizard.state.id_first_option as string,
+            id_first_option: ctx.wizard.state.id_first_option.toString() as string,
             arbr_value: ctx.wizard.state.arbr_value as string,
             description: ctx.wizard.state.description as string,
             last_digit: Number(ctx.wizard.state.last_digit) as number,
@@ -531,7 +531,7 @@ class QuestionPostSectionAController {
         if (status == 'fail') return await ctx.reply('Unable to download the image please try again');
 
         const postDto: CreatePostService1ADto = {
-          id_first_option: ctx.wizard.state.id_first_option as string,
+          id_first_option: ctx.wizard.state.id_first_option.toString() as string,
           arbr_value: ctx.wizard.state.arbr_value as string,
           description: ctx.wizard.state.description as string,
           last_digit: Number(ctx.wizard.state.last_digit) as number,

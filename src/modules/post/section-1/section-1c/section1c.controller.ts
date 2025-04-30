@@ -345,7 +345,7 @@ class QuestionPostSection1CController {
         case 'post_data': {
           const postDto: CreatePostService1CDto = {
             arbr_value: ctx.wizard.state.arbr_value as string,
-            id_first_option: ctx.wizard.state.id_first_option as string,
+            id_first_option: ctx.wizard.state.id_first_option.toString() as string,
             description: ctx.wizard.state.description as string,
             last_digit: Number(ctx.wizard.state.last_digit) as number,
             service_type_1: ctx.wizard.state.service_type_1 as string,
@@ -616,7 +616,7 @@ class QuestionPostSection1CController {
       case 're_submit_post': {
         const postDto: CreatePostService1CDto = {
           arbr_value: ctx.wizard.state.arbr_value as string,
-          id_first_option: ctx.wizard.state.id_first_option as string,
+          id_first_option: ctx.wizard.state.id_first_option.toString() as string,
           description: ctx.wizard.state.description as string,
           last_digit: Number(ctx.wizard.state.last_digit) as number,
           service_type_1: ctx.wizard.state.service_type_1 as string,
