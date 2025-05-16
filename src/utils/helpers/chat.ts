@@ -128,6 +128,20 @@ export const sendMessageNotificationOnPost = async ({
   });
 };
 
+export const sendMessageNotification = async ({
+  bot,
+  message,
+  chatId,
+}: {
+  bot: any;
+  chatId: number;
+  message: string;
+}) => {
+  return await bot.telegram.sendMessage(chatId, message, {
+    parse_mode: 'HTML',
+  });
+};
+
 export const replyDetailWithContext = async ({
   ctx,
   caption,

@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import prisma from '../loaders/db-connecion';
-import { BareResponse, PostQuery, ResponseWithData, UserPostQuery, UserQuery } from '../types/api';
+import { BareResponse, PageQuery, PostQuery, ResponseWithData, UserPostQuery, UserQuery } from '../types/api';
 import {
   CreateAdminDto,
   DeleteAdminDto,
@@ -16,6 +16,10 @@ import {
 } from '../types/dto/auth.dto';
 import generateOTP from '../utils/generatePassword';
 import { getPaginationInfo } from '../utils/helpers/paginator';
+import { CreateNotificationDto } from '../types/dto/notification.dto';
+import { ApiResponse } from '@telegraf/types';
+import Bot from '../loaders/bot';
+import { sendMessageNotification } from '../utils/helpers/chat';
 
 class ApiService {
   static async getPosts(query: PostQuery): Promise<ResponseWithData> {
@@ -250,6 +254,7 @@ class ApiService {
       };
     }
   }
+
   static async deletePostById(postId: string): Promise<BareResponse> {
     try {
       await prisma.post.delete({ where: { id: postId } });
@@ -259,6 +264,7 @@ class ApiService {
       return { status: 'fail', message: error?.message };
     }
   }
+
   static async deleteUserPosts(userId: string): Promise<BareResponse> {
     try {
       await prisma.post.deleteMany({ where: { user_id: userId } });
@@ -268,6 +274,7 @@ class ApiService {
       return { status: 'fail', message: error?.message };
     }
   }
+
   static async createAdmin(createAdminDto: CreateAdminDto): Promise<ResponseWithData> {
     const { first_name, last_name, email, password, role } = createAdminDto;
 
@@ -318,6 +325,7 @@ class ApiService {
       };
     }
   }
+
   static async crateDefaultAdmin(): Promise<ResponseWithData> {
     const admin = await prisma.admin.findMany({});
     if (!admin || admin.length == 0) {
@@ -501,6 +509,7 @@ class ApiService {
       };
     }
   }
+
   static async updateUserStatus(updateAdminStatus: UpdateUserStatusDto): Promise<BareResponse> {
     try {
       const { userId, status, reason } = updateAdminStatus;
@@ -672,6 +681,123 @@ class ApiService {
         status: 'fail',
         message: error.message,
       };
+    }
+  }
+
+  static async getNotifications({ page, itemsPerPage }: PageQuery): Promise<ResponseWithData> {
+    try {
+      let paginator = getPaginationInfo({ page, itemsPerPage });
+      const notifications = await prisma.notification.findMany({ ...paginator, orderBy: { created_at: 'desc' } });
+      return {
+        data: notifications,
+        status: 'success',
+        message: 'notification fetched',
+      };
+    } catch (error: any) {
+      return {
+        data: null,
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  static async createNotification({ users, send_to_all, ...dto }: CreateNotificationDto): Promise<ResponseWithData> {
+    try {
+      const filteredId = Array.from(new Set(users));
+      const usersCount = await prisma.user.count({ where: { id: { in: filteredId } } });
+
+      if (filteredId.length !== usersCount && !send_to_all)
+        return {
+          data: null,
+          status: 'fail',
+          message: 'users count does not match',
+        };
+
+      const connect = send_to_all
+        ? []
+        : [
+            ...users.map((user) => ({
+              id: user,
+            })),
+          ];
+
+      const notification = await prisma.notification.create({
+        data: {
+          ...dto,
+          send_to_all,
+          users: {
+            connect,
+          },
+        },
+      });
+      this.sendNotification(notification.id);
+      return {
+        data: notification,
+        status: 'success',
+        message: 'notification created',
+      };
+    } catch (error: any) {
+      return {
+        data: null,
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+  static async reSendNotification(id: string): Promise<BareResponse> {
+    try {
+      const notificaiton = await prisma.notification.findFirst({
+        where: { id },
+      });
+      if (!notificaiton) {
+        throw Error('notificaiotn not found');
+      }
+      await this.sendNotification(id);
+      return {
+        status: 'success',
+        message: 'notification resent successfully',
+      };
+    } catch (error: any) {
+      return {
+        status: 'fail',
+        message: error.message,
+      };
+    }
+  }
+
+  static async sendNotification(id: string): Promise<boolean> {
+    try {
+      const notificaiton = await prisma.notification.findFirst({
+        where: { id },
+        include: {
+          users: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      const bot = Bot();
+      let where: Prisma.UserWhereInput = {};
+      if (!notificaiton?.send_to_all) {
+        where.id = {
+          in: notificaiton?.users.map((user) => user.id),
+        };
+      }
+      const recipientChatIds = await prisma.user.findMany({
+        where,
+        select: {
+          chat_id: true,
+        },
+      });
+      const message = `<b>${notificaiton?.title.toLowerCase()}</b>\n\n${notificaiton?.message}`;
+      recipientChatIds.forEach((recipientChatId) => {
+        sendMessageNotification({ bot, message, chatId: parseInt(recipientChatId.chat_id) });
+      });
+      return true;
+    } catch (error: any) {
+      throw error;
     }
   }
 }

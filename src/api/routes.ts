@@ -1,11 +1,15 @@
 import express from 'express';
+import { roleGuard } from '../middleware/admin-auth';
+import { validateCreateNotification } from '../utils/validator/notification.validator';
 import {
   createAdmin,
+  createNotification,
   deleteAdmin,
   deletePost,
   deleteUserPosts,
   forgotPassword,
   getAdmins,
+  getNotifications,
   getPhotoUrls,
   getPostDetail,
   getPosts,
@@ -13,13 +17,13 @@ import {
   getUserPosts,
   getUsers,
   loginAdmin,
+  resendNotification,
   resetPassword,
   updateAdminStatus,
   updatePostStatus,
   updateUserStatus,
   verifyResetOtp,
 } from './controller';
-import { authGuard, roleGuard } from '../middleware/admin-auth';
 const router = express.Router();
 
 // router.use(authGuard);
@@ -47,5 +51,9 @@ router.delete('/auth/delete-admin/:id', roleGuard(['SUPER_ADMIN']), deleteAdmin)
 router.post('/auth/forgot', forgotPassword);
 router.post('/auth/verify', verifyResetOtp);
 router.post('/auth/reset', resetPassword);
+
+router.post('/notification/', validateCreateNotification, createNotification);
+router.post('/notification/:id', resendNotification);
+router.get('/notification/', getNotifications);
 
 export default router;
