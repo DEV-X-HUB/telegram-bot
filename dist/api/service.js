@@ -29,6 +29,8 @@ const config_1 = __importDefault(require("../config/config"));
 const db_connecion_1 = __importDefault(require("../loaders/db-connecion"));
 const generatePassword_1 = __importDefault(require("../utils/generatePassword"));
 const paginator_1 = require("../utils/helpers/paginator");
+const bot_1 = __importDefault(require("../loaders/bot"));
+const chat_1 = require("../utils/helpers/chat");
 class ApiService {
     static getPosts(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -670,6 +672,126 @@ class ApiService {
                     status: 'fail',
                     message: error.message,
                 };
+            }
+        });
+    }
+    static getNotifications(_a) {
+        return __awaiter(this, arguments, void 0, function* ({ page, itemsPerPage }) {
+            try {
+                let paginator = (0, paginator_1.getPaginationInfo)({ page, itemsPerPage });
+                const notifications = yield db_connecion_1.default.notification.findMany(Object.assign(Object.assign({}, paginator), { orderBy: { created_at: 'desc' } }));
+                return {
+                    data: notifications,
+                    status: 'success',
+                    message: 'notification fetched',
+                };
+            }
+            catch (error) {
+                return {
+                    data: null,
+                    status: 'fail',
+                    message: error.message,
+                };
+            }
+        });
+    }
+    static createNotification(_a) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var { users, send_to_all } = _a, dto = __rest(_a, ["users", "send_to_all"]);
+            try {
+                const filteredId = Array.from(new Set(users));
+                const usersCount = yield db_connecion_1.default.user.count({ where: { id: { in: filteredId } } });
+                if (filteredId.length !== usersCount && !send_to_all)
+                    return {
+                        data: null,
+                        status: 'fail',
+                        message: 'users count does not match',
+                    };
+                const connect = send_to_all
+                    ? []
+                    : [
+                        ...users.map((user) => ({
+                            id: user,
+                        })),
+                    ];
+                const notification = yield db_connecion_1.default.notification.create({
+                    data: Object.assign(Object.assign({}, dto), { send_to_all, users: {
+                            connect,
+                        } }),
+                });
+                this.sendNotification(notification.id);
+                return {
+                    data: notification,
+                    status: 'success',
+                    message: 'notification created',
+                };
+            }
+            catch (error) {
+                return {
+                    data: null,
+                    status: 'fail',
+                    message: error.message,
+                };
+            }
+        });
+    }
+    static reSendNotification(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const notificaiton = yield db_connecion_1.default.notification.findFirst({
+                    where: { id },
+                });
+                if (!notificaiton) {
+                    throw Error('notificaiotn not found');
+                }
+                yield this.sendNotification(id);
+                return {
+                    status: 'success',
+                    message: 'notification resent successfully',
+                };
+            }
+            catch (error) {
+                return {
+                    status: 'fail',
+                    message: error.message,
+                };
+            }
+        });
+    }
+    static sendNotification(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const notificaiton = yield db_connecion_1.default.notification.findFirst({
+                    where: { id },
+                    include: {
+                        users: {
+                            select: {
+                                id: true,
+                            },
+                        },
+                    },
+                });
+                const bot = (0, bot_1.default)();
+                let where = {};
+                if (!(notificaiton === null || notificaiton === void 0 ? void 0 : notificaiton.send_to_all)) {
+                    where.id = {
+                        in: notificaiton === null || notificaiton === void 0 ? void 0 : notificaiton.users.map((user) => user.id),
+                    };
+                }
+                const recipientChatIds = yield db_connecion_1.default.user.findMany({
+                    where,
+                    select: {
+                        chat_id: true,
+                    },
+                });
+                const message = `<b>${notificaiton === null || notificaiton === void 0 ? void 0 : notificaiton.title.toLowerCase()}</b>\n\n${notificaiton === null || notificaiton === void 0 ? void 0 : notificaiton.message}`;
+                recipientChatIds.forEach((recipientChatId) => {
+                    (0, chat_1.sendMessageNotification)({ bot, message, chatId: parseInt(recipientChatId.chat_id) });
+                });
+                return true;
+            }
+            catch (error) {
+                throw error;
             }
         });
     }

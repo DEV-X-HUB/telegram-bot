@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getAdmins = exports.getUsers = exports.getPostDetail = exports.getPosts = exports.getPhotoUrls = void 0;
+exports.getNotifications = exports.resendNotification = exports.createNotification = exports.resetPassword = exports.verifyResetOtp = exports.forgotPassword = exports.loginAdmin = exports.deleteAdmin = exports.updateUserStatus = exports.updateAdminStatus = exports.createAdmin = exports.deleteUserPosts = exports.deletePost = exports.updatePostStatus = exports.getUserPosts = exports.getUserDetail = exports.getAdmins = exports.getUsers = exports.getPostDetail = exports.getPosts = exports.getPhotoUrls = void 0;
 const telegraf_1 = require("telegraf");
 const config_1 = __importDefault(require("../config/config"));
 const bot_1 = __importDefault(require("../loaders/bot"));
@@ -523,4 +523,93 @@ function resetPassword(req, res) {
     });
 }
 exports.resetPassword = resetPassword;
+function createNotification(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { title, message, image, users, send_to_all } = req.body;
+        try {
+            const { status, message: responseMessage, data, } = yield service_1.default.createNotification({
+                title,
+                message,
+                image,
+                users,
+                send_to_all,
+            });
+            if (status === 'fail') {
+                return res.status(400).json({
+                    status,
+                    message: responseMessage,
+                });
+            }
+            return res.status(200).json({
+                data,
+                status,
+                message: responseMessage,
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                data: null,
+                status: 'fail',
+                message: error.message,
+            });
+        }
+    });
+}
+exports.createNotification = createNotification;
+function resendNotification(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { id } = req.params;
+        try {
+            const { status, message } = yield service_1.default.reSendNotification(id);
+            if (status === 'fail') {
+                return res.status(400).json({
+                    status,
+                    message,
+                });
+            }
+            return res.status(200).json({
+                status,
+                message,
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                status: 'fail',
+                message: error.message,
+            });
+        }
+    });
+}
+exports.resendNotification = resendNotification;
+function getNotifications(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const { page, itemsPerPage } = req.query;
+            const { status, data, message } = yield service_1.default.getNotifications({
+                page: page || 1,
+                itemsPerPage: itemsPerPage || 10,
+            });
+            if (status === 'fail') {
+                return res.status(400).json({
+                    data,
+                    status,
+                    message,
+                });
+            }
+            return res.status(200).json({
+                data,
+                status,
+                message,
+            });
+        }
+        catch (error) {
+            return res.status(400).json({
+                data: [],
+                status: 'fail',
+                message: error.message,
+            });
+        }
+    });
+}
+exports.getNotifications = getNotifications;
 //# sourceMappingURL=controller.js.map

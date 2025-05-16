@@ -4,8 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const controller_1 = require("./controller");
 const admin_auth_1 = require("../middleware/admin-auth");
+const notification_validator_1 = require("../utils/validator/notification.validator");
+const controller_1 = require("./controller");
 const router = express_1.default.Router();
 // router.use(authGuard);
 // post routes
@@ -28,5 +29,8 @@ router.delete('/auth/delete-admin/:id', (0, admin_auth_1.roleGuard)(['SUPER_ADMI
 router.post('/auth/forgot', controller_1.forgotPassword);
 router.post('/auth/verify', controller_1.verifyResetOtp);
 router.post('/auth/reset', controller_1.resetPassword);
+router.post('/notification/', notification_validator_1.validateCreateNotification, controller_1.createNotification);
+router.post('/notification/:id', controller_1.resendNotification);
+router.get('/notification/', controller_1.getNotifications);
 exports.default = router;
 //# sourceMappingURL=routes.js.map
