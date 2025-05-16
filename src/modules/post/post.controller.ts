@@ -275,7 +275,6 @@ class PostController {
   }
 
   static async notifiyUser(bot: any, post: any, postStatus: PostStatus) {
-    console.log({ postStatus });
     if (!(postStatus == 'open' || postStatus == 'rejected')) return;
     const message = postStatus === 'open' ? 'Your post is approved' : 'Your post is rejected';
 

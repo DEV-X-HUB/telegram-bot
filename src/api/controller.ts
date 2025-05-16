@@ -3,10 +3,11 @@ import { Telegraf } from 'telegraf';
 import config from '../config/config';
 import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
-import { PostQuery, UserPostQuery, UserQuery } from '../types/api';
+import { PageQuery, PostQuery, UserPostQuery, UserQuery } from '../types/api';
 import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 import ApiService from './service';
+import { CreateNotificationDto } from '../types/dto/notification.dto';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
@@ -500,6 +501,95 @@ export async function resetPassword(req: Request, res: Response) {
     });
   } catch (error: any) {
     return res.status(400).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+}
+export async function createNotification(req: Request, res: Response) {
+  const { title, message, image, users, send_to_all } = req.body as CreateNotificationDto;
+  try {
+    const {
+      status,
+      message: responseMessage,
+      data,
+    } = await ApiService.createNotification({
+      title,
+      message,
+      image,
+      users,
+      send_to_all,
+    });
+
+    if (status === 'fail') {
+      return res.status(400).json({
+        status,
+        message: responseMessage,
+      });
+    }
+
+    return res.status(200).json({
+      data,
+      status,
+      message: responseMessage,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      data: null,
+      status: 'fail',
+      message: error.message,
+    });
+  }
+}
+
+export async function resendNotification(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const { status, message } = await ApiService.reSendNotification(id);
+
+    if (status === 'fail') {
+      return res.status(400).json({
+        status,
+        message,
+      });
+    }
+
+    return res.status(200).json({
+      status,
+      message,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+}
+
+export async function getNotifications(req: Request, res: Response) {
+  try {
+    const { page, itemsPerPage } = req.query;
+    const { status, data, message } = await ApiService.getNotifications({
+      page: page || 1,
+      itemsPerPage: itemsPerPage || 10,
+    } as PageQuery);
+
+    if (status === 'fail') {
+      return res.status(400).json({
+        data,
+        status,
+        message,
+      });
+    }
+
+    return res.status(200).json({
+      data,
+      status,
+      message,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      data: [],
       status: 'fail',
       message: error.message,
     });
