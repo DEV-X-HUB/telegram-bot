@@ -388,8 +388,8 @@ class ApiService {
       }
 
       // create a token
-      const token = await jwt.sign({ id: admin.id, role: admin?.role }, config.jwt.secret as string, {
-        expiresIn: config.jwt.expires_in,
+      const token = await jwt.sign({ id: admin.id, role: admin?.role }, config.jwt.secret as any, {
+        expiresIn: config.jwt.expires_in as any,
       });
 
       return {
