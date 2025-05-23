@@ -1,8 +1,7 @@
 import config from '../../config/config';
 
 // nodemailer module is used to send emails
-import nodemailer from 'nodemailer';
-
+const nodemailer = require('nodemailer');
 const mailConfig = {
   host: config.email_host,
   port: config.email_port,
