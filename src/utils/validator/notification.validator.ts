@@ -22,47 +22,46 @@ export const validateCreateNotification = [
     .isLength({ max: 1000 })
     .withMessage('Message cannot exceed 1000 characters'),
 
-  // Validate optional image
+  // Validate optional image URL
   body('image')
-    .optional()
+    .optional({ nullable: true, checkFalsy: true })
     .isString()
     .withMessage('Image must be a string')
     .isURL()
     .withMessage('Image must be a valid URL'),
 
-  // Validate users array
+  // Validate send_to_all flag
+  body('send_to_all').optional().default(false).isBoolean().withMessage('send_to_all must be a boolean').toBoolean(),
+
+  // Validate users array (only required when not sending to all)
   body('users')
-    .if(
-      body('send_to_all')
-        .not()
-        .equals(true as any),
-    )
+    .if((value, { req }) => !req.body.send_to_all)
     .notEmpty()
     .withMessage('Users array is required when not sending to all')
     .isArray({ min: 1 })
     .withMessage('Users must be an array with at least one item')
-    .custom((users: any[]) => {
-      return users.every((user) => typeof user === 'string');
-    })
+    .custom((users: any[]) => users.every((user) => typeof user === 'string'))
     .withMessage('All user IDs must be strings'),
 
-  // Validate send_to_all flag
-  body('send_to_all').optional().isBoolean().withMessage('send_to_all must be a boolean'),
-
-  // Custom validation to ensure either users or send_to_all is provided
-  body().custom((body) => {
-    if (!body.send_to_all && (!body.users || body.users.length === 0)) {
-      throw new Error('Either specify users or set send_to_all to true');
-    }
-    return true;
-  }),
-
-  // Handle validation errors
+  // Final validation check
   (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
+    const errors: any = validationResult(req);
+
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({
+        success: false,
+        errors: errors.array().map((err: any) => ({
+          param: err.param,
+          message: err.msg,
+          value: err.value,
+        })),
+      });
     }
+
+    if (req.body.send_to_all && req.body.users && req.body.users.length > 0) {
+      req.body.users = [];
+    }
+
     next();
   },
 ];

@@ -711,7 +711,7 @@ class ApiService {
         return {
           data: null,
           status: 'fail',
-          message: 'users count does not match',
+          message: 'Invalid User id list',
         };
 
       const connect = send_to_all
