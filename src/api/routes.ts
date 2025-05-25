@@ -1,5 +1,5 @@
 import express from 'express';
-import { roleGuard } from '../middleware/admin-auth';
+import { authGuard, roleGuard } from '../middleware/admin-auth';
 import { validateCreateNotification } from '../utils/validator/notification.validator';
 import {
   createAdmin,
@@ -26,7 +26,7 @@ import {
 } from './controller';
 const router = express.Router();
 
-// router.use(authGuard);
+router.use(authGuard);
 
 // post routes
 router.get('/posts/', getPosts);
