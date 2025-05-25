@@ -31,6 +31,7 @@ export interface UserPostQuery extends PostQuery {
 }
 export interface UserQuery extends PageQuery {
   status?: UserStatus;
+  queryString?: string;
 }
 
 declare module 'nodemailer';

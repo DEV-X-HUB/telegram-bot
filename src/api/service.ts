@@ -108,11 +108,17 @@ class ApiService {
     }
   }
 
-  static async getUsers({ status, ...query }: UserQuery): Promise<ResponseWithData> {
+  static async getUsers({ status, queryString, ...query }: UserQuery): Promise<ResponseWithData> {
     let paginator = getPaginationInfo(query);
     const { page, itemsPerPage } = query;
     let where: Prisma.UserWhereInput = {};
     if (status) where.status = status;
+    if (queryString)
+      where.OR = [
+        { first_name: { contains: queryString, mode: 'insensitive' } },
+        { last_name: { contains: queryString, mode: 'insensitive' } },
+        { email: { contains: queryString, mode: 'insensitive' } },
+      ];
     const total = await prisma.user.count({ where });
     try {
       const users = await prisma.user.findMany({

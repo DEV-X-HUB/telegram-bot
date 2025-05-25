@@ -91,9 +91,10 @@ export const getPostDetail = async (req: Request, res: Response) => {
 };
 
 export const getUsers = async (req: Request, res: Response) => {
-  const { status: userStatus, page, itemsPerPage } = req.query;
+  const { status: userStatus, queryString, page, itemsPerPage } = req.query;
   try {
     const { status, data, message } = await ApiService.getUsers({
+      queryString,
       status: userStatus,
       page: page || 1,
       itemsPerPage: itemsPerPage || 10,
