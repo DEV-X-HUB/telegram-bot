@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request } from 'express';
 interface BareResponse {
   status: 'success' | 'fail';
   message: string;
@@ -22,9 +22,17 @@ export interface PageQuery {
   itemsPerPage?: number;
 }
 
+export type PostSortField = 'created_at' | 'arbr_value' | 'last_digit' | 'user_first_name' | 'category';
 export interface PostQuery extends PageQuery {
   status?: PostStatus;
   category?: string;
+  sortField?: PostSortField;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface PageQuery {
+  page?: number;
+  itemsPerPage?: number;
 }
 export interface UserPostQuery extends PostQuery {
   userId: string;

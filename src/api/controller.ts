@@ -3,11 +3,11 @@ import { Telegraf } from 'telegraf';
 import config from '../config/config';
 import Bot from '../loaders/bot';
 import PostController from '../modules/post/post.controller';
-import { PageQuery, PostQuery, UserPostQuery, UserQuery } from '../types/api';
+import { PageQuery, PostSortField, UserPostQuery, UserQuery } from '../types/api';
+import { CreateNotificationDto } from '../types/dto/notification.dto';
 import sendEmail from '../utils/helpers/sendEmail';
 import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 import ApiService from './service';
-import { CreateNotificationDto } from '../types/dto/notification.dto';
 
 (async () => {
   const { status, message } = await ApiService.crateDefaultAdmin();
@@ -47,25 +47,31 @@ export const getPhotoUrls = async (req: Request, res: Response) => {
 };
 
 export const getPosts = async (req: Request, res: Response) => {
-  const { status: postStatus, category, page, itemsPerPage } = req.query;
-  const { status, data, message } = await ApiService.getPosts({
-    status: postStatus,
-    category,
-    page: page || 1,
-    itemsPerPage: itemsPerPage || 10,
-  } as PostQuery);
-  if (status == 'fail') {
-    res.status(500).json({
-      status,
-      message,
+  const { status: postStatus, category, page, itemsPerPage, sortField, sortOrder } = req.query;
+
+  try {
+    const { status, data, message } = await ApiService.getPosts({
+      status: postStatus as any,
+      category: category as any,
+      page: Number(page) || 1,
+      itemsPerPage: Number(itemsPerPage) || 10,
+      sortField: sortField as PostSortField,
+      sortOrder: sortOrder as 'asc' | 'desc',
+    });
+
+    if (status === 'fail') {
+      return res.status(500).json({ status, message });
+    }
+
+    return res.status(200).json({ status, data });
+  } catch (error) {
+    console.error('Error in getPosts controller:', error);
+    return res.status(500).json({
+      status: 'fail',
+      message: 'Internal server error',
     });
   }
-  return res.status(200).json({
-    status,
-    data: data,
-  });
 };
-
 export const getPostDetail = async (req: Request, res: Response) => {
   const post_id = req.params.id;
   try {

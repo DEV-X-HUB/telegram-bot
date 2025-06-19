@@ -2,6 +2,7 @@ import { PostStatus, Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
+import Bot from '../loaders/bot';
 import prisma from '../loaders/db-connecion';
 import { BareResponse, PageQuery, PostQuery, ResponseWithData, UserPostQuery, UserQuery } from '../types/api';
 import {
@@ -14,21 +15,76 @@ import {
   UpdateUserStatusDto,
   VerifyResetOtpDto,
 } from '../types/dto/auth.dto';
-import generateOTP from '../utils/generatePassword';
-import { getPaginationInfo } from '../utils/helpers/paginator';
 import { CreateNotificationDto } from '../types/dto/notification.dto';
-import { ApiResponse } from '@telegraf/types';
-import Bot from '../loaders/bot';
+import generateOTP from '../utils/generatePassword';
 import { sendMessageNotification } from '../utils/helpers/chat';
+import { getPaginationInfo } from '../utils/helpers/paginator';
 
 class ApiService {
   static async getPosts(query: PostQuery): Promise<ResponseWithData> {
-    const { page, itemsPerPage, status, category } = query;
+    const { page, itemsPerPage, status, category, sortField, sortOrder = 'desc' } = query;
+
     try {
       let where: Prisma.PostWhereInput = {};
       if (status) where.status = status;
       if (category) where.category = category;
+
       let paginator = getPaginationInfo({ page, itemsPerPage });
+      let orderBy: Prisma.PostOrderByWithRelationInput[] = [];
+
+      // Handle sorting
+      if (sortField) {
+        switch (sortField) {
+          case 'created_at':
+            orderBy.push({ [sortField]: sortOrder });
+            break;
+
+          case 'arbr_value':
+            orderBy.push({
+              Service1A: {
+                arbr_value: sortOrder,
+              },
+            });
+            orderBy.push({
+              Service1C: {
+                arbr_value: sortOrder,
+              },
+            });
+            break;
+
+          case 'last_digit':
+            orderBy.push({
+              Service1A: {
+                last_digit: sortOrder,
+              },
+            });
+            orderBy.push({
+              Service1B: {
+                last_digit: sortOrder,
+              },
+            });
+            orderBy.push({
+              Service1C: {
+                last_digit: sortOrder,
+              },
+            });
+            break;
+
+          case 'user_first_name':
+            orderBy.push({
+              user: {
+                first_name: sortOrder,
+              },
+            });
+            break;
+
+          default:
+            orderBy.push({ created_at: 'desc' });
+        }
+      } else {
+        orderBy.push({ created_at: 'desc' });
+      }
+      console.log({ orderBy });
 
       const total = await prisma.post.count({ where });
       const posts = await prisma.post.findMany({
@@ -44,23 +100,26 @@ class ApiService {
           Service4Manufacture: true,
           Service4Construction: true,
         },
+        orderBy,
         ...paginator,
       });
 
       return {
         status: 'success',
-        message: 'post fetched successfully',
+        message: 'Posts fetched successfully',
         data: {
           posts,
           payload: {
             itemsPerPage,
             page,
             total,
+            sortField,
+            sortOrder,
           },
         },
       };
     } catch (error: any) {
-      console.error('Error searching questions:', error);
+      console.error('Error fetching posts:', error);
       return { status: 'fail', message: error?.message, data: null };
     }
   }
