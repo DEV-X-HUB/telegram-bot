@@ -23,6 +23,7 @@ export const authGuard = async (req: RequestWithUser, res: Response, next: NextF
 
     const userInDb = await prisma.admin.findFirst({ where: { id: decoded.id } });
     if (!userInDb) return res.status(401).json({ message: 'Unauthorized' });
+    if (userInDb.status == 'INACTIVE') return res.status(401).json({ message: 'Admin is In active' });
 
     req.user = decoded; // Attach user info to request object
     next();
