@@ -5,6 +5,7 @@ import {
   createAdmin,
   createNotification,
   deleteAdmin,
+  deleteNotification,
   deletePost,
   deleteUserPosts,
   forgotPassword,
@@ -54,6 +55,7 @@ router.post('/auth/reset', resetPassword);
 
 router.post('/notification/', validateCreateNotification, createNotification);
 router.post('/notification/:id', resendNotification);
+router.delete('/notification/:id', deleteNotification);
 router.get('/notification/', getNotifications);
 
 export default router;

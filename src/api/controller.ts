@@ -602,3 +602,30 @@ export async function getNotifications(req: Request, res: Response) {
     });
   }
 }
+
+export async function deleteNotification(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { status, data, message } = await ApiService.deleteNotification(id);
+
+    if (status === 'fail') {
+      return res.status(400).json({
+        data,
+        status,
+        message,
+      });
+    }
+
+    return res.status(200).json({
+      data,
+      status,
+      message,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      data: [],
+      status: 'fail',
+      message: error.message,
+    });
+  }
+}

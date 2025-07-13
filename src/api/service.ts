@@ -752,7 +752,20 @@ class ApiService {
   static async getNotifications({ page, itemsPerPage }: PageQuery): Promise<ResponseWithData> {
     try {
       let paginator = getPaginationInfo({ page, itemsPerPage });
-      const notifications = await prisma.notification.findMany({ ...paginator, orderBy: { created_at: 'desc' } });
+      const notifications = await prisma.notification.findMany({
+        ...paginator,
+        orderBy: { created_at: 'desc' },
+        include: {
+          users: {
+            select: {
+              id: true,
+              username: true,
+              first_name: true,
+              last_name: true,
+            },
+          },
+        },
+      });
       return {
         data: notifications,
         status: 'success',
@@ -861,6 +874,22 @@ class ApiService {
         sendMessageNotification({ bot, message, chatId: parseInt(recipientChatId.chat_id) });
       });
       return true;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  static async deleteNotification(id: string): Promise<ResponseWithData> {
+    try {
+      const notificaiton = await prisma.notification.delete({
+        where: { id },
+      });
+
+      return {
+        data: id,
+        status: 'success',
+        message: 'notification fetched',
+      };
     } catch (error: any) {
       throw error;
     }
