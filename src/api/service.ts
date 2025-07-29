@@ -752,6 +752,7 @@ class ApiService {
   static async getNotifications({ page, itemsPerPage }: PageQuery): Promise<ResponseWithData> {
     try {
       let paginator = getPaginationInfo({ page, itemsPerPage });
+      const total = await prisma.notification.count({});
       const notifications = await prisma.notification.findMany({
         ...paginator,
         orderBy: { created_at: 'desc' },
@@ -767,7 +768,15 @@ class ApiService {
         },
       });
       return {
-        data: notifications,
+        data: {
+          notifications,
+          payload: {
+            itemsPerPage,
+            page,
+            total,
+          },
+        },
+
         status: 'success',
         message: 'notification fetched',
       };
