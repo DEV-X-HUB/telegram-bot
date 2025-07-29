@@ -74,6 +74,7 @@ export function checkUserInChannelandPromtJoin() {
         return next();
       }
     } catch (error: any) {
+      console.log('uuuuuuuuuuuuuuuuuuuuuuuu');
       console.error(error.message);
       return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(error.message || ''));
     }

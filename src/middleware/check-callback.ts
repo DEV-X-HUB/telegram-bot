@@ -109,7 +109,8 @@ export function checkQueries(ctx: any, query: string, next: any) {
       default:
         return next();
     }
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    console.log({ message: error?.message });
+    // throw error;
   }
 }

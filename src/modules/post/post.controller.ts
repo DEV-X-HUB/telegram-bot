@@ -11,6 +11,7 @@ import {
   replyDetailWithContext,
   messagePostPreview,
   sendMessageNotificationOnPost,
+  getMessage,
 } from '../../utils/helpers/chat';
 import { areEqaul, extractElements, getSectionName } from '../../utils/helpers/string';
 import MainMenuController from '../mainmenu/mainmenu.controller';
@@ -28,19 +29,58 @@ class PostController {
   }
 
   static async handleSearch(ctx: any) {
-    const query = ctx?.update?.inline_query?.query;
-
-    if (!query || query.trim() == '') return;
-    const { success, posts } = await questionService.getAllPostsByDescription(query);
-    if (!success) return await ctx.reply('unable to make search');
-    if (posts.length == 0)
-      return await ctx.answerInlineQuery([...postFormmatter.formatNoQuestionsErrorMessage()], {
-        button: postFormmatter.seachQuestionTopBar(0, query),
+    try {
+      const query = ctx?.update?.inline_query?.query;
+      const messageTrace = getMessage(ctx);
+      console.log({ messageTrace, query });
+      if (!query || query.trim() == '') return;
+      const { success, posts } = await questionService.getAllPostsByDescription(query);
+      console.log({ success, posts });
+      if (!success)
+        return await ctx.answerInlineQuery(
+          [
+            {
+              type: 'article',
+              id: '1',
+              title: 'Error occurred',
+              input_message_content: {
+                message_text: 'unable to make search',
+              },
+              description: 'unable to make search',
+            },
+          ],
+          {
+            cache_time: 0,
+          },
+        );
+      if (posts.length == 0) {
+        return await ctx.answerInlineQuery([...postFormmatter.formatNoQuestionsErrorMessage()], {
+          button: postFormmatter.seachQuestionTopBar(0, query),
+        });
+      }
+      return await ctx.answerInlineQuery([...postFormmatter.formatSearchQuestions(posts)], {
+        button: postFormmatter.seachQuestionTopBar(posts.length, query),
+        cache_time: 0,
       });
-    return await ctx.answerInlineQuery([...postFormmatter.formatSearchQuestions(posts)], {
-      button: postFormmatter.seachQuestionTopBar(posts.length, query),
-      cache_time: 0,
-    });
+    } catch (error: any) {
+      // Reply with answerInlineQuery in catch
+      return await ctx.answerInlineQuery(
+        [
+          {
+            type: 'article',
+            id: '1',
+            title: 'Error occurred',
+            input_message_content: {
+              message_text: `An error occurred: ${error?.response?.description || 'Unknown error'}`,
+            },
+            description: error?.response?.description || 'Please try again later',
+          },
+        ],
+        {
+          cache_time: 0,
+        },
+      );
+    }
   }
   static async handleAnswerBrowseQuery(ctx: any, query: string) {
     if (query.startsWith('answer')) {
