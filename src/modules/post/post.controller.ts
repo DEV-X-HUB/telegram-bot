@@ -83,7 +83,7 @@ class PostController {
     const sender = findSender(ctx);
     const [_, postId] = query.split('_');
     const { success, post } = await questionService.getPostById(postId);
-    if (!success || !post) return ctx.reply('error while');
+    if (!success || !post) return ctx.reply('post not found any more, post delted or removed ');
 
     // const mediaGroup = question.photo.map((image) => ({
     //   media: image,
@@ -201,7 +201,7 @@ class PostController {
     const { success, posts, nextRound, total } = searchString
       ? await questionService.geAlltPostsByDescription(searchString, round)
       : await questionService.geAlltPosts(round);
-    if (!success) return ctx.reply('error while');
+    if (!success) return ctx.reply('unable to search for posts please try again');
     for (const post of posts as any[]) {
       const sectionName = getSectionName(post.category) as PostCategory;
 
@@ -228,7 +228,7 @@ class PostController {
   static async getPostDetail(ctx: any, postId: string) {
     const { success, post } = await questionService.getPostById(postId);
 
-    if (!success || !post) return ctx.reply('error while');
+    if (!success || !post) return ctx.reply('post not found any more , post delete or removed');
     const sectionName = getSectionName(post.category) as PostCategory;
 
     if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
