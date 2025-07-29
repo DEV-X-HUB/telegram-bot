@@ -12,17 +12,22 @@ const mailConfig = {
 const transporter = nodemailer.createTransport(mailConfig as any);
 
 async function sendEmail(to: string, subject: string, html: string) {
-  transporter.verify(function (error: any, success: any) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log({ success });
-    }
-  });
+  try {
+    transporter.verify(function (error: any, success: any) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log({ success });
+      }
+    });
 
-  const info = await transporter.sendMail({ from: `"Do-not-reply" ${config.email}`, to, subject, html });
+    const info = await transporter.sendMail({ from: `"Do-not-reply" ${config.email}`, to, subject, html });
 
-  return info;
+    return info;
+  } catch (error) {
+    console.error('error while sending email', { error });
+    return 'email_error';
+  }
 }
 
 export default sendEmail;

@@ -304,11 +304,15 @@ export async function createAdmin(req: Request, res: Response) {
       });
     }
 
-    await sendEmail(email as string, 'Admin Account Created', formatAccountCreationEmailMsg(password as string));
+    const info = await sendEmail(
+      email as string,
+      'Admin Account Created',
+      formatAccountCreationEmailMsg(password as string),
+    );
 
     return res.status(200).json({
       status,
-      message,
+      message: message + info == 'email_error' ? 'Email not sent' : '',
       data,
     });
   } catch (error) {

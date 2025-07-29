@@ -304,7 +304,7 @@ class RegistrationController {
       ctx.wizard.state[editField] =
         editField == 'age' ? calculateAge(messageText) : (ctx.wizard.state[editField] = messageText);
       ctx.wizard.state.editField = null;
-      deleteKeyboardMarkup(ctx);
+      // deleteKeyboardMarkup(ctx);
       return ctx.replyWithHTML(...registrationFormatter.editPreview(state), { parse_mode: 'HTML' });
     }
 
@@ -318,6 +318,7 @@ class RegistrationController {
 
     if (callbackMessage == 'editing_done') {
       await deleteMessageWithCallback(ctx);
+      ctx.wizard.state.editField = null;
       ctx.replyWithHTML(...registrationFormatter.preview(ctx.wizard.state), { parse_mode: 'HTML' });
       return ctx.wizard.back();
     }
