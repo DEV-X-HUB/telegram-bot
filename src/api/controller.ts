@@ -233,6 +233,7 @@ export const updatePostStatus = async (req: Request, res: Response) => {
     await PostController.postToChannel(bot, config.channel_id, data);
   }
   await PostController.notifiyUser(bot, data, postStatus);
+  await PostController.sendPostToUser(bot, data);
 
   return res.status(200).json({
     status: 'success',
