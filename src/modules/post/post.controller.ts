@@ -304,17 +304,18 @@ class PostController {
       // // if phost has image
       // await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
 
-      await messagePostPreviewWithBot({
+      return await messagePostPreviewWithBot({
         bot,
         post_id: post.id,
         chat_id: config.channel_id as string,
         photoURl: (post as any)[sectionName].photo[0],
         caption: postFormmatter.getFormattedQuestionPreview(post) as string,
       });
-    } else await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
+    } else
+      return await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
   }
 
-  static async notifiyUser(bot: any, post: any, postStatus: PostStatus) {
+  static async notifiyUser(bot: any, post: any, postStatus: PostStatus, postUrl?: string) {
     if (!(postStatus == 'open' || postStatus == 'rejected')) return;
     const message = postStatus === 'open' ? 'Your post is approved' : 'Your post is rejected';
 
@@ -334,6 +335,7 @@ class PostController {
           message,
           chatId: parseInt(chatId.chat_id),
           post_id: post.id,
+          postUrl,
         });
       }
     }

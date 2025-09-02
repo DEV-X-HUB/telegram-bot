@@ -152,3 +152,12 @@ export const validateString = ({
 
   return { isValid: true }; // All checks passed
 };
+
+export const createTelegramLink = (channelId: string, messageId: string, username?: string) => {
+  if (username) {
+    return `https://t.me/${username}/${messageId}`;
+  } else {
+    const cleanId = channelId.toString().replace('-100', '');
+    return `https://t.me/c/${cleanId}/${messageId}`;
+  }
+};

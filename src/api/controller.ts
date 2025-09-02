@@ -6,7 +6,7 @@ import PostController from '../modules/post/post.controller';
 import { PageQuery, PostSortField, UserPostQuery, UserQuery } from '../types/api';
 import { CreateNotificationDto } from '../types/dto/notification.dto';
 import sendEmail from '../utils/helpers/sendEmail';
-import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
+import { createTelegramLink, formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 import ApiService from './service';
 
 (async () => {
@@ -228,11 +228,15 @@ export const updatePostStatus = async (req: Request, res: Response) => {
       message: 'No post found',
     });
   }
+  let postUrl = '';
 
   if (postStatus == 'open') {
-    await PostController.postToChannel(bot, config.channel_id, data);
+    const channelResponse = await PostController.postToChannel(bot, config.channel_id, data);
+    const chat = channelResponse?.chat;
+    const messageId = channelResponse?.message_id;
+    if (chat) postUrl = createTelegramLink(chat?.id, messageId, chat?.username);
   }
-  await PostController.notifiyUser(bot, data, postStatus);
+  if (postUrl != '') await PostController.notifiyUser(bot, data, postStatus, postUrl);
   await PostController.sendPostToUser(bot, data);
 
   return res.status(200).json({

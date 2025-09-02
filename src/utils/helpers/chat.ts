@@ -114,16 +114,18 @@ export const sendMessageNotificationOnPost = async ({
   message,
   chatId,
   post_id,
+  postUrl,
 }: {
   bot: any;
   chatId: number;
   message: string;
   post_id: string;
+  postUrl?: string;
 }) => {
   return await bot.telegram.sendMessage(chatId, message, {
     parse_mode: 'HTML',
     reply_markup: {
-      inline_keyboard: [[{ text: 'Show me', url: `${config.bot_url}?start=postDetail_${post_id}` }]],
+      inline_keyboard: [[{ text: 'Show me', url: postUrl || `${config.bot_url}?start=postDetail_${post_id}` }]],
     },
   });
 };
