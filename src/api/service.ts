@@ -19,6 +19,8 @@ import { CreateNotificationDto } from '../types/dto/notification.dto';
 import generateOTP from '../utils/generatePassword';
 import { sendMessageNotification } from '../utils/helpers/chat';
 import { getPaginationInfo } from '../utils/helpers/paginator';
+import { subMonths, startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-fns';
+import { getSectionName } from '../utils/helpers/string';
 
 class ApiService {
   static async getPosts(query: PostQuery): Promise<ResponseWithData> {
@@ -461,7 +463,13 @@ class ApiService {
         status: 'success',
         message: 'Admin logged in',
         data: {
-          user: { id: admin.id, first_name: admin.first_name, last_name: admin.last_name, email: admin.email },
+          user: {
+            id: admin.id,
+            first_name: admin.first_name,
+            last_name: admin.last_name,
+            email: admin.email,
+            role: admin.role,
+          },
           token,
         },
       };
@@ -901,6 +909,128 @@ class ApiService {
       };
     } catch (error: any) {
       throw error;
+    }
+  }
+
+  static async getAnalytics(startDate?: string, endDate?: string) {
+    try {
+      // Default to current month if no dates provided
+      const start = startDate ? startOfDay(new Date(startDate)) : startOfMonth(new Date());
+      const end = endDate ? endOfDay(new Date(endDate)) : endOfMonth(new Date());
+
+      // Users
+      const totalUsers = await prisma.user.count();
+      const activeUsers = await prisma.user.count({ where: { status: 'ACTIVE' } });
+      const inactiveUsers = await prisma.user.count({ where: { status: 'INACTIVE' } });
+
+      // Active users for the provided date range (or current month if no dates)
+      const activeUsersInRange = await prisma.user.count({
+        where: {
+          status: 'ACTIVE',
+          created_at: { gte: start, lte: end },
+        },
+      });
+
+      // Active users last 6 months & last year
+      const activeUsersLast6Months = await prisma.user.count({
+        where: {
+          status: 'ACTIVE',
+          created_at: { gte: subMonths(new Date(), 6) },
+        },
+      });
+
+      const activeUsersLastYear = await prisma.user.count({
+        where: {
+          status: 'ACTIVE',
+          created_at: { gte: subMonths(new Date(), 12) },
+        },
+      });
+
+      // Posts
+      const totalPosts = await prisma.post.count();
+
+      const postsInRange = await prisma.post.count({
+        where: { created_at: { gte: start, lte: end } },
+      });
+
+      const postsLast6Months = await prisma.post.count({
+        where: { created_at: { gte: subMonths(new Date(), 6) } },
+      });
+
+      // Posts by category - using object format with all possible categories
+      const postsByCategoryRaw = await prisma.post.groupBy({
+        by: ['category'],
+        _count: { category: true },
+      });
+      console.log({ postsByCategoryRaw });
+
+      // Convert array to object with all possible categories
+      const postsByCategory = {
+        Service1A: 0,
+        Service1B: 0,
+        Service1C: 0,
+        Service2: 0,
+        Service3: 0,
+        Service4ChickenFarm: 0,
+        Service4Manufacture: 0,
+        Service4Construction: 0,
+      };
+
+      // Populate the counts from the database results
+      postsByCategoryRaw.forEach((item) => {
+        const category: any = getSectionName(item.category);
+        if (postsByCategory.hasOwnProperty(category)) {
+          (postsByCategory as any)[category] = item._count.category;
+        }
+      });
+
+      // Posts by status
+      const postsByStatusRow = await prisma.post.groupBy({
+        by: ['status'],
+        _count: { status: true },
+      });
+
+      const postsByStatus = {
+        open: 0,
+        closed: 0,
+        pending: 0,
+        rejected: 0,
+      };
+
+      postsByStatusRow.forEach((item) => {
+        const status: any = item.status;
+        if (postsByStatus.hasOwnProperty(status)) {
+          (postsByStatus as any)[status] = item._count.status;
+        }
+      });
+
+      return {
+        status: 'success',
+        data: {
+          dateRange: {
+            start: start.toISOString(),
+            end: end.toISOString(),
+          },
+          users: {
+            total: totalUsers,
+            active: activeUsers,
+            inactive: inactiveUsers,
+            activeInRange: activeUsersInRange,
+            activeLast6Months: activeUsersLast6Months,
+            activeLastYear: activeUsersLastYear,
+          },
+          posts: {
+            total: totalPosts,
+            thisMonth: postsInRange,
+            last6Months: postsLast6Months,
+            byCategory: postsByCategory,
+            byStatus: postsByStatus,
+          },
+        },
+      };
+    } catch (error) {
+      console.error(error);
+      return { status: 'fail', message: 'Unable to fetch analytics', data: null };
     }
   }
 }

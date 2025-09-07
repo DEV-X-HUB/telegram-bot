@@ -10,6 +10,7 @@ import {
   deleteUserPosts,
   forgotPassword,
   getAdmins,
+  getAnalytics,
   getNotifications,
   getPhotoUrls,
   getPostDetail,
@@ -36,15 +37,15 @@ router.get('/posts/user/:userId', getUserPosts);
 router.put('/posts', updatePostStatus);
 router.delete('/posts/user:id', deleteUserPosts);
 
-router.get('/users', getUsers);
-router.get('/users/:id', getUserDetail);
-router.delete('/posts/:id', deletePost);
-router.put('/users/status', updateUserStatus);
+router.get('/users', roleGuard(['SUPER_ADMIN']), getUsers);
+router.get('/users/:id', roleGuard(['SUPER_ADMIN']), getUserDetail);
+router.delete('/posts/:id', roleGuard(['SUPER_ADMIN']), deletePost);
+router.put('/users/status', roleGuard(['SUPER_ADMIN']), updateUserStatus);
 
 // admin auth routes
 router.post('/auth/login', loginAdmin);
-router.get('/admins', getAdmins);
 router.get('/photos', getPhotoUrls);
+router.get('/admins', roleGuard(['SUPER_ADMIN']), getAdmins);
 router.post('/auth/create-admin', roleGuard(['SUPER_ADMIN']), createAdmin);
 router.put('/auth/update-admin-status', roleGuard(['SUPER_ADMIN']), updateAdminStatus);
 router.delete('/auth/delete-admin/:id', roleGuard(['SUPER_ADMIN']), deleteAdmin);
@@ -57,5 +58,6 @@ router.post('/notification/', validateCreateNotification, createNotification);
 router.post('/notification/:id', resendNotification);
 router.delete('/notification/:id', deleteNotification);
 router.get('/notification/', getNotifications);
+router.get('/analytics', getAnalytics);
 
 export default router;
