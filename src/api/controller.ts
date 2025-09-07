@@ -638,3 +638,15 @@ export async function deleteNotification(req: Request, res: Response) {
     });
   }
 }
+
+export const getAnalytics = async (req: Request, res: Response) => {
+  const { startDate, endDate } = req.query;
+
+  const result = await ApiService.getAnalytics(startDate as string | undefined, endDate as string | undefined);
+
+  if (result.status === 'fail') {
+    return res.status(500).json(result);
+  }
+
+  return res.status(200).json(result);
+};
