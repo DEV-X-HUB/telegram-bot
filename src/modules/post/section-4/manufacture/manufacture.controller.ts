@@ -53,7 +53,7 @@ class ManufactureController {
   }
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
-    if (this.isWaitingImages(sender.id)) await ctx.reply(manufactureFormatter.messages.imageWaitingMsg);
+    // if (this.isWaitingImages(sender.id)) await ctx.reply(manufactureFormatter.messages.imageWaitingMsg);
   }
 
   constructor() {}

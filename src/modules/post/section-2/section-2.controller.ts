@@ -51,7 +51,7 @@ class PostSection2Controller {
   async sendImageWaitingPrompt(ctx: any) {
     const sender = findSender(ctx);
     if (this.isWaitingImages(sender.id)) {
-      await ctx.reply(section2Formatter.messages.imageWaitingMsg);
+      // await ctx.reply(section2Formatter.messages.imageWaitingMsg);
     }
   }
 
