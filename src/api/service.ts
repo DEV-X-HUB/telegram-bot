@@ -1,4 +1,4 @@
-import { PostStatus, Prisma } from '@prisma/client';
+import { Post, PostStatus, Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
@@ -23,6 +23,14 @@ import { subMonths, startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-
 import { getSectionName } from '../utils/helpers/string';
 
 class ApiService {
+  static async findPostById(id: string): Promise<Post | null> {
+    try {
+      return await prisma.post.findFirst({ where: { id } });
+    } catch (error: any) {
+      console.error('Error finding post by id:', error);
+      return null;
+    }
+  }
   static async getPosts(query: PostQuery): Promise<ResponseWithData> {
     const { page, itemsPerPage, status, category, sortField, sortOrder = 'desc' } = query;
 

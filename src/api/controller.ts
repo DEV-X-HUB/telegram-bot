@@ -215,6 +215,21 @@ export const getUserPosts = async (req: Request, res: Response) => {
 export const updatePostStatus = async (req: Request, res: Response) => {
   const bot = Bot();
   const { postId, status: postStatus } = req.body;
+  const post = await ApiService.findPostById(postId);
+  if (!post)
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Post not found',
+    });
+
+  if (post.status === postStatus) {
+    return res.status(200).json({
+      status: 'success',
+      message: 'Post status updated',
+      data: post,
+    });
+  }
+
   const { data, status, message } = await ApiService.updatePostStatus(postId, postStatus);
   if (status == 'fail')
     return res.status(500).json({
@@ -230,19 +245,18 @@ export const updatePostStatus = async (req: Request, res: Response) => {
   }
   let postUrl = '';
 
-  if (postStatus == 'open') {
-    const channelResponse = await PostController.postToChannel(bot, config.channel_id, data);
-    const chat = channelResponse?.chat;
-    const messageId = channelResponse?.message_id;
-    if (chat) postUrl = createTelegramLink(chat?.id, messageId, chat?.username);
-  }
+  const channelResponse = await PostController.postToChannel(bot, config.channel_id, data);
+  const chat = channelResponse?.chat;
+  const messageId = channelResponse?.message_id;
+  if (chat) postUrl = createTelegramLink(chat?.id, messageId, chat?.username);
+
   if (postUrl != '') await PostController.notifiyUser(bot, data, postStatus, postUrl);
-  await PostController.sendPostToUser(bot, data);
+  if (postStatus === 'open') await PostController.sendPostToUser(bot, data);
 
   return res.status(200).json({
     status: 'success',
     message: 'Post status updated',
-    data: 'post',
+    data: post,
   });
 };
 
