@@ -245,7 +245,7 @@ class PostController {
     for (const post of posts as any[]) {
       const sectionName = getSectionName(post.category) as PostCategory;
 
-      if (post[sectionName].photo && post[sectionName].photo[0])
+      if (post[sectionName]?.photo && post[sectionName]?.photo[0])
         await ctx.replyWithPhoto(post[sectionName].photo[0] as any, {
           caption: postFormmatter.getformattedQuestionDetail(post),
           parse_mode: 'HTML',
@@ -300,7 +300,7 @@ class PostController {
   static async postToChannel(bot: any, channelId: any, post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
 
-    if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+    if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
       // // if phost has image
       // await sendMediaGroupToChannel(bot, [(post as any)[sectionName].photo[0]], '');
 
@@ -311,8 +311,9 @@ class PostController {
         photoURl: (post as any)[sectionName].photo[0],
         caption: postFormmatter.getFormattedQuestionPreview(post) as string,
       });
-    } else
+    } else {
       return await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
+    }
   }
 
   static async notifiyUser(bot: any, post: any, postStatus: PostStatus, postUrl?: string) {
@@ -329,7 +330,7 @@ class PostController {
 
     const sectionName = getSectionName(post.category) as PostCategory;
     for (const chatId of recipientChatIds) {
-      if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+      if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
         await sendMessageNotificationOnPost({
           bot,
           message,
@@ -378,7 +379,7 @@ class PostController {
 
       const sectionName = getSectionName(post.category) as PostCategory;
       for (const chatId of recipientChatIds) {
-        if ((post as any)[sectionName].photo && (post as any)[sectionName].photo[0]) {
+        if ((post as any)[sectionName]?.photo && (post as any)[sectionName]?.photo[0]) {
           await messagePostPreviewWithBot({
             bot,
             post_id: post.id,

@@ -399,7 +399,7 @@ class PostFormatter {
         });
       }
 
-      case 'Chicken Farm':
+      case 'ChickenFarm':
         return chickenFarmFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -408,7 +408,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Manufacture':
+      case 'Manufacture':
         return manufactureFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -417,7 +417,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Construction':
+      case 'Construction':
         return constructionFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -431,6 +431,7 @@ class PostFormatter {
 
   getPostsPreview(post: any) {
     const sectionName = getSectionName(post.category) as PostCategory;
+    console.log({ category: post.category });
     switch (post.category) {
       case 'Section 1A':
         return post1AFormatter.getPreviewData({
@@ -481,7 +482,7 @@ class PostFormatter {
         });
       }
 
-      case 'Chicken Farm':
+      case 'ChickenFarm':
         return chickenFarmFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -490,7 +491,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Manufacture':
+      case 'Manufacture':
         return manufactureFormatter.getPreviewData({
           description: post.description,
           status: post.status,
@@ -499,7 +500,7 @@ class PostFormatter {
           user: post.user,
           ...post[sectionName],
         });
-      case 'Section4Construction':
+      case 'Construction':
         return constructionFormatter.getPreviewData({
           description: post.description,
           status: post.status,
