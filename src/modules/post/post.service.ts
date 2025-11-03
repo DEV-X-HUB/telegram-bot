@@ -864,7 +864,7 @@ class PostService {
     if (timeframe && timeframe !== 'all')
       columnSpecificWhereCondition.AND = [
         ...(columnSpecificWhereCondition.AND as any),
-        { created_at: { gte: filterDate } },
+        { updated_at: { gte: filterDate } },
       ];
 
     try {
