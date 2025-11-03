@@ -138,6 +138,7 @@ model Post {
   user       User     @relation(fields: [user_id], references: [id])
   user_id    String
   created_at DateTime @default(now())
+  updated_at DateTime?
 
   // Define relation with categories and sub categories models
   Service1A            Service1A?

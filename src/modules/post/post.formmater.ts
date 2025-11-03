@@ -267,6 +267,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -276,6 +277,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -285,6 +287,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -294,6 +297,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -316,6 +320,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -325,6 +330,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -334,6 +340,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -356,6 +363,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -365,6 +373,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -374,6 +383,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -383,6 +393,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -405,6 +416,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -414,6 +426,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -423,6 +436,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -439,6 +453,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -448,6 +463,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -457,6 +473,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -466,6 +483,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -488,6 +506,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -497,6 +516,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
@@ -506,6 +526,7 @@ class PostFormatter {
           status: post.status,
           category: post.category,
           created_at: post.created_at,
+          updated_at: post.updated_at,
           user: post.user,
           ...post[sectionName],
         });
