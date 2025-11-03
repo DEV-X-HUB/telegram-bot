@@ -292,7 +292,6 @@ class ApiService {
 
   static async updatePostStatus(postId: string, status: PostStatus): Promise<ResponseWithData> {
     try {
-      console.log('uuuuuuuuuuuuuuuuu');
       const post = await prisma.post.update({
         where: { id: postId },
         data: {
