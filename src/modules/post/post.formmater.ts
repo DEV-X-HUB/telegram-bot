@@ -353,183 +353,231 @@ class PostFormatter {
       }
     }
   }
-  getFormattedQuestionPreview(post: any) {
+  getFormattedQuestionPreview(post: any, forChannel: boolean = false) {
     const sectionName = getSectionName(post.category) as PostCategory;
 
     switch (post.category) {
       case 'Section 1A':
-        return post1AFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post1AFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Section 1B':
-        return post1BFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post1BFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Section 1C':
-        return post1CFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post1CFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Section 2': {
-        return post2Formatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post2Formatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       }
 
       case 'Section 3': {
-        return section3Formatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return section3Formatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       }
 
       case 'ChickenFarm':
-        return chickenFarmFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return chickenFarmFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Manufacture':
-        return manufactureFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return manufactureFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Construction':
-        return constructionFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return constructionFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
     }
   }
 
-  getPostsPreview(post: any) {
+  getPostsPreview(post: any, forChannel: boolean = false) {
     const sectionName = getSectionName(post.category) as PostCategory;
     console.log({ category: post.category });
     switch (post.category) {
       case 'Section 1A':
-        return post1AFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post1AFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Section 1B':
-        return post1BFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post1BFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Section 1C':
-        return post1CFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post1CFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Section 2': {
-        return post2Formatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return post2Formatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       }
 
       case 'Section 3': {
-        return section3Formatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return section3Formatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       }
 
       case 'ChickenFarm':
-        return chickenFarmFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return chickenFarmFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Manufacture':
-        return manufactureFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return manufactureFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
       case 'Construction':
-        return constructionFormatter.getPreviewData({
-          description: post.description,
-          status: post.status,
-          category: post.category,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          user: post.user,
-          ...post[sectionName],
-        });
+        return constructionFormatter.getPreviewData(
+          {
+            description: post.description,
+            status: post.status,
+            category: post.category,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            user: post.user,
+            ...post[sectionName],
+          },
+          forChannel,
+        );
     }
   }
 

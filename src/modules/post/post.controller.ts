@@ -309,10 +309,15 @@ class PostController {
         post_id: post.id,
         chat_id: config.channel_id as string,
         photoURl: (post as any)[sectionName].photo[0],
-        caption: postFormmatter.getFormattedQuestionPreview(post) as string,
+        caption: postFormmatter.getFormattedQuestionPreview(post, true) as string,
       });
     } else {
-      return await messagePostPreview(bot, config.channel_id, postFormmatter.getPostsPreview(post) as string, post.id);
+      return await messagePostPreview(
+        bot,
+        config.channel_id,
+        postFormmatter.getPostsPreview(post, true) as string,
+        post.id,
+      );
     }
   }
 

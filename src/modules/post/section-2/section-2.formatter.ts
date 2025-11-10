@@ -84,8 +84,8 @@ class Post2Formatter {
     return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.service_type}</b> \n\n<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${state.description} \n\n<b>By:</b> <a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status :</b> ${state.status}`;
   }
 
-  getPreviewData(state: any) {
-    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.service_type}</b> \n\n\<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${trimParagraph(state.description)} \n\n<b>By:</b><a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}\<i> ${state?.updated_at ? `\nPublished On: ${formatPostDate(state.updated_at)}` : ''}</i> `;
+  getPreviewData(state: any, forChannel: boolean = false) {
+    return `<b>#${state.category.replace(/ /g, '_')}</b>\n________________\n\n<b>${state.service_type}</b> \n\n\<b>Title:</b> ${state.title}  \n\n<b>Description:</b> ${trimParagraph(state.description)} \n\n<b>By:</b><a href="${config.bot_url}?start=userProfile_${state.user.id}">${state.user.display_name != null ? state.user.display_name : 'Anonymous '}</a>\n<b>Status:</b> ${state.status}\<i> ${state?.updated_at ? `\nPublished On: ${formatPostDate(state.updated_at, forChannel)}` : ''}</i> `;
   }
 
   noPostsErrorMessage() {

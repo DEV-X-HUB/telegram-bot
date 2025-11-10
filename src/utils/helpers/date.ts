@@ -52,9 +52,20 @@ export const parseDateString = (dateString: string) => {
   return date;
 };
 
-export const formatPostDate = (createdAt: string): string => {
+export const formatPostDate = (createdAt: string, showDateString: boolean = false): string => {
   const now = new Date();
   const createdAtDate = new Date(createdAt);
+
+  if (showDateString) {
+    return createdAtDate.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   const diffInSeconds = Math.floor((now.getTime() - new Date(createdAtDate).getTime()) / 1000);
   let dateString = ' ';
   const secondsInMinute = 60;
