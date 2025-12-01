@@ -37,6 +37,9 @@ export const roleGuard = (requiredRole: string[]) => {
   return (req: RequestWithUser, res: Response, next: NextFunction) => {
     const user = req.user as JwtAuthPayload;
 
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     if (!requiredRole.includes(user.role)) {
       return res.status(403).json({ message: 'Forbidden Resourse ,Role not allowed' });
     }
